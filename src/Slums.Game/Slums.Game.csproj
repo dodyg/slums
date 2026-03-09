@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Slums.Game</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Slums.Application\Slums.Application.csproj" />
+    <ProjectReference Include="..\Slums.Core\Slums.Core.csproj" />
+    <ProjectReference Include="..\Slums.Infrastructure\Slums.Infrastructure.csproj" />
+    <ProjectReference Include="..\Slums.Narrative.Ink\Slums.Narrative.Ink.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+    <PackageReference Include="SadConsole" />
+    <PackageReference Include="SadConsole.Host.SFML" />
+  </ItemGroup>
+
+</Project>
