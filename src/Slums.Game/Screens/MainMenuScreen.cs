@@ -14,6 +14,8 @@ internal sealed class MainMenuScreen : ScreenSurface
     {
         _selectedIndex = 0;
         IsFocused = true;
+        UseMouse = true;
+        FocusOnMouseClick = true;
     }
 
     public override void Render(TimeSpan delta)
@@ -64,6 +66,33 @@ internal sealed class MainMenuScreen : ScreenSurface
         }
         
         return base.ProcessKeyboard(keyboard);
+    }
+
+    public override bool ProcessMouse(MouseScreenObjectState state)
+    {
+        var handled = base.ProcessMouse(state);
+        if (!state.IsOnScreenObject || !state.Mouse.LeftClicked)
+        {
+            return handled;
+        }
+
+        var cellPosition = state.SurfaceCellPosition;
+        var centerX = Surface.Width / 2;
+        var startY = Surface.Height / 2 - MenuItems.Length / 2;
+
+        for (var i = 0; i < MenuItems.Length; i++)
+        {
+            var startX = centerX - MenuItems[i].Length / 2 - 1;
+            var endX = startX + MenuItems[i].Length + 2;
+            if (cellPosition.Y == startY + i && cellPosition.X >= startX && cellPosition.X < endX)
+            {
+                _selectedIndex = i;
+                ExecuteSelection();
+                return true;
+            }
+        }
+
+        return handled;
     }
 
     private void ExecuteSelection()

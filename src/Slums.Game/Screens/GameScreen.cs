@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
+using Slums.Core.Clock;
 using Slums.Core.State;
 using Slums.Core.World;
 
@@ -9,27 +10,52 @@ namespace Slums.Game.Screens;
 
 internal sealed class GameScreen : ScreenSurface
 {
+    private const int ActionListX = 2;
+    private const int ActionListStartY = 14;
+    private const int MaxEventLogEntries = 8;
+    private static readonly TimeSpan RealTimePerGameMinute = TimeSpan.FromSeconds(1);
     private readonly GameState _gameState;
+    private readonly AutomaticTimeAdvancer _automaticTimeAdvancer;
     private readonly List<string> _eventLog = new(10);
     private int _selectedAction;
+    private bool _hasLoggedGameOver;
 
-    private static readonly string[] Actions = ["Rest", "Travel", "End Day"];
+    private static readonly string[] Actions = ["Rest", "Work", "Shop", "Travel", "End Day"];
 
     public GameScreen(int width, int height) : base(width, height)
     {
         _gameState = new GameState();
         _gameState.GameEvent += OnGameEvent;
+        _automaticTimeAdvancer = new AutomaticTimeAdvancer(RealTimePerGameMinute);
         _selectedAction = 0;
         IsFocused = true;
+        UseMouse = true;
+        FocusOnMouseClick = true;
     }
 
     private void OnGameEvent(object? sender, GameEventArgs e)
     {
-        _eventLog.Add(e.Message);
-        if (_eventLog.Count > 8)
+        AddEventLogEntry(e.Message);
+    }
+
+    public override void Update(TimeSpan delta)
+    {
+        base.Update(delta);
+
+        if (_gameState.IsGameOver)
         {
-            _eventLog.RemoveAt(0);
+            AppendGameOverMessagesIfNeeded();
+            return;
         }
+
+        var elapsedMinutes = _automaticTimeAdvancer.CollectElapsedMinutes(delta);
+        if (elapsedMinutes <= 0)
+        {
+            return;
+        }
+
+        _gameState.AdvanceTime(elapsedMinutes);
+        AppendGameOverMessagesIfNeeded();
     }
 
     public override void Render(TimeSpan delta)
@@ -99,15 +125,14 @@ internal sealed class GameScreen : ScreenSurface
 
     private void RenderActions()
     {
-        var y = 12;
-        Surface.Print(0, y++, "--- Actions ---", Color.Cyan);
-        Surface.Print(0, y++, "(Arrow keys to select, Enter to confirm)", Color.DarkGray);
+        Surface.Print(0, 12, "--- Actions ---", Color.Cyan);
+        Surface.Print(0, 13, "(Time flows automatically. Arrow keys to select, Enter to confirm)", Color.DarkGray);
 
         for (var i = 0; i < Actions.Length; i++)
         {
             var prefix = i == _selectedAction ? "> " : "  ";
             var color = i == _selectedAction ? Color.Cyan : Color.White;
-            Surface.Print(2, y + i, prefix + Actions[i], color);
+            Surface.Print(ActionListX, ActionListStartY + i, prefix + Actions[i], color);
         }
     }
 
@@ -197,6 +222,29 @@ internal sealed class GameScreen : ScreenSurface
         return base.ProcessKeyboard(keyboard);
     }
 
+    public override bool ProcessMouse(MouseScreenObjectState state)
+    {
+        var handled = base.ProcessMouse(state);
+        if (_gameState.IsGameOver || !state.IsOnScreenObject || !state.Mouse.LeftClicked)
+        {
+            return handled;
+        }
+
+        var cellPosition = state.SurfaceCellPosition;
+        for (var i = 0; i < Actions.Length; i++)
+        {
+            var endX = ActionListX + Actions[i].Length + 2;
+            if (cellPosition.Y == ActionListStartY + i && cellPosition.X >= ActionListX && cellPosition.X < endX)
+            {
+                _selectedAction = i;
+                ExecuteAction();
+                return true;
+            }
+        }
+
+        return handled;
+    }
+
     private void ExecuteAction()
     {
         switch (_selectedAction)
@@ -205,18 +253,44 @@ internal sealed class GameScreen : ScreenSurface
                 _gameState.RestAtHome();
                 break;
             case 1:
-                ShowTravelMenu();
+                ShowWorkMenu();
                 break;
             case 2:
+                ShowShopMenu();
+                break;
+            case 3:
+                ShowTravelMenu();
+                break;
+            case 4:
                 _gameState.EndDay();
                 break;
         }
 
-        if (_gameState.IsGameOver)
+        AppendGameOverMessagesIfNeeded();
+    }
+
+    private void ShowWorkMenu()
+    {
+        var location = _gameState.World.GetCurrentLocation();
+        if (location is null)
         {
-            _eventLog.Add("GAME OVER");
-            _eventLog.Add(_gameState.GameOverReason ?? "Unknown cause");
+            AddEventLogEntry("You are nowhere.");
+            return;
         }
+
+        var jobs = _gameState.Jobs.GetAvailableJobs(location).ToList();
+        if (jobs.Count == 0)
+        {
+            AddEventLogEntry("No work available here.");
+            return;
+        }
+
+        GameHost.Instance.Screen = new WorkScreen(80, 25, _gameState, jobs, this);
+    }
+
+    private void ShowShopMenu()
+    {
+        GameHost.Instance.Screen = new ShopScreen(80, 25, _gameState, this);
     }
 
     private void ShowTravelMenu()
@@ -224,10 +298,31 @@ internal sealed class GameScreen : ScreenSurface
         var locations = _gameState.World.GetTravelableLocations().ToList();
         if (locations.Count == 0)
         {
-            _eventLog.Add("No travel destinations available");
+            AddEventLogEntry("No travel destinations available");
             return;
         }
 
         GameHost.Instance.Screen = new TravelScreen(80, 25, _gameState, locations, this);
+    }
+
+    private void AddEventLogEntry(string message)
+    {
+        _eventLog.Add(message);
+        while (_eventLog.Count > MaxEventLogEntries)
+        {
+            _eventLog.RemoveAt(0);
+        }
+    }
+
+    private void AppendGameOverMessagesIfNeeded()
+    {
+        if (!_gameState.IsGameOver || _hasLoggedGameOver)
+        {
+            return;
+        }
+
+        _hasLoggedGameOver = true;
+        AddEventLogEntry("GAME OVER");
+        AddEventLogEntry(_gameState.GameOverReason ?? "Unknown cause");
     }
 }

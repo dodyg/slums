@@ -22,6 +22,7 @@ internal sealed class SadConsoleGame : IGame
 
         Builder gameConfig = new Builder()
             .SetWindowSizeInCells(80, 25)
+            .IsStartingScreenFocused(true)
             .SetStartingScreen(host => new MainMenuScreen(80, 25));
 
         global::SadConsole.Game.Create(gameConfig);
