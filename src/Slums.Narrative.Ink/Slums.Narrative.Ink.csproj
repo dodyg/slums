@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Slums.Narrative.Ink</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Slums.Application\Slums.Application.csproj" />
+    <ProjectReference Include="..\Slums.Core\Slums.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ink-engine-runtime" />
+  </ItemGroup>
+
+</Project>

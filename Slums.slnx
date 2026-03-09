@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Slums.Application/Slums.Application.csproj" />
+    <Project Path="src/Slums.Core/Slums.Core.csproj" />
+    <Project Path="src/Slums.Game/Slums.Game.csproj" />
+    <Project Path="src/Slums.Infrastructure/Slums.Infrastructure.csproj" />
+    <Project Path="src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Slums.Application.Tests/Slums.Application.Tests.csproj" />
+    <Project Path="tests/Slums.Core.Tests/Slums.Core.Tests.csproj" />
+    <Project Path="tests/Slums.Infrastructure.Tests/Slums.Infrastructure.Tests.csproj" />
+    <Project Path="tests/Slums.Narrative.Ink.Tests/Slums.Narrative.Ink.Tests.csproj" />
+  </Folder>
+</Solution>
