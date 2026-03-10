@@ -1,100 +1,101 @@
 using FluentAssertions;
 using Slums.Core.Characters;
-using Xunit;
+using TUnit.Core;
+using TUnit.Core.Interfaces;
 
 namespace Slums.Core.Tests.Characters;
 
 public class HouseholdStateTests
 {
-    [Fact]
-    public void Constructor_ShouldInitializeWithDefaultValues()
+    [Test]
+    public async Task Constructor_ShouldInitializeWithDefaultValues()
     {
         var household = new HouseholdState();
 
-        household.MotherAlive.Should().BeTrue();
-        household.MotherHealth.Should().Be(70);
-        household.FoodStockpile.Should().Be(3);
+        await Assert.That(household.MotherAlive).IsTrue();
+        await Assert.That(household.MotherHealth).IsEqualTo(70);
+        await Assert.That(household.FoodStockpile).IsEqualTo(3);
     }
 
-    [Fact]
-    public void ConsumeFood_ShouldReduceStockpile()
+    [Test]
+    public async Task ConsumeFood_ShouldReduceStockpile()
     {
         var household = new HouseholdState();
 
         household.ConsumeFood();
 
-        household.FoodStockpile.Should().Be(2);
+        await Assert.That(household.FoodStockpile).IsEqualTo(2);
     }
 
-    [Fact]
-    public void ConsumeFood_ShouldNotGoBelowZero()
-    {
-        var household = new HouseholdState();
-        household.ConsumeFood();
-        household.ConsumeFood();
-        household.ConsumeFood();
-        household.ConsumeFood();
-
-        household.FoodStockpile.Should().Be(0);
-    }
-
-    [Fact]
-    public void HasEnoughFood_ShouldReturnFalseWhenEmpty()
+    [Test]
+    public async Task ConsumeFood_ShouldNotGoBelowZero()
     {
         var household = new HouseholdState();
         household.ConsumeFood();
         household.ConsumeFood();
         household.ConsumeFood();
+        household.ConsumeFood();
 
-        household.HasEnoughFood.Should().BeFalse();
+        await Assert.That(household.FoodStockpile).IsEqualTo(0);
     }
 
-    [Fact]
-    public void AddFood_ShouldIncreaseStockpile()
+    [Test]
+    public async Task HasEnoughFood_ShouldReturnFalseWhenEmpty()
+    {
+        var household = new HouseholdState();
+        household.ConsumeFood();
+        household.ConsumeFood();
+        household.ConsumeFood();
+
+        await Assert.That(household.HasEnoughFood).IsFalse();
+    }
+
+    [Test]
+    public async Task AddFood_ShouldIncreaseStockpile()
     {
         var household = new HouseholdState();
 
         household.AddFood(5);
 
-        household.FoodStockpile.Should().Be(8);
+        await Assert.That(household.FoodStockpile).IsEqualTo(8);
     }
 
-    [Fact]
-    public void UpdateMotherHealth_ShouldClampToValidRange()
+    [Test]
+    public async Task UpdateMotherHealth_ShouldClampToValidRange()
     {
         var household = new HouseholdState();
 
         household.UpdateMotherHealth(50);
 
-        household.MotherHealth.Should().Be(100);
+        await Assert.That(household.MotherHealth).IsEqualTo(100);
 
         household.UpdateMotherHealth(-150);
 
-        household.MotherHealth.Should().Be(0);
+        await Assert.That(household.MotherHealth).IsEqualTo(0);
     }
 
-    [Fact]
-    public void UpdateMotherHealth_ShouldSetMotherDeadWhenHealthReachesZero()
+    [Test]
+    public async Task UpdateMotherHealth_ShouldSetMotherDeadWhenHealthReachesZero()
     {
         var household = new HouseholdState();
 
         household.UpdateMotherHealth(-100);
 
-        household.MotherAlive.Should().BeFalse();
+        await Assert.That(household.MotherAlive).IsFalse();
     }
 
-    [Fact]
-    public void MotherNeedsCare_ShouldReturnTrueWhenHealthBelow50()
+    [Test]
+    public async Task MotherNeedsCare_ShouldReturnTrueWhenHealthBelow50()
     {
         var household = new HouseholdState();
 
         household.UpdateMotherHealth(-30);
 
-        household.MotherNeedsCare.Should().BeTrue();
+        await Assert.That(household.MotherNeedsCare).IsTrue();
     }
 
-    [Fact]
-    public void ApplyDailyDecay_WithoutFood_ShouldDamageMother()
+    [Test]
+    public async Task ApplyDailyDecay_WithoutFood_ShouldDamageMother()
     {
         var household = new HouseholdState();
         household.ConsumeFood();
@@ -103,16 +104,16 @@ public class HouseholdStateTests
 
         household.ApplyDailyDecay();
 
-        household.MotherHealth.Should().Be(65);
+        await Assert.That(household.MotherHealth).IsEqualTo(65);
     }
 
-    [Fact]
-    public void ApplyDailyDecay_WithFood_ShouldNotDamageMotherFromHunger()
+    [Test]
+    public async Task ApplyDailyDecay_WithFood_ShouldNotDamageMotherFromHunger()
     {
         var household = new HouseholdState();
 
         household.ApplyDailyDecay();
 
-        household.MotherHealth.Should().Be(70);
+        await Assert.That(household.MotherHealth).IsEqualTo(70);
     }
 }

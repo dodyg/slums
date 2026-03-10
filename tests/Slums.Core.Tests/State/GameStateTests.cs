@@ -1,129 +1,130 @@
 using FluentAssertions;
 using Slums.Core.State;
 using Slums.Core.World;
-using Xunit;
+using TUnit.Core;
+using TUnit.Core.Interfaces;
 
 namespace Slums.Core.Tests.State;
 
-public class GameStateTests
+internal class GameStateTests
 {
-    [Fact]
-    public void Constructor_ShouldInitializeWithDefaultValues()
+    [Test]
+    public async Task Constructor_ShouldInitializeWithDefaultValues()
     {
         var state = new GameState();
 
-        state.RunId.Should().NotBe(Guid.Empty);
-        state.Clock.Day.Should().Be(1);
-        state.Player.Should().NotBeNull();
-        state.World.Should().NotBeNull();
-        state.IsGameOver.Should().BeFalse();
+        await Assert.That(state.RunId).IsNotEqualTo(Guid.Empty);
+        await Assert.That(state.Clock.Day).IsEqualTo(1);
+        await Assert.That(state.Player).IsNotNull();
+        await Assert.That(state.World).IsNotNull();
+        await Assert.That(state.IsGameOver).IsFalse();
     }
 
-    [Fact]
-    public void EndDay_ShouldDeductRentFromMoney()
+    [Test]
+    public async Task EndDay_ShouldDeductRentFromMoney()
     {
         var state = new GameState();
 
         state.EndDay();
 
-        state.Player.Stats.Money.Should().Be(80);
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(80);
     }
 
-    [Fact]
-    public void EndDay_ShouldConsumeFoodAndFeedPlayer()
+    [Test]
+    public async Task EndDay_ShouldConsumeFoodAndFeedPlayer()
     {
         var state = new GameState();
         state.Player.Stats.ModifyHunger(-30);
 
         state.EndDay();
 
-        state.Player.Household.FoodStockpile.Should().Be(2);
-        state.Player.Stats.Hunger.Should().Be(55);
+        await Assert.That(state.Player.Household.FoodStockpile).IsEqualTo(2);
+        await Assert.That(state.Player.Stats.Hunger).IsEqualTo(55);
     }
 
-    [Fact]
-    public void EndDay_ShouldAdvanceToNextDay()
+    [Test]
+    public async Task EndDay_ShouldAdvanceToNextDay()
     {
         var state = new GameState();
         state.Clock.AdvanceHours(10);
 
         state.EndDay();
 
-        state.Clock.Day.Should().Be(2);
-        state.Clock.Hour.Should().Be(6);
+        await Assert.That(state.Clock.Day).IsEqualTo(2);
+        await Assert.That(state.Clock.Hour).IsEqualTo(6);
     }
 
-    [Fact]
-    public void EndDay_ShouldApplyDailyDecayAndEat()
+    [Test]
+    public async Task EndDay_ShouldApplyDailyDecayAndEat()
     {
         var state = new GameState();
 
         state.EndDay();
 
-        state.Player.Stats.Hunger.Should().Be(85);
-        state.Player.Stats.Energy.Should().Be(75);
+        await Assert.That(state.Player.Stats.Hunger).IsEqualTo(85);
+        await Assert.That(state.Player.Stats.Energy).IsEqualTo(75);
     }
 
-    [Fact]
-    public void RestAtHome_ShouldRestoreEnergyAndAdvanceTime()
+    [Test]
+    public async Task RestAtHome_ShouldRestoreEnergyAndAdvanceTime()
     {
         var state = new GameState();
 
         state.RestAtHome();
 
-        state.Player.Stats.Energy.Should().Be(100);
-        state.Clock.Hour.Should().Be(14);
+        await Assert.That(state.Player.Stats.Energy).IsEqualTo(100);
+        await Assert.That(state.Clock.Hour).IsEqualTo(14);
     }
 
-    [Fact]
-    public void RestAtHome_ShouldTriggerEndDayWhenRestPassesCurfew()
+    [Test]
+    public async Task RestAtHome_ShouldTriggerEndDayWhenRestPassesCurfew()
     {
         var state = new GameState();
         state.Clock.AdvanceHours(12);
 
         state.RestAtHome();
 
-        state.Clock.Day.Should().Be(2);
-        state.Clock.Hour.Should().Be(10);
-        state.Player.Stats.Money.Should().Be(80);
+        await Assert.That(state.Clock.Day).IsEqualTo(2);
+        await Assert.That(state.Clock.Hour).IsEqualTo(10);
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(80);
     }
 
-    [Fact]
-    public void TryTravelTo_ShouldSucceedWithEnoughMoney()
+    [Test]
+    public async Task TryTravelTo_ShouldSucceedWithEnoughMoney()
     {
         var state = new GameState();
 
         var result = state.TryTravelTo(LocationId.Market);
 
-        result.Should().BeTrue();
-        state.World.CurrentLocationId.Should().Be(LocationId.Market);
-        state.Player.Stats.Money.Should().Be(98);
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.World.CurrentLocationId).IsEqualTo(LocationId.Market);
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(98);
     }
 
-    [Fact]
-    public void TryTravelTo_ShouldFailWithInsufficientMoney()
+    [Test]
+    public async Task TryTravelTo_ShouldFailWithInsufficientMoney()
     {
         var state = new GameState();
         state.Player.Stats.ModifyMoney(-99);
 
         var result = state.TryTravelTo(LocationId.CallCenter);
 
-        result.Should().BeFalse();
-        state.World.CurrentLocationId.Should().Be(LocationId.Home);
+        await Assert.That(result).IsFalse();
+        await Assert.That(state.World.CurrentLocationId).IsEqualTo(LocationId.Home);
     }
 
-    [Fact]
-    public void TryTravelTo_ShouldAdvanceTimeByTravelDuration()
+    [Test]
+    public async Task TryTravelTo_ShouldAdvanceTimeByTravelDuration()
     {
         var state = new GameState();
 
         state.TryTravelTo(LocationId.Market);
 
-        state.Clock.Minute.Should().Be(15);
+        await Assert.That(state.Clock.Minute).IsEqualTo(15);
     }
 
-    [Fact]
-    public void TryTravelTo_ShouldTriggerEndDayWhenTravelPassesCurfew()
+    [Test]
+    public async Task TryTravelTo_ShouldTriggerEndDayWhenTravelPassesCurfew()
     {
         var state = new GameState();
         state.Clock.AdvanceHours(15);
@@ -131,14 +132,14 @@ public class GameStateTests
 
         var result = state.TryTravelTo(LocationId.CallCenter);
 
-        result.Should().BeTrue();
-        state.Clock.Day.Should().Be(2);
-        state.Clock.Hour.Should().Be(6);
-        state.Clock.Minute.Should().Be(35);
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Clock.Day).IsEqualTo(2);
+        await Assert.That(state.Clock.Hour).IsEqualTo(6);
+        await Assert.That(state.Clock.Minute).IsEqualTo(35);
     }
 
-    [Fact]
-    public void WorkJob_ShouldTriggerEndDayWhenShiftPassesCurfew()
+    [Test]
+    public async Task WorkJob_ShouldTriggerEndDayWhenShiftPassesCurfew()
     {
         var state = new GameState();
         state.World.TravelTo(LocationId.Bakery);
@@ -146,26 +147,26 @@ public class GameStateTests
 
         var result = state.WorkJob(Slums.Core.Jobs.JobRegistry.BakeryWork);
 
-        result.Success.Should().BeTrue();
-        state.Clock.Day.Should().Be(2);
-        state.Clock.Hour.Should().Be(10);
-        state.Clock.Minute.Should().Be(0);
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(state.Clock.Day).IsEqualTo(2);
+        await Assert.That(state.Clock.Hour).IsEqualTo(10);
+        await Assert.That(state.Clock.Minute).IsEqualTo(0);
     }
 
-    [Fact]
-    public void IsGameOver_ShouldBeTrueWhenHealthIsZero()
+    [Test]
+    public async Task IsGameOver_ShouldBeTrueWhenHealthIsZero()
     {
         var state = new GameState();
         state.Player.Stats.ModifyHealth(-100);
 
         state.EndDay();
 
-        state.IsGameOver.Should().BeTrue();
-        state.GameOverReason.Should().Contain("health");
+        await Assert.That(state.IsGameOver).IsTrue();
+        await Assert.That(state.GameOverReason).Contains("health");
     }
 
-    [Fact]
-    public void GameEvent_ShouldBeRaisedForActions()
+    [Test]
+    public async Task GameEvent_ShouldBeRaisedForActions()
     {
         var state = new GameState();
         var events = new List<string>();
@@ -176,8 +177,8 @@ public class GameStateTests
         events.Should().ContainMatch("*Traveled*");
     }
 
-    [Fact]
-    public void GetStatusSummary_ShouldReturnCurrentStatus()
+    [Test]
+    public async Task GetStatusSummary_ShouldReturnCurrentStatus()
     {
         var state = new GameState();
 

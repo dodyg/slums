@@ -2982,8 +2982,7 @@
           "SadConsole": "10.8.0",
           "SadConsole.Host.MonoGame": "10.8.0",
           "SadConsole.Host.SFML": "10.8.0",
-          "xunit": "2.9.3",
-          "xunit.runner.visualstudio": "3.0.0"
+          "TUnit": "0.6.159"
         },
         "imports": [
           "net461",

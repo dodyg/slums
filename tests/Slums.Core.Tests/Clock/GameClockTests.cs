@@ -1,102 +1,103 @@
 using FluentAssertions;
 using Slums.Core.Clock;
-using Xunit;
+using TUnit.Core.Interfaces;
+using TUnit.Core;
 
 namespace Slums.Core.Tests;
 
 public class GameClockTests
 {
-    [Fact]
-    public void Constructor_ShouldInitializeToDay1Morning()
+    [Test]
+    public async Task Constructor_ShouldInitializeToDay1Morning()
     {
         var clock = new GameClock();
 
-        clock.Day.Should().Be(1);
-        clock.Hour.Should().Be(6);
-        clock.Minute.Should().Be(0);
-        clock.TimeOfDay.Should().Be(TimeOfDay.Morning);
+        await Assert.That(clock.Day).IsEqualTo(1);
+        await Assert.That(clock.Hour).IsEqualTo(6);
+        await Assert.That(clock.Minute).IsEqualTo(0);
+        await Assert.That(clock.TimeOfDay).IsEqualTo(TimeOfDay.Morning);
     }
 
-    [Fact]
-    public void AdvanceMinutes_ShouldIncrementMinutesCorrectly()
+    [Test]
+    public async Task AdvanceMinutes_ShouldIncrementMinutesCorrectly()
     {
         var clock = new GameClock();
 
         clock.AdvanceMinutes(30);
 
-        clock.Minute.Should().Be(30);
-        clock.Hour.Should().Be(6);
+        await Assert.That(clock.Minute).IsEqualTo(30);
+        await Assert.That(clock.Hour).IsEqualTo(6);
     }
 
-    [Fact]
-    public void AdvanceMinutes_ShouldRollOverToNextHour()
+    [Test]
+    public async Task AdvanceMinutes_ShouldRollOverToNextHour()
     {
         var clock = new GameClock();
 
         clock.AdvanceMinutes(90);
 
-        clock.Minute.Should().Be(30);
-        clock.Hour.Should().Be(7);
+        await Assert.That(clock.Minute).IsEqualTo(30);
+        await Assert.That(clock.Hour).IsEqualTo(7);
     }
 
-    [Fact]
-    public void AdvanceHours_ShouldIncrementHoursCorrectly()
+    [Test]
+    public async Task AdvanceHours_ShouldIncrementHoursCorrectly()
     {
         var clock = new GameClock();
 
         clock.AdvanceHours(5);
 
-        clock.Hour.Should().Be(11);
-        clock.Day.Should().Be(1);
+        await Assert.That(clock.Hour).IsEqualTo(11);
+        await Assert.That(clock.Day).IsEqualTo(1);
     }
 
-    [Fact]
-    public void AdvanceHours_ShouldRollOverToNextDay()
+    [Test]
+    public async Task AdvanceHours_ShouldRollOverToNextDay()
     {
         var clock = new GameClock();
 
         clock.AdvanceHours(20);
 
-        clock.Hour.Should().Be(2);
-        clock.Day.Should().Be(2);
+        await Assert.That(clock.Hour).IsEqualTo(2);
+        await Assert.That(clock.Day).IsEqualTo(2);
     }
 
-    [Fact]
-    public void AdvanceToNextDay_ShouldResetTimeAndIncrementDay()
+    [Test]
+    public async Task AdvanceToNextDay_ShouldResetTimeAndIncrementDay()
     {
         var clock = new GameClock();
         clock.AdvanceHours(10);
 
         clock.AdvanceToNextDay();
 
-        clock.Day.Should().Be(2);
-        clock.Hour.Should().Be(6);
-        clock.Minute.Should().Be(0);
+        await Assert.That(clock.Day).IsEqualTo(2);
+        await Assert.That(clock.Hour).IsEqualTo(6);
+        await Assert.That(clock.Minute).IsEqualTo(0);
     }
 
-    [Theory]
-    [InlineData(5, TimeOfDay.Morning)]
-    [InlineData(11, TimeOfDay.Morning)]
-    [InlineData(12, TimeOfDay.Afternoon)]
-    [InlineData(16, TimeOfDay.Afternoon)]
-    [InlineData(17, TimeOfDay.Evening)]
-    [InlineData(20, TimeOfDay.Evening)]
-    [InlineData(21, TimeOfDay.Night)]
-    [InlineData(4, TimeOfDay.Night)]
-    public void TimeOfDay_ShouldReturnCorrectTimeOfDay(int hour, TimeOfDay expected)
+    [Test]
+    [Arguments(5, TimeOfDay.Morning)]
+    [Arguments(11, TimeOfDay.Morning)]
+    [Arguments(12, TimeOfDay.Afternoon)]
+    [Arguments(16, TimeOfDay.Afternoon)]
+    [Arguments(17, TimeOfDay.Evening)]
+    [Arguments(20, TimeOfDay.Evening)]
+    [Arguments(21, TimeOfDay.Night)]
+    [Arguments(4, TimeOfDay.Night)]
+    public async Task TimeOfDay_ShouldReturnCorrectTimeOfDay(int hour, TimeOfDay expected)
     {
         var clock = new GameClock();
         clock.AdvanceHours(hour - 6);
 
-        clock.TimeOfDay.Should().Be(expected);
+        await Assert.That(clock.TimeOfDay).IsEqualTo(expected);
     }
 
-    [Fact]
-    public void IsEndOfDay_ShouldReturnTrueWhenHourIs22OrLater()
+    [Test]
+    public async Task IsEndOfDay_ShouldReturnTrueWhenHourIs22OrLater()
     {
         var clock = new GameClock();
         clock.AdvanceHours(16);
 
-        clock.IsEndOfDay.Should().BeTrue();
+        await Assert.That(clock.IsEndOfDay).IsTrue();
     }
 }

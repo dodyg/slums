@@ -148,7 +148,13 @@ Use central package management. Prefer repo-wide shared settings instead of dupl
 
 ## Testing Expectations
 
-Every rule change should come with tests in the appropriate project.
+Every rule change should come with comprehensive tests using **TUnit** as the testing framework. Comprehensive unit tests are mandatory for all layers to ensure reliability and enable safe refactoring.
+
+- Test framework: **TUnit** (latest version)
+- Assertion library: **FluentAssertions**
+- Mocking library: **NSubstitute**
+
+**All test projects must use TUnit consistently.** Do not mix xUnit or NUnit with TUnit.
 
 Minimum expectation by layer:
 

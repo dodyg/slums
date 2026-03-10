@@ -1,23 +1,24 @@
 using FluentAssertions;
 using Slums.Core.Clock;
-using Xunit;
+using TUnit.Core;
+using TUnit.Core.Interfaces;
 
 namespace Slums.Core.Tests.Clock;
 
 public sealed class AutomaticTimeAdvancerTests
 {
-    [Fact]
-    public void CollectElapsedMinutes_ShouldReturnZeroUntilThresholdReached()
+    [Test]
+    public async Task CollectElapsedMinutes_ShouldReturnZeroUntilThresholdReached()
     {
         var advancer = new AutomaticTimeAdvancer(TimeSpan.FromSeconds(1));
 
         var elapsedMinutes = advancer.CollectElapsedMinutes(TimeSpan.FromMilliseconds(999));
 
-        elapsedMinutes.Should().Be(0);
+        await Assert.That(elapsedMinutes).IsEqualTo(0);
     }
 
-    [Fact]
-    public void CollectElapsedMinutes_ShouldCarryBufferedTimeAcrossUpdates()
+    [Test]
+    public async Task CollectElapsedMinutes_ShouldCarryBufferedTimeAcrossUpdates()
     {
         var advancer = new AutomaticTimeAdvancer(TimeSpan.FromSeconds(1));
 
@@ -25,28 +26,28 @@ public sealed class AutomaticTimeAdvancerTests
         var secondUpdate = advancer.CollectElapsedMinutes(TimeSpan.FromMilliseconds(600));
         var thirdUpdate = advancer.CollectElapsedMinutes(TimeSpan.FromMilliseconds(800));
 
-        firstUpdate.Should().Be(0);
-        secondUpdate.Should().Be(1);
-        thirdUpdate.Should().Be(1);
+        await Assert.That(firstUpdate).IsEqualTo(0);
+        await Assert.That(secondUpdate).IsEqualTo(1);
+        await Assert.That(thirdUpdate).IsEqualTo(1);
     }
 
-    [Fact]
-    public void CollectElapsedMinutes_ShouldReturnMultipleMinutesForLargeDelta()
+    [Test]
+    public async Task CollectElapsedMinutes_ShouldReturnMultipleMinutesForLargeDelta()
     {
         var advancer = new AutomaticTimeAdvancer(TimeSpan.FromSeconds(1));
 
         var elapsedMinutes = advancer.CollectElapsedMinutes(TimeSpan.FromSeconds(3.5));
 
-        elapsedMinutes.Should().Be(3);
+        await Assert.That(elapsedMinutes).IsEqualTo(3);
     }
 
-    [Fact]
-    public void CollectElapsedMinutes_ShouldRejectNegativeDelta()
+    [Test]
+    public async Task CollectElapsedMinutes_ShouldRejectNegativeDelta()
     {
         var advancer = new AutomaticTimeAdvancer(TimeSpan.FromSeconds(1));
 
         var act = () => advancer.CollectElapsedMinutes(TimeSpan.FromMilliseconds(-1));
 
-        act.Should().Throw<ArgumentOutOfRangeException>();
+        await Assert.That(act).Throws<ArgumentOutOfRangeException>();
     }
 }

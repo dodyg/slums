@@ -1,13 +1,13 @@
 using FluentAssertions;
-using Xunit;
+using TUnit.Core;
 
 namespace Slums.Infrastructure.Tests;
 
 public class PlaceholderTests
 {
-    [Fact]
-    public void Test1()
+    [Test]
+    public async Task Placeholder_ShouldBeTrue()
     {
-        true.Should().BeTrue();
+        await Assert.That(true).IsTrue();
     }
 }
