@@ -11,28 +11,26 @@ public sealed class PlayerCharacter
 {
     public string Name { get; set; } = "Amira";
     public int Age { get; init; } = 24;
-    public BackgroundType Background { get; init; } = BackgroundType.MedicalSchoolDropout;
+    public BackgroundType BackgroundType { get; private set; } = BackgroundType.MedicalSchoolDropout;
+    public Background? Background { get; private set; }
     public SurvivalStats Stats { get; } = new();
     public HouseholdState Household { get; } = new();
+    public bool HasSelectedBackground { get; private set; }
 
-    public void ApplyBackgroundModifiers()
+    public void ApplyBackground(Background background)
     {
-        switch (Background)
-        {
-            case BackgroundType.MedicalSchoolDropout:
-                Stats.ModifyMoney(50);
-                Stats.ModifyStress(-10);
-                break;
-            case BackgroundType.ReleasedPoliticalPrisoner:
-                Stats.ModifyMoney(-50);
-                Stats.ModifyStress(20);
-                Stats.ModifyHealth(-10);
-                break;
-            case BackgroundType.SudaneseRefugee:
-                Stats.ModifyMoney(-30);
-                Stats.ModifyStress(15);
-                Stats.ModifyEnergy(-10);
-                break;
-        }
+        ArgumentNullException.ThrowIfNull(background);
+
+        BackgroundType = background.Type;
+        Background = background;
+        HasSelectedBackground = true;
+
+        Stats.SetMoney(background.StartingMoney);
+        Stats.SetHealth(background.StartingHealth);
+        Stats.SetEnergy(background.StartingEnergy);
+        Stats.SetHunger(background.StartingHunger);
+        Stats.SetStress(background.StartingStress);
+        Household.SetMotherHealth(background.MotherStartingHealth);
+        Household.SetFoodStockpile(background.FoodStockpile);
     }
 }

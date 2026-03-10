@@ -1,0 +1,64 @@
+{
+  "inkVersion": 20,
+  "root": [
+    [
+      "^Your story begins.",
+      "\n",
+      "^The day stretches before you.",
+      "\n",
+      ["ev", "str", "intro_done", "/ev", ["~ret", null]],
+      "done",
+      null
+    ],
+    {
+      "intro_medical": [
+        "^Three years of medical school.",
+        "\n",
+        "^Three years of dreaming of a white coat, of a stethoscope around your neck.",
+        "\n",
+        "^Then Baba died, and the tuition money evaporated.",
+        "\n",
+        "^Now you watch your mother cough into a worn handkerchief.",
+        "\n",
+        ["ev", "str", "intro_done", "/ev", ["~ret", null]],
+        "done",
+        null
+      ],
+      "intro_prisoner": [
+        "^The cell door opened eight months ago.",
+        "\n",
+        "^Your mother aged ten years in the two you were inside.",
+        "\n",
+        "^The neighbors whisper. The amn el-dawla file never really closes.",
+        "\n",
+        "^But you're still here.",
+        "\n",
+        ["ev", "str", "intro_done", "/ev", ["~ret", null]],
+        "done",
+        null
+      ],
+      "intro_sudanese": [
+        "^You still dream of the Nile in Khartoum.",
+        "\n",
+        "^Before the jets came. Before your mother grabbed you and said, 'We leave now.'",
+        "\n",
+        "^That was three years ago. Cairo was supposed to be temporary.",
+        "\n",
+        "^Home is this cramped apartment in Matareya.",
+        "\n",
+        ["ev", "str", "intro_done", "/ev", ["~ret", null]],
+        "done",
+        null
+      ],
+      "intro_done": [
+        "^Your story begins.",
+        "\n",
+        "^Survive.",
+        "\n",
+        "done",
+        null
+      ]
+    }
+  ],
+  "listDefs": {}
+}

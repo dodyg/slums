@@ -5,7 +5,7 @@ public sealed class SurvivalStats
     private const int MaxStatValue = 100;
     private const int MinStatValue = 0;
 
-    public int Money { get; set; } = 100;
+    public int Money { get; private set; } = 100;
     public int Hunger { get; private set; } = 80;
     public int Energy { get; private set; } = 80;
     public int Health { get; private set; } = 100;
@@ -15,6 +15,12 @@ public sealed class SurvivalStats
     public bool IsExhausted => Energy <= 10;
     public bool IsSick => Health <= 30;
     public bool IsOverstressed => Stress >= 80;
+
+    public void SetMoney(int value) => Money = Math.Max(0, value);
+    public void SetHunger(int value) => Hunger = Clamp(value);
+    public void SetEnergy(int value) => Energy = Clamp(value);
+    public void SetHealth(int value) => Health = Clamp(value);
+    public void SetStress(int value) => Stress = Clamp(value);
 
     public void ModifyHunger(int amount)
     {

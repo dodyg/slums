@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Slums.Game")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8ba4192901913c131e19fdb1a82e91c216d0a149")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5e69a0de1120f5dde64821749354e2025c15a73d")]
 [assembly: System.Reflection.AssemblyProductAttribute("Slums.Game")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Slums.Game")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

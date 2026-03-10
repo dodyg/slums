@@ -1,16 +1,20 @@
 using Slums.Core.Characters;
 using Slums.Core.Clock;
 using Slums.Core.Expenses;
+using Slums.Core.Jobs;
 using Slums.Core.World;
 
 namespace Slums.Core.State;
 
 public sealed class GameState
 {
+    private const int EndOfDayHour = 22;
+
     public Guid RunId { get; } = Guid.NewGuid();
     public GameClock Clock { get; } = new();
     public PlayerCharacter Player { get; } = new();
     public WorldState World { get; } = new();
+    public JobService Jobs { get; } = new();
     public bool IsGameOver { get; private set; }
     public string? GameOverReason { get; private set; }
 
@@ -18,11 +22,38 @@ public sealed class GameState
 
     public void AdvanceTime(int minutes)
     {
-        Clock.AdvanceMinutes(minutes);
+        ArgumentOutOfRangeException.ThrowIfNegative(minutes);
 
-        if (Clock.Hour >= 22 && Clock.Minute >= 0)
+        while (minutes > 0)
         {
-            EndDay();
+            var currentMinutes = (Clock.Hour * 60) + Clock.Minute;
+            var endOfDayMinutes = EndOfDayHour * 60;
+
+            if (currentMinutes >= endOfDayMinutes)
+            {
+                EndDay();
+                if (IsGameOver)
+                {
+                    return;
+                }
+
+                continue;
+            }
+
+            var minutesUntilEndOfDay = endOfDayMinutes - currentMinutes;
+            var minutesToAdvance = Math.Min(minutes, minutesUntilEndOfDay);
+
+            Clock.AdvanceMinutes(minutesToAdvance);
+            minutes -= minutesToAdvance;
+
+            if (Clock.IsEndOfDay && !IsGameOver)
+            {
+                EndDay();
+                if (IsGameOver)
+                {
+                    return;
+                }
+            }
         }
     }
 
@@ -59,7 +90,7 @@ public sealed class GameState
     public void RestAtHome()
     {
         Player.Stats.Rest();
-        Clock.AdvanceHours(8);
+        AdvanceTime(8 * 60);
         RaiseEvent("You rest at home. 8 hours pass.");
     }
 
@@ -79,10 +110,64 @@ public sealed class GameState
 
         Player.Stats.ModifyMoney(-RecurringExpenses.TravelCost);
         Player.Stats.ModifyEnergy(-5);
-        Clock.AdvanceMinutes(location.TravelTimeMinutes);
+        AdvanceTime(location.TravelTimeMinutes);
         World.TravelTo(locationId);
 
         RaiseEvent($"Traveled to {location.Name}.");
+        return true;
+    }
+
+    public JobResult WorkJob(JobShift job)
+    {
+        ArgumentNullException.ThrowIfNull(job);
+
+        var location = World.GetCurrentLocation();
+        if (location is null)
+        {
+            return JobResult.Failed("You are nowhere.");
+        }
+
+        var result = Jobs.PerformJob(job, Player, location);
+        
+        if (result.Success)
+        {
+            AdvanceTime(job.DurationMinutes);
+            RaiseEvent(result.Message);
+        }
+        else
+        {
+            RaiseEvent(result.Message);
+        }
+
+        CheckGameOverConditions();
+        return result;
+    }
+
+    public bool BuyFood()
+    {
+        if (Player.Stats.Money < RecurringExpenses.CheapFoodStockpile)
+        {
+            RaiseEvent($"Not enough money. Food costs {RecurringExpenses.CheapFoodStockpile} LE.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-RecurringExpenses.CheapFoodStockpile);
+        Player.Household.AddFood(3);
+        RaiseEvent($"Bought food supplies for {RecurringExpenses.CheapFoodStockpile} LE. Stockpile: {Player.Household.FoodStockpile}");
+        return true;
+    }
+
+    public bool BuyMedicine()
+    {
+        if (Player.Stats.Money < RecurringExpenses.MedicineCost)
+        {
+            RaiseEvent($"Not enough money. Medicine costs {RecurringExpenses.MedicineCost} LE.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-RecurringExpenses.MedicineCost);
+        Player.Household.UpdateMotherHealth(30);
+        RaiseEvent($"Bought medicine for {RecurringExpenses.MedicineCost} LE. Mother's health improved.");
         return true;
     }
 

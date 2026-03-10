@@ -76,6 +76,19 @@ public class GameStateTests
     }
 
     [Fact]
+    public void RestAtHome_ShouldTriggerEndDayWhenRestPassesCurfew()
+    {
+        var state = new GameState();
+        state.Clock.AdvanceHours(12);
+
+        state.RestAtHome();
+
+        state.Clock.Day.Should().Be(2);
+        state.Clock.Hour.Should().Be(10);
+        state.Player.Stats.Money.Should().Be(80);
+    }
+
+    [Fact]
     public void TryTravelTo_ShouldSucceedWithEnoughMoney()
     {
         var state = new GameState();
@@ -107,6 +120,36 @@ public class GameStateTests
         state.TryTravelTo(LocationId.Market);
 
         state.Clock.Minute.Should().Be(15);
+    }
+
+    [Fact]
+    public void TryTravelTo_ShouldTriggerEndDayWhenTravelPassesCurfew()
+    {
+        var state = new GameState();
+        state.Clock.AdvanceHours(15);
+        state.Clock.AdvanceMinutes(50);
+
+        var result = state.TryTravelTo(LocationId.CallCenter);
+
+        result.Should().BeTrue();
+        state.Clock.Day.Should().Be(2);
+        state.Clock.Hour.Should().Be(6);
+        state.Clock.Minute.Should().Be(35);
+    }
+
+    [Fact]
+    public void WorkJob_ShouldTriggerEndDayWhenShiftPassesCurfew()
+    {
+        var state = new GameState();
+        state.World.TravelTo(LocationId.Bakery);
+        state.Clock.AdvanceHours(14);
+
+        var result = state.WorkJob(Slums.Core.Jobs.JobRegistry.BakeryWork);
+
+        result.Success.Should().BeTrue();
+        state.Clock.Day.Should().Be(2);
+        state.Clock.Hour.Should().Be(10);
+        state.Clock.Minute.Should().Be(0);
     }
 
     [Fact]

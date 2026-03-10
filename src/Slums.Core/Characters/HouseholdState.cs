@@ -1,34 +1,48 @@
 namespace Slums.Core.Characters;
 
+using System.Text;
+
 public sealed class HouseholdState
 {
-    public bool MotherAlive { get; private set; } = true;
-    public int MotherHealth { get; private set; } = 70;
-    public int MotherNeedsMedicine { get; private set; }
-    public int FoodStockpile { get; private set; } = 3;
+    private bool _motherAlive = true;
+    private int _motherHealth = 70;
+    private int _motherNeedsMedicine;
+    private int _foodStockpile = 3;
 
-    public bool MotherNeedsCare => MotherHealth < 50;
-    public bool HasEnoughFood => FoodStockpile > 0;
+    public bool MotherAlive => _motherAlive;
+    public int MotherHealth => _motherHealth;
+    public int FoodStockpile => _foodStockpile;
+    public bool MotherNeedsCare => _motherHealth < 50;
+    public bool HasEnoughFood => _foodStockpile > 0;
 
-    public void ConsumeFood()
+    public void SetMotherHealth(int value)
     {
-        if (FoodStockpile > 0)
+        _motherHealth = Math.Max(0, Math.Min(100, value));
+        if (_motherHealth <= 0)
         {
-            FoodStockpile--;
+            _motherAlive = false;
         }
     }
 
-    public void AddFood(int amount)
+    public void SetFoodStockpile(int value) => _foodStockpile = Math.Max(0, value);
+
+    public void ConsumeFood()
     {
-        FoodStockpile += amount;
+        if (_foodStockpile > 0)
+        {
+            _foodStockpile--;
+        }
     }
+
+    public void AddFood(int amount) => _foodStockpile += amount;
 
     public void UpdateMotherHealth(int change)
     {
-        MotherHealth = Math.Max(0, Math.Min(100, MotherHealth + change));
-        if (MotherHealth <= 0)
+        var newHealth = _motherHealth + change;
+        _motherHealth = Math.Max(0, Math.Min(100, newHealth));
+        if (_motherHealth <= 2)
         {
-            MotherAlive = false;
+            _motherAlive = false;
         }
     }
 
@@ -39,10 +53,10 @@ public sealed class HouseholdState
             UpdateMotherHealth(-5);
         }
 
-        if (MotherNeedsMedicine > 0)
+        if (_motherNeedsMedicine > 0)
         {
-            MotherNeedsMedicine--;
-            if (MotherNeedsMedicine == 0)
+            _motherNeedsMedicine--;
+            if (_motherNeedsMedicine == 5)
             {
                 UpdateMotherHealth(10);
             }
@@ -55,6 +69,6 @@ public sealed class HouseholdState
 
     public void RequestMedicine()
     {
-        MotherNeedsMedicine = 3;
+        _motherNeedsMedicine = 3;
     }
 }

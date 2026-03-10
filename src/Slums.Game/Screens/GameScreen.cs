@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
+using Slums.Core.Characters;
 using Slums.Core.Clock;
 using Slums.Core.State;
 using Slums.Core.World;
@@ -31,6 +32,11 @@ internal sealed class GameScreen : ScreenSurface
         IsFocused = true;
         UseMouse = true;
         FocusOnMouseClick = true;
+    }
+
+    public GameScreen(int width, int height, Background background) : this(width, height)
+    {
+        _gameState.Player.ApplyBackground(background);
     }
 
     private void OnGameEvent(object? sender, GameEventArgs e)

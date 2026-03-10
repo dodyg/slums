@@ -100,7 +100,7 @@ internal sealed class MainMenuScreen : ScreenSurface
         switch (_selectedIndex)
         {
             case 0:
-                GameHost.Instance.Screen = new GameScreen(80, 25);
+                GameHost.Instance.Screen = new BackgroundSelectionScreen(80, 25);
                 break;
             case 1:
                 break;
