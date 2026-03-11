@@ -179,6 +179,18 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task TryTravelTo_CurrentLocation_ShouldFailWithoutChargingMoney()
+    {
+        var state = new GameState();
+
+        var result = state.TryTravelTo(LocationId.Home);
+
+        await Assert.That(result).IsFalse();
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(100);
+        await Assert.That(state.World.CurrentLocationId).IsEqualTo(LocationId.Home);
+    }
+
+    [Test]
     public async Task TryTravelTo_ShouldTriggerEndDayWhenTravelPassesCurfew()
     {
         var state = new GameState();

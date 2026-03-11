@@ -173,6 +173,12 @@ public sealed class GameState
             return false;
         }
 
+        if (World.CurrentLocationId == locationId)
+        {
+            RaiseEvent($"You are already at {location.Name}.");
+            return false;
+        }
+
         if (Player.Stats.Money < RecurringExpenses.TravelCost)
         {
             RaiseEvent("Not enough money for transport.");

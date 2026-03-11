@@ -12,7 +12,8 @@ namespace Slums.Game.Screens;
 internal sealed class GameScreen : ScreenSurface
 {
     private const int ActionListX = 2;
-    private const int ActionListStartY = 14;
+    private const int ActionHeaderY = 10;
+    private const int ActionListStartY = 12;
     private const int MaxEventLogEntries = 8;
     private static readonly TimeSpan RealTimePerGameMinute = TimeSpan.FromSeconds(1);
     private readonly GameRuntime _runtime;
@@ -84,28 +85,17 @@ internal sealed class GameScreen : ScreenSurface
 
     private void RenderHud()
     {
-        var y = 0;
-        Surface.Print(0, y++, "=== SLUMS - Cairo Survival ===", Color.Yellow);
+        Surface.Print(0, 0, "=== SLUMS - Cairo Survival ===", Color.Yellow);
+        Surface.Print(0, 2, $"Day {_gameState.Clock.Day} - {_gameState.Clock.TimeOfDay}", Color.White);
+        Surface.Print(0, 3, $"Time: {_gameState.Clock.Hour:D2}:{_gameState.Clock.Minute:D2}", Color.Gray);
+        Surface.Print(0, 4, $"Police Pressure: {_gameState.PolicePressure}", _gameState.PolicePressure >= 80 ? Color.Red : Color.Orange);
 
-        y++;
-        Surface.Print(0, y++, $"Day {_gameState.Clock.Day} - {_gameState.Clock.TimeOfDay}", Color.White);
-        Surface.Print(0, y++, $"Time: {_gameState.Clock.Hour:D2}:{_gameState.Clock.Minute:D2}", Color.Gray);
-        Surface.Print(0, y++, $"Police Pressure: {_gameState.PolicePressure}", _gameState.PolicePressure >= 80 ? Color.Red : Color.Orange);
-
-        y++;
         // Money is displayed as a plain figure; the bar is only meaningful for 0-100 bounded stats
         Surface.Print(0, Surface.Height - 20 + GetStatLine("Money"), $"Money: {_gameState.Player.Stats.Money} LE", Color.Gold);
         RenderStat("Hunger", _gameState.Player.Stats.Hunger, 100, GetStatColor(_gameState.Player.Stats.Hunger));
         RenderStat("Energy", _gameState.Player.Stats.Energy, 100, GetStatColor(_gameState.Player.Stats.Energy));
         RenderStat("Health", _gameState.Player.Stats.Health, 100, GetStatColor(_gameState.Player.Stats.Health));
         RenderStat("Stress", _gameState.Player.Stats.Stress, 100, GetStressColor(_gameState.Player.Stats.Stress));
-
-        // Stats occupy rows (Surface.Height - 20) through (Surface.Height - 20 + 4); place household info after them
-        y = Surface.Height - 20 + 6;
-        Surface.Print(0, y++, $"Food Stock: {_gameState.Player.Household.FoodStockpile}", Color.White);
-        Surface.Print(0, y++, $"Mother's Health: {_gameState.Player.Household.MotherHealth}%", 
-            _gameState.Player.Household.MotherNeedsCare ? Color.Red : Color.Green);
-        Surface.Print(0, y++, $"Skills: St {_gameState.Player.Skills.GetLevel(Slums.Core.Skills.SkillId.StreetSmarts)} | Ph {_gameState.Player.Skills.GetLevel(Slums.Core.Skills.SkillId.Physical)} | Pe {_gameState.Player.Skills.GetLevel(Slums.Core.Skills.SkillId.Persuasion)} | Me {_gameState.Player.Skills.GetLevel(Slums.Core.Skills.SkillId.Medical)}", Color.Gray);
     }
 
     private void RenderStat(string name, int value, int max, Color color)
@@ -143,8 +133,8 @@ internal sealed class GameScreen : ScreenSurface
     private void RenderActions()
     {
         var actions = GetActions();
-        Surface.Print(0, 12, "--- Actions ---", Color.Cyan);
-        Surface.Print(0, 13, "(Time flows automatically. Arrow keys to select, Enter to confirm)", Color.DarkGray);
+        Surface.Print(0, ActionHeaderY, "--- Actions ---", Color.Cyan);
+        Surface.Print(0, ActionHeaderY + 1, "(Time flows automatically. Arrow keys to select, Enter to confirm)", Color.DarkGray);
 
         for (var i = 0; i < actions.Count; i++)
         {
@@ -194,6 +184,32 @@ internal sealed class GameScreen : ScreenSurface
 
         y++;
         Surface.Print(x, y++, $"District: {DistrictInfo.GetName(_gameState.World.CurrentDistrict)}", Color.Yellow);
+
+        y++;
+        RenderHouseholdInfo(x, y);
+    }
+
+    private void RenderHouseholdInfo(int x, int y)
+    {
+        var household = _gameState.Player.Household;
+        var motherColor = household.MotherCondition switch
+        {
+            Slums.Core.Characters.MotherCondition.Crisis => Color.Red,
+            Slums.Core.Characters.MotherCondition.Fragile => Color.Orange,
+            _ => Color.Green
+        };
+
+        Surface.Print(x, y++, "--- Household ---", Color.Cyan);
+        Surface.Print(x, y++, $"Food: {household.FoodStockpile} | Medicine: {household.MedicineStock}", Color.White);
+        Surface.Print(x, y++, $"Mother: {household.MotherHealth}% {household.MotherCondition}", motherColor);
+        Surface.Print(x, y++, $"Fed today: {ToYesNo(household.FedMotherToday)}", Color.Gray);
+        Surface.Print(x, y++, $"Medicine today: {ToYesNo(household.MedicationGivenToday)}", Color.Gray);
+        Surface.Print(x, y, $"Checked today: {ToYesNo(household.CheckedOnMotherToday)}", Color.Gray);
+    }
+
+    private static string ToYesNo(bool value)
+    {
+        return value ? "Yes" : "No";
     }
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)
@@ -282,6 +298,12 @@ internal sealed class GameScreen : ScreenSurface
             case "Rest":
                 _gameState.RestAtHome();
                 break;
+            case "Eat at Home":
+                _gameState.EatAtHome();
+                break;
+            case "Eat Street Food":
+                _gameState.EatStreetFood();
+                break;
             case "Work":
                 ShowWorkMenu();
                 break;
@@ -293,6 +315,12 @@ internal sealed class GameScreen : ScreenSurface
                 break;
             case "Shop":
                 ShowShopMenu();
+                break;
+            case "Check on Mother":
+                _gameState.CheckOnMother();
+                break;
+            case "Give Mother Medicine":
+                _gameState.GiveMotherMedicine();
                 break;
             case "Travel":
                 ShowTravelMenu();
@@ -356,7 +384,7 @@ internal sealed class GameScreen : ScreenSurface
 
     private void ShowTravelMenu()
     {
-        var locations = _gameState.World.GetTravelableLocations().ToList();
+        var locations = WorldState.AllLocations.ToList();
         if (locations.Count == 0)
         {
             AddEventLogEntry("No travel destinations available");
@@ -397,6 +425,7 @@ internal sealed class GameScreen : ScreenSurface
     private List<string> GetActions()
     {
         var actions = new List<string> { "Rest", "Work" };
+        var isAtHome = _gameState.World.CurrentLocationId == LocationId.Home;
         var location = _gameState.World.GetCurrentLocation();
         if (location?.HasCrimeOpportunities == true)
         {
@@ -409,6 +438,18 @@ internal sealed class GameScreen : ScreenSurface
         }
 
         actions.Add("Shop");
+
+        if (isAtHome)
+        {
+            actions.Add("Eat at Home");
+            actions.Add("Check on Mother");
+            actions.Add("Give Mother Medicine");
+        }
+        else
+        {
+            actions.Add("Eat Street Food");
+        }
+
         actions.Add("Travel");
         actions.Add("Save Game");
         actions.Add("End Day");

@@ -41,10 +41,12 @@ internal sealed class TravelScreen : ScreenSurface
         for (var i = 0; i < _locations.Count; i++)
         {
             var loc = _locations[i];
+            var isCurrentLocation = loc.Id == _gameState.World.CurrentLocationId;
             var prefix = i == _selectedIndex ? "> " : "  ";
-            var color = i == _selectedIndex ? Color.Cyan : Color.White;
+            var color = i == _selectedIndex ? Color.Cyan : isCurrentLocation ? Color.DarkGray : Color.White;
 
-            var displayName = $"{loc.Name} ({DistrictInfo.GetName(loc.District)})";
+            var currentLocationSuffix = isCurrentLocation ? " [Current]" : string.Empty;
+            var displayName = $"{loc.Name} ({DistrictInfo.GetName(loc.District)}){currentLocationSuffix}";
             var travelInfo = $"[{loc.TravelTimeMinutes} min]";
             
             var rowY = DestinationStartY + i * DestinationRowHeight;
