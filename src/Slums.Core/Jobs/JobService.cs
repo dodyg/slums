@@ -138,6 +138,9 @@ public sealed class JobService
             _ when location.Id == LocationId.Clinic => [ResolveShift(JobType.ClinicReception, player, relationshipState, jobProgressState)],
             _ when location.Id == LocationId.Workshop => [ResolveShift(JobType.WorkshopSewing, player, relationshipState, jobProgressState)],
             _ when location.Id == LocationId.Cafe => [ResolveShift(JobType.CafeService, player, relationshipState, jobProgressState)],
+            _ when location.Id == LocationId.Pharmacy => [ResolveShift(JobType.PharmacyStock, player, relationshipState, jobProgressState)],
+            _ when location.Id == LocationId.Depot => [ResolveShift(JobType.MicrobusDispatch, player, relationshipState, jobProgressState)],
+            _ when location.Id == LocationId.Laundry => [ResolveShift(JobType.LaundryPressing, player, relationshipState, jobProgressState)],
             _ => []
         };
     }
@@ -183,6 +186,9 @@ public sealed class JobService
             JobType.ClinicReception => ResolveClinicShift(player, relationshipState, track),
             JobType.WorkshopSewing => ResolveWorkshopShift(relationshipState, track),
             JobType.CafeService => ResolveCafeShift(player, relationshipState, track),
+            JobType.PharmacyStock => ResolvePharmacyShift(player, relationshipState, track),
+            JobType.MicrobusDispatch => ResolveDepotShift(player, relationshipState, track),
+            JobType.LaundryPressing => ResolveLaundryShift(relationshipState, track),
             _ => JobRegistry.GetJobByType(jobType) ?? throw new ArgumentOutOfRangeException(nameof(jobType))
         };
     }
@@ -291,6 +297,57 @@ public sealed class JobService
         return ApplySudanesePenalty(player, baseShift);
     }
 
+    private static JobShift ResolvePharmacyShift(PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
+    {
+        var baseShift = JobRegistry.PharmacyStock;
+        var mariamTrust = relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust;
+        if (mariamTrust >= 20 && track.Reliability >= 70)
+        {
+            return CreateShiftVariant(baseShift, "Pharmacy Counter Support", "Handle the counter during the afternoon crush while Mariam checks scripts and shortages.", 9, 0, 2, 0, 0);
+        }
+
+        if (mariamTrust >= 10 || player.Skills.GetLevel(SkillId.Medical) >= 2 || player.BackgroundType == BackgroundType.MedicalSchoolDropout)
+        {
+            return CreateShiftVariant(baseShift, "Pharmacy Restock Run", "Rotate deliveries, sort invoices, and keep cheap painkillers from vanishing too fast.", 5, 0, -1, 0, 0);
+        }
+
+        return baseShift;
+    }
+
+    private static JobShift ResolveDepotShift(PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
+    {
+        var baseShift = JobRegistry.MicrobusDispatch;
+        var safaaTrust = relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust;
+        if (safaaTrust >= 20 && track.Reliability >= 70)
+        {
+            return CreateShiftVariant(baseShift, "Depot Route Board", "Keep the board moving, settle queue fights, and fill the hungriest route first.", 10, -2, 3, 0, 0);
+        }
+
+        if (safaaTrust >= 10 || player.Skills.GetLevel(SkillId.Persuasion) >= 2)
+        {
+            return CreateShiftVariant(baseShift, "Platform Caller", "Shout routes and keep impatient drivers from losing the line before noon.", 5, 0, 1, 0, 0);
+        }
+
+        return baseShift;
+    }
+
+    private static JobShift ResolveLaundryShift(RelationshipState relationshipState, JobTrackProgress track)
+    {
+        var baseShift = JobRegistry.LaundryPressing;
+        var imanTrust = relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust;
+        if (imanTrust >= 20 && track.Reliability >= 75)
+        {
+            return CreateShiftVariant(baseShift, "Laundry Front Counter", "Take customer handoffs and the better pressing table when Iman trusts you not to lose a ticket.", 9, -3, 2, 0, 0);
+        }
+
+        if (imanTrust >= 10 || track.Reliability >= 60)
+        {
+            return CreateShiftVariant(baseShift, "Laundry Sorting Table", "Sort linens and finished bundles instead of standing at the hottest iron all shift.", 5, -4, 0, 0, 0);
+        }
+
+        return baseShift;
+    }
+
     private static JobShift ApplySudanesePenalty(PlayerCharacter player, JobShift shift)
     {
         if (player.BackgroundType != BackgroundType.SudaneseRefugee)
@@ -345,6 +402,9 @@ public sealed class JobService
             JobType.CallCenterWork => player.Stats.Stress >= 60,
             JobType.ClinicReception => player.Stats.Stress >= 65 || player.Stats.Energy <= job.MinEnergyRequired + 4,
             JobType.CafeService => player.Stats.Stress >= 65,
+            JobType.PharmacyStock => player.Stats.Stress >= 60 || player.Stats.Energy <= job.MinEnergyRequired + 4,
+            JobType.MicrobusDispatch => player.Stats.Stress >= 62,
+            JobType.LaundryPressing => player.Stats.Energy <= job.MinEnergyRequired + 5,
             JobType.WorkshopSewing => player.Stats.Energy <= job.MinEnergyRequired + 5,
             JobType.BakeryWork => player.Stats.Energy <= job.MinEnergyRequired + 5,
             JobType.HouseCleaning => player.Stats.Energy <= job.MinEnergyRequired + 3,
@@ -359,6 +419,8 @@ public sealed class JobService
             JobType.CallCenterWork => 10,
             JobType.ClinicReception => 8,
             JobType.CafeService => 8,
+            JobType.MicrobusDispatch => 9,
+            JobType.PharmacyStock => 8,
             _ => 6
         };
     }
@@ -372,6 +434,9 @@ public sealed class JobService
             JobType.WorkshopSewing => 1,
             JobType.CafeService => 1,
             JobType.BakeryWork => 1,
+            JobType.PharmacyStock => 1,
+            JobType.MicrobusDispatch => 1,
+            JobType.LaundryPressing => 1,
             _ => 0
         };
     }
@@ -382,6 +447,7 @@ public sealed class JobService
         {
             JobType.CallCenterWork => -15,
             JobType.ClinicReception => -12,
+            JobType.PharmacyStock => -12,
             _ => -10
         };
     }
@@ -407,6 +473,16 @@ public sealed class JobService
             JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust >= 20 && track.Reliability >= 70 => "Unlocked by Nadia trust 20 and reliability 70.",
             JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust >= 10 => "Unlocked by Nadia trust 10.",
             JobType.CafeService when player.Skills.GetLevel(SkillId.Persuasion) >= 2 => "Unlocked by Persuasion 2.",
+            JobType.PharmacyStock when relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= 20 && track.Reliability >= 70 => "Unlocked by Mariam trust 20 and reliability 70.",
+            JobType.PharmacyStock when relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= 10 => "Unlocked by Mariam trust 10.",
+            JobType.PharmacyStock when player.Skills.GetLevel(SkillId.Medical) >= 2 => "Unlocked by Medical 2.",
+            JobType.PharmacyStock when player.BackgroundType == BackgroundType.MedicalSchoolDropout => "Unlocked by your medical-school background.",
+            JobType.MicrobusDispatch when relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= 20 && track.Reliability >= 70 => "Unlocked by Safaa trust 20 and reliability 70.",
+            JobType.MicrobusDispatch when relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= 10 => "Unlocked by Safaa trust 10.",
+            JobType.MicrobusDispatch when player.Skills.GetLevel(SkillId.Persuasion) >= 2 => "Unlocked by Persuasion 2.",
+            JobType.LaundryPressing when relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust >= 20 && track.Reliability >= 75 => "Unlocked by Iman trust 20 and reliability 75.",
+            JobType.LaundryPressing when relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust >= 10 => "Unlocked by Iman trust 10.",
+            JobType.LaundryPressing when track.Reliability >= 60 => "Unlocked by reliability 60.",
             _ => "Base shift."
         };
     }
@@ -427,6 +503,12 @@ public sealed class JobService
             JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust < 20 || track.Reliability < 75 => "Reach Abu Samir trust 20 and reliability 75 for Workshop Rush Table.",
             JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust < 10 && player.Skills.GetLevel(SkillId.Persuasion) < 2 => "Reach Nadia trust 10 or Persuasion 2 for Cafe Rush Tables.",
             JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust < 20 || track.Reliability < 70 => "Reach Nadia trust 20 and reliability 70 for Cafe Front Tables.",
+            JobType.PharmacyStock when relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust < 10 && player.Skills.GetLevel(SkillId.Medical) < 2 && player.BackgroundType != BackgroundType.MedicalSchoolDropout => "Reach Mariam trust 10, Medical 2, or use the medical-dropout background for Pharmacy Restock Run.",
+            JobType.PharmacyStock when relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust < 20 || track.Reliability < 70 => "Reach Mariam trust 20 and reliability 70 for Pharmacy Counter Support.",
+            JobType.MicrobusDispatch when relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust < 10 && player.Skills.GetLevel(SkillId.Persuasion) < 2 => "Reach Safaa trust 10 or Persuasion 2 for Platform Caller.",
+            JobType.MicrobusDispatch when relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust < 20 || track.Reliability < 70 => "Reach Safaa trust 20 and reliability 70 for Depot Route Board.",
+            JobType.LaundryPressing when relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust < 10 && track.Reliability < 60 => "Reach Iman trust 10 or reliability 60 for Laundry Sorting Table.",
+            JobType.LaundryPressing when relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust < 20 || track.Reliability < 75 => "Reach Iman trust 20 and reliability 75 for Laundry Front Counter.",
             _ => null
         };
     }
@@ -451,6 +533,11 @@ public sealed class JobService
             modifiers.Add("Medical-dropout background improves clinic shift outcomes.");
         }
 
+        if (player.BackgroundType == BackgroundType.MedicalSchoolDropout && resolvedJob.Type == JobType.PharmacyStock)
+        {
+            modifiers.Add("Medical-dropout background helps you read stock and scripts faster.");
+        }
+
         return modifiers;
     }
 
@@ -460,7 +547,10 @@ public sealed class JobService
         {
             JobType.CallCenterWork or JobType.CafeService when player.Stats.Stress >= 60 => "High mistake risk from stress.",
             JobType.ClinicReception when player.Stats.Stress >= 65 => "High mistake risk from stress.",
+            JobType.PharmacyStock when player.Stats.Stress >= 60 => "High mistake risk from stress.",
+            JobType.MicrobusDispatch when player.Stats.Stress >= 62 => "High mistake risk from stress.",
             JobType.ClinicReception or JobType.WorkshopSewing or JobType.BakeryWork or JobType.HouseCleaning when player.Stats.Energy <= resolvedJob.MinEnergyRequired + 5 => "High mistake risk from low energy.",
+            JobType.PharmacyStock or JobType.LaundryPressing when player.Stats.Energy <= resolvedJob.MinEnergyRequired + 5 => "High mistake risk from low energy.",
             _ => "High mistake risk under current conditions."
         };
     }
@@ -475,6 +565,9 @@ public sealed class JobService
             JobType.ClinicReception => locationId == LocationId.Clinic,
             JobType.WorkshopSewing => locationId == LocationId.Workshop,
             JobType.CafeService => locationId == LocationId.Cafe,
+            JobType.PharmacyStock => locationId == LocationId.Pharmacy,
+            JobType.MicrobusDispatch => locationId == LocationId.Depot,
+            JobType.LaundryPressing => locationId == LocationId.Laundry,
             _ => false
         };
     }

@@ -86,5 +86,38 @@
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
     "TravelTimeMinutes": 35
+  },
+  {
+    "Id": {
+      "Value": "pharmacy"
+    },
+    "Name": "Saidaleya Al-Nahda",
+    "Description": "A discount pharmacy in Bulaq al-Dakrour with stacked boxes, tired fluorescent lights, and women comparing prices at the counter.",
+    "District": "BulaqAlDakrour",
+    "HasJobOpportunities": true,
+    "HasCrimeOpportunities": false,
+    "TravelTimeMinutes": 30
+  },
+  {
+    "Id": {
+      "Value": "depot"
+    },
+    "Name": "Bulaq Microbus Depot",
+    "Description": "A chaotic transport yard where routes are shouted louder than engines and everybody is late for something.",
+    "District": "BulaqAlDakrour",
+    "HasJobOpportunities": true,
+    "HasCrimeOpportunities": false,
+    "TravelTimeMinutes": 30
+  },
+  {
+    "Id": {
+      "Value": "laundry"
+    },
+    "Name": "Shubra Steam Laundry",
+    "Description": "A hot narrow laundry where steam, starch, and neighborhood gossip cling to everything at once.",
+    "District": "Shubra",
+    "HasJobOpportunities": true,
+    "HasCrimeOpportunities": false,
+    "TravelTimeMinutes": 40
   }
 ]

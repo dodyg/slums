@@ -15,6 +15,9 @@ public static class NpcRegistry
         NpcId.CafeOwnerNadia => "Nadia",
         NpcId.FenceHanan => "Hanan",
         NpcId.RunnerYoussef => "Youssef",
+        NpcId.PharmacistMariam => "Mariam",
+        NpcId.DispatcherSafaa => "Safaa",
+        NpcId.LaundryOwnerIman => "Iman",
         _ => throw new ArgumentOutOfRangeException(nameof(npcId))
     };
 
@@ -56,6 +59,21 @@ public static class NpcRegistry
         if (locationId == LocationId.Square)
         {
             npcs.Add(NpcId.RunnerYoussef);
+        }
+
+        if (locationId == LocationId.Pharmacy)
+        {
+            npcs.Add(NpcId.PharmacistMariam);
+        }
+
+        if (locationId == LocationId.Depot)
+        {
+            npcs.Add(NpcId.DispatcherSafaa);
+        }
+
+        if (locationId == LocationId.Laundry)
+        {
+            npcs.Add(NpcId.LaundryOwnerIman);
         }
 
         if (locationId == LocationId.Square || policePressure >= 50)
@@ -105,6 +123,12 @@ public static class NpcRegistry
             NpcId.FenceHanan => "hanan_fence",
             NpcId.RunnerYoussef when policePressure >= 70 => "youssef_runner_hot",
             NpcId.RunnerYoussef => "youssef_runner",
+            NpcId.PharmacistMariam when relationship.Trust >= 15 => "mariam_pharmacy_warm",
+            NpcId.PharmacistMariam => "mariam_pharmacy",
+            NpcId.DispatcherSafaa when relationship.Trust >= 15 => "safaa_depot_warm",
+            NpcId.DispatcherSafaa => "safaa_depot",
+            NpcId.LaundryOwnerIman when relationship.Trust >= 15 => "iman_laundry_warm",
+            NpcId.LaundryOwnerIman => "iman_laundry",
             _ => throw new ArgumentOutOfRangeException(nameof(npcId))
         };
     }

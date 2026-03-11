@@ -96,6 +96,19 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task EatStreetFood_ShouldCostMoreInDokkiThanAtHome()
+    {
+        var state = new GameState();
+        state.TryTravelTo(LocationId.CallCenter);
+        var moneyBefore = state.Player.Stats.Money;
+
+        var result = state.EatStreetFood();
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(moneyBefore - state.Player.Stats.Money).IsEqualTo(10);
+    }
+
+    [Test]
     public async Task BuyMedicine_ShouldIncreaseMedicineStock()
     {
         var state = new GameState();
@@ -105,6 +118,18 @@ internal sealed class GameStateTests
         await Assert.That(result).IsTrue();
         await Assert.That(state.Player.Household.MedicineStock).IsEqualTo(2);
         await Assert.That(state.Player.Stats.Money).IsEqualTo(50);
+    }
+
+    [Test]
+    public async Task BuyMedicine_ShouldBeCheaperInArdAlLiwaThanImbaba()
+    {
+        var state = new GameState();
+        state.World.TravelTo(LocationId.Clinic);
+
+        var result = state.BuyMedicine();
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(58);
     }
 
     [Test]
@@ -290,6 +315,18 @@ internal sealed class GameStateTests
 
         await Assert.That(result).IsTrue();
         await Assert.That(state.Player.Household.FoodStockpile).IsEqualTo(before + 4);
+    }
+
+    [Test]
+    public async Task BuyFood_ShouldCostMoreInShubraThanImbaba()
+    {
+        var state = new GameState();
+        state.World.TravelTo(LocationId.Laundry);
+
+        var result = state.BuyFood();
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(83);
     }
 
     [Test]
@@ -616,7 +653,7 @@ internal sealed class GameStateTests
 
         state.EndDay();
 
-        await Assert.That(state.Player.Household.MotherHealth).IsEqualTo(39);
+        await Assert.That(state.Player.Household.MotherHealth).IsEqualTo(41);
     }
 
     [Test]
@@ -630,7 +667,7 @@ internal sealed class GameStateTests
 
         state.EndDay();
 
-        await Assert.That(state.Player.Stats.Stress).IsEqualTo(39);
+        await Assert.That(state.Player.Stats.Stress).IsEqualTo(37);
     }
 
     [Test]
@@ -654,7 +691,7 @@ internal sealed class GameStateTests
     public async Task EndDay_ShouldTriggerGameOver_WhenMotherHealthFallsToZero()
     {
         var state = new GameState();
-        state.Player.Household.SetMotherHealth(4);
+        state.Player.Household.SetMotherHealth(1);
 
         state.EndDay();
 

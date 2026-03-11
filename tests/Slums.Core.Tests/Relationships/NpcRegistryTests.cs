@@ -24,6 +24,9 @@ internal sealed class NpcRegistryTests
         NpcRegistry.GetReachableNpcs(LocationId.Cafe, policePressure: 0).Should().Contain(NpcId.CafeOwnerNadia);
         NpcRegistry.GetReachableNpcs(LocationId.Market, policePressure: 0).Should().Contain(NpcId.FenceHanan);
         NpcRegistry.GetReachableNpcs(LocationId.Square, policePressure: 0).Should().Contain(NpcId.RunnerYoussef);
+        NpcRegistry.GetReachableNpcs(LocationId.Pharmacy, policePressure: 0).Should().Contain(NpcId.PharmacistMariam);
+        NpcRegistry.GetReachableNpcs(LocationId.Depot, policePressure: 0).Should().Contain(NpcId.DispatcherSafaa);
+        NpcRegistry.GetReachableNpcs(LocationId.Laundry, policePressure: 0).Should().Contain(NpcId.LaundryOwnerIman);
     }
 
     [Test]
@@ -32,9 +35,11 @@ internal sealed class NpcRegistryTests
         var state = new RelationshipState();
         state.SetNpcRelationship(NpcId.NurseSalma, 20, 1);
         state.SetNpcRelationship(NpcId.CafeOwnerNadia, 20, 1);
+        state.SetNpcRelationship(NpcId.PharmacistMariam, 20, 1);
 
         NpcRegistry.GetConversationKnot(NpcId.NurseSalma, state, policePressure: 0).Should().Be("nurse_salma_warm");
         NpcRegistry.GetConversationKnot(NpcId.CafeOwnerNadia, state, policePressure: 0).Should().Be("nadia_cafe_warm");
+        NpcRegistry.GetConversationKnot(NpcId.PharmacistMariam, state, policePressure: 0).Should().Be("mariam_pharmacy_warm");
     }
 
     [Test]

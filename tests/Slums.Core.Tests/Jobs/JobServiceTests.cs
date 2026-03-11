@@ -41,6 +41,21 @@ internal sealed class JobServiceTests
     }
 
     [Test]
+    public void GetAvailableJobs_ShouldReturnPharmacyShift_ForPharmacy()
+    {
+        var service = new JobService();
+        var location = WorldState.AllLocations.First(static location => location.Id == LocationId.Pharmacy);
+        var player = new PlayerCharacter();
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+
+        var jobs = service.GetAvailableJobs(location, player, relationships, progress).ToList();
+
+        jobs.Should().ContainSingle();
+        jobs[0].Type.Should().Be(JobType.PharmacyStock);
+    }
+
+    [Test]
     public void CanPerformJob_ShouldRejectCafeService_OutsideCafe()
     {
         var service = new JobService();
@@ -103,6 +118,22 @@ internal sealed class JobServiceTests
 
         jobs.Should().ContainSingle();
         jobs[0].Name.Should().Be("Call Center Retention Queue");
+    }
+
+    [Test]
+    public void GetAvailableJobs_ShouldUpgradePharmacyTrack_WhenMedicalSkillIsHigh()
+    {
+        var service = new JobService();
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Pharmacy);
+        var player = new PlayerCharacter();
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+        player.Skills.SetLevel(SkillId.Medical, 2);
+
+        var jobs = service.GetAvailableJobs(location, player, relationships, progress).ToList();
+
+        jobs.Should().ContainSingle();
+        jobs[0].Name.Should().Be("Pharmacy Restock Run");
     }
 
     [Test]

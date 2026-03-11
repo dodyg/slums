@@ -435,3 +435,100 @@ Youssef spots you before you speak and checks the street behind you first. His v
 	# MESSAGE:Youssef decides distance is safer.
 	He lifts both hands, steps back into the crowd, and leaves you with the certainty that isolation is its own kind of warning.
 	-> DONE
+
+=== mariam_pharmacy ===
+Mariam is labeling a shelf faster than the queue can empty. She keeps one eye on the stock sheet and one on the women pretending not to count their money twice.
+
+*   [Ask whether she needs help on a shift]
+	# NPC_TRUST:PharmacistMariam,6
+	# STRESS:-1
+	# MESSAGE:Mariam tells you when the cheaper deliveries usually land.
+	She says the work is simple until the shortages start. After that, everybody wants mercy priced like a generic.
+	-> DONE
+
+*   [Ask how women are managing medicine costs]
+	# NPC_TRUST:PharmacistMariam,5
+	# MESSAGE:Mariam points out which brands are honest and which counters exploit panic.
+	Her voice stays low. "Buy early if you can. By evening, every story becomes a surcharge."
+	-> DONE
+
+=== mariam_pharmacy_warm ===
+Mariam nudges a stool out with her foot before you ask. In a pharmacy this cramped, making space is its own kind of trust.
+
+*   [Ask if she can keep you in mind for steadier shifts]
+	# NPC_TRUST:PharmacistMariam,7
+	# STRESS:-2
+	# MESSAGE:Mariam starts treating you like someone who can hold the counter together.
+	She says reliable women are rarer than stock and worth more.
+	-> DONE
+
+*   [Ask what medicine your mother should never run out of]
+	# NPC_TRUST:PharmacistMariam,4
+	# MESSAGE:Mariam gives you the answer without theatrics.
+	She circles two cheap options on scrap cardboard and tells you which substitute is false economy.
+	-> DONE
+
+=== safaa_depot ===
+Safaa stands above the depot noise like she has decided volume is a tool, not a mood. Drivers argue, engines cough, and she keeps the line moving anyway.
+
+*   [Ask whether she needs another pair of hands]
+	# NPC_TRUST:DispatcherSafaa,6
+	# STRESS:2
+	# MESSAGE:Safaa tells you to come before the first real crush if you want work.
+	She says the depot rewards lungs, timing, and the nerve to stop men wasting everybody's morning.
+	-> DONE
+
+*   [Ask which routes are worst this week]
+	# NPC_TRUST:DispatcherSafaa,4
+	# MESSAGE:Safaa gives you the honest answer because it saves time.
+	She names the longest routes, the drivers who cheat on counts, and the hour when tempers become part of the fare.
+	-> DONE
+
+=== safaa_depot_warm ===
+Safaa waves you closer without taking her eyes off the board. The trust is small, but at the depot small trust is still expensive.
+
+*   [Ask if she will put you on the better line]
+	# NPC_TRUST:DispatcherSafaa,7
+	# STRESS:-1
+	# MESSAGE:Safaa starts slotting you where chaos pays a little better.
+	She says the cleaner line is never truly clean, only less stupid.
+	-> DONE
+
+*   [Ask what she hears from the streets before everyone else]
+	# NPC_TRUST:DispatcherSafaa,3
+	# MESSAGE:Safaa shares the kind of rumors that arrive before the police do.
+	She tells you transport hears the city breathe before anyone else notices the chest tightening.
+	-> DONE
+
+=== iman_laundry ===
+Iman runs the laundry with forearms shining from steam and a ledger balanced on the counter. Shirts hang overhead like surrendered flags.
+
+*   [Ask if she needs help with the pressing]
+	# NPC_TRUST:LaundryOwnerIman,6
+	# STRESS:1
+	# MESSAGE:Iman tells you which hours burn the worst and pay the same.
+	She says laundry is honest work if you can stand heat, repetition, and customers who lie about stains.
+	-> DONE
+
+*   [Ask how business is holding up]
+	# NPC_TRUST:LaundryOwnerIman,4
+	# STRESS:-2
+	# MESSAGE:Iman gives you the arithmetic nobody advertises.
+	She says every family cuts something first, and pressed shirts disappear right after dignity starts getting expensive.
+	-> DONE
+
+=== iman_laundry_warm ===
+Iman hands you a glass of water before the question is even finished. In the laundry, kindness arrives in practical forms.
+
+*   [Ask if she trusts you with the front counter now]
+	# NPC_TRUST:LaundryOwnerIman,7
+	# STRESS:-2
+	# MESSAGE:Iman starts leaving the better bundles in your hands.
+	She says mistakes still cost money, but at least yours no longer feel guaranteed.
+	-> DONE
+
+*   [Ask what families are cutting back on first]
+	# NPC_TRUST:LaundryOwnerIman,3
+	# MESSAGE:Iman answers like someone who has watched decline item by item.
+	She says starch, then special handling, then repairs, and finally the small courtesies that make poverty look less obvious.
+	-> DONE

@@ -36,6 +36,7 @@ public sealed class GameStatusPageQuery
                 $"Money: {gameState.Player.Stats.Money} LE",
                 $"Police pressure: {gameState.PolicePressure}",
                 $"Food: {household.FoodStockpile} | Medicine: {household.MedicineStock}",
+                $"Local prices: food {gameState.GetFoodCost()} LE | street {gameState.GetStreetFoodCost()} LE | medicine {gameState.GetMedicineCost()} LE",
                 $"Mother: {household.MotherHealth}% {household.MotherCondition}",
                 $"Mother fed today: {ToYesNo(household.FedMotherToday)}"
             ]);
@@ -126,6 +127,9 @@ public sealed class GameStatusPageQuery
         yield return NpcId.LandlordHajjMahmoud;
         yield return NpcId.NeighborMona;
         yield return NpcId.NurseSalma;
+        yield return NpcId.PharmacistMariam;
+        yield return NpcId.DispatcherSafaa;
+        yield return NpcId.LaundryOwnerIman;
         yield return NpcId.FixerUmmKarim;
         yield return NpcId.FenceHanan;
         yield return NpcId.RunnerYoussef;

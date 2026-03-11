@@ -129,9 +129,9 @@ internal sealed class HouseholdCareStateTests
 
         var result = state.ResolveDay();
 
-        await Assert.That(result.HealthDelta).IsEqualTo(1);
+        await Assert.That(result.HealthDelta).IsEqualTo(2);
         await Assert.That(result.StressDelta).IsEqualTo(0);
-        await Assert.That(state.MotherHealth).IsEqualTo(81);
+        await Assert.That(state.MotherHealth).IsEqualTo(82);
     }
 
     [Test]
@@ -142,8 +142,8 @@ internal sealed class HouseholdCareStateTests
 
         var result = state.ResolveDay();
 
-        await Assert.That(result.HealthDelta).IsEqualTo(-4);
-        await Assert.That(state.MotherHealth).IsEqualTo(76);
+        await Assert.That(result.HealthDelta).IsEqualTo(-3);
+        await Assert.That(state.MotherHealth).IsEqualTo(77);
     }
 
     [Test]
@@ -157,12 +157,12 @@ internal sealed class HouseholdCareStateTests
 
         var result = state.ResolveDay();
 
-        await Assert.That(result.HealthDelta).IsEqualTo(3);
-        await Assert.That(state.MotherHealth).IsEqualTo(48);
+        await Assert.That(result.HealthDelta).IsEqualTo(4);
+        await Assert.That(state.MotherHealth).IsEqualTo(49);
     }
 
     [Test]
-    public async Task ResolveDay_Fragile_WithoutMedicine_ShouldReduceHealthBy6()
+    public async Task ResolveDay_Fragile_WithoutMedicine_ShouldReduceHealthBy4()
     {
         var state = new HouseholdCareState();
         state.SetMotherHealth(45);
@@ -170,24 +170,24 @@ internal sealed class HouseholdCareStateTests
 
         var result = state.ResolveDay();
 
-        await Assert.That(result.HealthDelta).IsEqualTo(-6);
-        await Assert.That(state.MotherHealth).IsEqualTo(39);
+        await Assert.That(result.HealthDelta).IsEqualTo(-4);
+        await Assert.That(state.MotherHealth).IsEqualTo(41);
     }
 
     [Test]
-    public async Task ResolveDay_Fragile_WithoutFoodOrMedicine_ShouldReduceHealthBy14()
+    public async Task ResolveDay_Fragile_WithoutFoodOrMedicine_ShouldReduceHealthBy9()
     {
         var state = new HouseholdCareState();
         state.SetMotherHealth(45);
 
         var result = state.ResolveDay();
 
-        await Assert.That(result.HealthDelta).IsEqualTo(-14);
-        await Assert.That(state.MotherHealth).IsEqualTo(31);
+        await Assert.That(result.HealthDelta).IsEqualTo(-9);
+        await Assert.That(state.MotherHealth).IsEqualTo(36);
     }
 
     [Test]
-    public async Task ResolveDay_Crisis_WithFullCare_ShouldImproveHealthBy6()
+    public async Task ResolveDay_Crisis_WithFullCare_ShouldImproveHealthBy8()
     {
         var state = new HouseholdCareState();
         state.SetMotherHealth(20);
@@ -198,9 +198,9 @@ internal sealed class HouseholdCareStateTests
 
         var result = state.ResolveDay();
 
-        await Assert.That(result.HealthDelta).IsEqualTo(6);
+        await Assert.That(result.HealthDelta).IsEqualTo(8);
         await Assert.That(result.StressDelta).IsEqualTo(0);
-        await Assert.That(state.MotherHealth).IsEqualTo(26);
+        await Assert.That(state.MotherHealth).IsEqualTo(28);
     }
 
     [Test]
@@ -214,12 +214,12 @@ internal sealed class HouseholdCareStateTests
 
         var result = state.ResolveDay();
 
-        await Assert.That(result.HealthDelta).IsEqualTo(6);
-        await Assert.That(result.StressDelta).IsEqualTo(5);
+        await Assert.That(result.HealthDelta).IsEqualTo(8);
+        await Assert.That(result.StressDelta).IsEqualTo(3);
     }
 
     [Test]
-    public async Task ResolveDay_Crisis_WithoutFoodOrMedicine_ShouldReduceHealthBy24()
+    public async Task ResolveDay_Crisis_WithoutFoodOrMedicine_ShouldReduceHealthBy15()
     {
         var state = new HouseholdCareState();
         state.SetMotherHealth(20);
@@ -227,9 +227,9 @@ internal sealed class HouseholdCareStateTests
 
         var result = state.ResolveDay();
 
-        await Assert.That(result.HealthDelta).IsEqualTo(-24);
-        await Assert.That(state.MotherHealth).IsEqualTo(0);
-        await Assert.That(state.MotherAlive).IsFalse();
+        await Assert.That(result.HealthDelta).IsEqualTo(-15);
+        await Assert.That(state.MotherHealth).IsEqualTo(5);
+        await Assert.That(state.MotherAlive).IsTrue();
     }
 
     [Test]
@@ -240,7 +240,7 @@ internal sealed class HouseholdCareStateTests
 
         _ = state.ResolveDay();
 
-        await Assert.That(state.MotherHealth).IsEqualTo(62);
+        await Assert.That(state.MotherHealth).IsEqualTo(63);
         await Assert.That(state.MotherCondition).IsEqualTo(MotherCondition.Fragile);
     }
 

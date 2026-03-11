@@ -25,7 +25,7 @@ internal sealed class SkillIntegrationTests
         var state = new GameState();
         state.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
 
-        state.GetMedicineCost().Should().Be(40);
+        state.GetMedicineCost().Should().Be(42);
     }
 
     [Test]

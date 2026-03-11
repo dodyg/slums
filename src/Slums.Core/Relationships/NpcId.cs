@@ -10,5 +10,8 @@ public enum NpcId
     WorkshopBossAbuSamir,
     CafeOwnerNadia,
     FenceHanan,
-    RunnerYoussef
+    RunnerYoussef,
+    PharmacistMariam,
+    DispatcherSafaa,
+    LaundryOwnerIman
 }

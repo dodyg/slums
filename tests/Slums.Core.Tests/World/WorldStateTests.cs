@@ -64,9 +64,9 @@ internal sealed class WorldStateTests
     {
         var locations = WorldState.AllLocations;
 
-        locations.Should().HaveCount(8);
+        locations.Should().HaveCount(11);
         locations.Select(l => l.Id).Should().Contain(
-            new[] { LocationId.Home, LocationId.Market, LocationId.Bakery, LocationId.CallCenter, LocationId.Square, LocationId.Clinic, LocationId.Workshop, LocationId.Cafe });
+            new[] { LocationId.Home, LocationId.Market, LocationId.Bakery, LocationId.CallCenter, LocationId.Square, LocationId.Clinic, LocationId.Workshop, LocationId.Cafe, LocationId.Pharmacy, LocationId.Depot, LocationId.Laundry });
     }
 
     [Test]
@@ -99,7 +99,7 @@ internal sealed class WorldStateTests
 
         var locations = world.GetTravelableLocations();
 
-        locations.Should().HaveCount(7);
+        locations.Should().HaveCount(10);
         locations.Any(l => l.Id == LocationId.Home).Should().BeFalse();
     }
 
@@ -177,5 +177,27 @@ internal sealed class WorldStateTests
         await Assert.That(cafe.HasJobOpportunities).IsTrue();
         await Assert.That(cafe.HasCrimeOpportunities).IsFalse();
         await Assert.That(cafe.District).IsEqualTo(DistrictId.Dokki);
+    }
+
+    [Test]
+    public async Task PharmacyAndDepot_ShouldSupportWorkInBulaqAlDakrour()
+    {
+        var pharmacy = WorldState.AllLocations.First(l => l.Id == LocationId.Pharmacy);
+        var depot = WorldState.AllLocations.First(l => l.Id == LocationId.Depot);
+
+        await Assert.That(pharmacy.HasJobOpportunities).IsTrue();
+        await Assert.That(pharmacy.District).IsEqualTo(DistrictId.BulaqAlDakrour);
+        await Assert.That(depot.HasJobOpportunities).IsTrue();
+        await Assert.That(depot.District).IsEqualTo(DistrictId.BulaqAlDakrour);
+    }
+
+    [Test]
+    public async Task Laundry_ShouldSupportWorkInShubra()
+    {
+        var laundry = WorldState.AllLocations.First(l => l.Id == LocationId.Laundry);
+
+        await Assert.That(laundry.HasJobOpportunities).IsTrue();
+        await Assert.That(laundry.HasCrimeOpportunities).IsFalse();
+        await Assert.That(laundry.District).IsEqualTo(DistrictId.Shubra);
     }
 }

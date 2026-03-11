@@ -24,6 +24,9 @@ public static class RelationshipService
                 NpcId.CafeOwnerNadia => "Nadia cools toward you. Even tea comes with less warmth.",
                 NpcId.FenceHanan => "Hanan decides you bring more heat than profit.",
                 NpcId.RunnerYoussef => "Youssef stops passing you the useful rumors.",
+                NpcId.PharmacistMariam => "Mariam stops extending quiet advice and starts quoting the shelf price.",
+                NpcId.DispatcherSafaa => "Safaa decides the depot already has enough noise without you.",
+                NpcId.LaundryOwnerIman => "Iman stops trusting you with the cleaner work.",
                 _ => null
             };
         }
@@ -41,6 +44,9 @@ public static class RelationshipService
                 NpcId.CafeOwnerNadia => "Nadia begins trusting you with the front tables and the better customers.",
                 NpcId.FenceHanan => "Hanan starts treating you like someone who understands risk.",
                 NpcId.RunnerYoussef => "Youssef starts waving you into conversations he used to keep closed.",
+                NpcId.PharmacistMariam => "Mariam starts saving the useful stock tips for you instead of the whole queue.",
+                NpcId.DispatcherSafaa => "Safaa starts trusting you with the depot's uglier shifts and better information.",
+                NpcId.LaundryOwnerIman => "Iman starts leaving the front counter and cleaner bundles in your hands.",
                 _ => null
             };
         }

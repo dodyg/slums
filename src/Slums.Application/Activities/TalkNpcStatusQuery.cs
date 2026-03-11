@@ -60,6 +60,12 @@ public sealed class TalkNpcStatusQuery
             NpcId.FenceHanan => "Transactional, sharp, and never sentimental.",
             NpcId.RunnerYoussef when gameState.PolicePressure >= 70 => "He is restless; the route is too hot to ignore.",
             NpcId.RunnerYoussef => "Quick, alert, and always half-turned toward the street.",
+            NpcId.PharmacistMariam when relationship.Trust >= 15 => "She treats you like a helper, not just another woman pricing painkillers.",
+            NpcId.PharmacistMariam => "Calm, exact, and always counting what families can no longer afford.",
+            NpcId.DispatcherSafaa when relationship.Trust >= 15 => "She trusts you to handle the depot without getting swallowed by it.",
+            NpcId.DispatcherSafaa => "Sharp-voiced, fast-moving, and measuring who can survive the route board.",
+            NpcId.LaundryOwnerIman when relationship.Trust >= 15 => "She trusts your hands with the cleaner work and the front counter.",
+            NpcId.LaundryOwnerIman => "Practical, overheated, and always one ruined shirt away from anger.",
             _ => "Hard to read."
         };
     }

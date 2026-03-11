@@ -124,12 +124,12 @@ public sealed class HouseholdCareState
             case MotherCondition.Stable:
                 if (!FedMotherToday)
                 {
-                    healthDelta -= 4;
+                    healthDelta -= 3;
                 }
 
                 if (MedicationGivenToday)
                 {
-                    healthDelta += 1;
+                    healthDelta += 2;
                 }
 
                 break;
@@ -137,17 +137,17 @@ public sealed class HouseholdCareState
             case MotherCondition.Fragile:
                 if (!FedMotherToday)
                 {
-                    healthDelta -= 8;
+                    healthDelta -= 5;
                 }
 
                 if (!MedicationGivenToday)
                 {
-                    healthDelta -= 6;
+                    healthDelta -= 4;
                 }
 
                 if (FedMotherToday && MedicationGivenToday)
                 {
-                    healthDelta += 3;
+                    healthDelta += 4;
                 }
 
                 break;
@@ -155,22 +155,22 @@ public sealed class HouseholdCareState
             case MotherCondition.Crisis:
                 if (!FedMotherToday)
                 {
-                    healthDelta -= 12;
+                    healthDelta -= 8;
                 }
 
                 if (!MedicationGivenToday)
                 {
-                    healthDelta -= 12;
+                    healthDelta -= 7;
                 }
 
                 if (!CheckedOnMotherToday)
                 {
-                    stressDelta += 5;
+                    stressDelta += 3;
                 }
 
                 if (FedMotherToday && MedicationGivenToday)
                 {
-                    healthDelta += 6;
+                    healthDelta += 8;
                 }
 
                 break;

@@ -14,7 +14,6 @@ namespace Slums.Core.State;
 public sealed class GameState
 {
     private const int EndOfDayHour = 22;
-    private const int StreetFoodCost = 8;
     private readonly CrimeService _crimeService = new();
     private readonly RandomEventService _randomEventService = new();
     private readonly Queue<string> _pendingNarrativeScenes = new();
@@ -336,13 +335,14 @@ public sealed class GameState
 
     public bool BuyFood()
     {
-        if (Player.Stats.Money < RecurringExpenses.CheapFoodStockpile)
+        var foodCost = GetFoodCost();
+        if (Player.Stats.Money < foodCost)
         {
-            RaiseEvent($"Not enough money. Food costs {RecurringExpenses.CheapFoodStockpile} LE.");
+            RaiseEvent($"Not enough money. Food costs {foodCost} LE.");
             return false;
         }
 
-        Player.Stats.ModifyMoney(-RecurringExpenses.CheapFoodStockpile);
+        Player.Stats.ModifyMoney(-foodCost);
         Player.Household.AddStaples(3);
         if (Player.BackgroundType == BackgroundType.SudaneseRefugee)
         {
@@ -350,7 +350,7 @@ public sealed class GameState
             RaiseEvent("A Sudanese women-led kitchen stretches the bread run a little farther for you.");
         }
 
-        RaiseEvent($"Bought food supplies for {RecurringExpenses.CheapFoodStockpile} LE. Stockpile: {Player.Household.FoodStockpile}");
+        RaiseEvent($"Bought food supplies for {foodCost} LE in {DistrictInfo.GetName(World.CurrentDistrict)}. Stockpile: {Player.Household.FoodStockpile}");
         return true;
     }
 
@@ -386,16 +386,17 @@ public sealed class GameState
 
     public bool EatStreetFood()
     {
-        if (Player.Stats.Money < StreetFoodCost)
+        var streetFoodCost = GetStreetFoodCost();
+        if (Player.Stats.Money < streetFoodCost)
         {
-            RaiseEvent("You do not have enough money for street food.");
+            RaiseEvent($"You do not have enough money for street food. It costs {streetFoodCost} LE here.");
             return false;
         }
 
-        Player.Stats.ModifyMoney(-StreetFoodCost);
+        Player.Stats.ModifyMoney(-streetFoodCost);
         Player.Nutrition.Eat(MealQuality.Basic);
         SyncLegacyHunger();
-        RaiseEvent("You grab a cheap meal from the street.");
+        RaiseEvent($"You grab a cheap meal from the street for {streetFoodCost} LE.");
         return true;
     }
 
@@ -417,9 +418,49 @@ public sealed class GameState
         return true;
     }
 
+#pragma warning disable CA1024
+    public int GetFoodCost()
+    {
+        return World.CurrentDistrict switch
+        {
+            DistrictId.Dokki => 20,
+            DistrictId.Imbaba => 15,
+            DistrictId.ArdAlLiwa => 13,
+            DistrictId.BulaqAlDakrour => 14,
+            DistrictId.Shubra => 17,
+            _ => RecurringExpenses.CheapFoodStockpile
+        };
+    }
+
+    public int GetStreetFoodCost()
+    {
+        return World.CurrentDistrict switch
+        {
+            DistrictId.Dokki => 10,
+            DistrictId.Imbaba => 8,
+            DistrictId.ArdAlLiwa => 7,
+            DistrictId.BulaqAlDakrour => 7,
+            DistrictId.Shubra => 9,
+            _ => 8
+        };
+    }
+#pragma warning restore CA1024
+
     public int GetMedicineCost()
     {
-        return Player.Skills.GetLevel(SkillId.Medical) >= 3 ? 40 : RecurringExpenses.MedicineCost;
+        var districtCost = World.CurrentDistrict switch
+        {
+            DistrictId.Dokki => 58,
+            DistrictId.Imbaba => 50,
+            DistrictId.ArdAlLiwa => 42,
+            DistrictId.BulaqAlDakrour => 46,
+            DistrictId.Shubra => 52,
+            _ => RecurringExpenses.MedicineCost
+        };
+
+        return Player.Skills.GetLevel(SkillId.Medical) >= 3
+            ? Math.Max(32, districtCost - 8)
+            : districtCost;
     }
 
     public IReadOnlyList<NpcId> GetReachableNpcs()
@@ -723,6 +764,9 @@ public sealed class GameState
             JobType.ClinicReception => NpcId.NurseSalma,
             JobType.WorkshopSewing => NpcId.WorkshopBossAbuSamir,
             JobType.CafeService => NpcId.CafeOwnerNadia,
+            JobType.PharmacyStock => NpcId.PharmacistMariam,
+            JobType.MicrobusDispatch => NpcId.DispatcherSafaa,
+            JobType.LaundryPressing => NpcId.LaundryOwnerIman,
             _ => (NpcId?)null
         };
 
@@ -832,7 +876,7 @@ public sealed class GameState
 
     private static bool IsPublicFacingJob(JobType jobType)
     {
-        return jobType is JobType.CallCenterWork or JobType.ClinicReception or JobType.CafeService;
+        return jobType is JobType.CallCenterWork or JobType.ClinicReception or JobType.CafeService or JobType.PharmacyStock or JobType.MicrobusDispatch;
     }
 
     private void ApplyRandomEvent(RandomEvent randomEvent)
@@ -937,6 +981,9 @@ public sealed class GameState
             JobType.BakeryWork => SkillId.Physical,
             JobType.HouseCleaning => SkillId.Physical,
             JobType.CallCenterWork => SkillId.Persuasion,
+            JobType.PharmacyStock => SkillId.Medical,
+            JobType.MicrobusDispatch => SkillId.Persuasion,
+            JobType.LaundryPressing => SkillId.Physical,
             _ => SkillId.StreetSmarts
         };
     }

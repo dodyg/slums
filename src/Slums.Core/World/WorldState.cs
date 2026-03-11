@@ -97,6 +97,36 @@ public sealed class WorldState
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
             TravelTimeMinutes = 35
+        },
+        new Location
+        {
+            Id = LocationId.Pharmacy,
+            Name = "Saidaleya Al-Nahda",
+            Description = "A discount pharmacy in Bulaq al-Dakrour with stacked boxes, tired fluorescent lights, and women comparing prices at the counter.",
+            District = DistrictId.BulaqAlDakrour,
+            HasJobOpportunities = true,
+            HasCrimeOpportunities = false,
+            TravelTimeMinutes = 30
+        },
+        new Location
+        {
+            Id = LocationId.Depot,
+            Name = "Bulaq Microbus Depot",
+            Description = "A chaotic transport yard where routes are shouted louder than engines and everybody is late for something.",
+            District = DistrictId.BulaqAlDakrour,
+            HasJobOpportunities = true,
+            HasCrimeOpportunities = false,
+            TravelTimeMinutes = 30
+        },
+        new Location
+        {
+            Id = LocationId.Laundry,
+            Name = "Shubra Steam Laundry",
+            Description = "A hot narrow laundry where steam, starch, and neighborhood gossip cling to everything at once.",
+            District = DistrictId.Shubra,
+            HasJobOpportunities = true,
+            HasCrimeOpportunities = false,
+            TravelTimeMinutes = 40
         }
     ];
 

@@ -7,5 +7,8 @@ public enum JobType
     CallCenterWork,
     ClinicReception,
     WorkshopSewing,
-    CafeService
+    CafeService,
+    PharmacyStock,
+    MicrobusDispatch,
+    LaundryPressing
 }

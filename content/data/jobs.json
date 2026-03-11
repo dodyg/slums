@@ -64,5 +64,38 @@
     "DurationMinutes": 360,
     "MinEnergyRequired": 25,
     "PayVariance": 4
+  },
+  {
+    "Type": "PharmacyStock",
+    "Name": "Pharmacy Stock Shift",
+    "Description": "Sort deliveries, restock shelves, and keep prices straight at Saidaleya Al-Nahda",
+    "BasePay": 21,
+    "EnergyCost": 16,
+    "StressCost": 12,
+    "DurationMinutes": 420,
+    "MinEnergyRequired": 25,
+    "PayVariance": 4
+  },
+  {
+    "Type": "MicrobusDispatch",
+    "Name": "Microbus Dispatch",
+    "Description": "Call routes, load passengers, and keep tempers under control at the Bulaq depot",
+    "BasePay": 23,
+    "EnergyCost": 24,
+    "StressCost": 16,
+    "DurationMinutes": 480,
+    "MinEnergyRequired": 30,
+    "PayVariance": 5
+  },
+  {
+    "Type": "LaundryPressing",
+    "Name": "Laundry Pressing Shift",
+    "Description": "Press shirts, fold sheets, and survive the heat at Shubra Steam Laundry",
+    "BasePay": 20,
+    "EnergyCost": 28,
+    "StressCost": 9,
+    "DurationMinutes": 420,
+    "MinEnergyRequired": 30,
+    "PayVariance": 4
   }
 ]
