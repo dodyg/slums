@@ -33,6 +33,7 @@ internal sealed class TalkNpcStatusQueryTests
         mona.MemoryFlags.Should().Contain("Remembers help");
         mona.MemoryFlags.Should().Contain("Last favor: day 2");
         mona.MemoryFlags.Should().Contain("Recent contact: 3");
+        mona.TriggerSignals.Should().Contain(static text => text.Contains("Past mutual help", StringComparison.Ordinal));
     }
 
     [Test]
@@ -68,6 +69,7 @@ internal sealed class TalkNpcStatusQueryTests
 
         var salma = statuses.Single(static npc => npc.NpcId == NpcId.NurseSalma);
         salma.Summary.Should().Contain("stories and your days stop matching");
+        salma.TriggerSignals.Should().Contain(static text => text.Contains("double life", StringComparison.OrdinalIgnoreCase));
     }
 
     [Test]
@@ -89,5 +91,35 @@ internal sealed class TalkNpcStatusQueryTests
         var clinicStatuses = query.GetStatuses(clinicState);
 
         clinicStatuses.Single(static npc => npc.NpcId == NpcId.NurseSalma).Summary.Should().Contain("mother's condition");
+    }
+
+    [Test]
+    public void GetStatuses_ShouldExposeConversationTriggers_ForDebtAndHeat()
+    {
+        var query = new TalkNpcStatusQuery();
+
+        var clinicState = new GameState();
+        clinicState.World.TravelTo(LocationId.Clinic);
+        clinicState.Relationships.SetNpcRelationship(NpcId.NurseSalma, 18, 1);
+        clinicState.Relationships.SetNpcRelationshipMemory(
+            NpcId.NurseSalma,
+            lastFavorDay: 2,
+            lastRefusalDay: 0,
+            hasUnpaidDebt: true,
+            wasEmbarrassed: false,
+            wasHelped: false,
+            recentContactCount: 2);
+
+        var homeState = new GameState();
+        homeState.World.TravelTo(LocationId.Home);
+        homeState.SetPolicePressure(75);
+        homeState.SetCrimeCounters(120, 2);
+
+        var clinicStatuses = query.GetStatuses(clinicState);
+        var homeStatuses = query.GetStatuses(homeState);
+
+        clinicStatuses.Single(static npc => npc.NpcId == NpcId.NurseSalma).TriggerSignals.Should().Contain(static text => text.Contains("owe Salma", StringComparison.Ordinal));
+        clinicStatuses.Single(static npc => npc.NpcId == NpcId.NurseSalma).TriggerSignals.Should().Contain(static text => text.Contains("High trust", StringComparison.Ordinal));
+        homeStatuses.Single(static npc => npc.NpcId == NpcId.NeighborMona).TriggerSignals.Should().Contain(static text => text.Contains("Police heat", StringComparison.Ordinal));
     }
 }

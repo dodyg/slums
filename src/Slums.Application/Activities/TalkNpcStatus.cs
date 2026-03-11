@@ -8,4 +8,5 @@ public sealed record TalkNpcStatus(
     int Trust,
     string Summary,
     string? FactionLink,
-    IReadOnlyList<string> MemoryFlags);
+    IReadOnlyList<string> MemoryFlags,
+    IReadOnlyList<string> TriggerSignals);

@@ -1,3 +1,4 @@
+using Slums.Core.Characters;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.State;
@@ -18,6 +19,7 @@ public sealed class GameStatusPageQuery
             BuildSurvivalPage(gameState),
             BuildSkillsPage(gameState),
             BuildNetworkPage(gameState),
+            BuildSignalsPage(gameState),
             BuildProgressPage(gameState)
         ];
     }
@@ -87,6 +89,50 @@ public sealed class GameStatusPageQuery
 
         lines.AddRange(GetTrajectoryHints(gameState).Select(static hint => $"Hint: {hint}"));
         return new GameStatusPage("Progress", lines);
+    }
+
+    private static GameStatusPage BuildSignalsPage(GameState gameState)
+    {
+        var lines = new List<string>();
+
+        if (gameState.LastCrimeDay > 0 && gameState.Clock.Day - gameState.LastCrimeDay <= 1 && gameState.PolicePressure >= 60)
+        {
+            lines.Add("Public-facing work is likely to trigger suspicion while street heat is this high.");
+        }
+
+        if (gameState.TotalCrimeEarnings >= 150 && gameState.CrimesCommitted >= 2 && gameState.Player.Household.MotherHealth < 65 && !gameState.HasStoryFlag("event_mother_wrong_money_seen"))
+        {
+            lines.Add("Home is primed for a tense reaction to sudden money.");
+        }
+
+        if (gameState.PolicePressure >= 60 && gameState.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust >= 15 && !gameState.HasStoryFlag("event_neighbor_watch_seen"))
+        {
+            lines.Add("Mona is currently positioned to warn you if the building gets watched.");
+        }
+
+        if (gameState.Player.BackgroundType == BackgroundType.MedicalSchoolDropout && !gameState.HasStoryFlag("background_medical_clinic_seen"))
+        {
+            lines.Add("A successful clinic shift can still trigger the medical-dropout clinic reflection.");
+        }
+
+        if (gameState.Player.BackgroundType == BackgroundType.MedicalSchoolDropout &&
+            gameState.Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust >= 12 &&
+            gameState.Player.Household.MotherHealth < 65)
+        {
+            lines.Add("Salma is in a position to quietly help with medicine after a good clinic day.");
+        }
+
+        if (gameState.CrimesCommitted == 0 && !gameState.HasStoryFlag("crime_first_success"))
+        {
+            lines.Add("Your first successful crime still has a unique aftermath beat waiting.");
+        }
+
+        if (lines.Count == 0)
+        {
+            lines.Add("No high-priority narrative signals are active right now.");
+        }
+
+        return new GameStatusPage("Signals", lines);
     }
 
     private static IEnumerable<string> GetTrajectoryHints(GameState gameState)

@@ -131,6 +131,23 @@ internal sealed class TalkScreen : ScreenSurface
             Surface.Print(DetailX, y++, selected.FactionLink, Color.Yellow);
         }
 
+        if (selected.TriggerSignals.Count > 0)
+        {
+            y++;
+            Surface.Print(DetailX, y++, "Conversation triggers:", Color.Cyan);
+            foreach (var signal in selected.TriggerSignals)
+            {
+                foreach (var line in WrapText($"- {signal}", detailWidth))
+                {
+                    Surface.Print(DetailX, y++, line, Color.LightGray);
+                    if (y >= Surface.Height - 3)
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+
         if (selected.MemoryFlags.Count > 0)
         {
             y++;

@@ -26,7 +26,8 @@ public sealed class TalkNpcStatusQuery
             relationship.Trust,
             GetSummary(gameState, npcId, relationship),
             GetFactionLink(gameState, npcId),
-            GetMemoryFlags(gameState, relationship));
+            GetMemoryFlags(gameState, relationship),
+            GetTriggerSignals(gameState, npcId, relationship));
     }
 
     private static string GetSummary(GameState gameState, NpcId npcId, NpcRelationship relationship)
@@ -142,5 +143,69 @@ public sealed class TalkNpcStatusQuery
         }
 
         return flags;
+    }
+
+    private static List<string> GetTriggerSignals(GameState gameState, NpcId npcId, NpcRelationship relationship)
+    {
+        var signals = new List<string>();
+        var maintainingDoubleLife = gameState.HonestShiftsCompleted >= 3 && gameState.CrimesCommitted > 0;
+
+        switch (npcId)
+        {
+            case NpcId.LandlordHajjMahmoud:
+                if (gameState.Player.Stats.Money < 40)
+                {
+                    signals.Add("Low money is forcing the conversation onto rent.");
+                }
+
+                if (relationship.Trust >= 15)
+                {
+                    signals.Add("High trust is softening how he handles the shortage.");
+                }
+                break;
+
+            case NpcId.FixerUmmKarim:
+                if (maintainingDoubleLife && relationship.Trust >= 10)
+                {
+                    signals.Add("Your honest shifts and crime history are both visible to her now.");
+                }
+
+                if (relationship.LastRefusalDay > 0 && gameState.Clock.Day - relationship.LastRefusalDay <= 3)
+                {
+                    signals.Add("Your recent refusal is still fresh in her memory.");
+                }
+                break;
+
+            case NpcId.NeighborMona:
+                if (gameState.PolicePressure >= 70 && gameState.CrimesCommitted > 0)
+                {
+                    signals.Add("Police heat is close enough to home for Mona to change her tone.");
+                }
+
+                if (relationship.WasHelped)
+                {
+                    signals.Add("Past mutual help is making the stairwell feel more like a side than a hallway.");
+                }
+                break;
+
+            case NpcId.NurseSalma:
+                if (relationship.HasUnpaidDebt)
+                {
+                    signals.Add("You still owe Salma for help she already gave.");
+                }
+
+                if (relationship.HasUnpaidDebt && relationship.Trust >= 15)
+                {
+                    signals.Add("High trust is changing the debt from bookkeeping into concern.");
+                }
+
+                if (maintainingDoubleLife)
+                {
+                    signals.Add("Your double life is starting to show in a clinical setting.");
+                }
+                break;
+        }
+
+        return signals;
     }
 }

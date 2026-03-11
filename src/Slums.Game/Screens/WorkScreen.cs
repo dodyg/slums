@@ -204,6 +204,23 @@ internal sealed class WorkScreen : ScreenSurface
                 }
             }
         }
+
+        if (selected.NarrativeSignals.Count > 0 && y < Surface.Height - 4)
+        {
+            y++;
+            Surface.Print(DetailX, y++, "Narrative signals:", Color.Cyan);
+            foreach (var signal in selected.NarrativeSignals)
+            {
+                foreach (var line in WrapText($"- {signal}", detailWidth))
+                {
+                    Surface.Print(DetailX, y++, line, Color.LightGray);
+                    if (y >= Surface.Height - 3)
+                    {
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     private static IEnumerable<string> WrapText(string text, int maxWidth)

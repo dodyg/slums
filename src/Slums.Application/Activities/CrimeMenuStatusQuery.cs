@@ -51,7 +51,8 @@ public sealed class CrimeMenuStatusQuery
                 preview.Resolution.SuccessChance,
                 preview.Resolution.PolicePressureIfDetected,
                 preview.Resolution.PolicePressureIfUndetected,
-                preview.ActiveModifiers);
+                preview.ActiveModifiers,
+                GetNarrativeSignals(gameState, availableAttempt));
         }
 
         return new CrimeMenuStatus(
@@ -63,7 +64,8 @@ public sealed class CrimeMenuStatusQuery
             preview.Resolution.SuccessChance,
             preview.Resolution.PolicePressureIfDetected,
             preview.Resolution.PolicePressureIfUndetected,
-            preview.ActiveModifiers);
+                preview.ActiveModifiers,
+                GetNarrativeSignals(gameState, baseStatus.Attempt));
     }
 
     private static string? GetStatusText(GameState gameState, Location location, CrimeAttempt attempt, bool availableViaRegistry)
@@ -120,5 +122,49 @@ public sealed class CrimeMenuStatusQuery
             DistrictId.ArdAlLiwa => FactionId.ExPrisonerNetwork,
             _ => FactionId.ImbabaCrew
         };
+    }
+
+    private static List<string> GetNarrativeSignals(GameState gameState, CrimeAttempt attempt)
+    {
+        var signals = new List<string>();
+
+        if (!gameState.HasStoryFlag("crime_first_success"))
+        {
+            signals.Add("Your first successful crime still has a dedicated aftermath scene waiting.");
+        }
+
+        if (HasUnseenRouteAftermath(gameState, attempt.Type))
+        {
+            signals.Add("This route still has unseen first-time aftermath content.");
+        }
+
+        var projectedCrimeEarnings = gameState.TotalCrimeEarnings + Math.Max(0, attempt.BaseReward);
+        var projectedCrimeCount = gameState.CrimesCommitted + 1;
+        if (projectedCrimeEarnings >= 150 && projectedCrimeCount >= 2 && gameState.Player.Household.MotherHealth < 65 && !gameState.HasStoryFlag("event_mother_wrong_money_seen"))
+        {
+            signals.Add("Another profitable run could make home money feel suspicious tonight.");
+        }
+
+        if (gameState.PolicePressure >= 60 && gameState.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust >= 15 && !gameState.HasStoryFlag("event_neighbor_watch_seen"))
+        {
+            signals.Add("If tonight gets hotter, Mona is positioned to warn you before the building closes in.");
+        }
+
+        return signals;
+    }
+
+    private static bool HasUnseenRouteAftermath(GameState gameState, CrimeType crimeType)
+    {
+        string[] flagNames = crimeType switch
+        {
+            CrimeType.MarketFencing => ["crime_hanan_fence_success_seen", "crime_hanan_fence_detected_seen", "crime_hanan_fence_failure_seen"],
+            CrimeType.DokkiDrop => ["crime_youssef_drop_success_seen", "crime_youssef_drop_detected_seen", "crime_youssef_drop_failure_seen"],
+            CrimeType.NetworkErrand => ["crime_ummkarim_errand_success_seen", "crime_ummkarim_errand_detected_seen", "crime_ummkarim_errand_failure_seen"],
+            CrimeType.DepotFareSkim => ["crime_safaa_skim_success_seen", "crime_safaa_skim_detected_seen", "crime_safaa_skim_failure_seen"],
+            CrimeType.ShubraBundleLift => ["crime_iman_bundle_success_seen", "crime_iman_bundle_detected_seen", "crime_iman_bundle_failure_seen"],
+            _ => []
+        };
+
+        return flagNames.Any(flagName => !gameState.HasStoryFlag(flagName));
     }
 }

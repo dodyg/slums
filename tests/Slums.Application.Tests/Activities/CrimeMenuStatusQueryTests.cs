@@ -110,4 +110,23 @@ internal sealed class CrimeMenuStatusQueryTests
         pettyTheft.EffectiveDetectionRisk.Should().BeGreaterThanOrEqualTo(5);
         pettyTheft.EffectiveSuccessChance.Should().BeGreaterThanOrEqualTo(10);
     }
+
+    [Test]
+    public void GetStatuses_ShouldExposeNarrativeSignals_ForHomeSuspicionAndMonaWarning()
+    {
+        var query = new CrimeMenuStatusQuery();
+        var gameState = new GameState();
+        gameState.World.TravelTo(LocationId.Square);
+        gameState.SetCrimeCounters(120, 1);
+        gameState.Player.Household.SetMotherHealth(50);
+        gameState.SetPolicePressure(65);
+        gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 18, 1);
+
+        var statuses = query.GetStatuses(gameState);
+
+        var pettyTheft = statuses.Single(static status => status.Attempt.Type == CrimeType.PettyTheft);
+        pettyTheft.NarrativeSignals.Should().Contain(static text => text.Contains("first successful crime", StringComparison.Ordinal));
+        pettyTheft.NarrativeSignals.Should().Contain(static text => text.Contains("suspicious tonight", StringComparison.Ordinal));
+        pettyTheft.NarrativeSignals.Should().Contain(static text => text.Contains("Mona", StringComparison.Ordinal));
+    }
 }

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Slums.Application.Activities;
+using Slums.Core.Characters;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
@@ -61,5 +62,25 @@ internal sealed class WorkMenuStatusQueryTests
         statuses.Should().ContainSingle();
         statuses[0].ActiveModifiers.Should().ContainSingle(static text => text.Contains("reduces energy cost by 5", StringComparison.Ordinal));
         statuses[0].RiskWarning.Should().Contain("low energy");
+    }
+
+    [Test]
+    public void GetStatuses_ShouldExposeNarrativeSignals_ForHeatAndClinicHooks()
+    {
+        var query = new WorkMenuStatusQuery();
+        var gameState = new GameState();
+        gameState.World.TravelTo(LocationId.Clinic);
+        gameState.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        gameState.Relationships.SetNpcRelationship(NpcId.NurseSalma, 12, 1);
+        gameState.Player.Household.SetMotherHealth(60);
+        gameState.SetPolicePressure(65);
+        gameState.SetWorkCounters(0, 0, lastCrimeDay: 1, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
+
+        var statuses = query.GetStatuses(gameState);
+
+        statuses.Should().ContainSingle();
+        statuses[0].NarrativeSignals.Should().Contain(static text => text.Contains("police-heat suspicion", StringComparison.Ordinal));
+        statuses[0].NarrativeSignals.Should().Contain(static text => text.Contains("medical-dropout reflection", StringComparison.Ordinal));
+        statuses[0].NarrativeSignals.Should().Contain(static text => text.Contains("quietly help with medicine", StringComparison.Ordinal));
     }
 }

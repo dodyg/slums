@@ -19,7 +19,7 @@ internal sealed class GameStatusPageQueryTests
 
         var pages = query.GetPages(gameState);
 
-        pages.Select(static page => page.Title).Should().ContainInOrder("Survival", "Skills", "Network", "Progress");
+        pages.Select(static page => page.Title).Should().ContainInOrder("Survival", "Skills", "Network", "Signals", "Progress");
     }
 
     [Test]
@@ -61,5 +61,28 @@ internal sealed class GameStatusPageQueryTests
         progress.Lines.Should().Contain(static line => line.Contains("Crime earnings: 1050 LE", StringComparison.Ordinal));
         progress.Lines.Should().Contain(static line => line.Contains("Luxor route conditions are currently strong", StringComparison.Ordinal));
         progress.Lines.Should().Contain(static line => line.Contains("Crime-kingpin route is within reach", StringComparison.Ordinal));
+    }
+
+    [Test]
+    public void GetPages_ShouldIncludeSignalsPage_WithActiveNarrativeHooks()
+    {
+        var query = new GameStatusPageQuery();
+        var gameState = new GameState();
+        gameState.World.TravelTo(LocationId.Clinic);
+        gameState.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        gameState.SetPolicePressure(65);
+        gameState.SetWorkCounters(0, 0, lastCrimeDay: 1, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
+        gameState.SetCrimeCounters(150, 2);
+        gameState.Player.Household.SetMotherHealth(55);
+        gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 18, 1);
+        gameState.Relationships.SetNpcRelationship(NpcId.NurseSalma, 12, 1);
+
+        var pages = query.GetPages(gameState);
+
+        var signalsPage = pages.Single(static page => page.Title == "Signals");
+        signalsPage.Lines.Should().Contain(static text => text.Contains("Public-facing work", StringComparison.Ordinal));
+        signalsPage.Lines.Should().Contain(static text => text.Contains("tense reaction to sudden money", StringComparison.Ordinal));
+        signalsPage.Lines.Should().Contain(static text => text.Contains("Mona", StringComparison.Ordinal));
+        signalsPage.Lines.Should().Contain(static text => text.Contains("clinic reflection", StringComparison.Ordinal));
     }
 }
