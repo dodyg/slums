@@ -40,4 +40,14 @@ internal sealed class RandomEventServiceTests
 
         events.Select(static randomEvent => randomEvent.Id).Should().NotContain("MotherHealthScare");
     }
+
+    [Test]
+    public void AllEvents_ShouldIncludeNewLocationSpecificEvents()
+    {
+        var eventIds = RandomEventRegistry.AllEvents.Select(static randomEvent => randomEvent.Id);
+
+        eventIds.Should().Contain("ClinicOverflow");
+        eventIds.Should().Contain("WorkshopRushOrder");
+        eventIds.Should().Contain("CafeSpill");
+    }
 }

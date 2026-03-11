@@ -22,7 +22,7 @@ public sealed class JobService
         var pay = job.CalculatePay(_random);
         var energyCost = job.EnergyCost;
         if (player.Skills.GetLevel(SkillId.Physical) >= 3 &&
-            (job.Type == JobType.BakeryWork || job.Type == JobType.HouseCleaning))
+            (job.Type == JobType.BakeryWork || job.Type == JobType.HouseCleaning || job.Type == JobType.WorkshopSewing))
         {
             energyCost = Math.Max(0, energyCost - 5);
         }
@@ -81,6 +81,9 @@ public sealed class JobService
             _ when location.Id == LocationId.Bakery => [JobRegistry.BakeryWork],
             _ when location.Id == LocationId.Market => [JobRegistry.HouseCleaning],
             _ when location.Id == LocationId.CallCenter => [JobRegistry.CallCenterWork],
+            _ when location.Id == LocationId.Clinic => [JobRegistry.ClinicReception],
+            _ when location.Id == LocationId.Workshop => [JobRegistry.WorkshopSewing],
+            _ when location.Id == LocationId.Cafe => [JobRegistry.CafeService],
             _ => []
         };
     }
@@ -92,6 +95,9 @@ public sealed class JobService
             JobType.BakeryWork => locationId == LocationId.Bakery,
             JobType.HouseCleaning => locationId == LocationId.Market,
             JobType.CallCenterWork => locationId == LocationId.CallCenter,
+            JobType.ClinicReception => locationId == LocationId.Clinic,
+            JobType.WorkshopSewing => locationId == LocationId.Workshop,
+            JobType.CafeService => locationId == LocationId.Cafe,
             _ => false
         };
     }

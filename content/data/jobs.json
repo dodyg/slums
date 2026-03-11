@@ -31,5 +31,38 @@
     "DurationMinutes": 480,
     "MinEnergyRequired": 25,
     "PayVariance": 7
+  },
+  {
+    "Type": "ClinicReception",
+    "Name": "Clinic Reception Shift",
+    "Description": "Check in patients and keep the queue moving at Rahma Clinic",
+    "BasePay": 22,
+    "EnergyCost": 18,
+    "StressCost": 14,
+    "DurationMinutes": 420,
+    "MinEnergyRequired": 25,
+    "PayVariance": 4
+  },
+  {
+    "Type": "WorkshopSewing",
+    "Name": "Garment Workshop Shift",
+    "Description": "Hem, press, and pack cheap garments in Abu Samir's workshop",
+    "BasePay": 20,
+    "EnergyCost": 30,
+    "StressCost": 8,
+    "DurationMinutes": 480,
+    "MinEnergyRequired": 35,
+    "PayVariance": 5
+  },
+  {
+    "Type": "CafeService",
+    "Name": "Cafe Service",
+    "Description": "Carry tea trays and clear tables at Ahwa El-Galaa",
+    "BasePay": 19,
+    "EnergyCost": 20,
+    "StressCost": 11,
+    "DurationMinutes": 360,
+    "MinEnergyRequired": 25,
+    "PayVariance": 4
   }
 ]

@@ -18,6 +18,12 @@ public static class RelationshipService
                 NpcId.LandlordHajjMahmoud => "Hajj Mahmoud no longer trusts you. He may raise the rent.",
                 NpcId.FixerUmmKarim => "Umm Karim turns cold. Street work will be harder to find.",
                 NpcId.OfficerKhalid => "Officer Khalid marks your face. Checkpoints will feel tighter now.",
+                NpcId.NeighborMona => "Mona stops covering for you in the building.",
+                NpcId.NurseSalma => "Nurse Salma cuts the conversation short. The clinic feels less welcoming.",
+                NpcId.WorkshopBossAbuSamir => "Abu Samir decides you are more trouble than labor.",
+                NpcId.CafeOwnerNadia => "Nadia cools toward you. Even tea comes with less warmth.",
+                NpcId.FenceHanan => "Hanan decides you bring more heat than profit.",
+                NpcId.RunnerYoussef => "Youssef stops passing you the useful rumors.",
                 _ => null
             };
         }
@@ -29,6 +35,12 @@ public static class RelationshipService
                 NpcId.LandlordHajjMahmoud => "Hajj Mahmoud softens toward you. He gives you a little breathing room.",
                 NpcId.FixerUmmKarim => "Umm Karim begins to trust you with more dangerous conversations.",
                 NpcId.OfficerKhalid => "Officer Khalid starts to see you as more than another name in a notebook.",
+                NpcId.NeighborMona => "Mona starts looking out for you like family.",
+                NpcId.NurseSalma => "Nurse Salma starts slipping you practical advice between patients.",
+                NpcId.WorkshopBossAbuSamir => "Abu Samir starts keeping your spot open when shifts get thin.",
+                NpcId.CafeOwnerNadia => "Nadia begins trusting you with the front tables and the better customers.",
+                NpcId.FenceHanan => "Hanan starts treating you like someone who understands risk.",
+                NpcId.RunnerYoussef => "Youssef starts waving you into conversations he used to keep closed.",
                 _ => null
             };
         }

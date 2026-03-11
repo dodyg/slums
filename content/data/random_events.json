@@ -40,5 +40,36 @@
     "Weight": 7,
     "ConditionId": "at_market",
     "FoodChange": 1
+  },
+  {
+    "Id": "ClinicOverflow",
+    "Description": "Rahma Clinic is overflowing and someone slips you a little cash to stay late.",
+    "MinDay": 4,
+    "Weight": 7,
+    "ConditionId": "at_clinic",
+    "MoneyChange": 18,
+    "StressChange": 4,
+    "InkKnot": "event_clinic_overflow"
+  },
+  {
+    "Id": "WorkshopRushOrder",
+    "Description": "A rush garment order leaves the workshop stifling and relentless.",
+    "MinDay": 4,
+    "Weight": 7,
+    "ConditionId": "at_workshop",
+    "MoneyChange": 12,
+    "EnergyChange": -8,
+    "StressChange": 6,
+    "InkKnot": "event_workshop_rush_order"
+  },
+  {
+    "Id": "CafeSpill",
+    "Description": "A spilled tea tray earns you a sharp lesson and a small tip anyway.",
+    "MinDay": 4,
+    "Weight": 6,
+    "ConditionId": "at_cafe",
+    "MoneyChange": 10,
+    "StressChange": 3,
+    "InkKnot": "event_cafe_spill"
   }
 ]

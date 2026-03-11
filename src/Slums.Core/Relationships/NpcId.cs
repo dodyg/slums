@@ -4,5 +4,11 @@ public enum NpcId
 {
     LandlordHajjMahmoud,
     FixerUmmKarim,
-    OfficerKhalid
+    OfficerKhalid,
+    NeighborMona,
+    NurseSalma,
+    WorkshopBossAbuSamir,
+    CafeOwnerNadia,
+    FenceHanan,
+    RunnerYoussef
 }

@@ -64,9 +64,9 @@ internal sealed class WorldStateTests
     {
         var locations = WorldState.AllLocations;
 
-        locations.Should().HaveCount(5);
+        locations.Should().HaveCount(8);
         locations.Select(l => l.Id).Should().Contain(
-            new[] { LocationId.Home, LocationId.Market, LocationId.Bakery, LocationId.CallCenter, LocationId.Square });
+            new[] { LocationId.Home, LocationId.Market, LocationId.Bakery, LocationId.CallCenter, LocationId.Square, LocationId.Clinic, LocationId.Workshop, LocationId.Cafe });
     }
 
     [Test]
@@ -88,7 +88,7 @@ internal sealed class WorldStateTests
 
         var locations = world.GetLocationsInCurrentDistrict();
 
-        locations.Should().HaveCount(2);
+        locations.Should().HaveCount(3);
         locations.All(l => l.District == DistrictId.Dokki).Should().BeTrue();
     }
 
@@ -99,7 +99,7 @@ internal sealed class WorldStateTests
 
         var locations = world.GetTravelableLocations();
 
-        locations.Should().HaveCount(4);
+        locations.Should().HaveCount(7);
         locations.Any(l => l.Id == LocationId.Home).Should().BeFalse();
     }
 
@@ -147,5 +147,35 @@ internal sealed class WorldStateTests
 
         await Assert.That(square.HasJobOpportunities).IsFalse();
         await Assert.That(square.HasCrimeOpportunities).IsTrue();
+    }
+
+    [Test]
+    public async Task ClinicLocation_ShouldSupportWorkInArdAlLiwa()
+    {
+        var clinic = WorldState.AllLocations.First(l => l.Id == LocationId.Clinic);
+
+        await Assert.That(clinic.HasJobOpportunities).IsTrue();
+        await Assert.That(clinic.HasCrimeOpportunities).IsFalse();
+        await Assert.That(clinic.District).IsEqualTo(DistrictId.ArdAlLiwa);
+    }
+
+    [Test]
+    public async Task WorkshopLocation_ShouldSupportWorkInArdAlLiwa()
+    {
+        var workshop = WorldState.AllLocations.First(l => l.Id == LocationId.Workshop);
+
+        await Assert.That(workshop.HasJobOpportunities).IsTrue();
+        await Assert.That(workshop.HasCrimeOpportunities).IsFalse();
+        await Assert.That(workshop.District).IsEqualTo(DistrictId.ArdAlLiwa);
+    }
+
+    [Test]
+    public async Task CafeLocation_ShouldSupportWorkInDokki()
+    {
+        var cafe = WorldState.AllLocations.First(l => l.Id == LocationId.Cafe);
+
+        await Assert.That(cafe.HasJobOpportunities).IsTrue();
+        await Assert.That(cafe.HasCrimeOpportunities).IsFalse();
+        await Assert.That(cafe.District).IsEqualTo(DistrictId.Dokki);
     }
 }

@@ -67,6 +67,36 @@ public sealed class WorldState
             HasJobOpportunities = false,
             HasCrimeOpportunities = true,
             TravelTimeMinutes = 40
+        },
+        new Location
+        {
+            Id = LocationId.Clinic,
+            Name = "Rahma Clinic",
+            Description = "A cramped low-cost clinic where waiting patients spill into the hallway.",
+            District = DistrictId.ArdAlLiwa,
+            HasJobOpportunities = true,
+            HasCrimeOpportunities = false,
+            TravelTimeMinutes = 25
+        },
+        new Location
+        {
+            Id = LocationId.Workshop,
+            Name = "Abu Samir Sewing Workshop",
+            Description = "A noisy garment workshop with irons hissing and fabric dust in the air.",
+            District = DistrictId.ArdAlLiwa,
+            HasJobOpportunities = true,
+            HasCrimeOpportunities = false,
+            TravelTimeMinutes = 20
+        },
+        new Location
+        {
+            Id = LocationId.Cafe,
+            Name = "Ahwa El-Galaa",
+            Description = "A Dokki street cafe serving tea, shai, and endless neighborhood gossip.",
+            District = DistrictId.Dokki,
+            HasJobOpportunities = true,
+            HasCrimeOpportunities = false,
+            TravelTimeMinutes = 35
         }
     ];
 

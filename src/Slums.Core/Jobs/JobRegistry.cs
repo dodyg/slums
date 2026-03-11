@@ -41,13 +41,58 @@ public static class JobRegistry
         PayVariance = 7
     };
 
-    private static IReadOnlyList<JobShift> _jobs = [DefaultBakeryWork, DefaultHouseCleaning, DefaultCallCenterWork];
+    private static readonly JobShift DefaultClinicReception = new()
+    {
+        Type = JobType.ClinicReception,
+        Name = "Clinic Reception Shift",
+        Description = "Check in patients and keep the queue moving at Rahma Clinic",
+        BasePay = 22,
+        EnergyCost = 18,
+        StressCost = 14,
+        DurationMinutes = 420,
+        MinEnergyRequired = 25,
+        PayVariance = 4
+    };
+
+    private static readonly JobShift DefaultWorkshopSewing = new()
+    {
+        Type = JobType.WorkshopSewing,
+        Name = "Garment Workshop Shift",
+        Description = "Hem, press, and pack cheap garments in Abu Samir's workshop",
+        BasePay = 20,
+        EnergyCost = 30,
+        StressCost = 8,
+        DurationMinutes = 480,
+        MinEnergyRequired = 35,
+        PayVariance = 5
+    };
+
+    private static readonly JobShift DefaultCafeService = new()
+    {
+        Type = JobType.CafeService,
+        Name = "Cafe Service",
+        Description = "Carry tea trays and clear tables at Ahwa El-Galaa",
+        BasePay = 19,
+        EnergyCost = 20,
+        StressCost = 11,
+        DurationMinutes = 360,
+        MinEnergyRequired = 25,
+        PayVariance = 4
+    };
+
+    private static IReadOnlyList<JobShift> _jobs = [DefaultBakeryWork, DefaultHouseCleaning, DefaultCallCenterWork, DefaultClinicReception, DefaultWorkshopSewing, DefaultCafeService];
 
     public static JobShift BakeryWork => GetJobByType(JobType.BakeryWork) ?? DefaultBakeryWork;
 
     public static JobShift HouseCleaning => GetJobByType(JobType.HouseCleaning) ?? DefaultHouseCleaning;
 
     public static JobShift CallCenterWork => GetJobByType(JobType.CallCenterWork) ?? DefaultCallCenterWork;
+
+    public static JobShift ClinicReception => GetJobByType(JobType.ClinicReception) ?? DefaultClinicReception;
+
+    public static JobShift WorkshopSewing => GetJobByType(JobType.WorkshopSewing) ?? DefaultWorkshopSewing;
+
+    public static JobShift CafeService => GetJobByType(JobType.CafeService) ?? DefaultCafeService;
 
     public static IReadOnlyList<JobShift> AllJobs => _jobs;
 

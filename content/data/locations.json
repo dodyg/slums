@@ -53,5 +53,38 @@
     "HasJobOpportunities": false,
     "HasCrimeOpportunities": true,
     "TravelTimeMinutes": 40
+  },
+  {
+    "Id": {
+      "Value": "clinic"
+    },
+    "Name": "Rahma Clinic",
+    "Description": "A cramped low-cost clinic where waiting patients spill into the hallway.",
+    "District": "ArdAlLiwa",
+    "HasJobOpportunities": true,
+    "HasCrimeOpportunities": false,
+    "TravelTimeMinutes": 25
+  },
+  {
+    "Id": {
+      "Value": "workshop"
+    },
+    "Name": "Abu Samir Sewing Workshop",
+    "Description": "A noisy garment workshop with irons hissing and fabric dust in the air.",
+    "District": "ArdAlLiwa",
+    "HasJobOpportunities": true,
+    "HasCrimeOpportunities": false,
+    "TravelTimeMinutes": 20
+  },
+  {
+    "Id": {
+      "Value": "cafe"
+    },
+    "Name": "Ahwa El-Galaa",
+    "Description": "A Dokki street cafe serving tea, shai, and endless neighborhood gossip.",
+    "District": "Dokki",
+    "HasJobOpportunities": true,
+    "HasCrimeOpportunities": false,
+    "TravelTimeMinutes": 35
   }
 ]

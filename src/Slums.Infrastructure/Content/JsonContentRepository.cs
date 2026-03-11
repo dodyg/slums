@@ -97,6 +97,9 @@ public sealed class JsonContentRepository : IContentRepository
             "at_home" => static state => state.World.CurrentLocationId == LocationId.Home,
             "in_imbaba" => static state => state.World.CurrentDistrict == DistrictId.Imbaba,
             "at_market" => static state => state.World.CurrentLocationId == LocationId.Market,
+            "at_clinic" => static state => state.World.CurrentLocationId == LocationId.Clinic,
+            "at_workshop" => static state => state.World.CurrentLocationId == LocationId.Workshop,
+            "at_cafe" => static state => state.World.CurrentLocationId == LocationId.Cafe,
             _ => null
         };
     }

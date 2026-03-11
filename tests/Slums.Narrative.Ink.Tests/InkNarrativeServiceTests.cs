@@ -94,4 +94,28 @@ internal sealed class InkNarrativeServiceTests
         outcome.FactionReputationChange.Should().BeGreaterThan(0);
         outcome.SetFlag.Should().Be("fixer_met");
     }
+
+    [Test]
+    public void StartScene_ShouldLoadNewNpcConversationWithChoices()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("nurse_salma", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("Nurse Salma");
+        service.CurrentChoices.Should().ContainInOrder("Ask about extra shifts", "Ask quietly about cheap medicine for your mother");
+    }
+
+    [Test]
+    public void StartScene_ShouldLoadCrimeContactConversationWithChoices()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("hanan_fence", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("Hanan");
+        service.CurrentChoices.Should().ContainInOrder("Ask what kind of goods move quietly this week", "Ask for easy money");
+    }
 }

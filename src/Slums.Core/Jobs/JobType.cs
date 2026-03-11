@@ -4,5 +4,8 @@ public enum JobType
 {
     BakeryWork,
     HouseCleaning,
-    CallCenterWork
+    CallCenterWork,
+    ClinicReception,
+    WorkshopSewing,
+    CafeService
 }

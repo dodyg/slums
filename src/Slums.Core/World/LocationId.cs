@@ -7,4 +7,7 @@ public readonly record struct LocationId(string Value)
     public static readonly LocationId Bakery = new("bakery");
     public static readonly LocationId CallCenter = new("call_center");
     public static readonly LocationId Square = new("square");
+    public static readonly LocationId Clinic = new("clinic");
+    public static readonly LocationId Workshop = new("workshop");
+    public static readonly LocationId Cafe = new("cafe");
 }
