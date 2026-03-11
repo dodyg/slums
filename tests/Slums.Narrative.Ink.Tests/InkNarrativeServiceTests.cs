@@ -175,6 +175,17 @@ internal sealed class InkNarrativeServiceTests
     }
 
     [Test]
+    public void StartScene_ShouldLoadSafaaRouteScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("crime_safaa_skim_success", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("depot is chaos anyway");
+    }
+
+    [Test]
     public void StartScene_ShouldLoadNpcMemoryVariant()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);

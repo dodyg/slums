@@ -86,6 +86,43 @@ internal sealed class CrimeRegistryTests
     }
 
     [Test]
+    public void GetCrimeOpportunityStatuses_ShouldShowTrustOrRepBlockReason_ForDepotFareSkim()
+    {
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Depot);
+        var relationships = new RelationshipState();
+
+        var statuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, relationships);
+
+        var fareSkim = statuses.Single(static status => status.Attempt.Type == CrimeType.DepotFareSkim);
+        fareSkim.IsAvailable.Should().BeFalse();
+        fareSkim.BlockReason.Should().Contain("Safaa trust 10 or Imbaba standing 12");
+    }
+
+    [Test]
+    public void GetAvailableCrimes_ShouldUnlockDepotFareSkim_WhenSafaaTrustIsHigh()
+    {
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Depot);
+        var relationships = new RelationshipState();
+        relationships.SetNpcRelationship(NpcId.DispatcherSafaa, 10, 1);
+
+        var crimes = CrimeRegistry.GetAvailableCrimes(location, relationships);
+
+        crimes.Select(static attempt => attempt.Type).Should().Contain(CrimeType.DepotFareSkim);
+    }
+
+    [Test]
+    public void GetAvailableCrimes_ShouldUnlockShubraBundleLift_WhenImanTrustIsHigh()
+    {
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Laundry);
+        var relationships = new RelationshipState();
+        relationships.SetNpcRelationship(NpcId.LaundryOwnerIman, 10, 1);
+
+        var crimes = CrimeRegistry.GetAvailableCrimes(location, relationships);
+
+        crimes.Select(static attempt => attempt.Type).Should().Contain(CrimeType.ShubraBundleLift);
+    }
+
+    [Test]
     public void GetAvailableCrimes_ShouldUseDokkiStanding_WhenFilteringStreetRep()
     {
         var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Square);

@@ -61,6 +61,36 @@ internal sealed class CrimeMenuStatusQueryTests
     }
 
     [Test]
+    public void GetStatuses_ShouldMarkDepotFareSkimAvailable_WhenReliableDepotWorkUnlockApplies()
+    {
+        var query = new CrimeMenuStatusQuery();
+        var gameState = new GameState();
+        gameState.World.TravelTo(LocationId.Depot);
+        gameState.JobProgress.RestoreTrack(JobType.MicrobusDispatch, reliability: 60, shiftsCompleted: 3, lockoutUntilDay: 0);
+
+        var statuses = query.GetStatuses(gameState);
+
+        var fareSkim = statuses.Single(static status => status.Attempt.Type == CrimeType.DepotFareSkim);
+        fareSkim.IsAvailable.Should().BeTrue();
+        fareSkim.StatusText.Should().Contain("reliable depot work");
+    }
+
+    [Test]
+    public void GetStatuses_ShouldMarkShubraBundleLiftAvailable_WhenReliableLaundryWorkUnlockApplies()
+    {
+        var query = new CrimeMenuStatusQuery();
+        var gameState = new GameState();
+        gameState.World.TravelTo(LocationId.Laundry);
+        gameState.JobProgress.RestoreTrack(JobType.LaundryPressing, reliability: 60, shiftsCompleted: 3, lockoutUntilDay: 0);
+
+        var statuses = query.GetStatuses(gameState);
+
+        var bundleLift = statuses.Single(static status => status.Attempt.Type == CrimeType.ShubraBundleLift);
+        bundleLift.IsAvailable.Should().BeTrue();
+        bundleLift.StatusText.Should().Contain("reliable laundry work");
+    }
+
+    [Test]
     public void GetStatuses_ShouldExposeEffectiveCrimeModifiers()
     {
         var query = new CrimeMenuStatusQuery();

@@ -296,6 +296,20 @@ public sealed class GameState
             crimes.Add(new CrimeAttempt(CrimeType.NetworkErrand, 130, 48, 28, 0, 24));
         }
 
+        if (location.Id == LocationId.Depot &&
+            crimes.All(static attempt => attempt.Type != CrimeType.DepotFareSkim) &&
+            JobProgress.GetTrack(JobType.MicrobusDispatch).Reliability >= 60)
+        {
+            crimes.Add(new CrimeAttempt(CrimeType.DepotFareSkim, 78, 28, 14, 0, 16));
+        }
+
+        if (location.Id == LocationId.Laundry &&
+            crimes.All(static attempt => attempt.Type != CrimeType.ShubraBundleLift) &&
+            JobProgress.GetTrack(JobType.LaundryPressing).Reliability >= 60)
+        {
+            crimes.Add(new CrimeAttempt(CrimeType.ShubraBundleLift, 68, 24, 12, 0, 15));
+        }
+
         return crimes;
     }
 
@@ -657,6 +671,36 @@ public sealed class GameState
                     flagName: "crime_youssef_escape_seen");
             }
         }
+
+        if (World.CurrentLocationId == LocationId.Depot && Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= 15)
+        {
+            ReduceCrimeHeat(5, "Safaa reroutes the gossip faster than the depot can pin it to you. The heat slips sideways.", "crime_safaa_reroute", "crime_safaa_reroute_seen");
+
+            if (!result.Success)
+            {
+                ApplyCrimeFailureMitigation(
+                    moneyGain: 8,
+                    stressRelief: 4,
+                    message: "Safaa turns a blown move into something survivable and keeps one driver's mouth shut.",
+                    knotName: "crime_safaa_salvage",
+                    flagName: "crime_safaa_salvage_seen");
+            }
+        }
+
+        if (World.CurrentLocationId == LocationId.Laundry && Relationships.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust >= 15)
+        {
+            ReduceCrimeHeat(4, "Iman clocks the wrong kind of attention in the lane and sends you out the back before it settles on your face.", "crime_iman_cover", "crime_iman_cover_seen");
+
+            if (!result.Success)
+            {
+                ApplyCrimeFailureMitigation(
+                    moneyGain: 0,
+                    stressRelief: 5,
+                    message: "Iman does not ask questions. She only gets you clear before panic starts showing.",
+                    knotName: "crime_iman_exit",
+                    flagName: "crime_iman_exit_seen");
+            }
+        }
     }
 
     private void QueueContactCrimeScene(CrimeAttempt attempt, CrimeResult result)
@@ -666,6 +710,8 @@ public sealed class GameState
             CrimeType.MarketFencing => GetCrimeScene(result, "crime_hanan_fence_success", "crime_hanan_fence_detected", "crime_hanan_fence_failure"),
             CrimeType.DokkiDrop => GetCrimeScene(result, "crime_youssef_drop_success", "crime_youssef_drop_detected", "crime_youssef_drop_failure"),
             CrimeType.NetworkErrand => GetCrimeScene(result, "crime_ummkarim_errand_success", "crime_ummkarim_errand_detected", "crime_ummkarim_errand_failure"),
+            CrimeType.DepotFareSkim => GetCrimeScene(result, "crime_safaa_skim_success", "crime_safaa_skim_detected", "crime_safaa_skim_failure"),
+            CrimeType.ShubraBundleLift => GetCrimeScene(result, "crime_iman_bundle_success", "crime_iman_bundle_detected", "crime_iman_bundle_failure"),
             _ => null
         };
 

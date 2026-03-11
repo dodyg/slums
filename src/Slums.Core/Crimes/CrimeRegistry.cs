@@ -11,6 +11,8 @@ public static class CrimeRegistry
     private static readonly CrimeAttempt HananFencingRoute = new(CrimeType.MarketFencing, 60, 18, 8, 0, 14);
     private static readonly CrimeAttempt YoussefDropRoute = new(CrimeType.DokkiDrop, 95, 42, 24, 0, 18);
     private static readonly CrimeAttempt UmmKarimNetworkErrand = new(CrimeType.NetworkErrand, 130, 50, 30, 0, 24);
+    private static readonly CrimeAttempt SafaaFareSkimRoute = new(CrimeType.DepotFareSkim, 78, 28, 14, 0, 16);
+    private static readonly CrimeAttempt ShubraBundleLiftRoute = new(CrimeType.ShubraBundleLift, 68, 24, 12, 0, 15);
 
     public static IReadOnlyList<CrimeAttempt> GetAvailableCrimes(Location location, RelationshipState relationshipState)
     {
@@ -26,6 +28,8 @@ public static class CrimeRegistry
         IReadOnlyList<CrimeAttempt> crimes = location.District switch
         {
             DistrictId.Dokki => GetDokkiCrimes(location, relationshipState),
+            DistrictId.BulaqAlDakrour => GetBulaqCrimes(location, relationshipState),
+            DistrictId.Shubra => GetShubraCrimes(location, relationshipState),
             _ => GetImbabaCrimes(location, relationshipState)
         };
 
@@ -47,6 +51,8 @@ public static class CrimeRegistry
         return location.District switch
         {
             DistrictId.Dokki => GetDokkiCrimeStatuses(location, relationshipState, currentStreetRep),
+            DistrictId.BulaqAlDakrour => GetBulaqCrimeStatuses(location, relationshipState, currentStreetRep),
+            DistrictId.Shubra => GetShubraCrimeStatuses(location, relationshipState, currentStreetRep),
             _ => GetImbabaCrimeStatuses(location, relationshipState, currentStreetRep)
         };
     }
@@ -109,6 +115,62 @@ public static class CrimeRegistry
         if (location.Id == LocationId.Square && (youssefTrust >= 15 || dokkiReputation >= 15))
         {
             crimes.Add(YoussefDropRoute);
+        }
+
+        return crimes;
+    }
+
+    private static List<CrimeAttempt> GetBulaqCrimes(Location location, RelationshipState relationshipState)
+    {
+        var safaaTrust = relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust;
+        var imbabaReputation = relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation;
+
+        var crimes = new List<CrimeAttempt>
+        {
+            PettyTheftDefault with
+            {
+                BaseReward = 32,
+                DetectionRisk = 24
+            },
+            RobberyDefault with
+            {
+                BaseReward = 82,
+                DetectionRisk = 60,
+                PolicePressureIncrease = 22
+            }
+        };
+
+        if (location.Id == LocationId.Depot && (safaaTrust >= 10 || imbabaReputation >= 12))
+        {
+            crimes.Add(SafaaFareSkimRoute);
+        }
+
+        return crimes;
+    }
+
+    private static List<CrimeAttempt> GetShubraCrimes(Location location, RelationshipState relationshipState)
+    {
+        var imanTrust = relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust;
+        var imbabaReputation = relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation;
+
+        var crimes = new List<CrimeAttempt>
+        {
+            PettyTheftDefault with
+            {
+                BaseReward = 30,
+                DetectionRisk = 22
+            },
+            HashishTradeDefault with
+            {
+                BaseReward = 52,
+                DetectionRisk = 38,
+                PolicePressureIncrease = 14
+            }
+        };
+
+        if (location.Id == LocationId.Laundry && (imanTrust >= 10 || imbabaReputation >= 12))
+        {
+            crimes.Add(ShubraBundleLiftRoute);
         }
 
         return crimes;
@@ -201,6 +263,72 @@ public static class CrimeRegistry
                     ? "Only available around the square."
                     : youssefTrust < 15 && dokkiReputation < 15
                         ? $"Requires Youssef trust 15 or Dokki standing 15. Current: {youssefTrust}/{dokkiReputation}."
+                        : null)
+        ];
+    }
+
+    private static IReadOnlyList<CrimeOpportunityStatus> GetBulaqCrimeStatuses(Location location, RelationshipState relationshipState, int currentStreetRep)
+    {
+        var safaaTrust = relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust;
+        var imbabaReputation = relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation;
+
+        var pettyTheft = PettyTheftDefault with
+        {
+            BaseReward = 32,
+            DetectionRisk = 24
+        };
+
+        var robbery = RobberyDefault with
+        {
+            BaseReward = 82,
+            DetectionRisk = 60,
+            PolicePressureIncrease = 22
+        };
+
+        return
+        [
+            CreateStatus(pettyTheft, currentStreetRep, null),
+            CreateStatus(robbery, currentStreetRep, null),
+            CreateStatus(
+                SafaaFareSkimRoute,
+                currentStreetRep,
+                location.Id != LocationId.Depot
+                    ? "Only runs out of the depot."
+                    : safaaTrust < 10 && imbabaReputation < 12
+                        ? $"Requires Safaa trust 10 or Imbaba standing 12. Current: {safaaTrust}/{imbabaReputation}."
+                        : null)
+        ];
+    }
+
+    private static IReadOnlyList<CrimeOpportunityStatus> GetShubraCrimeStatuses(Location location, RelationshipState relationshipState, int currentStreetRep)
+    {
+        var imanTrust = relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust;
+        var imbabaReputation = relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation;
+
+        var pettyTheft = PettyTheftDefault with
+        {
+            BaseReward = 30,
+            DetectionRisk = 22
+        };
+
+        var hashishTrade = HashishTradeDefault with
+        {
+            BaseReward = 52,
+            DetectionRisk = 38,
+            PolicePressureIncrease = 14
+        };
+
+        return
+        [
+            CreateStatus(pettyTheft, currentStreetRep, null),
+            CreateStatus(hashishTrade, currentStreetRep, null),
+            CreateStatus(
+                ShubraBundleLiftRoute,
+                currentStreetRep,
+                location.Id != LocationId.Laundry
+                    ? "Only runs out of the laundry lane."
+                    : imanTrust < 10 && imbabaReputation < 12
+                        ? $"Requires Iman trust 10 or Imbaba standing 12. Current: {imanTrust}/{imbabaReputation}."
                         : null)
         ];
     }

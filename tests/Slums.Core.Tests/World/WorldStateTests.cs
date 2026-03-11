@@ -188,6 +188,7 @@ internal sealed class WorldStateTests
         await Assert.That(pharmacy.HasJobOpportunities).IsTrue();
         await Assert.That(pharmacy.District).IsEqualTo(DistrictId.BulaqAlDakrour);
         await Assert.That(depot.HasJobOpportunities).IsTrue();
+        await Assert.That(depot.HasCrimeOpportunities).IsTrue();
         await Assert.That(depot.District).IsEqualTo(DistrictId.BulaqAlDakrour);
     }
 
@@ -197,7 +198,7 @@ internal sealed class WorldStateTests
         var laundry = WorldState.AllLocations.First(l => l.Id == LocationId.Laundry);
 
         await Assert.That(laundry.HasJobOpportunities).IsTrue();
-        await Assert.That(laundry.HasCrimeOpportunities).IsFalse();
+        await Assert.That(laundry.HasCrimeOpportunities).IsTrue();
         await Assert.That(laundry.District).IsEqualTo(DistrictId.Shubra);
     }
 }

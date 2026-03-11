@@ -16,6 +16,8 @@ public sealed record CrimeAttempt(
         CrimeType.MarketFencing => "Market Fencing Route",
         CrimeType.DokkiDrop => "Dokki Drop Route",
         CrimeType.NetworkErrand => "Network Errand",
+        CrimeType.DepotFareSkim => "Depot Fare Skim",
+        CrimeType.ShubraBundleLift => "Shubra Bundle Lift",
         _ => Type.ToString()
     };
 }

@@ -77,6 +77,10 @@ public sealed class CrimeMenuStatusQuery
             CrimeType.DokkiDrop => $"Youssef trust: {gameState.Relationships.GetNpcRelationship(NpcId.RunnerYoussef).Trust} | Dokki standing: {gameState.Relationships.GetFactionStanding(FactionId.DokkiThugs).Reputation}",
             CrimeType.NetworkErrand when !availableViaRegistry && IsExPrisonerUnlock(gameState, location) => "Unlocked through ex-prisoner network standing.",
             CrimeType.NetworkErrand => $"Umm Karim trust: {gameState.Relationships.GetNpcRelationship(NpcId.FixerUmmKarim).Trust} | Imbaba standing: {gameState.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}",
+            CrimeType.DepotFareSkim when !availableViaRegistry && IsDepotWorkUnlock(gameState, location) => "Unlocked through reliable depot work in Bulaq al-Dakrour.",
+            CrimeType.DepotFareSkim => $"Safaa trust: {gameState.Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust} | Imbaba standing: {gameState.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}",
+            CrimeType.ShubraBundleLift when !availableViaRegistry && IsLaundryWorkUnlock(gameState, location) => "Unlocked through reliable laundry work in Shubra.",
+            CrimeType.ShubraBundleLift => $"Iman trust: {gameState.Relationships.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust} | Imbaba standing: {gameState.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}",
             _ when attempt.StreetRepRequired > 0 => $"Street rep: {districtStanding}/{attempt.StreetRepRequired}",
             _ => null
         };
@@ -94,6 +98,18 @@ public sealed class CrimeMenuStatusQuery
         return location.Id == LocationId.Market &&
                gameState.Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner &&
                gameState.Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation >= 10;
+    }
+
+    private static bool IsDepotWorkUnlock(GameState gameState, Location location)
+    {
+        return location.Id == LocationId.Depot &&
+               gameState.JobProgress.GetTrack(JobType.MicrobusDispatch).Reliability >= 60;
+    }
+
+    private static bool IsLaundryWorkUnlock(GameState gameState, Location location)
+    {
+        return location.Id == LocationId.Laundry &&
+               gameState.JobProgress.GetTrack(JobType.LaundryPressing).Reliability >= 60;
     }
 
     private static FactionId GetFactionForDistrict(DistrictId districtId)

@@ -7,5 +7,7 @@ public enum CrimeType
     HashishTrade,
     MarketFencing,
     DokkiDrop,
-    NetworkErrand
+    NetworkErrand,
+    DepotFareSkim,
+    ShubraBundleLift
 }

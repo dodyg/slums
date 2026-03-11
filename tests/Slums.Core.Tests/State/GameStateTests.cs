@@ -634,6 +634,30 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task CommitCrime_ShouldQueueSafaaRouteSuccessScene_OnFirstSuccessfulDepotSkim()
+    {
+        const int seedLimit = 300;
+        var attempt = new CrimeAttempt(CrimeType.DepotFareSkim, 78, 28, 14, 0, 16);
+
+        for (var seed = 0; seed < seedLimit; seed++)
+        {
+            var state = CreateCrimeState(LocationId.Depot);
+            state.SetStoryFlag("crime_first_success");
+            var result = state.CommitCrime(attempt, new Random(seed));
+            if (!result.Success || result.Detected)
+            {
+                continue;
+            }
+
+            await Assert.That(state.HasStoryFlag("crime_safaa_skim_success_seen")).IsTrue();
+            await Assert.That(HasPendingNarrativeScene(state, "crime_safaa_skim_success")).IsTrue();
+            return;
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic successful undetected Safaa route seed.");
+    }
+
+    [Test]
     public async Task EndDay_ShouldDecayPolicePressure_OnCleanDay()
     {
         var state = new GameState();

@@ -115,7 +115,7 @@ public sealed class WorldState
             Description = "A chaotic transport yard where routes are shouted louder than engines and everybody is late for something.",
             District = DistrictId.BulaqAlDakrour,
             HasJobOpportunities = true,
-            HasCrimeOpportunities = false,
+            HasCrimeOpportunities = true,
             TravelTimeMinutes = 30
         },
         new Location
@@ -125,7 +125,7 @@ public sealed class WorldState
             Description = "A hot narrow laundry where steam, starch, and neighborhood gossip cling to everything at once.",
             District = DistrictId.Shubra,
             HasJobOpportunities = true,
-            HasCrimeOpportunities = false,
+            HasCrimeOpportunities = true,
             TravelTimeMinutes = 40
         }
     ];
