@@ -133,6 +133,16 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task GetMedicineCost_ShouldUseMariamDiscount_AtPharmacy()
+    {
+        var state = new GameState();
+        state.World.TravelTo(LocationId.Pharmacy);
+        state.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 12, 1);
+
+        await Assert.That(state.GetMedicineCost()).IsEqualTo(40);
+    }
+
+    [Test]
     public async Task GiveMotherMedicine_ShouldConsumeMedicineStock()
     {
         var state = new GameState();
@@ -201,6 +211,19 @@ internal sealed class GameStateTests
         state.TryTravelTo(LocationId.Market);
 
         await Assert.That(state.Clock.Minute).IsEqualTo(15);
+    }
+
+    [Test]
+    public async Task TryTravelTo_ShouldUseSafaaRouteHelp_ForBulaqTravel()
+    {
+        var state = new GameState();
+        state.Relationships.SetNpcRelationship(NpcId.DispatcherSafaa, 12, 1);
+
+        var result = state.TryTravelTo(LocationId.Depot);
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(99);
+        await Assert.That(state.Player.Stats.Energy).IsEqualTo(77);
     }
 
     [Test]

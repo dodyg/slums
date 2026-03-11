@@ -54,6 +54,10 @@ internal sealed class RandomEventServiceTests
         eventIds.Should().Contain("DokkiTransportFriction");
         eventIds.Should().Contain("ClinicSupplyShortage");
         eventIds.Should().Contain("ArdAlLiwaWorkshopSolidarity");
+        eventIds.Should().Contain("BulaqMedicineQueue");
+        eventIds.Should().Contain("DepotFareShakeup");
+        eventIds.Should().Contain("ShubraSteamBreak");
+        eventIds.Should().Contain("ShubraBlockSolidarity");
     }
 
     [Test]
@@ -68,6 +72,20 @@ internal sealed class RandomEventServiceTests
         var events = service.RollDailyEvents(state, new Random(1));
 
         RandomEventRegistry.AllEvents.Single(static current => current.Id == "DokkiCheckpointSweep").Condition!(state).Should().BeTrue();
+        events.Should().NotBeNull();
+    }
+
+    [Test]
+    public void RollDailyEvents_ShouldAllowBulaqMedicineQueue_WhenAtPharmacy()
+    {
+        var service = new RandomEventService();
+        var state = new GameState();
+        state.Clock.SetTime(6, 6, 0);
+        state.World.TravelTo(Slums.Core.World.LocationId.Pharmacy);
+
+        var events = service.RollDailyEvents(state, new Random(4));
+
+        RandomEventRegistry.AllEvents.Single(static current => current.Id == "BulaqMedicineQueue").Condition!(state).Should().BeTrue();
         events.Should().NotBeNull();
     }
 }

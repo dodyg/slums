@@ -153,6 +153,53 @@ internal sealed class JsonContentRepositoryTests
         }
     }
 
+        [Test]
+        public void LoadRandomEvents_ShouldMapNewBulaqAndShubraConditions()
+        {
+                var contentDirectory = CreateTempDirectory();
+                try
+                {
+                        File.WriteAllText(Path.Combine(contentDirectory, "random_events.json"), """
+                        [
+                            {
+                                "Id": "BulaqMedicineQueue",
+                                "Description": "desc",
+                                "MinDay": 5,
+                                "Weight": 8,
+                                "ConditionId": "at_pharmacy",
+                                "InkKnot": "event_bulaq_medicine_queue"
+                            },
+                            {
+                                "Id": "ShubraBlockSolidarity",
+                                "Description": "desc",
+                                "MinDay": 5,
+                                "Weight": 7,
+                                "ConditionId": "shubra_low_money",
+                                "FoodChange": 1,
+                                "InkKnot": "event_shubra_block_solidarity"
+                            }
+                        ]
+                        """);
+
+                        var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
+                        var bulaqState = new Slums.Core.State.GameState();
+                        bulaqState.World.TravelTo(Slums.Core.World.LocationId.Pharmacy);
+                        var shubraState = new Slums.Core.State.GameState();
+                        shubraState.World.TravelTo(Slums.Core.World.LocationId.Laundry);
+                        shubraState.Player.Stats.ModifyMoney(-10);
+
+                        var events = repository.LoadRandomEvents();
+
+                        events.Should().HaveCount(2);
+                        events[0].Condition!(bulaqState).Should().BeTrue();
+                        events[1].Condition!(shubraState).Should().BeTrue();
+                }
+                finally
+                {
+                        DeleteDirectory(contentDirectory);
+                }
+        }
+
     private static string CreateTempDirectory()
     {
         var path = Path.Combine(Path.GetTempPath(), "slums-content-tests", Guid.NewGuid().ToString("N"));

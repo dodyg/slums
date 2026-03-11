@@ -178,18 +178,32 @@ public sealed class GameState
             return false;
         }
 
-        if (Player.Stats.Money < RecurringExpenses.TravelCost)
+        var travelCost = GetTravelCost(location);
+        var travelEnergyCost = GetTravelEnergyCost(location);
+
+        if (Player.Stats.Money < travelCost)
         {
             RaiseEvent("Not enough money for transport.");
             return false;
         }
 
-        Player.Stats.ModifyMoney(-RecurringExpenses.TravelCost);
-        Player.Stats.ModifyEnergy(-5);
+        Player.Stats.ModifyMoney(-travelCost);
+        Player.Stats.ModifyEnergy(-travelEnergyCost);
         if (Player.BackgroundType == BackgroundType.SudaneseRefugee && location.District == DistrictId.Dokki)
         {
             Player.Stats.ModifyStress(2);
             RaiseEvent("Dokki's questions land harder when your accent gets there before your name does.");
+        }
+
+        if (location.District == DistrictId.BulaqAlDakrour && Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= 12)
+        {
+            RaiseEvent("Safaa's route advice spares you one bad transfer and some wasted motion.");
+        }
+
+        if (location.District == DistrictId.Shubra && Relationships.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust >= 12)
+        {
+            Player.Stats.ModifyStress(-1);
+            RaiseEvent("Iman's directions keep you off the most exhausting side streets in Shubra.");
         }
 
         AdvanceTime(location.TravelTimeMinutes);
@@ -458,9 +472,45 @@ public sealed class GameState
             _ => RecurringExpenses.MedicineCost
         };
 
+        if (World.CurrentLocationId == LocationId.Pharmacy && Relationships.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= 12)
+        {
+            districtCost = Math.Max(30, districtCost - 6);
+        }
+
         return Player.Skills.GetLevel(SkillId.Medical) >= 3
             ? Math.Max(32, districtCost - 8)
             : districtCost;
+    }
+
+    private int GetTravelCost(Location destination)
+    {
+        ArgumentNullException.ThrowIfNull(destination);
+
+        var travelCost = RecurringExpenses.TravelCost;
+        if (destination.District == DistrictId.BulaqAlDakrour && Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= 12)
+        {
+            travelCost = Math.Max(1, travelCost - 1);
+        }
+
+        return travelCost;
+    }
+
+    private int GetTravelEnergyCost(Location destination)
+    {
+        ArgumentNullException.ThrowIfNull(destination);
+
+        var energyCost = 5;
+        if (destination.District == DistrictId.BulaqAlDakrour && Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= 12)
+        {
+            energyCost = 3;
+        }
+
+        if (destination.District == DistrictId.Shubra && Relationships.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust >= 12)
+        {
+            energyCost = Math.Max(2, energyCost - 1);
+        }
+
+        return energyCost;
     }
 
     public IReadOnlyList<NpcId> GetReachableNpcs()

@@ -39,3 +39,19 @@ The clinic runs short before noon and everyone pretends not to panic. Patients g
 === event_ardalliwa_solidarity ===
 In Ard al-Liwa, someone always knows whose cousin needs a hand, whose machine is idle, whose rent is one week late, and which favor can still be asked without humiliation.
 -> DONE
+
+=== event_bulaq_medicine_queue ===
+The line at the Bulaq pharmacy is already doubled back on itself by mid-morning. Women compare symptoms, prices, and rumors about which generics disappeared first. By the time you reach the counter, patience feels like another thing being sold too dearly.
+-> DONE
+
+=== event_depot_fare_shakeup ===
+At the depot, drivers, callers, and passengers spend half an hour arguing over fares as if volume might create justice. It does not. It only creates heat, bad tempers, and a little money for whoever stays standing the longest.
+-> DONE
+
+=== event_shubra_steam_break ===
+The steam line pops with a noise like a slap, and suddenly the laundry is wet in all the wrong places. Iman keeps the work moving anyway, because in Cairo broken equipment is never enough reason for rent to wait.
+-> DONE
+
+=== event_shubra_block_solidarity ===
+In Shubra, help arrives disguised as ordinary conversation: one woman naming a cheaper repairman, another sending leftovers downstairs, a third warning you which shop has started pretending inflation is a personal favor.
+-> DONE

@@ -121,5 +121,45 @@
     "MoneyChange": 16,
     "StressChange": -3,
     "InkKnot": "event_ardalliwa_solidarity"
+  },
+  {
+    "Id": "BulaqMedicineQueue",
+    "Description": "A discount medicine queue in Bulaq al-Dakrour turns into a lesson in shortages, patience, and fast decisions.",
+    "MinDay": 5,
+    "Weight": 8,
+    "ConditionId": "at_pharmacy",
+    "MoneyChange": -6,
+    "StressChange": 4,
+    "InkKnot": "event_bulaq_medicine_queue"
+  },
+  {
+    "Id": "DepotFareShakeup",
+    "Description": "At the microbus depot, fares change mid-argument and nobody agrees on who is supposed to absorb the loss.",
+    "MinDay": 5,
+    "Weight": 7,
+    "ConditionId": "at_depot",
+    "MoneyChange": 10,
+    "StressChange": 5,
+    "InkKnot": "event_depot_fare_shakeup"
+  },
+  {
+    "Id": "ShubraSteamBreak",
+    "Description": "A broken steam line in Shubra leaves the laundry half-flooded, half-functional, and fully tense.",
+    "MinDay": 5,
+    "Weight": 7,
+    "ConditionId": "at_laundry",
+    "EnergyChange": -7,
+    "StressChange": 4,
+    "InkKnot": "event_shubra_steam_break"
+  },
+  {
+    "Id": "ShubraBlockSolidarity",
+    "Description": "In Shubra, a building committee quietly routes leftovers, repair tips, and warnings to the women carrying too much.",
+    "MinDay": 5,
+    "Weight": 7,
+    "ConditionId": "shubra_low_money",
+    "FoodChange": 1,
+    "StressChange": -3,
+    "InkKnot": "event_shubra_block_solidarity"
   }
 ]

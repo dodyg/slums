@@ -96,7 +96,35 @@ public static class RandomEventRegistry
             new RandomEventEffect { MoneyChange = 16, StressChange = -3, InkKnot = "event_ardalliwa_solidarity" },
             5,
             8,
-            static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa && state.Player.Stats.Money < 120)
+            static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa && state.Player.Stats.Money < 120),
+        new(
+            "BulaqMedicineQueue",
+            "A discount medicine queue in Bulaq al-Dakrour turns into a lesson in shortages, patience, and fast decisions.",
+            new RandomEventEffect { StressChange = 4, MoneyChange = -6, InkKnot = "event_bulaq_medicine_queue" },
+            5,
+            8,
+            static state => state.World.CurrentLocationId == LocationId.Pharmacy),
+        new(
+            "DepotFareShakeup",
+            "At the microbus depot, fares change mid-argument and nobody agrees on who is supposed to absorb the loss.",
+            new RandomEventEffect { MoneyChange = 10, StressChange = 5, InkKnot = "event_depot_fare_shakeup" },
+            5,
+            7,
+            static state => state.World.CurrentLocationId == LocationId.Depot),
+        new(
+            "ShubraSteamBreak",
+            "A broken steam line in Shubra leaves the laundry half-flooded, half-functional, and fully tense.",
+            new RandomEventEffect { EnergyChange = -7, StressChange = 4, InkKnot = "event_shubra_steam_break" },
+            5,
+            7,
+            static state => state.World.CurrentLocationId == LocationId.Laundry),
+        new(
+            "ShubraBlockSolidarity",
+            "In Shubra, a building committee quietly routes leftovers, repair tips, and warnings to the women carrying too much.",
+            new RandomEventEffect { FoodChange = 1, StressChange = -3, InkKnot = "event_shubra_block_solidarity" },
+            5,
+            7,
+            static state => state.World.CurrentDistrict == DistrictId.Shubra && state.Player.Stats.Money < 120)
     ];
 
     private static IReadOnlyList<RandomEvent> _events = DefaultEvents;
