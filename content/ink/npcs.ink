@@ -532,3 +532,199 @@ Iman hands you a glass of water before the question is even finished. In the lau
 	# MESSAGE:Iman answers like someone who has watched decline item by item.
 	She says starch, then special handling, then repairs, and finally the small courtesies that make poverty look less obvious.
 	-> DONE
+
+=== landlord_rent_broke ===
+Hajj Mahmoud does not need to ask whether the week has gone badly. He can see it in your face before money becomes a subject either of you can pretend is theoretical.
+
+*   [Admit you are short and ask for a few days]
+	# STRESS:6
+	# NPC_TRUST:LandlordHajjMahmoud,6
+	# MESSAGE:Hajj Mahmoud believes the shortage, not the promise.
+	He says hunger is common, excuses are commoner, and he is tired of sorting one from the other by stairwell light.
+	-> DONE
+
+*   [Pretend you have a plan already]
+	# STRESS:8
+	# NPC_TRUST:LandlordHajjMahmoud,-8
+	# MESSAGE:Hajj Mahmoud hears the bluff and likes it even less than the debt.
+	He tells you plans are what poor tenants call money before it arrives.
+	-> DONE
+
+=== fixer_trusted_operator ===
+Umm Karim speaks to you without the old testing tone. That is not warmth. It is simply what trust sounds like in a line of work that charges extra for mistakes.
+
+*   [Ask what kind of work requires steadier nerves now]
+	# NPC_TRUST:FixerUmmKarim,4
+	# FACTION_REP:ImbabaCrew,4
+	# MESSAGE:Umm Karim starts discussing work as if you might survive it properly.
+	She says the worst errands are never the loud ones. They are the ones that look ordinary while they ruin you.
+	-> DONE
+
+*   [Ask how women stay useful without becoming disposable]
+	# NPC_TRUST:FixerUmmKarim,3
+	# STRESS:-2
+	# MESSAGE:Umm Karim answers more honestly than kindly.
+	She says usefulness buys time, never safety, and women who confuse the two die confused.
+	-> DONE
+
+=== officer_checkpoint_marked ===
+Officer Khalid already knows your face when he stops you. The recognition lands harder than a stranger's suspicion ever could.
+
+*   [Answer carefully and keep your eyes level]
+	# STRESS:7
+	# NPC_TRUST:OfficerKhalid,2
+	# MESSAGE:Khalid lets you go, but not back into anonymity.
+	He says routine gets easier when women stop giving him reasons to remember them.
+	-> DONE
+
+*   [Ask what exactly he thinks he remembers]
+	# STRESS:11
+	# NPC_TRUST:OfficerKhalid,-5
+	# MESSAGE:The question hardens the stop immediately.
+	He smiles without humor and tells you memory is his business, not yours.
+	-> DONE
+
+=== neighbor_mona_lean_week ===
+Mona sees the arithmetic on your face and lowers her voice before she says anything. Pride and hunger both echo badly in stairwells.
+
+*   [Let her speak plainly]
+	# NPC_TRUST:NeighborMona,5
+	# STRESS:-3
+	# MESSAGE:Mona stops pretending politeness is more useful than honesty.
+	She tells you which flat still shares lentils, which grocer might extend two days of credit, and who in the building has started slipping.
+	-> DONE
+
+*   [Brush it off and say the week is fine]
+	# NPC_TRUST:NeighborMona,-4
+	# STRESS:2
+	# MESSAGE:Mona hears the pride and knows better than to fight it.
+	She only says "rabena yostor" and leaves the rest unsaid between you.
+	-> DONE
+
+=== nurse_salma_urgent ===
+Salma takes one look at your expression and stops wasting words. In the clinic, urgency has its own dialect and she is already speaking it.
+
+*   [Describe your mother's symptoms exactly]
+	# NPC_TRUST:NurseSalma,6
+	# MESSAGE:Salma answers like someone trying to buy you time with precision.
+	She writes down what matters first, what can wait, and which sign means you stop bargaining with fate and come straight back.
+	-> DONE
+
+*   [Ask what you can manage cheaply at home]
+	# NPC_TRUST:NurseSalma,4
+	# STRESS:2
+	# MESSAGE:Salma hears the money problem and does not pretend it is separate from medicine.
+	She gives you the cheapest safe path she can without lying about how narrow it is.
+	-> DONE
+
+=== abu_samir_cold ===
+Abu Samir does not look up immediately. In his workshop, that delay is a verdict before the words arrive.
+
+*   [Ask whether he is still holding the last mistake against you]
+	# NPC_TRUST:WorkshopBossAbuSamir,2
+	# MESSAGE:Abu Samir answers with the kind of honesty reserved for people already in bad standing.
+	He says margins remember everything because men like him cannot afford mercy as a management style.
+	-> DONE
+
+*   [Keep it strictly to work and rates]
+	# NPC_TRUST:WorkshopBossAbuSamir,-3
+	# STRESS:3
+	# MESSAGE:Abu Samir accepts the coldness and returns it.
+	He quotes the rate like he is discussing thread count with no human beings involved.
+	-> DONE
+
+=== nadia_cafe_cold ===
+Nadia is civil, which is worse than warm by exactly the amount it takes to notice the missing softness.
+
+*   [Ask whether she still has shifts worth chasing]
+	# NPC_TRUST:CafeOwnerNadia,2
+	# MESSAGE:Nadia answers professionally and nothing more.
+	She says work exists. Whether she thinks of you when it appears is a separate matter.
+	-> DONE
+
+*   [Stay for tea and see if the room softens]
+	# NPC_TRUST:CafeOwnerNadia,-2
+	# STRESS:2
+	# MESSAGE:Nadia does not make a scene of the distance.
+	She lets the tea arrive and keeps the better conversation moving around you instead of through you.
+	-> DONE
+
+=== hanan_fence_cold ===
+Hanan does not bother pretending you are a promising conversation. In the market, disinterest is often a more expensive warning than anger.
+
+*   [Ask what made her stop trusting your judgment]
+	# NPC_TRUST:FenceHanan,2
+	# MESSAGE:Hanan answers because bluntness is cheaper than drama.
+	She says discretion is not a mood, it is a discipline, and too many people perform it badly.
+	-> DONE
+
+*   [Ask whether any work is still worth discussing]
+	# NPC_TRUST:FenceHanan,-3
+	# STRESS:3
+	# MESSAGE:Hanan leaves the door open only the width of a warning.
+	She says there is always work. The question is whether she wants it standing next to her.
+	-> DONE
+
+=== youssef_runner_embedded ===
+Youssef talks to you like someone already inside the edge of the route map. That is not friendship. It is simply the point where shared risk starts sounding familiar.
+
+*   [Ask which routes are burning too bright now]
+	# NPC_TRUST:RunnerYoussef,4
+	# STRESS:-1
+	# MESSAGE:Youssef gives you the kind of warning he does not waste on tourists.
+	He says some streets are only dangerous after you stop treating them that way.
+	-> DONE
+
+*   [Ask how long anyone lasts doing this kind of work]
+	# NPC_TRUST:RunnerYoussef,3
+	# MESSAGE:Youssef answers with the honesty of someone too tired to posture.
+	He says long enough to think they have learned the city, never long enough to finish learning it.
+	-> DONE
+
+=== mariam_pharmacy_urgent ===
+Mariam hears the urgency before the details are finished. Her hands keep moving, but her attention narrows the way it does around the words that actually matter.
+
+*   [Tell her exactly what your mother is running out of]
+	# NPC_TRUST:PharmacistMariam,5
+	# MESSAGE:Mariam starts sorting options by danger, not by price.
+	She tells you what cannot wait, what can be stretched, and which cheap substitute is a false bargain.
+	-> DONE
+
+*   [Ask what you can buy first if you cannot cover everything]
+	# NPC_TRUST:PharmacistMariam,4
+	# STRESS:1
+	# MESSAGE:Mariam gives you the triage answer, not the comforting one.
+	She says poverty always forces priorities and medicine simply makes the cruelty easier to measure.
+	-> DONE
+
+=== safaa_depot_regular ===
+Safaa barely looks surprised to see you. In the depot, being expected is its own kind of promotion.
+
+*   [Ask what part of the yard is running badly today]
+	# NPC_TRUST:DispatcherSafaa,4
+	# MESSAGE:Safaa talks to you like another moving part in the machine.
+	She says the worst hours are the ones where everybody is technically working and nothing is actually moving.
+	-> DONE
+
+*   [Ask whether the depot is starting to treat you like one of its own]
+	# NPC_TRUST:DispatcherSafaa,3
+	# STRESS:-1
+	# MESSAGE:Safaa gives the closest thing to approval she believes in.
+	She says the depot belongs to no one, but it does stop fighting you when you learn its rhythm.
+	-> DONE
+
+=== iman_laundry_lean ===
+Iman notices the way you ask about prices before you ask about work. In the laundry, a lean week announces itself through small hesitations around ruined cloth and overdue payments.
+
+*   [Ask which families are holding on by pretending nothing is wrong]
+	# NPC_TRUST:LaundryOwnerIman,4
+	# MESSAGE:Iman answers because she is too practical to waste a useful truth.
+	She says the first sign is always what people stop repairing, long before what they stop eating.
+	-> DONE
+
+*   [Ask whether she ever lets customers pay late]
+	# NPC_TRUST:LaundryOwnerIman,2
+	# STRESS:1
+	# MESSAGE:Iman gives you the arithmetic, not the sentiment.
+	She says mercy is real, but steam, soap, and rent still expect cash at the end of the week.
+	-> DONE

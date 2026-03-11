@@ -197,6 +197,24 @@ internal sealed class InkNarrativeServiceTests
     }
 
     [Test]
+    public void StartScene_ShouldLoadNewNpcVariantScenes()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("landlord_rent_broke", new GameState());
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("week has gone badly");
+
+        service.StartScene("mariam_pharmacy_urgent", new GameState());
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("urgency before the details are finished");
+
+        service.StartScene("safaa_depot_regular", new GameState());
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("being expected");
+    }
+
+    [Test]
     public void StartScene_ShouldLoadDistrictEventScene()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);

@@ -80,7 +80,9 @@ internal sealed class TalkScreen : ScreenSurface
                 _gameState.PolicePressure,
                 _gameState.Clock.Day,
                 _gameState.HonestShiftsCompleted,
-                _gameState.CrimesCommitted);
+                _gameState.CrimesCommitted,
+                _gameState.Player.Stats.Money,
+                _gameState.Player.Household.MotherHealth);
             _runtime.NarrativeService.StartScene(knotName, _gameState);
             IsFocused = false;
             GameHost.Instance.Screen = new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, _parentScreen);

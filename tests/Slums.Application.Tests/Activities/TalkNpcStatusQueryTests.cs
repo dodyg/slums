@@ -69,4 +69,25 @@ internal sealed class TalkNpcStatusQueryTests
         var salma = statuses.Single(static npc => npc.NpcId == NpcId.NurseSalma);
         salma.Summary.Should().Contain("stories and your days stop matching");
     }
+
+    [Test]
+    public void GetStatuses_ShouldExposeLowMoneyAndUrgentCareSummaries()
+    {
+        var query = new TalkNpcStatusQuery();
+
+        var homeState = new GameState();
+        homeState.World.TravelTo(LocationId.Home);
+        homeState.Player.Stats.ModifyMoney(-85);
+        var homeStatuses = query.GetStatuses(homeState);
+
+        homeStatuses.Single(static npc => npc.NpcId == NpcId.LandlordHajjMahmoud).Summary.Should().Contain("visibly short");
+        homeStatuses.Single(static npc => npc.NpcId == NpcId.NeighborMona).Summary.Should().Contain("week tightening");
+
+        var clinicState = new GameState();
+        clinicState.World.TravelTo(LocationId.Clinic);
+        clinicState.Player.Household.SetMotherHealth(30);
+        var clinicStatuses = query.GetStatuses(clinicState);
+
+        clinicStatuses.Single(static npc => npc.NpcId == NpcId.NurseSalma).Summary.Should().Contain("mother's condition");
+    }
 }

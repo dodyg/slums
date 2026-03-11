@@ -86,10 +86,10 @@ public static class NpcRegistry
 
     public static string GetConversationKnot(NpcId npcId, RelationshipState relationshipState, int policePressure)
     {
-        return GetConversationKnot(npcId, relationshipState, policePressure, currentDay: 0, honestShiftsCompleted: 0, crimesCommitted: 0);
+        return GetConversationKnot(npcId, relationshipState, policePressure, currentDay: 0, honestShiftsCompleted: 0, crimesCommitted: 0, currentMoney: 100, motherHealth: 70);
     }
 
-    public static string GetConversationKnot(NpcId npcId, RelationshipState relationshipState, int policePressure, int currentDay, int honestShiftsCompleted, int crimesCommitted)
+    public static string GetConversationKnot(NpcId npcId, RelationshipState relationshipState, int policePressure, int currentDay, int honestShiftsCompleted, int crimesCommitted, int currentMoney = 100, int motherHealth = 70)
     {
         ArgumentNullException.ThrowIfNull(relationshipState);
 
@@ -98,35 +98,47 @@ public static class NpcRegistry
 
         return npcId switch
         {
+            NpcId.LandlordHajjMahmoud when currentMoney < 40 => "landlord_rent_broke",
             NpcId.LandlordHajjMahmoud when relationship.Trust <= -15 => "landlord_rent_negotiation_hostile",
             NpcId.LandlordHajjMahmoud when relationship.Trust >= 15 => "landlord_rent_negotiation_warm",
             NpcId.LandlordHajjMahmoud => "landlord_rent_negotiation",
+            NpcId.FixerUmmKarim when relationship.Trust >= 25 => "fixer_trusted_operator",
             NpcId.FixerUmmKarim when relationship.LastRefusalDay > 0 && currentDay - relationship.LastRefusalDay <= 3 => "fixer_recent_refusal",
             NpcId.FixerUmmKarim when relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation >= 15 => "fixer_repeat_contact",
             NpcId.FixerUmmKarim => "fixer_first_contact",
             NpcId.OfficerKhalid when policePressure >= 70 => "officer_checkpoint_hot",
+            NpcId.OfficerKhalid when relationship.Trust <= -10 => "officer_checkpoint_marked",
             NpcId.OfficerKhalid => "officer_checkpoint",
+            NpcId.NeighborMona when currentMoney < 40 => "neighbor_mona_lean_week",
             NpcId.NeighborMona when relationship.WasHelped => "neighbor_mona_helped",
             NpcId.NeighborMona when relationship.Trust >= 15 => "neighbor_mona_warm",
             NpcId.NeighborMona => "neighbor_mona",
             NpcId.NurseSalma when relationship.HasUnpaidDebt => "nurse_salma_debt",
+            NpcId.NurseSalma when motherHealth < 40 => "nurse_salma_urgent",
             NpcId.NurseSalma when maintainingDoubleLife => "nurse_salma_suspicious",
             NpcId.NurseSalma when relationship.Trust >= 15 => "nurse_salma_warm",
             NpcId.NurseSalma => "nurse_salma",
             NpcId.WorkshopBossAbuSamir when relationship.WasEmbarrassed => "abu_samir_embarrassed",
+            NpcId.WorkshopBossAbuSamir when relationship.Trust <= -10 => "abu_samir_cold",
             NpcId.WorkshopBossAbuSamir when relationship.Trust >= 15 => "abu_samir_warm",
             NpcId.WorkshopBossAbuSamir => "abu_samir",
             NpcId.CafeOwnerNadia when maintainingDoubleLife => "nadia_cafe_double_life",
+            NpcId.CafeOwnerNadia when relationship.Trust <= -10 => "nadia_cafe_cold",
             NpcId.CafeOwnerNadia when relationship.Trust >= 15 => "nadia_cafe_warm",
             NpcId.CafeOwnerNadia => "nadia_cafe",
+            NpcId.FenceHanan when relationship.Trust <= -10 => "hanan_fence_cold",
             NpcId.FenceHanan when relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation >= 15 => "hanan_fence_warm",
             NpcId.FenceHanan => "hanan_fence",
             NpcId.RunnerYoussef when policePressure >= 70 => "youssef_runner_hot",
+            NpcId.RunnerYoussef when relationship.Trust >= 15 && crimesCommitted >= 2 => "youssef_runner_embedded",
             NpcId.RunnerYoussef => "youssef_runner",
+            NpcId.PharmacistMariam when motherHealth < 40 => "mariam_pharmacy_urgent",
             NpcId.PharmacistMariam when relationship.Trust >= 15 => "mariam_pharmacy_warm",
             NpcId.PharmacistMariam => "mariam_pharmacy",
+            NpcId.DispatcherSafaa when relationship.RecentContactCount >= 3 => "safaa_depot_regular",
             NpcId.DispatcherSafaa when relationship.Trust >= 15 => "safaa_depot_warm",
             NpcId.DispatcherSafaa => "safaa_depot",
+            NpcId.LaundryOwnerIman when currentMoney < 50 => "iman_laundry_lean",
             NpcId.LaundryOwnerIman when relationship.Trust >= 15 => "iman_laundry_warm",
             NpcId.LaundryOwnerIman => "iman_laundry",
             _ => throw new ArgumentOutOfRangeException(nameof(npcId))
