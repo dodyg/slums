@@ -146,6 +146,8 @@ public sealed class GameState
             ApplyRandomEvent(randomEvent);
         }
 
+        QueueNarrativeFollowUpScenes();
+
         _crimeCommittedToday = false;
         CheckGameOverConditions();
     }
@@ -850,7 +852,7 @@ public sealed class GameState
         EndingId = ending;
         IsGameOver = true;
         GameOverReason = EndingService.GetMessage(ending.Value);
-        PendingEndingKnot = EndingService.GetInkKnot(ending.Value);
+        PendingEndingKnot = EndingService.GetInkKnot(this, ending.Value);
     }
 
     private void ModifyEmployerTrust(JobType jobType, int delta)
@@ -884,6 +886,12 @@ public sealed class GameState
             Player.Stats.ModifyStress(4);
             ModifyEmployerTrust(job.Type, -2);
             RaiseEvent("The street heat follows you into work. People notice how tense you look.");
+
+            if (!HasStoryFlag("event_public_work_heat_seen"))
+            {
+                SetStoryFlag("event_public_work_heat_seen");
+                QueueNarrativeScene("event_public_work_heat");
+            }
         }
 
         if (result.MistakeMade && job.Type == JobType.WorkshopSewing)
@@ -912,6 +920,28 @@ public sealed class GameState
         {
             Relationships.RecordFavor(NpcId.NurseSalma, Clock.Day, hasUnpaidDebt: true);
             RaiseEvent("Nurse Salma quietly covers a little medicine for your mother. You owe her now.");
+        }
+    }
+
+    private void QueueNarrativeFollowUpScenes()
+    {
+        if (_crimeCommittedToday &&
+            TotalCrimeEarnings >= 150 &&
+            CrimesCommitted >= 2 &&
+            Player.Household.MotherHealth < 65 &&
+            !HasStoryFlag("event_mother_wrong_money_seen"))
+        {
+            SetStoryFlag("event_mother_wrong_money_seen");
+            QueueNarrativeScene("event_mother_wrong_money");
+        }
+
+        if (_crimeCommittedToday &&
+            PolicePressure >= 60 &&
+            Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust >= 15 &&
+            !HasStoryFlag("event_neighbor_watch_seen"))
+        {
+            SetStoryFlag("event_neighbor_watch_seen");
+            QueueNarrativeScene("event_neighbor_watch");
         }
     }
 

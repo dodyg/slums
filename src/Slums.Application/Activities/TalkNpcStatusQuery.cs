@@ -35,10 +35,12 @@ public sealed class TalkNpcStatusQuery
 
         return npcId switch
         {
+            NpcId.LandlordHajjMahmoud when gameState.Player.Stats.Money < 40 && relationship.Trust >= 15 => "You are short on rent, but he still sees you as a woman trying to keep her word.",
             NpcId.LandlordHajjMahmoud when gameState.Player.Stats.Money < 40 => "You are visibly short this week. Rent talk will be about what you cannot pay.",
             NpcId.LandlordHajjMahmoud when relationship.Trust <= -15 => "Hostile over money and respect. Rent talk will be tense.",
             NpcId.LandlordHajjMahmoud when relationship.Trust >= 15 => "Warm enough that negotiation may stay civil.",
             NpcId.LandlordHajjMahmoud => "Watching your reliability more than your excuses.",
+            NpcId.FixerUmmKarim when maintainingDoubleLife && relationship.Trust >= 10 => "She sees the honest-work cover and the criminal ambition together, and is judging whether that makes you useful or sloppy.",
             NpcId.FixerUmmKarim when relationship.Trust >= 25 => "She has stopped testing whether you are serious and started testing whether you are useful under pressure.",
             NpcId.FixerUmmKarim when relationship.LastRefusalDay > 0 && gameState.Clock.Day - relationship.LastRefusalDay <= 3 => "She remembers recent hesitation and is testing your nerve.",
             NpcId.FixerUmmKarim when gameState.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation >= 15 => "Your local standing makes business talk easier.",
@@ -46,10 +48,12 @@ public sealed class TalkNpcStatusQuery
             NpcId.OfficerKhalid when gameState.PolicePressure >= 70 => "Checkpoint mood. The heat is changing how he reads you.",
             NpcId.OfficerKhalid when relationship.Trust <= -10 => "He has started filing you under trouble even on quieter days.",
             NpcId.OfficerKhalid => "Routine on the surface, but never casual.",
+            NpcId.NeighborMona when gameState.PolicePressure >= 70 && gameState.CrimesCommitted > 0 => "She can feel police attention moving through the building and is deciding how much she dares to say out loud.",
             NpcId.NeighborMona when gameState.Player.Stats.Money < 40 => "She can see the week tightening around you and is deciding how directly to say it.",
             NpcId.NeighborMona when relationship.WasHelped => "She remembers mutual help and treats you like part of the stairwell.",
             NpcId.NeighborMona when relationship.Trust >= 15 => "Neighborly warmth is solid for now.",
             NpcId.NeighborMona => "Friendly, but still measuring what kind of trouble follows you.",
+            NpcId.NurseSalma when relationship.HasUnpaidDebt && relationship.Trust >= 15 => "You still owe her, but the debt has become personal enough to test character rather than bookkeeping.",
             NpcId.NurseSalma when relationship.HasUnpaidDebt => "You still owe her for help she should not have had to give.",
             NpcId.NurseSalma when gameState.Player.Household.MotherHealth < 40 => "She is likely to stop talking in generalities and focus on your mother's condition.",
             NpcId.NurseSalma when maintainingDoubleLife => "She notices when your stories and your days stop matching.",

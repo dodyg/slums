@@ -53,14 +53,31 @@ internal sealed class NpcRegistryTests
     }
 
     [Test]
+    public void GetConversationKnot_ShouldUseWarmerDebtAndSoftBrokeVariants_WhenTrustIsHigh()
+    {
+        var state = new RelationshipState();
+        state.SetNpcRelationship(NpcId.NurseSalma, 18, 1);
+        state.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 16, 1);
+        state.SetNpcRelationshipMemory(NpcId.NurseSalma, lastFavorDay: 2, lastRefusalDay: 0, hasUnpaidDebt: true, wasEmbarrassed: false, wasHelped: false, recentContactCount: 1);
+
+        NpcRegistry.GetConversationKnot(NpcId.NurseSalma, state, policePressure: 0, currentDay: 3, honestShiftsCompleted: 0, crimesCommitted: 0)
+            .Should().Be("nurse_salma_debt_warm");
+        NpcRegistry.GetConversationKnot(NpcId.LandlordHajjMahmoud, state, policePressure: 0, currentDay: 3, honestShiftsCompleted: 0, crimesCommitted: 0, currentMoney: 20)
+            .Should().Be("landlord_rent_broke_soft");
+    }
+
+    [Test]
     public void GetConversationKnot_ShouldUseSuspiciousVariant_WhenDoubleLifeIsVisible()
     {
         var state = new RelationshipState();
+        state.SetNpcRelationship(NpcId.FixerUmmKarim, 12, 1);
 
         NpcRegistry.GetConversationKnot(NpcId.NurseSalma, state, policePressure: 0, currentDay: 5, honestShiftsCompleted: 4, crimesCommitted: 2)
             .Should().Be("nurse_salma_suspicious");
         NpcRegistry.GetConversationKnot(NpcId.CafeOwnerNadia, state, policePressure: 0, currentDay: 5, honestShiftsCompleted: 4, crimesCommitted: 2)
             .Should().Be("nadia_cafe_double_life");
+        NpcRegistry.GetConversationKnot(NpcId.FixerUmmKarim, state, policePressure: 0, currentDay: 5, honestShiftsCompleted: 4, crimesCommitted: 2)
+            .Should().Be("fixer_double_life");
     }
 
     [Test]
@@ -91,6 +108,15 @@ internal sealed class NpcRegistryTests
             .Should().Be("mariam_pharmacy_urgent");
         NpcRegistry.GetConversationKnot(NpcId.LaundryOwnerIman, state, policePressure: 0, currentDay: 4, honestShiftsCompleted: 0, crimesCommitted: 0, currentMoney: 35, motherHealth: 70)
             .Should().Be("iman_laundry_lean");
+    }
+
+    [Test]
+    public void GetConversationKnot_ShouldUseNeighborHeatVariant_WhenPoliceAttentionIsHigh()
+    {
+        var state = new RelationshipState();
+
+        NpcRegistry.GetConversationKnot(NpcId.NeighborMona, state, policePressure: 75, currentDay: 4, honestShiftsCompleted: 0, crimesCommitted: 2)
+            .Should().Be("neighbor_mona_heat");
     }
 
     [Test]

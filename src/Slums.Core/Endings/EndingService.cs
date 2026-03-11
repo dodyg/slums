@@ -1,3 +1,4 @@
+using Slums.Core.Characters;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 
@@ -115,6 +116,65 @@ public static class EndingService
             EndingId.LeavingCrime => "ending_leaving_crime",
             EndingId.BuriedByHeat => "ending_buried_by_heat",
             _ => null
+        };
+    }
+
+    public static string? GetInkKnot(GameState gameState, EndingId endingId)
+    {
+        ArgumentNullException.ThrowIfNull(gameState);
+
+        return endingId switch
+        {
+            EndingId.StabilityHonestWork => GetStabilityKnot(gameState.Player.BackgroundType),
+            EndingId.NetworkShelter => GetNetworkShelterKnot(gameState),
+            EndingId.LeavingCrime => GetLeavingCrimeKnot(gameState.Player.BackgroundType),
+            _ => GetInkKnot(endingId)
+        };
+    }
+
+    private static string GetStabilityKnot(BackgroundType backgroundType)
+    {
+        return backgroundType switch
+        {
+            BackgroundType.MedicalSchoolDropout => "ending_stability_medical",
+            BackgroundType.ReleasedPoliticalPrisoner => "ending_stability_prisoner",
+            BackgroundType.SudaneseRefugee => "ending_stability_sudanese",
+            _ => "ending_stability"
+        };
+    }
+
+    private static string GetLeavingCrimeKnot(BackgroundType backgroundType)
+    {
+        return backgroundType switch
+        {
+            BackgroundType.MedicalSchoolDropout => "ending_leaving_crime_medical",
+            BackgroundType.ReleasedPoliticalPrisoner => "ending_leaving_crime_prisoner",
+            BackgroundType.SudaneseRefugee => "ending_leaving_crime_sudanese",
+            _ => "ending_leaving_crime"
+        };
+    }
+
+    private static string GetNetworkShelterKnot(GameState gameState)
+    {
+        var rankedContacts = new[]
+        {
+            NpcId.NeighborMona,
+            NpcId.NurseSalma,
+            NpcId.CafeOwnerNadia,
+            NpcId.FenceHanan
+        };
+
+        var strongestSupport = rankedContacts
+            .OrderByDescending(npcId => gameState.Relationships.GetNpcRelationship(npcId).Trust)
+            .First();
+
+        return strongestSupport switch
+        {
+            NpcId.NeighborMona => "ending_network_shelter_mona",
+            NpcId.NurseSalma => "ending_network_shelter_salma",
+            NpcId.CafeOwnerNadia => "ending_network_shelter_nadia",
+            NpcId.FenceHanan => "ending_network_shelter_hanan",
+            _ => "ending_network_shelter"
         };
     }
 }

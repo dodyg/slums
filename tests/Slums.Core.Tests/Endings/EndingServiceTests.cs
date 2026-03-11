@@ -1,3 +1,4 @@
+using Slums.Core.Characters;
 using Slums.Core.Endings;
 using Slums.Core.State;
 using TUnit.Core;
@@ -83,5 +84,30 @@ internal sealed class EndingServiceTests
         var ending = EndingService.CheckEndings(state);
 
         await Assert.That(ending).IsEqualTo(EndingId.BuriedByHeat);
+    }
+
+    [Test]
+    public async Task GetInkKnot_ShouldUseBackgroundSpecificVariant_ForStabilityAndLeavingCrime()
+    {
+        var stabilityState = new GameState();
+        stabilityState.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+
+        var leavingCrimeState = new GameState();
+        leavingCrimeState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+
+        await Assert.That(EndingService.GetInkKnot(stabilityState, EndingId.StabilityHonestWork)).IsEqualTo("ending_stability_sudanese");
+        await Assert.That(EndingService.GetInkKnot(leavingCrimeState, EndingId.LeavingCrime)).IsEqualTo("ending_leaving_crime_prisoner");
+    }
+
+    [Test]
+    public async Task GetInkKnot_ShouldUseStrongestSupportContact_ForNetworkShelter()
+    {
+        var state = new GameState();
+        state.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.NeighborMona, 20, 1);
+        state.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.NurseSalma, 35, 1);
+        state.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.CafeOwnerNadia, 22, 1);
+        state.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.FenceHanan, 18, 1);
+
+        await Assert.That(EndingService.GetInkKnot(state, EndingId.NetworkShelter)).IsEqualTo("ending_network_shelter_salma");
     }
 }

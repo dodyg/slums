@@ -55,3 +55,15 @@ The steam line pops with a noise like a slap, and suddenly the laundry is wet in
 === event_shubra_block_solidarity ===
 In Shubra, help arrives disguised as ordinary conversation: one woman naming a cheaper repairman, another sending leftovers downstairs, a third warning you which shop has started pretending inflation is a personal favor.
 -> DONE
+
+=== event_public_work_heat ===
+You do the job correctly, maybe even well, but the room still reads the strain before the shift ends. When police heat follows a woman into public work, people stop hearing tiredness as tiredness. They start hearing explanation.
+-> DONE
+
+=== event_mother_wrong_money ===
+That night your mother looks at the money longer than she looks at you. She does not ask the ugliest question directly. She only says the city sometimes sends help in ways that demand repayment from the soul instead of the pocket.
+-> DONE
+
+=== event_neighbor_watch ===
+Later, Mona leaves the warning in the shape of ordinary kindness: a delayed knock, a casual question, a reason for you not to be in the stairwell when strangers come asking who lives where. In Cairo, protection often arrives disguised as routine.
+-> DONE

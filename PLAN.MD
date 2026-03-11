@@ -107,6 +107,16 @@ Deliver:
 - visible gating and modifier reason strings for crime routes
 - clearer event-log messaging for background and spillover effects
 
+## Narrative Enhancement Pass
+
+Status: implemented.
+
+Completed steps:
+
+1. Expanded recurring NPC reactivity for Hajj Mahmoud, Umm Karim, Mona, and Nurse Salma using trust, debt, police heat, and double-life state.
+2. Added queued spillover narrative scenes for public-facing work under heat, criminal money reaching home, and neighborhood protection when Mona trusts you.
+3. Expanded ending epilogues so stability and leaving-crime endings react to background, and network-shelter endings react to the strongest support contact.
+
 ## Validation
 
 When relevant to the change:

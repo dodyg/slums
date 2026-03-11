@@ -328,6 +328,20 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task WorkJob_ShouldQueuePublicWorkHeatScene_WhenPublicFacingShiftFollowsCrimeHeat()
+    {
+        var state = new GameState();
+        state.World.TravelTo(LocationId.Clinic);
+        state.SetPolicePressure(70);
+        state.SetWorkCounters(0, 0, lastCrimeDay: 1, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
+
+        var result = state.WorkJob(state.GetAvailableJobs().Single());
+
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(HasPendingNarrativeScene(state, "event_public_work_heat")).IsTrue();
+    }
+
+    [Test]
     public async Task BuyFood_ShouldGrantExtraStaples_ForSudaneseBackground()
     {
         var state = new GameState();
@@ -375,6 +389,63 @@ internal sealed class GameStateTests
         state.EndDay(new Random(2));
 
         await Assert.That(state.PolicePressure).IsEqualTo(23);
+    }
+
+    [Test]
+    public async Task EndDay_ShouldQueueMotherWrongMoneyScene_AfterSuccessfulCrimeRun()
+    {
+        const int seedLimit = 100;
+        var attempt = new CrimeAttempt(CrimeType.PettyTheft, 40, 0, 8, 0, 10);
+
+        for (var seed = 0; seed < seedLimit; seed++)
+        {
+            var state = new GameState();
+            state.World.TravelTo(LocationId.Market);
+            state.Player.Household.SetMotherHealth(50);
+            state.SetCrimeCounters(140, 1);
+            state.SetPolicePressure(20);
+
+            var result = state.CommitCrime(attempt, new Random(seed));
+            if (!result.Success)
+            {
+                continue;
+            }
+
+            state.EndDay(new Random(2));
+
+            await Assert.That(HasPendingNarrativeScene(state, "event_mother_wrong_money")).IsTrue();
+            return;
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic successful crime seed for the mother money follow-up.");
+    }
+
+    [Test]
+    public async Task EndDay_ShouldQueueNeighborWatchScene_WhenMonaTrustAndHeatAreHigh()
+    {
+        const int seedLimit = 100;
+        var attempt = new CrimeAttempt(CrimeType.PettyTheft, 40, 10, 12, 0, 10);
+
+        for (var seed = 0; seed < seedLimit; seed++)
+        {
+            var state = new GameState();
+            state.World.TravelTo(LocationId.Market);
+            state.SetPolicePressure(60);
+            state.Relationships.SetNpcRelationship(NpcId.NeighborMona, 18, 1);
+
+            var result = state.CommitCrime(attempt, new Random(seed));
+            if (!result.Success)
+            {
+                continue;
+            }
+
+            state.EndDay(new Random(2));
+
+            await Assert.That(HasPendingNarrativeScene(state, "event_neighbor_watch")).IsTrue();
+            return;
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic successful crime seed for the Mona warning follow-up.");
     }
 
     [Test]

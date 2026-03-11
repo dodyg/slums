@@ -98,10 +98,12 @@ public static class NpcRegistry
 
         return npcId switch
         {
+            NpcId.LandlordHajjMahmoud when currentMoney < 40 && relationship.Trust >= 15 => "landlord_rent_broke_soft",
             NpcId.LandlordHajjMahmoud when currentMoney < 40 => "landlord_rent_broke",
             NpcId.LandlordHajjMahmoud when relationship.Trust <= -15 => "landlord_rent_negotiation_hostile",
             NpcId.LandlordHajjMahmoud when relationship.Trust >= 15 => "landlord_rent_negotiation_warm",
             NpcId.LandlordHajjMahmoud => "landlord_rent_negotiation",
+            NpcId.FixerUmmKarim when maintainingDoubleLife && relationship.Trust >= 10 => "fixer_double_life",
             NpcId.FixerUmmKarim when relationship.Trust >= 25 => "fixer_trusted_operator",
             NpcId.FixerUmmKarim when relationship.LastRefusalDay > 0 && currentDay - relationship.LastRefusalDay <= 3 => "fixer_recent_refusal",
             NpcId.FixerUmmKarim when relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation >= 15 => "fixer_repeat_contact",
@@ -109,10 +111,12 @@ public static class NpcRegistry
             NpcId.OfficerKhalid when policePressure >= 70 => "officer_checkpoint_hot",
             NpcId.OfficerKhalid when relationship.Trust <= -10 => "officer_checkpoint_marked",
             NpcId.OfficerKhalid => "officer_checkpoint",
+            NpcId.NeighborMona when policePressure >= 70 && crimesCommitted > 0 => "neighbor_mona_heat",
             NpcId.NeighborMona when currentMoney < 40 => "neighbor_mona_lean_week",
             NpcId.NeighborMona when relationship.WasHelped => "neighbor_mona_helped",
             NpcId.NeighborMona when relationship.Trust >= 15 => "neighbor_mona_warm",
             NpcId.NeighborMona => "neighbor_mona",
+            NpcId.NurseSalma when relationship.HasUnpaidDebt && relationship.Trust >= 15 => "nurse_salma_debt_warm",
             NpcId.NurseSalma when relationship.HasUnpaidDebt => "nurse_salma_debt",
             NpcId.NurseSalma when motherHealth < 40 => "nurse_salma_urgent",
             NpcId.NurseSalma when maintainingDoubleLife => "nurse_salma_suspicious",

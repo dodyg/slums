@@ -197,6 +197,20 @@ internal sealed class InkNarrativeServiceTests
     }
 
     [Test]
+    public void StartScene_ShouldLoadNewNarrativeEnhancementNpcVariants()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("fixer_double_life", new GameState());
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("two stories belong to the same woman");
+
+        service.StartScene("neighbor_mona_heat", new GameState());
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("does not start with gossip this time");
+    }
+
+    [Test]
     public void StartScene_ShouldLoadNewNpcVariantScenes()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
@@ -226,6 +240,17 @@ internal sealed class InkNarrativeServiceTests
     }
 
     [Test]
+    public void StartScene_ShouldLoadNewSpilloverEventScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("event_mother_wrong_money", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("looks at the money longer than she looks at you");
+    }
+
+    [Test]
     public void StartScene_ShouldLoadExpandedEndingScene()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
@@ -234,5 +259,16 @@ internal sealed class InkNarrativeServiceTests
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("difficult to erase");
+    }
+
+    [Test]
+    public void StartScene_ShouldLoadEndingVariantScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("ending_network_shelter_salma", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("Salma never lets hardship become abstract");
     }
 }

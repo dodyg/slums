@@ -254,6 +254,23 @@ Salma does not mention the medicine she covered for your mother, but the omissio
 	She points at the waiting room and says there is always work if you mean to pay in effort first.
 	-> DONE
 
+=== nurse_salma_debt_warm ===
+Salma still remembers the medicine, but the look she gives you now is less creditor than witness. In a clinic like this, that can feel more dangerous and more merciful at the same time.
+
+*   [Tell her you have not forgotten and ask how to make it right]
+	# NPC_TRUST:NurseSalma,5
+	# DEBT:NurseSalma,true
+	# FAVOR:NurseSalma
+	# MESSAGE:Salma decides you are trying to repay her in character before cash.
+	She says debt matters less than whether hardship teaches a woman to disappear or to stand up straighter.
+	-> DONE
+
+*   [Ask whether she regrets helping you]
+	# NPC_TRUST:NurseSalma,3
+	# MESSAGE:Salma answers too quickly for the question to be casual.
+	She says regret is a luxury for people with spare medicine and spare time, then tells you what your mother should be eating if either of you can manage it.
+	-> DONE
+
 === nurse_salma_suspicious ===
 Salma watches your hands before she answers your question. The clinic has taught her how stress looks when it comes from hunger, grief, guilt, or all three at once.
 
@@ -550,6 +567,23 @@ Hajj Mahmoud does not need to ask whether the week has gone badly. He can see it
 	He tells you plans are what poor tenants call money before it arrives.
 	-> DONE
 
+=== landlord_rent_broke_soft ===
+Hajj Mahmoud hears the shortage before you finish naming it. The disappointment in his face is real, but so is the tired mercy of a man who has watched too many honest weeks collapse anyway.
+
+*   [Tell him exactly what you can pay and when]
+	# STRESS:4
+	# NPC_TRUST:LandlordHajjMahmoud,7
+	# MESSAGE:Hajj Mahmoud accepts the arithmetic, if not the relief.
+	He says clear numbers are worth more than dramatic promises and tells you which day he expects to hear from you again.
+	-> DONE
+
+*   [Apologize and ask him not to shame you in the stairwell]
+	# STRESS:5
+	# NPC_TRUST:LandlordHajjMahmoud,5
+	# MESSAGE:Hajj Mahmoud relents, but only because dignity is cheaper than eviction today.
+	He lowers his voice and says even mercy has to answer to the ledger eventually.
+	-> DONE
+
 === fixer_trusted_operator ===
 Umm Karim speaks to you without the old testing tone. That is not warmth. It is simply what trust sounds like in a line of work that charges extra for mistakes.
 
@@ -565,6 +599,23 @@ Umm Karim speaks to you without the old testing tone. That is not warmth. It is 
 	# STRESS:-2
 	# MESSAGE:Umm Karim answers more honestly than kindly.
 	She says usefulness buys time, never safety, and women who confuse the two die confused.
+	-> DONE
+
+=== fixer_double_life ===
+Umm Karim glances once at your work clothes and once at your face, as if checking whether the two stories belong to the same woman. When she speaks, it is with the dry patience reserved for people trying to turn caution into a profession.
+
+*   [Say the honest shifts help you stay invisible]
+	# NPC_TRUST:FixerUmmKarim,4
+	# FACTION_REP:ImbabaCrew,3
+	# MESSAGE:Umm Karim approves of the cover more than the conscience behind it.
+	She says respectable routines are useful right up until the day they make you slow.
+	-> DONE
+
+*   [Ask whether she thinks you are overreaching]
+	# STRESS:3
+	# NPC_TRUST:FixerUmmKarim,2
+	# MESSAGE:Umm Karim answers with the kind of warning that sounds like employment advice.
+	She says women juggling two lives usually drop the cleaner one first, then discover too late which loss was permanent.
 	-> DONE
 
 === officer_checkpoint_marked ===
@@ -599,6 +650,23 @@ Mona sees the arithmetic on your face and lowers her voice before she says anyth
 	# STRESS:2
 	# MESSAGE:Mona hears the pride and knows better than to fight it.
 	She only says "rabena yostor" and leaves the rest unsaid between you.
+	-> DONE
+
+=== neighbor_mona_heat ===
+Mona does not start with gossip this time. She checks the landing above you, then the one below, and only then leans close enough for the building to become part of the conversation.
+
+*   [Ask what people are saying]
+	# NPC_TRUST:NeighborMona,5
+	# STRESS:-2
+	# MESSAGE:Mona warns you before rumor turns into a knock.
+	She says two flats are already repeating your name too carefully, which means someone outside the building probably asked first.
+	-> DONE
+
+*   [Tell her to stay out of it for her own sake]
+	# NPC_TRUST:NeighborMona,-5
+	# STRESS:4
+	# MESSAGE:Mona hears the warning and the distance in the same breath.
+	She says trouble rarely asks permission before climbing the stairs, then steps back like you have made her choose a side too early.
 	-> DONE
 
 === nurse_salma_urgent ===
