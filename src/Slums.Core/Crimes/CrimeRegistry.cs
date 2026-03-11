@@ -22,19 +22,67 @@ public static class CrimeRegistry
         var currentStreetRep = relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation;
         IReadOnlyList<CrimeAttempt> crimes = location.District switch
         {
-            DistrictId.Dokki =>
-            [
-                PettyTheftDefault with { BaseReward = 35, DetectionRisk = 30 },
-                RobberyDefault with { BaseReward = 90, DetectionRisk = 65 }
-            ],
-            _ =>
-            [
-                PettyTheftDefault,
-                HashishTradeDefault,
-                RobberyDefault
-            ]
+            DistrictId.Dokki => GetDokkiCrimes(location, relationshipState),
+            _ => GetImbabaCrimes(location, relationshipState)
         };
 
         return crimes.Where(crime => currentStreetRep >= crime.StreetRepRequired).ToArray();
+    }
+
+    private static IReadOnlyList<CrimeAttempt> GetImbabaCrimes(Location location, RelationshipState relationshipState)
+    {
+        var hananTrust = relationshipState.GetNpcRelationship(NpcId.FenceHanan).Trust;
+        if (location.Id != LocationId.Market || hananTrust < 10)
+        {
+            return [PettyTheftDefault, HashishTradeDefault, RobberyDefault];
+        }
+
+        return
+        [
+            PettyTheftDefault with
+            {
+                BaseReward = PettyTheftDefault.BaseReward + 10,
+                DetectionRisk = Math.Max(5, PettyTheftDefault.DetectionRisk - 5)
+            },
+            HashishTradeDefault with
+            {
+                BaseReward = HashishTradeDefault.BaseReward + 15,
+                DetectionRisk = Math.Max(5, HashishTradeDefault.DetectionRisk - 5)
+            },
+            RobberyDefault
+        ];
+    }
+
+    private static List<CrimeAttempt> GetDokkiCrimes(Location location, RelationshipState relationshipState)
+    {
+        var youssefTrust = relationshipState.GetNpcRelationship(NpcId.RunnerYoussef).Trust;
+        var dokkiReputation = relationshipState.GetFactionStanding(FactionId.DokkiThugs).Reputation;
+        var riskReduction = youssefTrust >= 15 ? 5 : 0;
+
+        var crimes = new List<CrimeAttempt>
+        {
+            PettyTheftDefault with
+            {
+                BaseReward = 35,
+                DetectionRisk = Math.Max(5, 30 - riskReduction)
+            },
+            RobberyDefault with
+            {
+                BaseReward = 90,
+                DetectionRisk = Math.Max(5, 65 - riskReduction)
+            }
+        };
+
+        if (location.Id == LocationId.Square && (youssefTrust >= 10 || dokkiReputation >= 10))
+        {
+            crimes.Add(HashishTradeDefault with
+            {
+                BaseReward = 55,
+                DetectionRisk = Math.Max(5, 40 - riskReduction),
+                PolicePressureIncrease = 12
+            });
+        }
+
+        return crimes;
     }
 }
