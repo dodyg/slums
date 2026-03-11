@@ -146,6 +146,26 @@ At repo root, keep these files current:
 
 Use central package management. Prefer repo-wide shared settings instead of duplicating build properties in each project.
 
+## Platform and Architecture Notes
+
+This project uses SadConsole with the SFML host, which depends on CSFML native libraries. Be aware of the following when switching between environments:
+
+**Windows (PowerShell/CMD):**
+- Builds and runs without issues on x86-64 Windows
+- CSFML native libraries are correctly resolved
+
+**WSL Linux on ARM64 (e.g., Apple Silicon with Parallels, Snapdragon Windows):**
+- Build succeeds but may produce warning `NETSDK1206` about `fedora-x64` runtime identifiers
+- This is a warning only and does not prevent building or running tests
+- The game itself may fail to launch due to missing ARM64 native libraries for CSFML
+- Tests that don't involve SadConsole UI will run correctly
+
+**Compiling Ink Files:**
+- `inklecate` binaries from inkle are x86-64 only
+- On ARM64 Linux, you cannot run `inklecate` directly to compile `.ink` files to `.json`
+- Either compile Ink files on Windows/x86-64, or use the fallback narrative system which provides C#-based scene definitions
+- The current `main.json` was compiled on Windows; if you modify `.ink` source files, recompile on an x86-64 machine
+
 ## Testing Expectations
 
 Every rule change should come with comprehensive tests using **TUnit** as the testing framework. Comprehensive unit tests are mandatory for all layers to ensure reliability and enable safe refactoring.

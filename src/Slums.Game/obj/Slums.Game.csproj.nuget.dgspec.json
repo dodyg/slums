@@ -1,35 +1,41 @@
 {
   "format": 1,
   "restore": {
-    "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj": {}
+    "D:\\GitHub\\slums\\src\\Slums.Game\\Slums.Game.csproj": {}
   },
   "projects": {
-    "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj": {
+    "D:\\GitHub\\slums\\src\\Slums.Application\\Slums.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj",
+        "projectUniqueName": "D:\\GitHub\\slums\\src\\Slums.Application\\Slums.Application.csproj",
         "projectName": "Slums.Application",
-        "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj",
-        "packagesPath": "/home/dodyg/.nuget/packages/",
-        "outputPath": "/mnt/d/GitHub/Slums/src/Slums.Application/obj/",
+        "projectPath": "D:\\GitHub\\slums\\src\\Slums.Application\\Slums.Application.csproj",
+        "packagesPath": "C:\\Users\\dodyg\\.nuget\\packages\\",
+        "outputPath": "D:\\GitHub\\slums\\src\\Slums.Application\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/dodyg/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\dodyg\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "/usr/lib/dotnet/library-packs": {},
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj"
+              "D:\\GitHub\\slums\\src\\Slums.Core\\Slums.Core.csproj": {
+                "projectPath": "D:\\GitHub\\slums\\src\\Slums.Core\\Slums.Core.csproj"
               }
             }
           }
@@ -90,7 +96,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.104/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -368,24 +374,30 @@
         }
       }
     },
-    "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj": {
+    "D:\\GitHub\\slums\\src\\Slums.Core\\Slums.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj",
+        "projectUniqueName": "D:\\GitHub\\slums\\src\\Slums.Core\\Slums.Core.csproj",
         "projectName": "Slums.Core",
-        "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj",
-        "packagesPath": "/home/dodyg/.nuget/packages/",
-        "outputPath": "/mnt/d/GitHub/Slums/src/Slums.Core/obj/",
+        "projectPath": "D:\\GitHub\\slums\\src\\Slums.Core\\Slums.Core.csproj",
+        "packagesPath": "C:\\Users\\dodyg\\.nuget\\packages\\",
+        "outputPath": "D:\\GitHub\\slums\\src\\Slums.Core\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/dodyg/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\dodyg\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "/usr/lib/dotnet/library-packs": {},
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -443,7 +455,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.104/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -721,41 +733,47 @@
         }
       }
     },
-    "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj": {
+    "D:\\GitHub\\slums\\src\\Slums.Game\\Slums.Game.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj",
+        "projectUniqueName": "D:\\GitHub\\slums\\src\\Slums.Game\\Slums.Game.csproj",
         "projectName": "Slums.Game",
-        "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj",
-        "packagesPath": "/home/dodyg/.nuget/packages/",
-        "outputPath": "/mnt/d/GitHub/Slums/src/Slums.Game/obj/",
+        "projectPath": "D:\\GitHub\\slums\\src\\Slums.Game\\Slums.Game.csproj",
+        "packagesPath": "C:\\Users\\dodyg\\.nuget\\packages\\",
+        "outputPath": "D:\\GitHub\\slums\\src\\Slums.Game\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/dodyg/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\dodyg\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "/usr/lib/dotnet/library-packs": {},
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj"
+              "D:\\GitHub\\slums\\src\\Slums.Application\\Slums.Application.csproj": {
+                "projectPath": "D:\\GitHub\\slums\\src\\Slums.Application\\Slums.Application.csproj"
               },
-              "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj"
+              "D:\\GitHub\\slums\\src\\Slums.Core\\Slums.Core.csproj": {
+                "projectPath": "D:\\GitHub\\slums\\src\\Slums.Core\\Slums.Core.csproj"
               },
-              "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj"
+              "D:\\GitHub\\slums\\src\\Slums.Infrastructure\\Slums.Infrastructure.csproj": {
+                "projectPath": "D:\\GitHub\\slums\\src\\Slums.Infrastructure\\Slums.Infrastructure.csproj"
               },
-              "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj"
+              "D:\\GitHub\\slums\\src\\Slums.Narrative.Ink\\Slums.Narrative.Ink.csproj": {
+                "projectPath": "D:\\GitHub\\slums\\src\\Slums.Narrative.Ink\\Slums.Narrative.Ink.csproj"
               }
             }
           }
@@ -831,7 +849,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.104/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -1109,35 +1127,41 @@
         }
       }
     },
-    "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj": {
+    "D:\\GitHub\\slums\\src\\Slums.Infrastructure\\Slums.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj",
+        "projectUniqueName": "D:\\GitHub\\slums\\src\\Slums.Infrastructure\\Slums.Infrastructure.csproj",
         "projectName": "Slums.Infrastructure",
-        "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj",
-        "packagesPath": "/home/dodyg/.nuget/packages/",
-        "outputPath": "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/obj/",
+        "projectPath": "D:\\GitHub\\slums\\src\\Slums.Infrastructure\\Slums.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\dodyg\\.nuget\\packages\\",
+        "outputPath": "D:\\GitHub\\slums\\src\\Slums.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/dodyg/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\dodyg\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "/usr/lib/dotnet/library-packs": {},
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj"
+              "D:\\GitHub\\slums\\src\\Slums.Application\\Slums.Application.csproj": {
+                "projectPath": "D:\\GitHub\\slums\\src\\Slums.Application\\Slums.Application.csproj"
               },
-              "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj"
+              "D:\\GitHub\\slums\\src\\Slums.Core\\Slums.Core.csproj": {
+                "projectPath": "D:\\GitHub\\slums\\src\\Slums.Core\\Slums.Core.csproj"
               }
             }
           }
@@ -1191,7 +1215,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.104/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -1469,35 +1493,41 @@
         }
       }
     },
-    "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj": {
+    "D:\\GitHub\\slums\\src\\Slums.Narrative.Ink\\Slums.Narrative.Ink.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj",
+        "projectUniqueName": "D:\\GitHub\\slums\\src\\Slums.Narrative.Ink\\Slums.Narrative.Ink.csproj",
         "projectName": "Slums.Narrative.Ink",
-        "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj",
-        "packagesPath": "/home/dodyg/.nuget/packages/",
-        "outputPath": "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/obj/",
+        "projectPath": "D:\\GitHub\\slums\\src\\Slums.Narrative.Ink\\Slums.Narrative.Ink.csproj",
+        "packagesPath": "C:\\Users\\dodyg\\.nuget\\packages\\",
+        "outputPath": "D:\\GitHub\\slums\\src\\Slums.Narrative.Ink\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/dodyg/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\dodyg\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "/usr/lib/dotnet/library-packs": {},
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj"
+              "D:\\GitHub\\slums\\src\\Slums.Application\\Slums.Application.csproj": {
+                "projectPath": "D:\\GitHub\\slums\\src\\Slums.Application\\Slums.Application.csproj"
               },
-              "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj"
+              "D:\\GitHub\\slums\\src\\Slums.Core\\Slums.Core.csproj": {
+                "projectPath": "D:\\GitHub\\slums\\src\\Slums.Core\\Slums.Core.csproj"
               }
             }
           }
@@ -1558,7 +1588,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.104/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",

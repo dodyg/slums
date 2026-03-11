@@ -1,5 +1,9 @@
 # SLUMS - Main Ink Story
 
+INCLUDE crime.ink
+INCLUDE npcs.ink
+INCLUDE endings.ink
+
 === intro_medical ===
 Three years of medical school.
 
