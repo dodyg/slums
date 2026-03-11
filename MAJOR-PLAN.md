@@ -1,20 +1,16 @@
-# Slums Major Expansion Plan
+# Slums Major Expansion Status And Next Roadmap
 
 ## Purpose
 
-This document is a handoff plan for the next implementation agent. It assumes the current vertical slice already includes:
+This document is no longer a speculative handoff plan for the first major expansion pass. The expansion phases it originally described have now been implemented. This file should act as:
 
-- expanded locations in Imbaba, Dokki, and Ard al-Liwa
-- additional honest jobs
-- recurring talkable NPCs
-- contact-influenced crime availability
-- contact-influenced crime aftermath and mitigation
-
-The goal of this plan is to move the project from a thin playable slice into a denser, more reactive simulation without breaking the current architecture.
+- a status snapshot of what the project currently supports
+- a record of what the major expansion added
+- a guide for the next meaningful slices of work
 
 ## Read First
 
-Before making changes, read these files in order:
+Before making major changes, read these files in order:
 
 1. `REQS.md`
 2. `PLAN.MD`
@@ -26,328 +22,238 @@ Before making changes, read these files in order:
 - Keep core simulation logic in `Slums.Core`.
 - Keep authored scene content in `content/ink/` and compile to `content/ink/main.json`.
 - Keep static world content in `content/data/` where practical.
-- Do not move economy, survival, or crime calculations into Ink.
+- Do not move economy, survival, work, crime, or ending logic into Ink.
 - Preserve the current dependency flow.
 - Every rules change requires tests.
 
 ## Current State Snapshot
 
-The repo already supports:
+The repo now supports:
 
-- travel between multiple Cairo locations
-- honest work opportunities across several districts
-- recurring NPC conversations with trust-based knot selection
-- random events tied to some locations
-- crime availability modified by trusted contacts
-- post-crime heat reduction and failure mitigation from trusted contacts
+- travel across Imbaba, Dokki, and Ard al-Liwa
+- multiple honest work tracks with progression, reliability, and temporary lockouts
+- recurring NPC conversations with trust-based and memory-based knot selection
+- contact-specific crime opportunities with distinct outcomes and aftermath scenes
+- district-specific random events with event-history-aware eligibility
+- work-crime spillover rules
+- background-specific systemic advantages and vulnerabilities
+- expanded ending logic based on behavior patterns, not only simple thresholds
+- persistence for the expanded relationship, work, and event-history state
 
-What is still missing is depth: more differentiated progression, stronger district identity, more persistent NPC memory, more varied route outcomes, and more medium-term consequence chains.
-
-## Recommended Execution Order
-
-Implement these phases in order unless blocked by discovered technical constraints.
+## Expansion Phases Completed
 
 ### Phase 1: Distinct Crime Opportunities
 
-#### Objective
+Implemented.
 
-Replace some of the remaining generic crime menu entries with contact-specific opportunities that feel tied to people and places.
+What landed:
 
-#### Why First
+- Hanan unlocks a market fencing route.
+- Youssef unlocks a Dokki drop route.
+- Umm Karim unlocks a higher-risk network errand.
+- Crime availability now changes by district, trust, faction standing, and some route context.
+- Route-specific first-success, detected-success, and failure scenes were added.
 
-- The crime route now has the relationship scaffolding to support it.
-- The current crime menu is still mechanically repetitive.
-- This adds depth without forcing a major save-model rewrite.
+Primary implementation areas:
 
-#### Deliverables
-
-- Add unique crime opportunities tied to Hanan, Youssef, and Umm Karim.
-- Give each opportunity a distinct risk, reward, pressure profile, and narrative tone.
-- Gate some opportunities behind trust, faction standing, or story flags.
-- Add follow-up scenes for first completion, first failure, and first detected completion where useful.
-
-#### Likely Files
-
-- `src/Slums.Core/Crimes/CrimeRegistry.cs`
-- `src/Slums.Core/Crimes/CrimeAttempt.cs`
+- `src/Slums.Core/Crimes/*`
 - `src/Slums.Core/State/GameState.cs`
 - `content/ink/crime.ink`
-- `tests/Slums.Core.Tests/Crimes/*`
-- `tests/Slums.Core.Tests/State/GameStateTests.cs`
-- `tests/Slums.Narrative.Ink.Tests/InkNarrativeServiceTests.cs`
-
-#### Acceptance Criteria
-
-- At least 3 distinct contact-specific crime opportunities exist.
-- At least 2 of them are gated by relationship or faction conditions.
-- The crime menu shows materially different choices by district and contact state.
-- Tests prove availability, gating, and outcome differences.
 
 ### Phase 2: Honest Work Progression
 
-#### Objective
+Implemented.
 
-Turn honest jobs into progression tracks instead of flat repeat actions.
+What landed:
 
-#### Why Second
+- Honest jobs now behave like tracks instead of flat repeated actions.
+- Reliability and shift history are persisted.
+- Better work variants unlock by trust, skills, background, and reliability.
+- Mistakes can reduce reliability and create temporary lockouts.
 
-- Honest work must remain a viable path, not only a fallback.
-- The project already has job locations and NPCs that can anchor this progression.
+Primary implementation areas:
 
-#### Deliverables
-
-- Add progression tiers for clinic, workshop, cafe, bakery, and call center work.
-- Tie better shifts or better rates to trust, skills, or reliability.
-- Add downsides such as stress buildup, fatigue, stricter attendance expectations, or temporary lockout after mistakes.
-- Make some NPCs affect work access or pay quality.
-
-#### Likely Files
-
-- `src/Slums.Core/Jobs/JobRegistry.cs`
-- `src/Slums.Core/Jobs/JobService.cs`
+- `src/Slums.Core/Jobs/*`
 - `src/Slums.Core/State/GameState.cs`
-- `src/Slums.Core/Relationships/NpcRegistry.cs`
-- `content/ink/npcs.ink`
-- `content/data/jobs.json`
-- `tests/Slums.Core.Tests/Jobs/*`
-
-#### Acceptance Criteria
-
-- At least 3 job tracks have progression or branching outcomes.
-- Honest work becomes materially more varied across locations.
-- Reliability or relationship state affects access, pay, or penalties.
-- Tests cover the new progression rules.
+- `src/Slums.Infrastructure/Persistence/GameStateDto.cs`
 
 ### Phase 3: NPC Memory Beyond Trust
 
-#### Objective
+Implemented.
 
-Make NPCs remember more than a trust number.
+What landed:
 
-#### Why Third
+- NPC relationships now track more than trust.
+- The state includes selective memory such as favors, refusals, unpaid debt, embarrassment, help, and recent contact count.
+- Conversation routing now uses these facts for several NPCs.
+- Save/load preserves the new relationship memory.
 
-- The current trust-only model is already useful but too shallow.
-- More memory unlocks better authored scene branching and better systemic reactions.
-
-#### Deliverables
-
-- Extend relationship state to remember selective facts such as:
-  - last favor given
-  - last refusal
-  - unpaid debt state
-  - whether the player embarrassed or helped the NPC
-  - recent frequency of contact
-- Use these memories to route conversation knots or modify outcomes.
-- Persist the new relationship facts in saves.
-
-#### Likely Files
+Primary implementation areas:
 
 - `src/Slums.Core/Relationships/*`
 - `src/Slums.Infrastructure/Persistence/*`
-- `src/Slums.Core/State/GameState.cs`
 - `content/ink/npcs.ink`
-- `tests/Slums.Core.Tests/Relationships/*`
-- `tests/Slums.Infrastructure.Tests/JsonSaveGameStoreTests.cs`
-
-#### Acceptance Criteria
-
-- At least 2 NPCs use non-trust memory in knot selection or outcome logic.
-- Save/load preserves the new relationship memory correctly.
-- Tests cover persistence and branching behavior.
 
 ### Phase 4: District Identity Through Events
 
-#### Objective
+Implemented.
 
-Make Imbaba, Dokki, and Ard al-Liwa feel socially and economically different.
+What landed:
 
-#### Why Fourth
+- Imbaba, Dokki, and Ard al-Liwa now have stronger event identity.
+- District events now cover solidarity, checkpoint pressure, supply shortages, transport friction, and localized work instability.
+- Event history is recorded and can gate later events.
 
-- The map is already broader, but the event layer still needs more district-specific weight.
-- This improves atmosphere without forcing UI or save refactors.
+Primary implementation areas:
 
-#### Deliverables
-
-- Add district-specific random events for:
-  - police attention
-  - work instability
-  - neighborhood solidarity
-  - faction pressure
-  - transport friction
-- Add more authored event knots for those events.
-- Where useful, let district or event history influence later event eligibility.
-
-#### Likely Files
-
+- `src/Slums.Core/Events/*`
+- `src/Slums.Infrastructure/Content/*`
 - `content/data/random_events.json`
 - `content/ink/events.ink`
-- `src/Slums.Core/Events/RandomEventRegistry.cs`
-- `src/Slums.Infrastructure/Content/JsonContentRepository.cs`
-- `tests/Slums.Core.Tests/Events/*`
-- `tests/Slums.Infrastructure.Tests/JsonContentRepositoryTests.cs`
-
-#### Acceptance Criteria
-
-- Each core district gains multiple distinct event identities.
-- Event conditions cover more than just current location.
-- Tests verify eligibility mapping and deterministic selection behavior where appropriate.
 
 ### Phase 5: Work-Crime Spillover
 
-#### Objective
+Implemented.
 
-Create medium-term consequences where one route affects the other.
+What landed:
 
-#### Why Fifth
+- Recent crime heat can make public-facing work harder.
+- Honest work can create a same-day alibi effect for some crime routes.
+- Some NPCs react differently when the player is trying to maintain both honest work and criminal activity.
 
-- This is one of the highest-value realism upgrades.
-- It turns the game from a set of isolated menus into a connected life simulation.
-
-#### Deliverables
-
-- Crimes can endanger work access, raise suspicion, or create exhaustion that hurts honest work.
-- Honest work can create witnesses, alibis, or access to locations that change crime options.
-- Some NPCs should react differently if the player is trying to maintain both routes.
-
-#### Likely Files
+Primary implementation areas:
 
 - `src/Slums.Core/State/GameState.cs`
 - `src/Slums.Core/Jobs/JobService.cs`
-- `src/Slums.Core/Crimes/*`
-- `src/Slums.Core/Relationships/*`
+- `src/Slums.Core/Relationships/NpcRegistry.cs`
 - `content/ink/npcs.ink`
-- `content/ink/crime.ink`
-- `tests/Slums.Core.Tests/State/*`
-
-#### Acceptance Criteria
-
-- There are at least 3 meaningful spillover rules.
-- Spillover affects both routes, not only crime.
-- The resulting systems remain understandable from the UI and event log.
 
 ### Phase 6: Background-Specific Routes
 
-#### Objective
+Implemented.
 
-Make the three starting backgrounds diverge more strongly over time.
+What landed:
 
-#### Why Sixth
+- Medical dropout now gains stronger clinic and medicine-related advantages, plus a matching emotional burden around the mother's health.
+- Released political prisoner now carries slower police-pressure decay, stronger police scrutiny, and deeper access to ex-prisoner network style escalation.
+- Sudanese refugee now gets aid-network support in some systems, but also more friction in Dokki and some work contexts.
+- Background-specific scenes were added.
 
-- The backgrounds exist but need more long-tail mechanical identity.
-- This improves replay value.
-
-#### Deliverables
-
-- Give each background at least:
-  - one systemic advantage
-  - one systemic vulnerability
-  - one or more exclusive or favored scenes
-- Examples:
-  - medical dropout: clinic and medicine advantages
-  - former prisoner: police scrutiny and ex-prisoner network access
-  - Sudanese refugee: migration pressure, aid-network access, discrimination-related friction
-
-#### Likely Files
+Primary implementation areas:
 
 - `src/Slums.Core/Characters/*`
 - `src/Slums.Core/State/GameState.cs`
 - `content/ink/main.ink`
-- `content/ink/npcs.ink`
-- `tests/Slums.Core.Tests/*`
-- `tests/Slums.Narrative.Ink.Tests/*`
-
-#### Acceptance Criteria
-
-- Background choice materially changes play after day 1.
-- Differences affect both authored narrative and simulation.
-- Tests prove at least one meaningful mechanical divergence per background.
 
 ### Phase 7: Expanded Ending Logic
 
-#### Objective
+Implemented.
 
-Make endings reflect patterns of survival, compromise, stability, and decline rather than only coarse thresholds.
+What landed:
 
-#### Why Seventh
+- Endings now recognize social-network investment, leaving crime after entering it, and being buried by heat rather than only coarse resource thresholds.
+- Additional ending knots were added.
 
-- Endings should come after the systems that feed them.
-- Current work should first improve the run-level state space.
-
-#### Deliverables
-
-- Add more ending conditions based on accumulated behavior:
-  - stability through honest work
-  - crime success with escalating losses
-  - social protection through trusted networks
-  - collapse through heat, debt, or household neglect
-- Add or expand ending knots in Ink.
-
-#### Likely Files
+Primary implementation areas:
 
 - `src/Slums.Core/Endings/*`
 - `content/ink/endings.ink`
-- `tests/Slums.Core.Tests/Endings/*`
 
-#### Acceptance Criteria
+## Validation Baseline
 
-- Endings depend on more than one variable.
-- At least one ending recognizes social-network investment.
-- At least one ending recognizes trying to leave crime after entering it.
+Current validation commands:
 
-## Cross-Cutting Improvements
+1. `npm run compile-ink` from `src/Slums.Game`
+2. `dotnet build .\Slums.slnx` from repo root
+3. `dotnet test .\Slums.slnx` from repo root
 
-These can be tackled opportunistically during the phases above.
+The major expansion pass completed with the solution building and all tests passing.
 
-### UI Clarity
+## Recommended Next Work
 
-- Show why a job or crime option improved or worsened.
-- Surface contact modifiers in menus where possible.
-- Improve event log messaging for relationship-driven effects.
+The next work should not repeat the expansion phases above. The high-value follow-up slices are below.
 
-### Data-Driven Migration
+### Next Slice 1: UI Clarity And Surfacing
 
-- Move more hardcoded mappings into content if the implementation remains readable.
-- Do not force full data-driven design if it significantly slows delivery.
+Objective:
 
-### Save Compatibility
+- make the new systemic depth legible to the player
 
-- If you extend state shape, preserve reasonable compatibility with older saves where practical.
-- If compatibility becomes too costly, explicitly version the save format and update tests.
+Suggested deliverables:
+
+- show why a job shifted to a better or worse variant
+- show why a crime route is unlocked, blocked, or hotter than usual
+- surface employer suspicion, debt states, and route consequences in menus or logs
+- surface district-event pressure more clearly in the HUD or event log
+
+Likely files:
+
+- `src/Slums.Game/Screens/*`
+- `src/Slums.Core/State/GameState.cs`
+
+### Next Slice 2: Balance Pass
+
+Objective:
+
+- tune the expanded systems so honest work, crime, and background differences remain meaningful without becoming dominant traps or exploits
+
+Suggested deliverables:
+
+- review pay, pressure, stress, and lockout values
+- review district event weights and recurrence
+- review ending thresholds against realistic run outcomes
+- add targeted regression tests for balance-sensitive breakpoints
+
+Likely files:
+
+- `src/Slums.Core/Jobs/*`
+- `src/Slums.Core/Crimes/*`
+- `src/Slums.Core/Events/*`
+- `src/Slums.Core/Endings/*`
+- `content/data/random_events.json`
+
+### Next Slice 3: More Authored Reactivity
+
+Objective:
+
+- expand the amount of authored content that reflects the new memory and district systems
+
+Suggested deliverables:
+
+- add more memory-reactive variants for Mona, Umm Karim, Hanan, and Youssef
+- add more follow-up scenes tied to repeated spillover states
+- add more district-event aftermath scenes and background-specific narration
+
+Likely files:
+
+- `content/ink/npcs.ink`
+- `content/ink/crime.ink`
+- `content/ink/events.ink`
+- `content/ink/main.ink`
 
 ## Suggested First Ticket
 
-If only one major feature should be implemented next, do this:
+If only one next feature should be implemented, do this:
 
-### Contact-Specific Crime Opportunities
+### UI Explanation Pass For Work And Crime Menus
 
-Implement 3 new crime opportunities with the following structure:
+Deliver:
 
-- Hanan unlocks a low-visibility market fencing route with moderate reward and lower detection risk.
-- Youssef unlocks a Dokki drop route with higher reward and higher pressure if detected.
-- Umm Karim unlocks a more dangerous, higher-upside network errand after sufficient reputation.
+- visible reason strings for why a job variant changed
+- visible gating reason strings for why a crime route is present or absent
+- event log text that makes background and spillover modifiers easier to understand
 
-For each one, add:
+Why this first:
 
-- registry logic
-- outcome tuning
-- first-time narrative scene
-- detected variant or failure variant where useful
-- tests for gating and outcomes
-
-## Validation Checklist
-
-Before finishing any phase:
-
-1. Recompile Ink if any `.ink` file changed.
-2. Run `dotnet test .\Slums.slnx` from repo root.
-3. Run `dotnet build .\Slums.slnx` from repo root.
-4. Confirm no UI logic leaked into `Slums.Core`.
-5. Confirm no core simulation logic leaked into `Slums.Game`.
+- the underlying simulation is now much denser
+- the next biggest quality gain is helping the player read the systems correctly
+- this improves usability without forcing another major state-model rewrite
 
 ## Notes For The Next Agent
 
-- Prefer thin vertical additions over speculative framework work.
-- Reuse the relationship and story-flag infrastructure already present.
+- Do not re-implement the seven expansion phases described above. They are already present.
+- Prefer small vertical improvements over another large speculative systems pass.
+- Reuse the expanded relationship-memory, event-history, job-progress, and ending infrastructure already in place.
 - Keep authored consequence scenes grounded and implication-heavy.
 - Do not glamorize crime. The route should remain materially useful, morally corrosive, and increasingly dangerous.
-- If a phase turns out to require save-model changes, add tests immediately rather than after the feature is complete.
+- If you extend saved state again, add persistence tests immediately.
