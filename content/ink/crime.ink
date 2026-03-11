@@ -23,3 +23,15 @@ Youssef catches you half a block too early and changes your route with a glance 
 # STRESS:-1
 # MESSAGE:Youssef gets word to you before the dragnet tightens.
 -> DONE
+
+=== crime_hanan_salvage ===
+Later, Hanan presses a folded note into your palm and tells you not to ask which part of the mess she managed to sell. In her world, survival counts cleaner than explanations.
+# STRESS:-2
+# MESSAGE:Hanan claws a little value back out of the failure.
+-> DONE
+
+=== crime_youssef_escape ===
+Youssef keeps you moving until your breathing stops sounding guilty. Only then does he say that a woman who freezes in Dokki gets remembered by too many people at once.
+# STRESS:-2
+# MESSAGE:Youssef turns a bad night into a survivable one.
+-> DONE

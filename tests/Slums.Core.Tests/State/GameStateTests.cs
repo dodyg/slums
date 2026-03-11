@@ -310,6 +310,67 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task CommitCrime_ShouldLetHananSalvageDetectedFailure_WhenTrustIsHigh()
+    {
+        const int seedLimit = 400;
+        var attempt = new CrimeAttempt(CrimeType.PettyTheft, 25, 20, 10, 0, 10);
+
+        for (var seed = 0; seed < seedLimit; seed++)
+        {
+            var baseline = CreateCrimeState(LocationId.Market);
+            var baselineResult = baseline.CommitCrime(attempt, new Random(seed));
+            if (baselineResult.Success || !baselineResult.Detected)
+            {
+                continue;
+            }
+
+            var trusted = CreateCrimeState(LocationId.Market);
+            trusted.Relationships.SetNpcRelationship(NpcId.FenceHanan, 20, 1);
+            var trustedMoney = trusted.Player.Stats.Money;
+            var trustedResult = trusted.CommitCrime(attempt, new Random(seed));
+
+            await Assert.That(trustedResult.Success).IsFalse();
+            await Assert.That(trustedResult.Detected).IsTrue();
+            await Assert.That(trusted.Player.Stats.Money).IsEqualTo(baseline.Player.Stats.Money + 12);
+            await Assert.That(trusted.Player.Stats.Stress).IsEqualTo(Math.Max(0, baseline.Player.Stats.Stress - 4));
+            await Assert.That(trusted.Player.Stats.Money).IsGreaterThan(trustedMoney);
+            await Assert.That(trusted.HasStoryFlag("crime_hanan_salvage_seen")).IsTrue();
+            return;
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic detected failed market crime seed.");
+    }
+
+    [Test]
+    public async Task CommitCrime_ShouldLetYoussefSoftenDetectedFailureStress_WhenTrustIsHigh()
+    {
+        const int seedLimit = 400;
+        var attempt = new CrimeAttempt(CrimeType.PettyTheft, 35, 30, 10, 0, 10);
+
+        for (var seed = 0; seed < seedLimit; seed++)
+        {
+            var baseline = CreateCrimeState(LocationId.Square);
+            var baselineResult = baseline.CommitCrime(attempt, new Random(seed));
+            if (baselineResult.Success || !baselineResult.Detected)
+            {
+                continue;
+            }
+
+            var trusted = CreateCrimeState(LocationId.Square);
+            trusted.Relationships.SetNpcRelationship(NpcId.RunnerYoussef, 20, 1);
+            var trustedResult = trusted.CommitCrime(attempt, new Random(seed));
+
+            await Assert.That(trustedResult.Success).IsFalse();
+            await Assert.That(trustedResult.Detected).IsTrue();
+            await Assert.That(trusted.Player.Stats.Stress).IsEqualTo(Math.Max(0, baseline.Player.Stats.Stress - 6));
+            await Assert.That(trusted.HasStoryFlag("crime_youssef_escape_seen")).IsTrue();
+            return;
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic detected failed Dokki crime seed.");
+    }
+
+    [Test]
     public async Task EndDay_ShouldDecayPolicePressure_OnCleanDay()
     {
         var state = new GameState();

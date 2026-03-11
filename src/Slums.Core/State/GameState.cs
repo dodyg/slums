@@ -441,11 +441,31 @@ public sealed class GameState
         if (World.CurrentLocationId == LocationId.Market && Relationships.GetNpcRelationship(NpcId.FenceHanan).Trust >= 15)
         {
             ReduceCrimeHeat(5, "Hanan quietly shifts attention away from your name. The market heat eases a little.", "crime_hanan_cover", "crime_hanan_cover_seen");
+
+            if (!result.Success)
+            {
+                ApplyCrimeFailureMitigation(
+                    moneyGain: 12,
+                    stressRelief: 4,
+                    message: "Hanan still manages to move a sliver of the loss. The night hurts less than it should have.",
+                    knotName: "crime_hanan_salvage",
+                    flagName: "crime_hanan_salvage_seen");
+            }
         }
 
         if (World.CurrentLocationId == LocationId.Square && Relationships.GetNpcRelationship(NpcId.RunnerYoussef).Trust >= 15)
         {
             ReduceCrimeHeat(7, "Youssef tips you off and sends you moving before the wrong questions settle on you.", "crime_youssef_tipoff", "crime_youssef_tipoff_seen");
+
+            if (!result.Success)
+            {
+                ApplyCrimeFailureMitigation(
+                    moneyGain: 0,
+                    stressRelief: 6,
+                    message: "Youssef gets you clear before panic turns into a worse mistake.",
+                    knotName: "crime_youssef_escape",
+                    flagName: "crime_youssef_escape_seen");
+            }
         }
     }
 
@@ -463,6 +483,27 @@ public sealed class GameState
         }
 
         SetPolicePressure(updatedPressure);
+        RaiseEvent(message);
+
+        if (!HasStoryFlag(flagName))
+        {
+            SetStoryFlag(flagName);
+            QueueNarrativeScene(knotName);
+        }
+    }
+
+    private void ApplyCrimeFailureMitigation(int moneyGain, int stressRelief, string message, string knotName, string flagName)
+    {
+        if (moneyGain > 0)
+        {
+            Player.Stats.ModifyMoney(moneyGain);
+        }
+
+        if (stressRelief > 0)
+        {
+            Player.Stats.ModifyStress(-stressRelief);
+        }
+
         RaiseEvent(message);
 
         if (!HasStoryFlag(flagName))

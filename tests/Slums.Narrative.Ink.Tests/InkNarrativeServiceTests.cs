@@ -129,4 +129,15 @@ internal sealed class InkNarrativeServiceTests
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Hanan never admits she helped.");
     }
+
+    [Test]
+    public void StartScene_ShouldLoadCrimeFailureRescueScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("crime_youssef_escape", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("Youssef keeps you moving");
+    }
 }
