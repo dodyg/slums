@@ -163,8 +163,8 @@ This project uses SadConsole with the SFML host, which depends on CSFML native l
 **Compiling Ink Files:**
 - `inklecate` binaries from inkle are x86-64 only
 - On ARM64 Linux, you cannot run `inklecate` directly to compile `.ink` files to `.json`
-- Either compile Ink files on Windows/x86-64, or use the fallback narrative system which provides C#-based scene definitions
-- The current `main.json` was compiled on Windows; if you modify `.ink` source files, recompile on an x86-64 machine
+- Use the local `inkjs` compiler instead: from `src/Slums.Game`, run `npm run compile-ink`
+- The compiled output is `content/ink/main.json`; if you modify `.ink` source files, regenerate it before building or testing
 
 ## Testing Expectations
 

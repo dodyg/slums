@@ -12,10 +12,9 @@ public sealed class InkNarrativeService : INarrativeService
 {
     private readonly ILogger<InkNarrativeService> _logger;
     private Story? _currentStory;
-    private FallbackSceneSession? _fallbackSession;
     private NarrativeOutcome? _pendingOutcome;
 
-    public bool IsSceneActive => _currentStory is not null || _fallbackSession is not null;
+    public bool IsSceneActive => _currentStory is not null;
     public string? CurrentText { get; private set; }
     public IReadOnlyList<string> CurrentChoices { get; private set; } = [];
     public string? LastKnot { get; private set; }
@@ -32,7 +31,7 @@ public sealed class InkNarrativeService : INarrativeService
 
         LastKnot = knotName;
         _pendingOutcome = null;
-        _fallbackSession = null;
+        _currentStory = null;
 
         string storyJson;
         try
@@ -57,30 +56,17 @@ public sealed class InkNarrativeService : INarrativeService
         catch (StoryException ex)
         {
             LogSceneStartFailed(_logger, knotName, ex);
-            StartFallbackScene(knotName, gameState);
+            EndScene();
         }
         catch (ArgumentException ex)
         {
             LogSceneStartFailed(_logger, knotName, ex);
-            StartFallbackScene(knotName, gameState);
+            EndScene();
         }
     }
 
     public void SelectChoice(int choiceIndex)
     {
-        if (_fallbackSession is not null)
-        {
-            var outcome = _fallbackSession.SelectChoice(choiceIndex);
-            if (outcome is not null)
-            {
-                _pendingOutcome = MergeOutcome(_pendingOutcome, outcome);
-            }
-
-            CurrentText = _fallbackSession.CurrentText;
-            CurrentChoices = _fallbackSession.CurrentChoices;
-            return;
-        }
-
         if (_currentStory is null || choiceIndex < 0 || choiceIndex >= _currentStory.currentChoices.Count)
         {
             LogInvalidChoice(_logger, choiceIndex);
@@ -107,7 +93,6 @@ public sealed class InkNarrativeService : INarrativeService
     public void EndScene()
     {
         _currentStory = null;
-        _fallbackSession = null;
         CurrentText = null;
         CurrentChoices = [];
         LogSceneEnded(_logger);
@@ -282,21 +267,6 @@ public sealed class InkNarrativeService : INarrativeService
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }
-
-    private void StartFallbackScene(string knotName, GameState gameState)
-    {
-        _currentStory = null;
-        if (!FallbackNarrativeCatalog.TryCreateSession(knotName, gameState, out var session) || session is null)
-        {
-            EndScene();
-            return;
-        }
-
-        _fallbackSession = session;
-        CurrentText = session.CurrentText;
-        CurrentChoices = session.CurrentChoices;
-    }
-
     private static NarrativeOutcome MergeOutcome(NarrativeOutcome? existing, NarrativeOutcome next)
     {
         if (existing is null)

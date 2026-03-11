@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "compile-ink": "node ./node_modules/inkjs/bin/inkjs-compiler.js -o ../../content/ink/main.json ../../content/ink/main.ink"
+  },
   "dependencies": {
     "inkjs": "^2.4.0"
   }

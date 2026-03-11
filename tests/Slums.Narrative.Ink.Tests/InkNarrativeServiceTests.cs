@@ -21,7 +21,7 @@ internal sealed class InkNarrativeServiceTests
     }
 
     [Test]
-    public void SelectChoice_ShouldEndScene_WhenCompiledStoryCannotAdvanceChoice()
+    public void SelectChoice_ShouldAdvanceMedicalIntroScene()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
         var state = new GameState();
@@ -29,9 +29,9 @@ internal sealed class InkNarrativeServiceTests
 
         service.SelectChoice(0);
 
-        service.IsSceneActive.Should().BeFalse();
-        service.CurrentText.Should().BeNull();
-        service.CurrentChoices.Should().BeEmpty();
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("You kneel beside her mattress.");
+        service.CurrentChoices.Should().ContainInOrder("Use your medical knowledge to help her", "Promise to find the money for a real doctor");
     }
 
     [Test]
@@ -66,5 +66,32 @@ internal sealed class InkNarrativeServiceTests
         service.CurrentText.Should().BeNull();
         service.CurrentChoices.Should().BeEmpty();
         service.GetPendingOutcome().Should().BeNull();
+    }
+
+    [Test]
+    public void StartScene_ShouldLoadInkNpcConversationWithChoices()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("landlord_rent_negotiation", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("Hajj Mahmoud");
+        service.CurrentChoices.Should().ContainInOrder("Answer politely and ask for time", "Answer defiantly");
+    }
+
+    [Test]
+    public void SelectChoice_ShouldAccumulateOutcome_FromInkTags()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("fixer_first_contact", new GameState());
+        service.SelectChoice(0);
+
+        var outcome = service.GetPendingOutcome();
+        outcome.Should().NotBeNull();
+        outcome!.NpcTrustTarget.Should().NotBeNull();
+        outcome.FactionReputationChange.Should().BeGreaterThan(0);
+        outcome.SetFlag.Should().Be("fixer_met");
     }
 }
