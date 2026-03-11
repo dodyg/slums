@@ -65,5 +65,6 @@ content/
 ## Planning documents
 
 - `PLAN.MD` tracks the current implementation shape and next execution priorities.
-- `MAJOR-PLAN.md` records the completed expansion pass and the next major follow-up slices.
+- `MAJOR-PLAN.md` is archived historical context for the completed expansion pass.
+- `GAP-PLAN.MD` is archived historical context for an earlier pre-expansion gap list.
 - `AGENTS.md` defines repository execution and architecture rules for future agents.
