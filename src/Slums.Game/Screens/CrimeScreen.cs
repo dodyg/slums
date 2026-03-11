@@ -9,8 +9,10 @@ namespace Slums.Game.Screens;
 
 internal sealed class CrimeScreen : ScreenSurface
 {
-    private const int CrimeStartY = 6;
-    private const int CrimeBlockHeight = 5;
+    private const int ListX = 2;
+    private const int ListY = 6;
+    private const int ListRowHeight = 2;
+    private const int DetailX = 36;
     private readonly GameState _gameState;
     private readonly IReadOnlyList<CrimeMenuStatus> _crimeAttempts;
     private readonly GameScreen _parentScreen;
@@ -34,23 +36,24 @@ internal sealed class CrimeScreen : ScreenSurface
         base.Render(delta);
         Surface.Clear();
 
-        Surface.Print(2, 2, "=== Crime ===", Color.Cyan);
-        Surface.Print(2, 4, $"Police Pressure: {_gameState.PolicePressure}", GetPressureColor(_gameState.PolicePressure));
+        Surface.Print(ListX, 2, "=== Crime ===", Color.Cyan);
+        Surface.Print(ListX, 4, $"Police Pressure: {_gameState.PolicePressure}", GetPressureColor(_gameState.PolicePressure));
+        Surface.Print(DetailX, 2, "=== Route Detail ===", Color.Cyan);
 
-        var y = CrimeStartY;
         for (var i = 0; i < _crimeAttempts.Count; i++)
         {
             var attempt = _crimeAttempts[i];
             var prefix = i == _selectedIndex ? "> " : "  ";
+            var rowY = ListY + (i * ListRowHeight);
             var color = attempt.IsAvailable
                 ? i == _selectedIndex ? Color.Cyan : Color.White
                 : i == _selectedIndex ? Color.Orange : Color.Gray;
-            Surface.Print(2, y++, $"{prefix}{attempt.Attempt.Name}", color);
-            Surface.Print(4, y++, $"Reward: ~{attempt.Attempt.BaseReward} LE | Risk: {GetRiskLabel(attempt.Attempt.DetectionRisk)} | Energy: -{attempt.Attempt.EnergyCost}", Color.Yellow);
-            Surface.Print(4, y++, $"Pressure: +{attempt.Attempt.PolicePressureIncrease} | Street Rep Required: {attempt.Attempt.StreetRepRequired}", Color.Gray);
-            Surface.Print(4, y++, $"{TrimToFit(attempt.IsAvailable ? attempt.StatusText ?? "Ready to run." : attempt.BlockReason ?? "Blocked.", Surface.Width - 6)}", attempt.IsAvailable ? Color.Green : Color.Orange);
-            y++;
+            Surface.Print(ListX, rowY, TrimToFit($"{prefix}{attempt.Attempt.Name}", DetailX - ListX - 2), color);
+            var status = attempt.IsAvailable ? attempt.StatusText ?? "Ready to run." : attempt.BlockReason ?? "Blocked.";
+            Surface.Print(ListX + 2, rowY + 1, TrimToFit(status, DetailX - ListX - 4), attempt.IsAvailable ? Color.Green : Color.Orange);
         }
+
+        RenderSelectedCrimeDetails();
 
         Surface.Print(2, Surface.Height - 3, "Arrow keys to select, Enter to attempt, Escape to cancel", Color.DarkGray);
         if (_crimeAttempts.Count > 0)
@@ -103,8 +106,8 @@ internal sealed class CrimeScreen : ScreenSurface
         var cellPosition = state.SurfaceCellPosition;
         for (var i = 0; i < _crimeAttempts.Count; i++)
         {
-            var blockStartY = CrimeStartY + (i * CrimeBlockHeight);
-            if (cellPosition.Y < blockStartY || cellPosition.Y >= blockStartY + CrimeBlockHeight - 1)
+            var blockStartY = ListY + (i * ListRowHeight);
+            if (cellPosition.Y < blockStartY || cellPosition.Y >= blockStartY + ListRowHeight)
             {
                 continue;
             }
@@ -162,5 +165,69 @@ internal sealed class CrimeScreen : ScreenSurface
     private static string TrimToFit(string text, int maxLength)
     {
         return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
+    }
+
+    private void RenderSelectedCrimeDetails()
+    {
+        if (_crimeAttempts.Count == 0)
+        {
+            return;
+        }
+
+        var selected = _crimeAttempts[_selectedIndex];
+        var y = 4;
+        var detailWidth = Surface.Width - DetailX - 2;
+
+        Surface.Print(DetailX, y++, selected.Attempt.Name, Color.White);
+        Surface.Print(DetailX, y++, $"Reward ~{selected.Attempt.BaseReward} LE", Color.Yellow);
+        Surface.Print(DetailX, y++, $"Success {selected.EffectiveSuccessChance}% | Detection {selected.EffectiveDetectionRisk}%", Color.Yellow);
+        Surface.Print(DetailX, y++, $"Pressure if seen +{selected.EffectivePressureIfDetected}", Color.Gray);
+        Surface.Print(DetailX, y++, $"Pressure if clean +{selected.EffectivePressureIfUndetected}", Color.Gray);
+        Surface.Print(DetailX, y++, $"Energy -{selected.Attempt.EnergyCost} | Street Rep {selected.Attempt.StreetRepRequired}", Color.Gray);
+
+        y++;
+        var summary = selected.IsAvailable ? selected.StatusText ?? "Route is open." : selected.BlockReason ?? "Route is blocked.";
+        foreach (var line in WrapText(summary, detailWidth))
+        {
+            Surface.Print(DetailX, y++, line, selected.IsAvailable ? Color.Green : Color.Orange);
+        }
+
+        if (selected.ActiveModifiers.Count > 0)
+        {
+            y++;
+            Surface.Print(DetailX, y++, "Active modifiers:", Color.Cyan);
+            foreach (var modifier in selected.ActiveModifiers)
+            {
+                foreach (var line in WrapText($"- {modifier}", detailWidth))
+                {
+                    Surface.Print(DetailX, y++, line, Color.Gray);
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<string> WrapText(string text, int maxWidth)
+    {
+        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var current = string.Empty;
+
+        foreach (var word in words)
+        {
+            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
+            if (candidate.Length > maxWidth && current.Length > 0)
+            {
+                yield return current;
+                current = word;
+            }
+            else
+            {
+                current = candidate;
+            }
+        }
+
+        if (current.Length > 0)
+        {
+            yield return current;
+        }
     }
 }

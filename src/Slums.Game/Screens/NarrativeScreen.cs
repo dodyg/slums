@@ -44,6 +44,7 @@ internal sealed class NarrativeScreen : ScreenSurface
 
         var textPanelTop = 3;
         var textPanelHeight = Surface.Height - 10;
+
         for (var row = 0; row < textPanelHeight; row++)
         {
             var lineIndex = _scrollOffset + row;

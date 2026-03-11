@@ -4,6 +4,7 @@ using Slums.Core.Characters;
 using Slums.Core.Crimes;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
+using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
@@ -24,6 +25,8 @@ internal sealed class CrimeMenuStatusQueryTests
         var fencing = statuses.Single(static status => status.Attempt.Type == CrimeType.MarketFencing);
         fencing.IsAvailable.Should().BeFalse();
         fencing.BlockReason.Should().Contain("Hanan trust 10");
+        fencing.EffectiveDetectionRisk.Should().BeGreaterThan(0);
+        fencing.EffectivePressureIfDetected.Should().BeGreaterThan(fencing.EffectivePressureIfUndetected);
     }
 
     [Test]
@@ -55,5 +58,26 @@ internal sealed class CrimeMenuStatusQueryTests
         var networkErrand = statuses.Single(static status => status.Attempt.Type == CrimeType.NetworkErrand);
         networkErrand.IsAvailable.Should().BeTrue();
         networkErrand.StatusText.Should().Contain("ex-prisoner network");
+    }
+
+    [Test]
+    public void GetStatuses_ShouldExposeEffectiveCrimeModifiers()
+    {
+        var query = new CrimeMenuStatusQuery();
+        var gameState = new GameState();
+        gameState.World.TravelTo(LocationId.Square);
+        gameState.SetPolicePressure(70);
+        gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+        gameState.Player.Skills.SetLevel(SkillId.StreetSmarts, 3);
+        gameState.SetWorkCounters(totalHonestWorkEarnings: 0, honestShiftsCompleted: 0, lastCrimeDay: 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: gameState.Clock.Day);
+
+        var statuses = query.GetStatuses(gameState);
+
+        var pettyTheft = statuses.Single(static status => status.Attempt.Type == CrimeType.PettyTheft);
+        pettyTheft.ActiveModifiers.Should().Contain(static text => text.Contains("thin alibi", StringComparison.Ordinal));
+        pettyTheft.ActiveModifiers.Should().Contain(static text => text.Contains("Street Smarts 3", StringComparison.Ordinal));
+        pettyTheft.ActiveModifiers.Should().Contain(static text => text.Contains("political prisoner", StringComparison.OrdinalIgnoreCase));
+        pettyTheft.EffectiveDetectionRisk.Should().BeGreaterThanOrEqualTo(5);
+        pettyTheft.EffectiveSuccessChance.Should().BeGreaterThanOrEqualTo(10);
     }
 }

@@ -9,9 +9,10 @@ namespace Slums.Game.Screens;
 
 internal sealed class WorkScreen : ScreenSurface
 {
-    private const int JobStartX = 2;
-    private const int JobStartY = 4;
-    private const int JobBlockHeight = 6;
+    private const int ListX = 2;
+    private const int ListY = 5;
+    private const int ListRowHeight = 2;
+    private const int DetailX = 36;
     private readonly GameState _gameState;
     private readonly List<WorkMenuStatus> _jobs;
     private readonly GameScreen _parentScreen;
@@ -34,30 +35,27 @@ internal sealed class WorkScreen : ScreenSurface
         base.Render(delta);
         Surface.Clear();
 
-        var y = 2;
-        Surface.Print(JobStartX, y++, "=== Work ===", Color.Cyan);
-        y = JobStartY;
+        Surface.Print(ListX, 2, "=== Work ===", Color.Cyan);
+        Surface.Print(ListX, 3, "Select a shift to inspect or take.", Color.Gray);
+        Surface.Print(DetailX, 2, "=== Shift Detail ===", Color.Cyan);
 
         for (var i = 0; i < _jobs.Count; i++)
         {
             var job = _jobs[i];
             var prefix = i == _selectedIndex ? "> " : "  ";
+            var rowY = ListY + (i * ListRowHeight);
             var color = job.CanPerform
                 ? i == _selectedIndex ? Color.Cyan : Color.White
                 : i == _selectedIndex ? Color.Orange : Color.Gray;
 
-            Surface.Print(JobStartX, y++, $"{prefix}{job.Job.Name}", color);
-            Surface.Print(4, y++, $"  {TrimToFit(job.Job.Description, Surface.Width - 6)}", Color.Gray);
-            Surface.Print(4, y++, $"  Pay: ~{job.Job.BasePay} LE | Energy: -{job.Job.EnergyCost} | Stress: +{job.Job.StressCost}",
-                Color.Yellow);
-            Surface.Print(4, y++, $"  Duration: {job.Job.DurationMinutes / 60}h {job.Job.DurationMinutes % 60}m | Reliability: {job.Reliability} | Shifts: {job.ShiftsCompleted}", Color.Gray);
-            Surface.Print(4, y++, $"  {GetStatusLine(job)}", job.CanPerform ? Color.Green : Color.Orange);
-            y++;
+            Surface.Print(ListX, rowY, TrimToFit($"{prefix}{job.Job.Name}", DetailX - ListX - 2), color);
+            Surface.Print(ListX + 2, rowY + 1, TrimToFit(GetStatusLine(job), DetailX - ListX - 4), job.CanPerform ? Color.Green : Color.Orange);
         }
 
-        y++;
-        Surface.Print(2, y++, "Arrow keys to select, Enter to work, Escape to cancel", Color.DarkGray);
-        Surface.Print(2, y++, $"Your Energy: {_gameState.Player.Stats.Energy}%",
+        RenderSelectedJobDetails();
+
+        Surface.Print(2, Surface.Height - 3, "Arrow keys to select, Enter to work, Escape to cancel", Color.DarkGray);
+        Surface.Print(2, Surface.Height - 2, $"Your Energy: {_gameState.Player.Stats.Energy}%",
             _gameState.Player.Stats.Energy < 30 ? Color.Red : Color.Green);
     }
 
@@ -101,11 +99,11 @@ internal sealed class WorkScreen : ScreenSurface
         var cellPosition = state.SurfaceCellPosition;
         for (var i = 0; i < _jobs.Count; i++)
         {
-            var blockStartY = JobStartY + i * JobBlockHeight;
+            var blockStartY = ListY + i * ListRowHeight;
             if (cellPosition.Y >= blockStartY &&
-                cellPosition.Y < blockStartY + JobBlockHeight - 1 &&
-                cellPosition.X >= JobStartX &&
-                cellPosition.X < Surface.Width - 2)
+                cellPosition.Y < blockStartY + ListRowHeight &&
+                cellPosition.X >= ListX &&
+                cellPosition.X < DetailX - 1)
             {
                 _selectedIndex = i;
                 WorkSelectedJob();
@@ -143,6 +141,94 @@ internal sealed class WorkScreen : ScreenSurface
     private static string TrimToFit(string text, int maxLength)
     {
         return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
+    }
+
+    private void RenderSelectedJobDetails()
+    {
+        if (_jobs.Count == 0)
+        {
+            return;
+        }
+
+        var selected = _jobs[_selectedIndex];
+        var y = 4;
+        var detailWidth = Surface.Width - DetailX - 2;
+
+        Surface.Print(DetailX, y++, selected.Job.Name, Color.White);
+        foreach (var line in WrapText(selected.Job.Description, detailWidth))
+        {
+            Surface.Print(DetailX, y++, line, Color.Gray);
+        }
+
+        y++;
+        Surface.Print(DetailX, y++, $"Pay ~{selected.Job.BasePay} LE", Color.Yellow);
+        Surface.Print(DetailX, y++, $"Energy -{selected.Job.EnergyCost} | Stress +{selected.Job.StressCost}", Color.Yellow);
+        Surface.Print(DetailX, y++, $"Duration {selected.Job.DurationMinutes / 60}h {selected.Job.DurationMinutes % 60}m", Color.Gray);
+        Surface.Print(DetailX, y++, $"Reliability {selected.Reliability} | Shifts {selected.ShiftsCompleted}", Color.Gray);
+
+        y++;
+        Surface.Print(DetailX, y++, "Why this shift:", Color.Cyan);
+        foreach (var line in WrapText(selected.VariantReason, detailWidth))
+        {
+            Surface.Print(DetailX, y++, line, Color.White);
+        }
+
+        if (!string.IsNullOrWhiteSpace(selected.NextUnlockHint))
+        {
+            y++;
+            Surface.Print(DetailX, y++, "Next unlock:", Color.Cyan);
+            foreach (var line in WrapText(selected.NextUnlockHint, detailWidth))
+            {
+                Surface.Print(DetailX, y++, line, Color.Gray);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(selected.RiskWarning))
+        {
+            y++;
+            foreach (var line in WrapText(selected.RiskWarning, detailWidth))
+            {
+                Surface.Print(DetailX, y++, line, Color.Orange);
+            }
+        }
+
+        if (selected.ActiveModifiers.Count > 0)
+        {
+            y++;
+            Surface.Print(DetailX, y++, "Active modifiers:", Color.Cyan);
+            foreach (var modifier in selected.ActiveModifiers)
+            {
+                foreach (var line in WrapText($"- {modifier}", detailWidth))
+                {
+                    Surface.Print(DetailX, y++, line, Color.Gray);
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<string> WrapText(string text, int maxWidth)
+    {
+        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var current = string.Empty;
+
+        foreach (var word in words)
+        {
+            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
+            if (candidate.Length > maxWidth && current.Length > 0)
+            {
+                yield return current;
+                current = word;
+            }
+            else
+            {
+                current = candidate;
+            }
+        }
+
+        if (current.Length > 0)
+        {
+            yield return current;
+        }
     }
 
     private void ReturnToParentScreen()

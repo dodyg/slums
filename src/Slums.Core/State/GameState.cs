@@ -290,7 +290,9 @@ public sealed class GameState
     {
         ArgumentNullException.ThrowIfNull(attempt);
 
-        var modifiedAttempt = ApplyCrimeModifiers(attempt);
+        var modifierEvaluation = EvaluateCrimeModifiers(attempt);
+        var modifiedAttempt = modifierEvaluation.Attempt;
+        ApplyCrimeModifierSideEffects(modifierEvaluation.ActiveModifiers);
         var result = _crimeService.AttemptCrime(modifiedAttempt, Player, PolicePressure, random ?? new Random());
         Player.Stats.ModifyEnergy(-result.EnergyCost);
         Player.Stats.ModifyStress(result.StressCost);
@@ -517,6 +519,15 @@ public sealed class GameState
     public void SetPolicePressure(int value)
     {
         PolicePressure = Math.Clamp(value, 0, 100);
+    }
+
+    public CrimeRoutePreview PreviewCrime(CrimeAttempt attempt)
+    {
+        ArgumentNullException.ThrowIfNull(attempt);
+
+        var modifierEvaluation = EvaluateCrimeModifiers(attempt);
+        var resolution = _crimeService.PreviewCrime(modifierEvaluation.Attempt, Player, PolicePressure);
+        return new CrimeRoutePreview(modifierEvaluation.Attempt, resolution, modifierEvaluation.ActiveModifiers);
     }
 
     private void ApplyCrimeContactAftermath(CrimeResult result)
@@ -764,9 +775,10 @@ public sealed class GameState
         }
     }
 
-    private CrimeAttempt ApplyCrimeModifiers(CrimeAttempt attempt)
+    private CrimeModifierEvaluation EvaluateCrimeModifiers(CrimeAttempt attempt)
     {
         var modifiedAttempt = attempt;
+        var activeModifiers = new List<string>();
 
         if (LastPublicFacingWorkDay == Clock.Day)
         {
@@ -775,8 +787,7 @@ public sealed class GameState
                 DetectionRisk = Math.Max(5, modifiedAttempt.DetectionRisk - 8),
                 PolicePressureIncrease = Math.Max(1, modifiedAttempt.PolicePressureIncrease - 4)
             };
-
-            RaiseEvent("The shift you worked today gives you a thin alibi and a cleaner reason to be seen moving.");
+            activeModifiers.Add("Same-day public-facing work gives you a thin alibi: lower risk and lower pressure.");
         }
 
         if (Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner)
@@ -786,15 +797,37 @@ public sealed class GameState
                 DetectionRisk = Math.Min(95, modifiedAttempt.DetectionRisk + 5),
                 PolicePressureIncrease = modifiedAttempt.PolicePressureIncrease + 5
             };
+            activeModifiers.Add("Released political prisoner background increases scrutiny and pressure.");
+        }
 
+        if (Player.Skills.GetLevel(SkillId.StreetSmarts) >= 3)
+        {
+            activeModifiers.Add("Street Smarts 3 lowers detection chance by 10.");
+        }
+
+        if (PolicePressure >= 60)
+        {
+            activeModifiers.Add("Current police pressure is materially increasing detection risk.");
+        }
+
+        return new CrimeModifierEvaluation(modifiedAttempt, activeModifiers);
+    }
+
+    private void ApplyCrimeModifierSideEffects(IReadOnlyList<string> activeModifiers)
+    {
+        if (activeModifiers.Contains("Same-day public-facing work gives you a thin alibi: lower risk and lower pressure."))
+        {
+            RaiseEvent("The shift you worked today gives you a thin alibi and a cleaner reason to be seen moving.");
+        }
+
+        if (activeModifiers.Contains("Released political prisoner background increases scrutiny and pressure."))
+        {
             if (!HasStoryFlag("background_prisoner_heat_seen"))
             {
                 SetStoryFlag("background_prisoner_heat_seen");
                 QueueNarrativeScene("background_prisoner_heat");
             }
         }
-
-        return modifiedAttempt;
     }
 
     private static bool IsPublicFacingJob(JobType jobType)
@@ -933,3 +966,5 @@ public sealed class GameEventArgs(string message) : EventArgs
 {
     public string Message { get; } = message;
 }
+
+internal sealed record CrimeModifierEvaluation(CrimeAttempt Attempt, IReadOnlyList<string> ActiveModifiers);

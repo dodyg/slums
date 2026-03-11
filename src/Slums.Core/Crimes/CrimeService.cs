@@ -6,6 +6,24 @@ namespace Slums.Core.Crimes;
 public sealed class CrimeService
 {
 #pragma warning disable CA1822
+    public CrimeResolutionPreview PreviewCrime(CrimeAttempt attempt, PlayerCharacter player, int policePressure)
+#pragma warning restore CA1822
+    {
+        ArgumentNullException.ThrowIfNull(attempt);
+        ArgumentNullException.ThrowIfNull(player);
+
+        var streetSmartsBonus = player.Skills.GetLevel(SkillId.StreetSmarts) >= 3 ? 10 : 0;
+        var detectionChance = Math.Clamp(attempt.DetectionRisk + (policePressure / 2) - streetSmartsBonus, 5, 95);
+        var successChance = Math.Clamp(90 - attempt.DetectionRisk - (policePressure / 3) + streetSmartsBonus, 10, 95);
+
+        return new CrimeResolutionPreview(
+            detectionChance,
+            successChance,
+            attempt.PolicePressureIncrease,
+            Math.Max(1, attempt.PolicePressureIncrease / 3));
+    }
+
+#pragma warning disable CA1822
     public CrimeResult AttemptCrime(CrimeAttempt attempt, PlayerCharacter player, int policePressure, Random random)
 #pragma warning restore CA1822
     {
@@ -24,16 +42,16 @@ public sealed class CrimeService
             };
         }
 
-        var streetSmartsBonus = player.Skills.GetLevel(SkillId.StreetSmarts) >= 3 ? 10 : 0;
+        var preview = PreviewCrime(attempt, player, policePressure);
     #pragma warning disable CA5394
-        var detectionChance = Math.Clamp(attempt.DetectionRisk + (policePressure / 2) - streetSmartsBonus, 5, 95);
-        var successChance = Math.Clamp(90 - attempt.DetectionRisk - (policePressure / 3) + streetSmartsBonus, 10, 95);
+        var detectionChance = preview.DetectionChance;
+        var successChance = preview.SuccessChance;
         var success = random.Next(100) < successChance;
         var detected = random.Next(100) < detectionChance;
         var moneyEarned = success ? Math.Max(0, attempt.BaseReward + random.Next(-5, 11)) : 0;
     #pragma warning restore CA5394
         var stressCost = success ? (detected ? 12 : 6) : (detected ? 18 : 10);
-        var policePressureDelta = detected ? attempt.PolicePressureIncrease : Math.Max(1, attempt.PolicePressureIncrease / 3);
+        var policePressureDelta = detected ? preview.PolicePressureIfDetected : preview.PolicePressureIfUndetected;
         var arrestWarning = detected && policePressure + policePressureDelta >= 80;
 
         return new CrimeResult

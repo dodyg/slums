@@ -38,20 +38,32 @@ public sealed class CrimeMenuStatusQuery
         CrimeOpportunityStatus baseStatus,
         Dictionary<CrimeType, CrimeAttempt> availableByType)
     {
+        var preview = gameState.PreviewCrime(baseStatus.Attempt);
+
         if (availableByType.TryGetValue(baseStatus.Attempt.Type, out var availableAttempt))
         {
             return new CrimeMenuStatus(
                 availableAttempt,
                 true,
                 GetStatusText(gameState, location, availableAttempt, baseStatus.IsAvailable),
-                null);
+                null,
+                preview.Resolution.DetectionChance,
+                preview.Resolution.SuccessChance,
+                preview.Resolution.PolicePressureIfDetected,
+                preview.Resolution.PolicePressureIfUndetected,
+                preview.ActiveModifiers);
         }
 
         return new CrimeMenuStatus(
             baseStatus.Attempt,
             false,
             GetStatusText(gameState, location, baseStatus.Attempt, baseStatus.IsAvailable),
-            baseStatus.BlockReason);
+            baseStatus.BlockReason,
+            preview.Resolution.DetectionChance,
+            preview.Resolution.SuccessChance,
+            preview.Resolution.PolicePressureIfDetected,
+            preview.Resolution.PolicePressureIfUndetected,
+            preview.ActiveModifiers);
     }
 
     private static string? GetStatusText(GameState gameState, Location location, CrimeAttempt attempt, bool availableViaRegistry)

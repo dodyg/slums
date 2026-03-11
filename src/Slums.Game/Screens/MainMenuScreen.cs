@@ -23,18 +23,18 @@ internal sealed class MainMenuScreen : ScreenSurface
     public override void Render(TimeSpan delta)
     {
         base.Render(delta);
-        
+
         var centerX = Surface.Width / 2;
         var startY = Surface.Height / 2 - MenuItems.Length / 2;
-        
+
         Surface.Clear();
-        
+
         var title = "SLUMS";
         Surface.Print(centerX - title.Length / 2, startY - 4, title, Color.Yellow);
-        
+
         var subtitle = "A Cairo Survival Story";
         Surface.Print(centerX - subtitle.Length / 2, startY - 2, subtitle, Color.Gray);
-        
+
         for (var i = 0; i < MenuItems.Length; i++)
         {
             var item = MenuItems[i];
@@ -42,7 +42,7 @@ internal sealed class MainMenuScreen : ScreenSurface
             var prefix = i == _selectedIndex ? "> " : "  ";
             Surface.Print(centerX - item.Length / 2 - 1, startY + i, prefix + item, color);
         }
-        
+
         var instructions = "Use arrow keys to navigate, Enter to select";
         Surface.Print(centerX - instructions.Length / 2, startY + MenuItems.Length + 2, instructions, Color.DarkGray);
     }

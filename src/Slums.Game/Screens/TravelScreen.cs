@@ -11,7 +11,7 @@ internal sealed class TravelScreen : ScreenSurface
 {
     private const int DestinationStartX = 4;
     private const int DestinationStartY = 5;
-    private const int DestinationRowHeight = 2;
+    private const int ListRowHeight = 2;
     private readonly GameState _gameState;
     private readonly IReadOnlyList<Location> _locations;
     private readonly GameScreen _parentScreen;
@@ -49,7 +49,7 @@ internal sealed class TravelScreen : ScreenSurface
             var displayName = $"{loc.Name} ({DistrictInfo.GetName(loc.District)}){currentLocationSuffix}";
             var travelInfo = $"[{loc.TravelTimeMinutes} min]";
             
-            var rowY = DestinationStartY + i * DestinationRowHeight;
+            var rowY = DestinationStartY + i * ListRowHeight;
             Surface.Print(DestinationStartX, rowY, $"{prefix}{displayName}", color);
             Surface.Print(Surface.Width - travelInfo.Length - 2, rowY, travelInfo, Color.Yellow);
             Surface.Print(6, rowY + 1, $"{loc.Description[..Math.Min(50, loc.Description.Length)]}", Color.DarkGray);
@@ -96,9 +96,9 @@ internal sealed class TravelScreen : ScreenSurface
         var cellPosition = state.SurfaceCellPosition;
         for (var i = 0; i < _locations.Count; i++)
         {
-            var rowY = DestinationStartY + i * DestinationRowHeight;
+            var rowY = DestinationStartY + i * ListRowHeight;
             if (cellPosition.Y >= rowY &&
-                cellPosition.Y < rowY + DestinationRowHeight &&
+                cellPosition.Y < rowY + ListRowHeight &&
                 cellPosition.X >= DestinationStartX &&
                 cellPosition.X < Surface.Width - 2)
             {
@@ -130,4 +130,5 @@ internal sealed class TravelScreen : ScreenSurface
         _parentScreen.IsFocused = true;
         GameHost.Instance.Screen = _parentScreen;
     }
+
 }

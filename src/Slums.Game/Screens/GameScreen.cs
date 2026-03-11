@@ -20,9 +20,12 @@ internal sealed class GameScreen : ScreenSurface
     private readonly GameState _gameState;
     private readonly WorkMenuStatusQuery _workMenuStatusQuery = new();
     private readonly CrimeMenuStatusQuery _crimeMenuStatusQuery = new();
+    private readonly GameStatusPageQuery _statusPageQuery = new();
+    private readonly TalkNpcStatusQuery _talkNpcStatusQuery = new();
     private readonly AutomaticTimeAdvancer _automaticTimeAdvancer;
     private readonly List<string> _eventLog = new(10);
     private int _selectedAction;
+    private int _selectedStatusPage;
     private bool _hasLoggedGameOver;
 
     public GameScreen(int width, int height, GameRuntime runtime, GameState gameState) : base(width, height)
@@ -80,7 +83,7 @@ internal sealed class GameScreen : ScreenSurface
         RenderHud();
         RenderActions();
         RenderEventLog();
-        RenderLocationInfo();
+        RenderStatusPage();
     }
 
     private void RenderHud()
@@ -134,7 +137,7 @@ internal sealed class GameScreen : ScreenSurface
     {
         var actions = GetActions();
         Surface.Print(0, ActionHeaderY, "--- Actions ---", Color.Cyan);
-        Surface.Print(0, ActionHeaderY + 1, "(Time flows automatically. Arrow keys to select, Enter to confirm)", Color.DarkGray);
+        Surface.Print(0, ActionHeaderY + 1, "(Time flows automatically. Arrow keys, Enter, Tab cycles status)", Color.DarkGray);
 
         for (var i = 0; i < actions.Count; i++)
         {
@@ -160,56 +163,35 @@ internal sealed class GameScreen : ScreenSurface
         }
     }
 
-    private void RenderLocationInfo()
+    private void RenderStatusPage()
     {
-        var y = 0;
         var x = 45;
-        Surface.Print(x, y++, "--- Location ---", Color.Cyan);
-
-        var location = _gameState.World.GetCurrentLocation();
-        if (location is not null)
+        var y = 0;
+        var pages = _statusPageQuery.GetPages(_gameState);
+        if (pages.Count == 0)
         {
-            Surface.Print(x, y++, location.Name, Color.White);
-            var desc = location.Description;
-            if (desc.Length > 30)
-            {
-                Surface.Print(x, y++, desc[..30], Color.Gray);
-                Surface.Print(x, y++, desc[30..], Color.Gray);
-            }
-            else
-            {
-                Surface.Print(x, y++, desc, Color.Gray);
-            }
+            return;
         }
 
-        y++;
-        Surface.Print(x, y++, $"District: {DistrictInfo.GetName(_gameState.World.CurrentDistrict)}", Color.Yellow);
-
-        y++;
-        RenderHouseholdInfo(x, y);
-    }
-
-    private void RenderHouseholdInfo(int x, int y)
-    {
-        var household = _gameState.Player.Household;
-        var motherColor = household.MotherCondition switch
+        if (_selectedStatusPage >= pages.Count)
         {
-            Slums.Core.Characters.MotherCondition.Crisis => Color.Red,
-            Slums.Core.Characters.MotherCondition.Fragile => Color.Orange,
-            _ => Color.Green
-        };
+            _selectedStatusPage = 0;
+        }
 
-        Surface.Print(x, y++, "--- Household ---", Color.Cyan);
-        Surface.Print(x, y++, $"Food: {household.FoodStockpile} | Medicine: {household.MedicineStock}", Color.White);
-        Surface.Print(x, y++, $"Mother: {household.MotherHealth}% {household.MotherCondition}", motherColor);
-        Surface.Print(x, y++, $"Fed today: {ToYesNo(household.FedMotherToday)}", Color.Gray);
-        Surface.Print(x, y++, $"Medicine today: {ToYesNo(household.MedicationGivenToday)}", Color.Gray);
-        Surface.Print(x, y, $"Checked today: {ToYesNo(household.CheckedOnMotherToday)}", Color.Gray);
-    }
+        var page = pages[_selectedStatusPage];
+        Surface.Print(x, y++, $"--- {page.Title} [{_selectedStatusPage + 1}/{pages.Count}] ---", Color.Cyan);
 
-    private static string ToYesNo(bool value)
-    {
-        return value ? "Yes" : "No";
+        foreach (var line in page.Lines.Take(10))
+        {
+            foreach (var wrappedLine in WrapText(line, Surface.Width - x - 2).Take(2))
+            {
+                Surface.Print(x, y++, wrappedLine, Color.White);
+            }
+            if (y >= 14)
+            {
+                break;
+            }
+        }
     }
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)
@@ -241,6 +223,12 @@ internal sealed class GameScreen : ScreenSurface
         if (keyboard.IsKeyPressed(Keys.Enter))
         {
             ExecuteAction();
+            return true;
+        }
+
+        if (keyboard.IsKeyPressed(Keys.Tab))
+        {
+            CycleStatusPage();
             return true;
         }
 
@@ -365,15 +353,15 @@ internal sealed class GameScreen : ScreenSurface
 
     private void ShowTalkMenu()
     {
-        var npcs = _gameState.GetReachableNpcs();
-        if (npcs.Count == 0)
+        var npcStatuses = _talkNpcStatusQuery.GetStatuses(_gameState);
+        if (npcStatuses.Count == 0)
         {
             AddEventLogEntry("No one is available to talk.");
             return;
         }
 
         IsFocused = false;
-        GameHost.Instance.Screen = new TalkScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState, npcs, this);
+        GameHost.Instance.Screen = new TalkScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState, npcStatuses, this);
     }
 
     private void ShowShopMenu()
@@ -492,5 +480,41 @@ internal sealed class GameScreen : ScreenSurface
             new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime));
 
         return true;
+    }
+
+    private void CycleStatusPage()
+    {
+        var pages = _statusPageQuery.GetPages(_gameState);
+        if (pages.Count == 0)
+        {
+            return;
+        }
+
+        _selectedStatusPage = (_selectedStatusPage + 1) % pages.Count;
+    }
+
+    private static IEnumerable<string> WrapText(string text, int maxWidth)
+    {
+        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var current = string.Empty;
+
+        foreach (var word in words)
+        {
+            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
+            if (candidate.Length > maxWidth && current.Length > 0)
+            {
+                yield return current;
+                current = word;
+            }
+            else
+            {
+                current = candidate;
+            }
+        }
+
+        if (current.Length > 0)
+        {
+            yield return current;
+        }
     }
 }

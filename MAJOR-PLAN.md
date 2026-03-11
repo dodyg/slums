@@ -249,6 +249,104 @@ Why this first:
 - the next biggest quality gain is helping the player read the systems correctly
 - this improves usability without forcing another major state-model rewrite
 
+## Concrete Implementation Plan: UI Surfacing Pass
+
+Execute this work in order. Treat each step as a self-contained slice with focused tests before moving on.
+
+### Step 1: Work And Crime Explanation Pass
+
+Objective:
+
+- make existing work and crime mechanics legible without changing their rules
+
+Deliver:
+
+- extend the work-menu query model with explanation fields for current variant, active modifiers, and next unlock hint
+- extend the crime-menu query model with explanation fields for effective risk, effective pressure change, and active route modifiers
+- update the work and crime screens to show a selected-item detail panel instead of only a flat list
+- keep rule calculation in `Slums.Core` or `Slums.Application`, not in `Slums.Game`
+
+Primary files:
+
+- `src/Slums.Application/Activities/*`
+- `src/Slums.Core/Jobs/*`
+- `src/Slums.Core/Crimes/*`
+- `src/Slums.Core/State/GameState.cs`
+- `src/Slums.Game/Screens/WorkScreen.cs`
+- `src/Slums.Game/Screens/CrimeScreen.cs`
+
+Validation:
+
+- add or expand `WorkMenuStatusQueryTests`
+- add or expand `CrimeMenuStatusQueryTests`
+- run targeted application tests before proceeding
+
+### Step 2: Main HUD Status Pages
+
+Objective:
+
+- expose persistent mechanics that currently exist only in state and logs
+
+Deliver:
+
+- add switchable HUD/status pages on the main game screen
+- keep the default page focused on immediate survival stats
+- add a skills page showing all current skill levels
+- add a network page showing faction standing and key NPC trust summaries
+- add a progress page showing day count, honest/crime counters, and ending-relevant trajectory data
+
+Primary files:
+
+- `src/Slums.Game/Screens/GameScreen.cs`
+- `src/Slums.Core/State/GameState.cs`
+- optional small UI helper types under `src/Slums.Game/Screens/`
+
+Validation:
+
+- add focused tests for any new non-UI formatting helpers or query helpers
+- run the relevant test projects after the slice
+
+### Step 3: Relationship Detail Pass
+
+Objective:
+
+- surface the relationship-memory system that currently drives scene routing invisibly
+
+Deliver:
+
+- expand the talk screen to show memory flags such as debt, embarrassment, help, and recent contact
+- show faction linkage or scene-state hints where that improves player understanding
+- keep authored knot names hidden; present player-facing summaries instead
+
+Primary files:
+
+- `src/Slums.Game/Screens/TalkScreen.cs`
+- `src/Slums.Core/Relationships/*`
+- `src/Slums.Application/*` if a formatting/query helper is needed
+
+Validation:
+
+- add tests for any new helper/query logic
+- regression-check existing narrative routing tests if needed
+
+### Step 4: Final Integration And Validation
+
+Objective:
+
+- confirm the UI surfacing pass works as a cohesive whole
+
+Deliver:
+
+- do a final readability pass on game-screen hints and keybind text
+- ensure the 80x25 layout remains usable on each updated screen
+- update this file if implementation differs materially from the plan above
+
+Validation:
+
+1. `npm run compile-ink` from `src/Slums.Game` if any Ink content changes
+2. `dotnet build .\Slums.slnx` from repo root
+3. `dotnet test .\Slums.slnx` from repo root
+
 ## Notes For The Next Agent
 
 - Do not re-implement the seven expansion phases described above. They are already present.

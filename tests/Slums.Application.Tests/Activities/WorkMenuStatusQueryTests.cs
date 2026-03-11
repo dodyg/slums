@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Application.Activities;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
+using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
@@ -26,6 +27,8 @@ internal sealed class WorkMenuStatusQueryTests
         statuses[0].Reliability.Should().Be(58);
         statuses[0].ShiftsCompleted.Should().Be(4);
         statuses[0].CanPerform.Should().BeTrue();
+        statuses[0].VariantReason.Should().Contain("Nurse Salma trust 10");
+        statuses[0].NextUnlockHint.Should().Contain("Clinic Triage Support");
     }
 
     [Test]
@@ -42,5 +45,21 @@ internal sealed class WorkMenuStatusQueryTests
         statuses[0].CanPerform.Should().BeFalse();
         statuses[0].LockoutUntilDay.Should().Be(3);
         statuses[0].AvailabilityReason.Should().Contain("shut out");
+    }
+
+    [Test]
+    public void GetStatuses_ShouldExposeActiveModifiers_AndRiskWarnings()
+    {
+        var query = new WorkMenuStatusQuery();
+        var gameState = new GameState();
+        gameState.World.TravelTo(LocationId.Bakery);
+        gameState.Player.Skills.SetLevel(SkillId.Physical, 3);
+        gameState.Player.Stats.ModifyEnergy(-75);
+
+        var statuses = query.GetStatuses(gameState);
+
+        statuses.Should().ContainSingle();
+        statuses[0].ActiveModifiers.Should().ContainSingle(static text => text.Contains("reduces energy cost by 5", StringComparison.Ordinal));
+        statuses[0].RiskWarning.Should().Contain("low energy");
     }
 }

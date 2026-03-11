@@ -8,4 +8,8 @@ public sealed record WorkMenuStatus(
     int ShiftsCompleted,
     int? LockoutUntilDay,
     bool CanPerform,
-    string? AvailabilityReason);
+    string? AvailabilityReason,
+    string VariantReason,
+    string? NextUnlockHint,
+    IReadOnlyList<string> ActiveModifiers,
+    string? RiskWarning);

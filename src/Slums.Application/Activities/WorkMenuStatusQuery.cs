@@ -20,6 +20,7 @@ public sealed class WorkMenuStatusQuery
             .GetAvailableJobs()
             .Select(job =>
             {
+                var preview = gameState.Jobs.PreviewJob(job.Type, gameState.Player, gameState.Relationships, gameState.JobProgress);
                 var track = gameState.JobProgress.GetTrack(job.Type);
                 var canPerform = gameState.Jobs.CanPerformJob(
                     job,
@@ -35,12 +36,16 @@ public sealed class WorkMenuStatusQuery
                     : null;
 
                 return new WorkMenuStatus(
-                    job,
+                    preview.Job,
                     track.Reliability,
                     track.ShiftsCompleted,
                     lockoutUntilDay,
                     canPerform,
-                    canPerform ? null : reason);
+                    canPerform ? null : reason,
+                    preview.VariantReason,
+                    preview.NextUnlockHint,
+                    preview.ActiveModifiers,
+                    preview.RiskWarning);
             })
             .ToArray();
     }

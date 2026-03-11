@@ -9,6 +9,29 @@ public sealed class JobService
 {
     private readonly Random _random = new();
 
+#pragma warning disable CA1822
+    public JobPreview PreviewJob(JobType jobType, PlayerCharacter player, RelationshipState relationshipState, JobProgressState jobProgressState)
+#pragma warning restore CA1822
+    {
+        ArgumentNullException.ThrowIfNull(player);
+        ArgumentNullException.ThrowIfNull(relationshipState);
+        ArgumentNullException.ThrowIfNull(jobProgressState);
+
+        var resolvedJob = ResolveShift(jobType, player, relationshipState, jobProgressState);
+        var track = jobProgressState.GetTrack(jobType);
+        var activeModifiers = GetActiveModifiers(resolvedJob, player);
+        var riskWarning = ShouldApplyMistake(resolvedJob, player)
+            ? GetRiskWarning(resolvedJob, player)
+            : null;
+
+        return new JobPreview(
+            resolvedJob,
+            GetVariantReason(jobType, player, relationshipState, track),
+            GetNextUnlockHint(jobType, player, relationshipState, track),
+            activeModifiers,
+            riskWarning);
+    }
+
     public JobResult PerformJob(JobShift job, PlayerCharacter player, Location currentLocation, RelationshipState relationshipState, JobProgressState jobProgressState, int currentDay)
     {
         ArgumentNullException.ThrowIfNull(job);
@@ -360,6 +383,85 @@ public sealed class JobService
             JobType.CallCenterWork => -15,
             JobType.ClinicReception => -12,
             _ => -10
+        };
+    }
+
+    private static string GetVariantReason(JobType jobType, PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
+    {
+        return jobType switch
+        {
+            JobType.BakeryWork when track.Reliability >= 75 && player.Skills.GetLevel(SkillId.Physical) >= 3 => "Unlocked by reliability 75 and Physical 3.",
+            JobType.BakeryWork when track.Reliability >= 55 => "Unlocked by reliability 55.",
+            JobType.BakeryWork when player.Skills.GetLevel(SkillId.Physical) >= 2 => "Unlocked by Physical 2.",
+            JobType.HouseCleaning when track.Reliability >= 80 => "Unlocked by reliability 80.",
+            JobType.HouseCleaning when track.Reliability >= 60 => "Unlocked by reliability 60.",
+            JobType.CallCenterWork when track.Reliability >= 70 && player.Skills.GetLevel(SkillId.Persuasion) >= 2 => "Unlocked by reliability 70 and Persuasion 2.",
+            JobType.CallCenterWork when track.Reliability >= 55 => "Unlocked by reliability 55.",
+            JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust >= 20 && track.Reliability >= 70 => "Unlocked by Nurse Salma trust 20 and reliability 70.",
+            JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust >= 10 => "Unlocked by Nurse Salma trust 10.",
+            JobType.ClinicReception when player.Skills.GetLevel(SkillId.Medical) >= 2 => "Unlocked by Medical 2.",
+            JobType.ClinicReception when player.BackgroundType == BackgroundType.MedicalSchoolDropout => "Unlocked by your medical-school background.",
+            JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust >= 20 && track.Reliability >= 75 => "Unlocked by Abu Samir trust 20 and reliability 75.",
+            JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust >= 10 => "Unlocked by Abu Samir trust 10.",
+            JobType.WorkshopSewing when track.Reliability >= 60 => "Unlocked by reliability 60.",
+            JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust >= 20 && track.Reliability >= 70 => "Unlocked by Nadia trust 20 and reliability 70.",
+            JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust >= 10 => "Unlocked by Nadia trust 10.",
+            JobType.CafeService when player.Skills.GetLevel(SkillId.Persuasion) >= 2 => "Unlocked by Persuasion 2.",
+            _ => "Base shift."
+        };
+    }
+
+    private static string? GetNextUnlockHint(JobType jobType, PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
+    {
+        return jobType switch
+        {
+            JobType.BakeryWork when track.Reliability < 55 && player.Skills.GetLevel(SkillId.Physical) < 2 => "Reach reliability 55 or Physical 2 for Bakery Oven Shift.",
+            JobType.BakeryWork when track.Reliability < 75 || player.Skills.GetLevel(SkillId.Physical) < 3 => "Reach reliability 75 and Physical 3 for Bakery Dough Prep.",
+            JobType.HouseCleaning when track.Reliability < 60 => "Reach reliability 60 for Regular Client Cleaning.",
+            JobType.HouseCleaning when track.Reliability < 80 => "Reach reliability 80 for Full Apartment Cleaning.",
+            JobType.CallCenterWork when track.Reliability < 55 => "Reach reliability 55 for Call Center Follow-Up Shift.",
+            JobType.CallCenterWork when track.Reliability < 70 || player.Skills.GetLevel(SkillId.Persuasion) < 2 => "Reach reliability 70 and Persuasion 2 for Call Center Retention Queue.",
+            JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust < 10 && player.Skills.GetLevel(SkillId.Medical) < 2 && player.BackgroundType != BackgroundType.MedicalSchoolDropout => "Reach Nurse Salma trust 10, Medical 2, or use the medical-dropout background for Clinic Intake Desk.",
+            JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust < 20 || track.Reliability < 70 => "Reach Nurse Salma trust 20 and reliability 70 for Clinic Triage Support.",
+            JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust < 10 && track.Reliability < 60 => "Reach Abu Samir trust 10 or reliability 60 for Workshop Finishing Table.",
+            JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust < 20 || track.Reliability < 75 => "Reach Abu Samir trust 20 and reliability 75 for Workshop Rush Table.",
+            JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust < 10 && player.Skills.GetLevel(SkillId.Persuasion) < 2 => "Reach Nadia trust 10 or Persuasion 2 for Cafe Rush Tables.",
+            JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust < 20 || track.Reliability < 70 => "Reach Nadia trust 20 and reliability 70 for Cafe Front Tables.",
+            _ => null
+        };
+    }
+
+    private static List<string> GetActiveModifiers(JobShift resolvedJob, PlayerCharacter player)
+    {
+        var modifiers = new List<string>();
+
+        if (player.Skills.GetLevel(SkillId.Physical) >= 3 &&
+            resolvedJob.Type is JobType.BakeryWork or JobType.HouseCleaning or JobType.WorkshopSewing)
+        {
+            modifiers.Add("Physical 3 reduces energy cost by 5.");
+        }
+
+        if (player.BackgroundType == BackgroundType.SudaneseRefugee && resolvedJob.Type == JobType.CafeService)
+        {
+            modifiers.Add("Sudanese refugee background applies cafe friction: lower pay, higher stress.");
+        }
+
+        if (player.BackgroundType == BackgroundType.MedicalSchoolDropout && resolvedJob.Type == JobType.ClinicReception)
+        {
+            modifiers.Add("Medical-dropout background improves clinic shift outcomes.");
+        }
+
+        return modifiers;
+    }
+
+    private static string GetRiskWarning(JobShift resolvedJob, PlayerCharacter player)
+    {
+        return resolvedJob.Type switch
+        {
+            JobType.CallCenterWork or JobType.CafeService when player.Stats.Stress >= 60 => "High mistake risk from stress.",
+            JobType.ClinicReception when player.Stats.Stress >= 65 => "High mistake risk from stress.",
+            JobType.ClinicReception or JobType.WorkshopSewing or JobType.BakeryWork or JobType.HouseCleaning when player.Stats.Energy <= resolvedJob.MinEnergyRequired + 5 => "High mistake risk from low energy.",
+            _ => "High mistake risk under current conditions."
         };
     }
 
