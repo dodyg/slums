@@ -8,6 +8,9 @@ public static class CrimeRegistry
     private static readonly CrimeAttempt PettyTheftDefault = new(CrimeType.PettyTheft, 25, 20, 10, 0, 10);
     private static readonly CrimeAttempt RobberyDefault = new(CrimeType.Robbery, 70, 55, 25, 10, 25);
     private static readonly CrimeAttempt HashishTradeDefault = new(CrimeType.HashishTrade, 45, 35, 15, 5, 15);
+    private static readonly CrimeAttempt HananFencingRoute = new(CrimeType.MarketFencing, 60, 18, 8, 0, 14);
+    private static readonly CrimeAttempt YoussefDropRoute = new(CrimeType.DokkiDrop, 95, 42, 24, 0, 18);
+    private static readonly CrimeAttempt UmmKarimNetworkErrand = new(CrimeType.NetworkErrand, 130, 50, 30, 0, 24);
 
     public static IReadOnlyList<CrimeAttempt> GetAvailableCrimes(Location location, RelationshipState relationshipState)
     {
@@ -19,7 +22,7 @@ public static class CrimeRegistry
             return [];
         }
 
-        var currentStreetRep = relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation;
+        var currentStreetRep = GetStreetReputation(location.District, relationshipState);
         IReadOnlyList<CrimeAttempt> crimes = location.District switch
         {
             DistrictId.Dokki => GetDokkiCrimes(location, relationshipState),
@@ -29,47 +32,48 @@ public static class CrimeRegistry
         return crimes.Where(crime => currentStreetRep >= crime.StreetRepRequired).ToArray();
     }
 
-    private static IReadOnlyList<CrimeAttempt> GetImbabaCrimes(Location location, RelationshipState relationshipState)
+    private static List<CrimeAttempt> GetImbabaCrimes(Location location, RelationshipState relationshipState)
     {
         var hananTrust = relationshipState.GetNpcRelationship(NpcId.FenceHanan).Trust;
-        if (location.Id != LocationId.Market || hananTrust < 10)
+        var ummKarimTrust = relationshipState.GetNpcRelationship(NpcId.FixerUmmKarim).Trust;
+        var imbabaReputation = relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation;
+
+        var crimes = new List<CrimeAttempt>
         {
-            return [PettyTheftDefault, HashishTradeDefault, RobberyDefault];
+            PettyTheftDefault,
+            HashishTradeDefault,
+            RobberyDefault
+        };
+
+        if (location.Id == LocationId.Market && hananTrust >= 10)
+        {
+            crimes.Add(HananFencingRoute);
         }
 
-        return
-        [
-            PettyTheftDefault with
-            {
-                BaseReward = PettyTheftDefault.BaseReward + 10,
-                DetectionRisk = Math.Max(5, PettyTheftDefault.DetectionRisk - 5)
-            },
-            HashishTradeDefault with
-            {
-                BaseReward = HashishTradeDefault.BaseReward + 15,
-                DetectionRisk = Math.Max(5, HashishTradeDefault.DetectionRisk - 5)
-            },
-            RobberyDefault
-        ];
+        if (location.Id == LocationId.Market && ummKarimTrust >= 12 && imbabaReputation >= 15)
+        {
+            crimes.Add(UmmKarimNetworkErrand);
+        }
+
+        return crimes;
     }
 
     private static List<CrimeAttempt> GetDokkiCrimes(Location location, RelationshipState relationshipState)
     {
         var youssefTrust = relationshipState.GetNpcRelationship(NpcId.RunnerYoussef).Trust;
         var dokkiReputation = relationshipState.GetFactionStanding(FactionId.DokkiThugs).Reputation;
-        var riskReduction = youssefTrust >= 15 ? 5 : 0;
 
         var crimes = new List<CrimeAttempt>
         {
             PettyTheftDefault with
             {
                 BaseReward = 35,
-                DetectionRisk = Math.Max(5, 30 - riskReduction)
+                DetectionRisk = 30
             },
             RobberyDefault with
             {
                 BaseReward = 90,
-                DetectionRisk = Math.Max(5, 65 - riskReduction)
+                DetectionRisk = 65
             }
         };
 
@@ -78,11 +82,28 @@ public static class CrimeRegistry
             crimes.Add(HashishTradeDefault with
             {
                 BaseReward = 55,
-                DetectionRisk = Math.Max(5, 40 - riskReduction),
+                DetectionRisk = 40,
                 PolicePressureIncrease = 12
             });
         }
 
+        if (location.Id == LocationId.Square && (youssefTrust >= 15 || dokkiReputation >= 15))
+        {
+            crimes.Add(YoussefDropRoute);
+        }
+
         return crimes;
+    }
+
+    private static int GetStreetReputation(DistrictId districtId, RelationshipState relationshipState)
+    {
+        var factionId = districtId switch
+        {
+            DistrictId.Dokki => FactionId.DokkiThugs,
+            DistrictId.ArdAlLiwa => FactionId.ExPrisonerNetwork,
+            _ => FactionId.ImbabaCrew
+        };
+
+        return relationshipState.GetFactionStanding(factionId).Reputation;
     }
 }

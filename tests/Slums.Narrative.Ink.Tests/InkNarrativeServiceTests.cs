@@ -140,4 +140,37 @@ internal sealed class InkNarrativeServiceTests
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Youssef keeps you moving");
     }
+
+    [Test]
+    public void StartScene_ShouldLoadHananRouteScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("crime_hanan_fence_success", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("Hanan takes the wrapped bundle");
+    }
+
+    [Test]
+    public void StartScene_ShouldLoadYoussefRouteDetectedScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("crime_youssef_drop_detected", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("The handoff lands");
+    }
+
+    [Test]
+    public void StartScene_ShouldLoadUmmKarimRouteFailureScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("crime_ummkarim_errand_failure", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("Umm Karim does not raise her voice");
+    }
 }

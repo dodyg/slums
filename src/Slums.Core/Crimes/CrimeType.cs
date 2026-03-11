@@ -4,5 +4,8 @@ public enum CrimeType
 {
     PettyTheft,
     Robbery,
-    HashishTrade
+    HashishTrade,
+    MarketFencing,
+    DokkiDrop,
+    NetworkErrand
 }

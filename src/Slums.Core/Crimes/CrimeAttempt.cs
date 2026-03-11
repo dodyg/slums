@@ -13,6 +13,9 @@ public sealed record CrimeAttempt(
         CrimeType.PettyTheft => "Petty Theft",
         CrimeType.Robbery => "Robbery",
         CrimeType.HashishTrade => "Hashish Trade",
+        CrimeType.MarketFencing => "Market Fencing Route",
+        CrimeType.DokkiDrop => "Dokki Drop Route",
+        CrimeType.NetworkErrand => "Network Errand",
         _ => Type.ToString()
     };
 }

@@ -35,3 +35,57 @@ Youssef keeps you moving until your breathing stops sounding guilty. Only then d
 # STRESS:-2
 # MESSAGE:Youssef turns a bad night into a survivable one.
 -> DONE
+
+=== crime_hanan_fence_success ===
+Hanan takes the wrapped bundle without looking eager. She tests one seam, nods once, and says the real profit came from being forgettable in a place where everyone watches everyone else.
+# STRESS:2
+# MESSAGE:Hanan's route pays because it stays quiet.
+-> DONE
+
+=== crime_hanan_fence_detected ===
+The money lands in your hand, but so does the look from a porter who will remember your face tomorrow. Hanan clicks her tongue and tells you quiet work only counts when it stays quiet.
+# STRESS:5
+# MESSAGE:The market route pays, but your name circulates with it.
+-> DONE
+
+=== crime_hanan_fence_failure ===
+Hanan barely touches the goods before pushing them back. Too hot, too obvious, too many eyes already on the wrong corners. She tells you failed work in the market becomes gossip faster than smoke.
+# STRESS:4
+# MESSAGE:Hanan refuses to move the bad bundle.
+-> DONE
+
+=== crime_youssef_drop_success ===
+Youssef's instructions are clipped and exact: the side entrance, the service lift, the handoff without conversation. In Dokki, clean shoes and good timing hide more than alley shadows ever could.
+# STRESS:3
+# MESSAGE:The Dokki drop works because you follow the route exactly.
+-> DONE
+
+=== crime_youssef_drop_detected ===
+The handoff lands, but a building guard watches one second too long and a patrol car idles where it should have kept moving. Youssef says the city took its cut the moment someone decided to remember you.
+# STRESS:7
+# MESSAGE:The Dokki drop succeeds, but it leaves a trail of attention.
+-> DONE
+
+=== crime_youssef_drop_failure ===
+The timing slips. A door stays shut, a messenger never appears, and suddenly you are only a young woman standing in the wrong corridor with no story that sounds clean enough. Youssef mutters that Dokki punishes hesitation twice.
+# STRESS:6
+# MESSAGE:The Dokki drop collapses when the timing turns against you.
+-> DONE
+
+=== crime_ummkarim_errand_success ===
+Umm Karim does not praise you. She only says the people above her noticed you delivered without panic, which in Cairo is closer to a recommendation than warmth. The money feels heavier because it came tied to names you still do not know.
+# STRESS:4
+# MESSAGE:Umm Karim's network starts treating you like usable labor.
+-> DONE
+
+=== crime_ummkarim_errand_detected ===
+You finish the errand, but by the end of the night two different men have looked at you as if measuring whether they will need your face later. Umm Karim says higher work pays better because every mistake arrives with witnesses.
+# STRESS:8
+# MESSAGE:The network errand pays, but people higher up now know you by sight.
+-> DONE
+
+=== crime_ummkarim_errand_failure ===
+By the time you realize the route has turned wrong, the mistake is already public to the only people who matter. Umm Karim does not raise her voice. She just tells you that dangerous work stops being anonymous the moment it fails.
+# STRESS:7
+# MESSAGE:Umm Karim makes it clear that failed network work carries a memory.
+-> DONE

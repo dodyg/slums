@@ -234,6 +234,8 @@ public sealed class GameState
             }
         }
 
+        QueueContactCrimeScene(attempt, result);
+
         _crimeCommittedToday = true;
         SetPolicePressure(PolicePressure + result.PolicePressureDelta);
         RaiseEvent(result.Message);
@@ -467,6 +469,46 @@ public sealed class GameState
                     flagName: "crime_youssef_escape_seen");
             }
         }
+    }
+
+    private void QueueContactCrimeScene(CrimeAttempt attempt, CrimeResult result)
+    {
+        var scene = attempt.Type switch
+        {
+            CrimeType.MarketFencing => GetCrimeScene(result, "crime_hanan_fence_success", "crime_hanan_fence_detected", "crime_hanan_fence_failure"),
+            CrimeType.DokkiDrop => GetCrimeScene(result, "crime_youssef_drop_success", "crime_youssef_drop_detected", "crime_youssef_drop_failure"),
+            CrimeType.NetworkErrand => GetCrimeScene(result, "crime_ummkarim_errand_success", "crime_ummkarim_errand_detected", "crime_ummkarim_errand_failure"),
+            _ => null
+        };
+
+        if (string.IsNullOrWhiteSpace(scene))
+        {
+            return;
+        }
+
+        var flagName = $"{scene}_seen";
+        if (HasStoryFlag(flagName))
+        {
+            return;
+        }
+
+        SetStoryFlag(flagName);
+        QueueNarrativeScene(scene);
+    }
+
+    private static string GetCrimeScene(CrimeResult result, string successScene, string detectedSuccessScene, string failureScene)
+    {
+        if (result.Success && result.Detected)
+        {
+            return detectedSuccessScene;
+        }
+
+        if (result.Success)
+        {
+            return successScene;
+        }
+
+        return failureScene;
     }
 
     private void ReduceCrimeHeat(int amount, string message, string knotName, string flagName)

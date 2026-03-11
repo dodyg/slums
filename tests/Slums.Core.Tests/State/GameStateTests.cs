@@ -371,6 +371,77 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task CommitCrime_ShouldQueueHananRouteSuccessScene_OnFirstSuccessfulMarketFencingRun()
+    {
+        const int seedLimit = 200;
+        var attempt = new CrimeAttempt(CrimeType.MarketFencing, 60, 18, 8, 0, 14);
+
+        for (var seed = 0; seed < seedLimit; seed++)
+        {
+            var state = CreateCrimeState(LocationId.Market);
+            state.SetStoryFlag("crime_first_success");
+            var result = state.CommitCrime(attempt, new Random(seed));
+            if (!result.Success || result.Detected)
+            {
+                continue;
+            }
+
+            await Assert.That(state.HasStoryFlag("crime_hanan_fence_success_seen")).IsTrue();
+            await Assert.That(HasPendingNarrativeScene(state, "crime_hanan_fence_success")).IsTrue();
+            return;
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic successful undetected Hanan route seed.");
+    }
+
+    [Test]
+    public async Task CommitCrime_ShouldQueueYoussefRouteDetectedScene_OnFirstDetectedSuccessfulDrop()
+    {
+        const int seedLimit = 400;
+        var attempt = new CrimeAttempt(CrimeType.DokkiDrop, 95, 42, 24, 0, 18);
+
+        for (var seed = 0; seed < seedLimit; seed++)
+        {
+            var state = CreateCrimeState(LocationId.Square);
+            state.SetStoryFlag("crime_first_success");
+            var result = state.CommitCrime(attempt, new Random(seed));
+            if (!result.Success || !result.Detected)
+            {
+                continue;
+            }
+
+            await Assert.That(state.HasStoryFlag("crime_youssef_drop_detected_seen")).IsTrue();
+            await Assert.That(HasPendingNarrativeScene(state, "crime_youssef_drop_detected")).IsTrue();
+            return;
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic detected successful Youssef route seed.");
+    }
+
+    [Test]
+    public async Task CommitCrime_ShouldQueueUmmKarimRouteFailureScene_OnFirstFailedErrand()
+    {
+        const int seedLimit = 400;
+        var attempt = new CrimeAttempt(CrimeType.NetworkErrand, 130, 50, 30, 0, 24);
+
+        for (var seed = 0; seed < seedLimit; seed++)
+        {
+            var state = CreateCrimeState(LocationId.Market);
+            var result = state.CommitCrime(attempt, new Random(seed));
+            if (result.Success)
+            {
+                continue;
+            }
+
+            await Assert.That(state.HasStoryFlag("crime_ummkarim_errand_failure_seen")).IsTrue();
+            await Assert.That(HasPendingNarrativeScene(state, "crime_ummkarim_errand_failure")).IsTrue();
+            return;
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic failed Umm Karim route seed.");
+    }
+
+    [Test]
     public async Task EndDay_ShouldDecayPolicePressure_OnCleanDay()
     {
         var state = new GameState();
@@ -477,5 +548,18 @@ internal sealed class GameStateTests
         state.World.TravelTo(locationId);
         state.SetPolicePressure(60);
         return state;
+    }
+
+    private static bool HasPendingNarrativeScene(GameState state, string knotName)
+    {
+        while (state.TryDequeueNarrativeScene(out var pendingScene))
+        {
+            if (pendingScene == knotName)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
