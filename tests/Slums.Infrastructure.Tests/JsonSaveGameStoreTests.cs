@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Slums.Application.Narrative;
 using Slums.Core.Characters;
+using Slums.Core.Jobs;
 using Slums.Core.World;
 using Slums.Infrastructure.Persistence;
 using TUnit.Core;
@@ -32,6 +33,7 @@ internal sealed class JsonSaveGameStoreTests
             state.SetDaysSurvived(7);
             state.SetCrimeCounters(120, 2);
             state.SetStoryFlag("crime_warning");
+            state.RestoreJobTrack(JobType.ClinicReception, 74, 5, 9);
 
             await store.SaveAsync(state, narrative, "slot1").ConfigureAwait(false);
             var loaded = await store.LoadAsync("slot1").ConfigureAwait(false);
@@ -44,6 +46,9 @@ internal sealed class JsonSaveGameStoreTests
             loaded.GameState.PolicePressure.Should().Be(30);
             loaded.GameState.CrimesCommitted.Should().Be(2);
             loaded.GameState.StoryFlags.Should().Contain("crime_warning");
+            loaded.GameState.JobProgress.GetTrack(JobType.ClinicReception).Reliability.Should().Be(74);
+            loaded.GameState.JobProgress.GetTrack(JobType.ClinicReception).ShiftsCompleted.Should().Be(5);
+            loaded.GameState.JobProgress.GetTrack(JobType.ClinicReception).LockoutUntilDay.Should().Be(9);
         }
         finally
         {

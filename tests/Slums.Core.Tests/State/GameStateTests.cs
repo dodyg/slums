@@ -209,6 +209,35 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task WorkJob_ShouldImproveEmployerTrust_OnCleanClinicShift()
+    {
+        var state = new GameState();
+        state.World.TravelTo(LocationId.Clinic);
+        state.Relationships.SetNpcRelationship(NpcId.NurseSalma, 12, 1);
+
+        var trustBefore = state.Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust;
+        var result = state.WorkJob(state.GetAvailableJobs().Single());
+
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(result.MistakeMade).IsFalse();
+        await Assert.That(state.Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust).IsGreaterThan(trustBefore);
+    }
+
+    [Test]
+    public async Task WorkJob_ShouldApplyLockoutAndTrustPenalty_OnCallCenterMistake()
+    {
+        var state = new GameState();
+        state.World.TravelTo(LocationId.CallCenter);
+        state.Player.Stats.SetStress(65);
+
+        var result = state.WorkJob(state.GetAvailableJobs().Single());
+
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(result.MistakeMade).IsTrue();
+        await Assert.That(state.JobProgress.GetTrack(Slums.Core.Jobs.JobType.CallCenterWork).LockoutUntilDay).IsEqualTo(3);
+    }
+
+    [Test]
     public async Task IsGameOver_ShouldBeTrueWhenHealthIsZero()
     {
         var state = new GameState();

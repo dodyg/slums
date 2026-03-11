@@ -315,7 +315,7 @@ internal sealed class GameScreen : ScreenSurface
             return;
         }
 
-        var jobs = _gameState.Jobs.GetAvailableJobs(location).ToList();
+        var jobs = _gameState.GetAvailableJobs().ToList();
         if (jobs.Count == 0)
         {
             AddEventLogEntry("No work available here.");

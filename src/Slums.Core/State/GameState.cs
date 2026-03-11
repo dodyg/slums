@@ -26,6 +26,7 @@ public sealed class GameState
     public PlayerCharacter Player { get; } = new();
     public WorldState World { get; } = new();
     public RelationshipState Relationships { get; } = new();
+    public JobProgressState JobProgress { get; } = new();
     public JobService Jobs { get; } = new();
     public bool IsGameOver { get; private set; }
     public string? GameOverReason { get; private set; }
@@ -183,13 +184,22 @@ public sealed class GameState
             return JobResult.Failed("You are nowhere.");
         }
 
-        var result = Jobs.PerformJob(job, Player, location);
+        var result = Jobs.PerformJob(job, Player, location, Relationships, JobProgress, Clock.Day);
         
         if (result.Success)
         {
             TotalCrimeEarnings += 0;
             AdvanceTime(job.DurationMinutes);
-            ApplySkillGain(GetSkillForJob(job.Type));
+            if (!result.MistakeMade)
+            {
+                ApplySkillGain(GetSkillForJob(job.Type));
+                ModifyEmployerTrust(job.Type, 2);
+            }
+            else
+            {
+                ModifyEmployerTrust(job.Type, -4);
+            }
+
             RaiseEvent(result.Message);
         }
         else
@@ -199,6 +209,17 @@ public sealed class GameState
 
         CheckGameOverConditions();
         return result;
+    }
+
+    public IReadOnlyList<JobShift> GetAvailableJobs()
+    {
+        var location = World.GetCurrentLocation();
+        if (location is null)
+        {
+            return [];
+        }
+
+        return Jobs.GetAvailableJobs(location, Player, Relationships, JobProgress).ToArray();
     }
 
     public IReadOnlyList<CrimeAttempt> GetAvailableCrimes()
@@ -571,6 +592,11 @@ public sealed class GameState
         CrimesCommitted = Math.Max(0, crimesCommitted);
     }
 
+    public void RestoreJobTrack(JobType jobType, int reliability, int shiftsCompleted, int lockoutUntilDay)
+    {
+        JobProgress.RestoreTrack(jobType, reliability, shiftsCompleted, lockoutUntilDay);
+    }
+
     private void CheckGameOverConditions()
     {
         var ending = EndingService.CheckEndings(this);
@@ -583,6 +609,22 @@ public sealed class GameState
         IsGameOver = true;
         GameOverReason = EndingService.GetMessage(ending.Value);
         PendingEndingKnot = EndingService.GetInkKnot(ending.Value);
+    }
+
+    private void ModifyEmployerTrust(JobType jobType, int delta)
+    {
+        var npcId = jobType switch
+        {
+            JobType.ClinicReception => NpcId.NurseSalma,
+            JobType.WorkshopSewing => NpcId.WorkshopBossAbuSamir,
+            JobType.CafeService => NpcId.CafeOwnerNadia,
+            _ => (NpcId?)null
+        };
+
+        if (npcId.HasValue)
+        {
+            ModifyNpcTrust(npcId.Value, delta);
+        }
     }
 
     private void ApplyRandomEvent(RandomEvent randomEvent)

@@ -31,6 +31,9 @@ public sealed record GameStateDto
     public Dictionary<string, int> NpcTrust { get; init; } = [];
     public Dictionary<string, int> NpcLastSeenDay { get; init; } = [];
     public Dictionary<string, int> FactionReputation { get; init; } = [];
+    public Dictionary<string, int> JobReliability { get; init; } = [];
+    public Dictionary<string, int> JobShiftsCompleted { get; init; } = [];
+    public Dictionary<string, int> JobLockoutUntilDay { get; init; } = [];
     public Collection<string> StoryFlags { get; init; } = [];
 
     public static GameStateDto FromGameState(GameState gameState)
@@ -61,6 +64,9 @@ public sealed record GameStateDto
             NpcTrust = gameState.Relationships.NpcRelationships.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.Trust),
             NpcLastSeenDay = gameState.Relationships.NpcRelationships.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.LastSeenDay),
             FactionReputation = gameState.Relationships.FactionStandings.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.Reputation),
+            JobReliability = gameState.JobProgress.Tracks.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.Reliability),
+            JobShiftsCompleted = gameState.JobProgress.Tracks.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.ShiftsCompleted),
+            JobLockoutUntilDay = gameState.JobProgress.Tracks.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.LockoutUntilDay),
             StoryFlags = new Collection<string>([.. gameState.StoryFlags])
         };
     }
@@ -100,6 +106,16 @@ public sealed record GameStateDto
         {
             var key = factionId.ToString();
             gameState.Relationships.SetFactionStanding(factionId, FactionReputation.GetValueOrDefault(key));
+        }
+
+        foreach (var jobType in Enum.GetValues<Slums.Core.Jobs.JobType>())
+        {
+            var key = jobType.ToString();
+            gameState.RestoreJobTrack(
+                jobType,
+                JobReliability.GetValueOrDefault(key, 50),
+                JobShiftsCompleted.GetValueOrDefault(key),
+                JobLockoutUntilDay.GetValueOrDefault(key));
         }
 
         return gameState;
