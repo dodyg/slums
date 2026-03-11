@@ -237,6 +237,7 @@ public sealed class GameState
         _crimeCommittedToday = true;
         SetPolicePressure(PolicePressure + result.PolicePressureDelta);
         RaiseEvent(result.Message);
+        ApplyCrimeContactAftermath(result);
 
         if (PolicePressure >= 80 && !HasStoryFlag("crime_warning"))
         {
@@ -428,6 +429,47 @@ public sealed class GameState
     public void SetPolicePressure(int value)
     {
         PolicePressure = Math.Clamp(value, 0, 100);
+    }
+
+    private void ApplyCrimeContactAftermath(CrimeResult result)
+    {
+        if (!result.Detected)
+        {
+            return;
+        }
+
+        if (World.CurrentLocationId == LocationId.Market && Relationships.GetNpcRelationship(NpcId.FenceHanan).Trust >= 15)
+        {
+            ReduceCrimeHeat(5, "Hanan quietly shifts attention away from your name. The market heat eases a little.", "crime_hanan_cover", "crime_hanan_cover_seen");
+        }
+
+        if (World.CurrentLocationId == LocationId.Square && Relationships.GetNpcRelationship(NpcId.RunnerYoussef).Trust >= 15)
+        {
+            ReduceCrimeHeat(7, "Youssef tips you off and sends you moving before the wrong questions settle on you.", "crime_youssef_tipoff", "crime_youssef_tipoff_seen");
+        }
+    }
+
+    private void ReduceCrimeHeat(int amount, string message, string knotName, string flagName)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        var updatedPressure = Math.Max(0, PolicePressure - amount);
+        if (updatedPressure == PolicePressure)
+        {
+            return;
+        }
+
+        SetPolicePressure(updatedPressure);
+        RaiseEvent(message);
+
+        if (!HasStoryFlag(flagName))
+        {
+            SetStoryFlag(flagName);
+            QueueNarrativeScene(knotName);
+        }
     }
 
     public void SetRunId(Guid runId)

@@ -11,3 +11,15 @@ By maghrib, the talk on the street has already turned. Men lower their voices wh
 # STRESS:8
 # MESSAGE:The street is starting to feel unsafe.
 -> DONE
+
+=== crime_hanan_cover ===
+Hanan never admits she helped. She only mutters that market people survive by deciding what to notice and what to forget, then tells you not to make her spend that kind of effort twice in one week.
+# STRESS:-2
+# MESSAGE:Hanan's cover buys you a little breathing room.
+-> DONE
+
+=== crime_youssef_tipoff ===
+Youssef catches you half a block too early and changes your route with a glance and two clipped words. In Cairo, sometimes warning is the only mercy anyone can afford.
+# STRESS:-1
+# MESSAGE:Youssef gets word to you before the dragnet tightens.
+-> DONE

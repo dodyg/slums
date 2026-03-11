@@ -118,4 +118,15 @@ internal sealed class InkNarrativeServiceTests
         service.CurrentText.Should().Contain("Hanan");
         service.CurrentChoices.Should().ContainInOrder("Ask what kind of goods move quietly this week", "Ask for easy money");
     }
+
+    [Test]
+    public void StartScene_ShouldLoadCrimeAftermathCoverScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("crime_hanan_cover", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("Hanan never admits she helped.");
+    }
 }

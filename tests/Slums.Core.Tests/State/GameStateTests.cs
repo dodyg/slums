@@ -1,4 +1,6 @@
 using FluentAssertions;
+using Slums.Core.Crimes;
+using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
@@ -252,6 +254,62 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task CommitCrime_ShouldLetHananReducePressure_WhenTrustIsHighAndCrimeIsDetected()
+    {
+        const int seedLimit = 200;
+        var attempt = new CrimeAttempt(CrimeType.PettyTheft, 25, 20, 10, 0, 10);
+
+        for (var seed = 0; seed < seedLimit; seed++)
+        {
+            var baseline = CreateCrimeState(LocationId.Market);
+            var baselineResult = baseline.CommitCrime(attempt, new Random(seed));
+            if (!baselineResult.Detected)
+            {
+                continue;
+            }
+
+            var trusted = CreateCrimeState(LocationId.Market);
+            trusted.Relationships.SetNpcRelationship(NpcId.FenceHanan, 20, 1);
+            var trustedResult = trusted.CommitCrime(attempt, new Random(seed));
+
+            await Assert.That(trustedResult.Detected).IsTrue();
+            await Assert.That(trusted.PolicePressure).IsEqualTo(Math.Max(0, baseline.PolicePressure - 5));
+            await Assert.That(trusted.HasStoryFlag("crime_hanan_cover_seen")).IsTrue();
+            return;
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic detected market crime seed.");
+    }
+
+    [Test]
+    public async Task CommitCrime_ShouldLetYoussefReducePressure_WhenTrustIsHighAndCrimeIsDetected()
+    {
+        const int seedLimit = 200;
+        var attempt = new CrimeAttempt(CrimeType.PettyTheft, 35, 30, 10, 0, 10);
+
+        for (var seed = 0; seed < seedLimit; seed++)
+        {
+            var baseline = CreateCrimeState(LocationId.Square);
+            var baselineResult = baseline.CommitCrime(attempt, new Random(seed));
+            if (!baselineResult.Detected)
+            {
+                continue;
+            }
+
+            var trusted = CreateCrimeState(LocationId.Square);
+            trusted.Relationships.SetNpcRelationship(NpcId.RunnerYoussef, 20, 1);
+            var trustedResult = trusted.CommitCrime(attempt, new Random(seed));
+
+            await Assert.That(trustedResult.Detected).IsTrue();
+            await Assert.That(trusted.PolicePressure).IsEqualTo(Math.Max(0, baseline.PolicePressure - 7));
+            await Assert.That(trusted.HasStoryFlag("crime_youssef_tipoff_seen")).IsTrue();
+            return;
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic detected Dokki crime seed.");
+    }
+
+    [Test]
     public async Task EndDay_ShouldDecayPolicePressure_OnCleanDay()
     {
         var state = new GameState();
@@ -350,5 +408,13 @@ internal sealed class GameStateTests
         summary.Should().HaveCount(8);
         summary[0].Should().Contain("Day 1");
         summary[2].Should().Contain("Money");
+    }
+
+    private static GameState CreateCrimeState(LocationId locationId)
+    {
+        var state = new GameState();
+        state.World.TravelTo(locationId);
+        state.SetPolicePressure(60);
+        return state;
     }
 }
