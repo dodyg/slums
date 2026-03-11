@@ -9,6 +9,45 @@ namespace Slums.Core.Tests.Crimes;
 internal sealed class CrimeRegistryTests
 {
     [Test]
+    public void GetCrimeOpportunityStatuses_ShouldShowStreetRepBlockReason_ForRobbery()
+    {
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Market);
+        var relationships = new RelationshipState();
+
+        var statuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, relationships);
+
+        var robbery = statuses.Single(static status => status.Attempt.Type == CrimeType.Robbery);
+        robbery.IsAvailable.Should().BeFalse();
+        robbery.BlockReason.Should().Contain("street rep 10");
+    }
+
+    [Test]
+    public void GetCrimeOpportunityStatuses_ShouldShowTrustBlockReason_ForHananRoute()
+    {
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Market);
+        var relationships = new RelationshipState();
+
+        var statuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, relationships);
+
+        var fencing = statuses.Single(static status => status.Attempt.Type == CrimeType.MarketFencing);
+        fencing.IsAvailable.Should().BeFalse();
+        fencing.BlockReason.Should().Contain("Hanan trust 10");
+    }
+
+    [Test]
+    public void GetCrimeOpportunityStatuses_ShouldShowTrustOrRepBlockReason_ForDokkiDrop()
+    {
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Square);
+        var relationships = new RelationshipState();
+
+        var statuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, relationships);
+
+        var dokkiDrop = statuses.Single(static status => status.Attempt.Type == CrimeType.DokkiDrop);
+        dokkiDrop.IsAvailable.Should().BeFalse();
+        dokkiDrop.BlockReason.Should().Contain("Youssef trust 15 or Dokki standing 15");
+    }
+
+    [Test]
     public void GetAvailableCrimes_ShouldUnlockHananFencingRoute_WhenHananTrustIsHigh()
     {
         var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Market);

@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
+using Slums.Application.Activities;
 using Slums.Core.Clock;
 using Slums.Core.State;
 using Slums.Core.World;
@@ -16,6 +17,8 @@ internal sealed class GameScreen : ScreenSurface
     private static readonly TimeSpan RealTimePerGameMinute = TimeSpan.FromSeconds(1);
     private readonly GameRuntime _runtime;
     private readonly GameState _gameState;
+    private readonly WorkMenuStatusQuery _workMenuStatusQuery = new();
+    private readonly CrimeMenuStatusQuery _crimeMenuStatusQuery = new();
     private readonly AutomaticTimeAdvancer _automaticTimeAdvancer;
     private readonly List<string> _eventLog = new(10);
     private int _selectedAction;
@@ -308,14 +311,7 @@ internal sealed class GameScreen : ScreenSurface
 
     private void ShowWorkMenu()
     {
-        var location = _gameState.World.GetCurrentLocation();
-        if (location is null)
-        {
-            AddEventLogEntry("You are nowhere.");
-            return;
-        }
-
-        var jobs = _gameState.GetAvailableJobs().ToList();
+        var jobs = _workMenuStatusQuery.GetStatuses(_gameState).ToList();
         if (jobs.Count == 0)
         {
             AddEventLogEntry("No work available here.");
@@ -328,7 +324,7 @@ internal sealed class GameScreen : ScreenSurface
 
     private void ShowCrimeMenu()
     {
-        var crimes = _gameState.GetAvailableCrimes();
+        var crimes = _crimeMenuStatusQuery.GetStatuses(_gameState).ToList();
         if (crimes.Count == 0)
         {
             AddEventLogEntry("No crime opportunities here.");

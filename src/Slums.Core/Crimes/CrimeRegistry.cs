@@ -32,6 +32,25 @@ public static class CrimeRegistry
         return crimes.Where(crime => currentStreetRep >= crime.StreetRepRequired).ToArray();
     }
 
+    public static IReadOnlyList<CrimeOpportunityStatus> GetCrimeOpportunityStatuses(Location location, RelationshipState relationshipState)
+    {
+        ArgumentNullException.ThrowIfNull(location);
+        ArgumentNullException.ThrowIfNull(relationshipState);
+
+        if (!location.HasCrimeOpportunities)
+        {
+            return [];
+        }
+
+        var currentStreetRep = GetStreetReputation(location.District, relationshipState);
+
+        return location.District switch
+        {
+            DistrictId.Dokki => GetDokkiCrimeStatuses(location, relationshipState, currentStreetRep),
+            _ => GetImbabaCrimeStatuses(location, relationshipState, currentStreetRep)
+        };
+    }
+
     private static List<CrimeAttempt> GetImbabaCrimes(Location location, RelationshipState relationshipState)
     {
         var hananTrust = relationshipState.GetNpcRelationship(NpcId.FenceHanan).Trust;
@@ -105,5 +124,102 @@ public static class CrimeRegistry
         };
 
         return relationshipState.GetFactionStanding(factionId).Reputation;
+    }
+
+    private static IReadOnlyList<CrimeOpportunityStatus> GetImbabaCrimeStatuses(Location location, RelationshipState relationshipState, int currentStreetRep)
+    {
+        var hananTrust = relationshipState.GetNpcRelationship(NpcId.FenceHanan).Trust;
+        var ummKarimTrust = relationshipState.GetNpcRelationship(NpcId.FixerUmmKarim).Trust;
+        var imbabaReputation = relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation;
+
+        return
+        [
+            CreateStatus(PettyTheftDefault, currentStreetRep, null),
+            CreateStatus(HashishTradeDefault, currentStreetRep, null),
+            CreateStatus(RobberyDefault, currentStreetRep, null),
+            CreateStatus(
+                HananFencingRoute,
+                currentStreetRep,
+                location.Id != LocationId.Market
+                    ? "Only runs out of the market."
+                    : hananTrust < 10
+                        ? $"Requires Hanan trust 10. Current: {hananTrust}."
+                        : null),
+            CreateStatus(
+                UmmKarimNetworkErrand,
+                currentStreetRep,
+                location.Id != LocationId.Market
+                    ? "Only runs out of the market."
+                    : ummKarimTrust < 12
+                        ? $"Requires Umm Karim trust 12. Current: {ummKarimTrust}."
+                        : imbabaReputation < 15
+                            ? $"Requires Imbaba standing 15. Current: {imbabaReputation}."
+                            : null)
+        ];
+    }
+
+    private static IReadOnlyList<CrimeOpportunityStatus> GetDokkiCrimeStatuses(Location location, RelationshipState relationshipState, int currentStreetRep)
+    {
+        var youssefTrust = relationshipState.GetNpcRelationship(NpcId.RunnerYoussef).Trust;
+        var dokkiReputation = relationshipState.GetFactionStanding(FactionId.DokkiThugs).Reputation;
+
+        var pettyTheft = PettyTheftDefault with
+        {
+            BaseReward = 35,
+            DetectionRisk = 30
+        };
+
+        var robbery = RobberyDefault with
+        {
+            BaseReward = 90,
+            DetectionRisk = 65
+        };
+
+        var hashishTrade = HashishTradeDefault with
+        {
+            BaseReward = 55,
+            DetectionRisk = 40,
+            PolicePressureIncrease = 12
+        };
+
+        return
+        [
+            CreateStatus(pettyTheft, currentStreetRep, null),
+            CreateStatus(robbery, currentStreetRep, null),
+            CreateStatus(
+                hashishTrade,
+                currentStreetRep,
+                location.Id != LocationId.Square
+                    ? "Only available around the square."
+                    : youssefTrust < 10 && dokkiReputation < 10
+                        ? $"Requires Youssef trust 10 or Dokki standing 10. Current: {youssefTrust}/{dokkiReputation}."
+                        : null),
+            CreateStatus(
+                YoussefDropRoute,
+                currentStreetRep,
+                location.Id != LocationId.Square
+                    ? "Only available around the square."
+                    : youssefTrust < 15 && dokkiReputation < 15
+                        ? $"Requires Youssef trust 15 or Dokki standing 15. Current: {youssefTrust}/{dokkiReputation}."
+                        : null)
+        ];
+    }
+
+    private static CrimeOpportunityStatus CreateStatus(CrimeAttempt attempt, int currentStreetRep, string? routeRequirementReason)
+    {
+        if (!string.IsNullOrEmpty(routeRequirementReason))
+        {
+            return new CrimeOpportunityStatus(attempt, false, routeRequirementReason);
+        }
+
+        if (currentStreetRep < attempt.StreetRepRequired)
+        {
+            return new CrimeOpportunityStatus(
+                attempt,
+                false,
+                $"Requires street rep {attempt.StreetRepRequired}. Current: {currentStreetRep}.");
+        }
+
+        return new CrimeOpportunityStatus(attempt, true, null);
     }
 }
