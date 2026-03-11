@@ -19,3 +19,23 @@ Abu Samir keeps saying "khallas, khallas" like the word itself can move the line
 === event_cafe_spill ===
 A glass slips, tea flashes across the floor, and half the ahwa turns to watch. Nadia swears under her breath, then pockets a customer's tip into your hand and tells you not to freeze next time.
 -> DONE
+
+=== event_neighborhood_solidarity ===
+By asr, the building has quietly arranged itself into a system of favors: one woman lends onions, another passes a warning about a landlord, a third leaves bread at a door without making the receiver perform gratitude in public.
+-> DONE
+
+=== event_dokki_checkpoint_sweep ===
+The checkpoint appears almost casually, as if police barriers have always belonged at this corner. Men in plain shirts do the real watching while uniforms do the easier work of being seen.
+-> DONE
+
+=== event_dokki_transport_friction ===
+Every route through Dokki seems to snag on something today: a stalled microbus, a shouted argument over fare, a driver refusing one more stop because the street already feels too watched.
+-> DONE
+
+=== event_clinic_supply_shortage ===
+The clinic runs short before noon and everyone pretends not to panic. Patients glare at the desk. Staff move faster. The shortage turns every ordinary request into a small accusation.
+-> DONE
+
+=== event_ardalliwa_solidarity ===
+In Ard al-Liwa, someone always knows whose cousin needs a hand, whose machine is idle, whose rent is one week late, and which favor can still be asked without humiliation.
+-> DONE

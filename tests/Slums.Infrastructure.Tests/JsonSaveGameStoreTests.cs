@@ -32,8 +32,11 @@ internal sealed class JsonSaveGameStoreTests
             state.SetPolicePressure(30);
             state.SetDaysSurvived(7);
             state.SetCrimeCounters(120, 2);
+            state.SetWorkCounters(140, 4, lastCrimeDay: 5, lastHonestWorkDay: 7, lastPublicFacingWorkDay: 7);
             state.SetStoryFlag("crime_warning");
             state.RestoreJobTrack(JobType.ClinicReception, 74, 5, 9);
+            state.Relationships.RecordFavor(Slums.Core.Relationships.NpcId.NurseSalma, 7, hasUnpaidDebt: true);
+            state.RecordEventHistory("DokkiCheckpointSweep", 2);
 
             await store.SaveAsync(state, narrative, "slot1").ConfigureAwait(false);
             var loaded = await store.LoadAsync("slot1").ConfigureAwait(false);
@@ -49,6 +52,11 @@ internal sealed class JsonSaveGameStoreTests
             loaded.GameState.JobProgress.GetTrack(JobType.ClinicReception).Reliability.Should().Be(74);
             loaded.GameState.JobProgress.GetTrack(JobType.ClinicReception).ShiftsCompleted.Should().Be(5);
             loaded.GameState.JobProgress.GetTrack(JobType.ClinicReception).LockoutUntilDay.Should().Be(9);
+            loaded.GameState.TotalHonestWorkEarnings.Should().Be(140);
+            loaded.GameState.LastCrimeDay.Should().Be(5);
+            loaded.GameState.LastPublicFacingWorkDay.Should().Be(7);
+            loaded.GameState.Relationships.GetNpcRelationship(Slums.Core.Relationships.NpcId.NurseSalma).HasUnpaidDebt.Should().BeTrue();
+            loaded.GameState.GetEventCount("DokkiCheckpointSweep").Should().Be(2);
         }
         finally
         {

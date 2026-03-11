@@ -117,6 +117,42 @@ internal sealed class JsonContentRepositoryTests
         }
     }
 
+    [Test]
+    public void LoadRandomEvents_ShouldMapPolicePressureConditionAndChange()
+    {
+        var contentDirectory = CreateTempDirectory();
+        try
+        {
+            File.WriteAllText(Path.Combine(contentDirectory, "random_events.json"), """
+            [
+              {
+                "Id": "DokkiCheckpointSweep",
+                "Description": "desc",
+                "MinDay": 5,
+                "Weight": 9,
+                "ConditionId": "in_dokki",
+                "PolicePressureChange": 6,
+                "InkKnot": "event_dokki_checkpoint_sweep"
+              }
+            ]
+            """);
+
+            var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
+            var state = new Slums.Core.State.GameState();
+            state.World.TravelTo(Slums.Core.World.LocationId.CallCenter);
+
+            var events = repository.LoadRandomEvents();
+
+            events.Should().HaveCount(1);
+            events[0].Condition!(state).Should().BeTrue();
+            events[0].Effect.PolicePressureChange.Should().Be(6);
+        }
+        finally
+        {
+            DeleteDirectory(contentDirectory);
+        }
+    }
+
     private static string CreateTempDirectory()
     {
         var path = Path.Combine(Path.GetTempPath(), "slums-content-tests", Guid.NewGuid().ToString("N"));

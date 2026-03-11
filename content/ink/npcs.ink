@@ -87,6 +87,22 @@ Umm Karim does not waste greetings. Somewhere behind her, a porter curses and a 
 	She smirks. Survival first, empire later.
 	-> DONE
 
+=== fixer_recent_refusal ===
+Umm Karim remembers the last time you walked away before she has finished her sentence. She does not sound offended. She sounds like someone checking whether your fear has matured into discipline.
+
+*   [Admit you misread what she was offering]
+	# NPC_TRUST:FixerUmmKarim,4
+	# MESSAGE:Umm Karim decides honesty is slightly less useless than panic.
+	She says there is always another errand, but never for women who waste other people's time twice.
+	-> DONE
+
+*   [Stay guarded and ask only for small work]
+	# NPC_TRUST:FixerUmmKarim,1
+	# REFUSAL:FixerUmmKarim
+	# MESSAGE:You keep the conversation narrow, and Umm Karim notices.
+	She nods once, as if filing you under a smaller category than before.
+	-> DONE
+
 === officer_checkpoint ===
 Officer Khalid stops you near the Dokki square. His tone is almost casual, but his eyes keep inventory.
 
@@ -171,6 +187,22 @@ Mona has already set aside a chipped glass of tea for you. She lowers her voice 
 	She murmurs "maashi" and busies herself with the laundry line, leaving you with your pride and nothing else.
 	-> DONE
 
+=== neighbor_mona_helped ===
+Mona does not pretend she forgot the last time you stepped in when the building talk turned ugly. The stairwell feels less like a hallway and more like a line being held.
+
+*   [Ask whether anyone needs anything this week]
+	# NPC_TRUST:NeighborMona,6
+	# HELPED:NeighborMona,true
+	# MESSAGE:Mona starts treating you like someone the building can count on.
+	She tells you whose gas ran out, whose son is looking for a messenger shift, and which landlord is threatening to raise rent again.
+	-> DONE
+
+*   [Tell her you only did what anyone should do]
+	# NPC_TRUST:NeighborMona,3
+	# MESSAGE:Mona hears the modesty and files it as another kind of decency.
+	She says Cairo would be easier if more people spoke like that and meant it.
+	-> DONE
+
 === nurse_salma ===
 Nurse Salma is moving faster than the clinic can hold. She checks names, calms a crying child off-screen, and still finds a second to look straight at you.
 
@@ -201,6 +233,41 @@ Salma sees you and immediately shifts two paper files off the only free chair. I
 	# NPC_TRUST:NurseSalma,5
 	# MESSAGE:Salma gives you practical advice without wasting words.
 	She writes a dosage reminder on scrap paper and tells you what warning signs mean you cannot wait another day.
+	-> DONE
+
+=== nurse_salma_debt ===
+Salma does not mention the medicine she covered for your mother, but the omission makes the debt feel more exact, not less.
+
+*   [Promise you will settle it when you can]
+	# NPC_TRUST:NurseSalma,4
+	# DEBT:NurseSalma,true
+	# FAVOR:NurseSalma
+	# MESSAGE:Salma accepts the promise without pretending promises are cash.
+	She says repayment matters less than whether you become the kind of woman who vanishes when help gets expensive.
+	-> DONE
+
+*   [Ask what she needs from you now]
+	# NPC_TRUST:NurseSalma,6
+	# DEBT:NurseSalma,true
+	# FAVOR:NurseSalma
+	# MESSAGE:Salma starts treating the debt like a test of reliability instead of gratitude.
+	She points at the waiting room and says there is always work if you mean to pay in effort first.
+	-> DONE
+
+=== nurse_salma_suspicious ===
+Salma watches your hands before she answers your question. The clinic has taught her how stress looks when it comes from hunger, grief, guilt, or all three at once.
+
+*   [Insist work is only work and the rest is your business]
+	# NPC_TRUST:NurseSalma,-5
+	# REFUSAL:NurseSalma
+	# MESSAGE:Salma pulls back and leaves the conversation strictly practical.
+	She says the clinic is full of women carrying trouble. The clever ones do not drag it into the triage line.
+	-> DONE
+
+*   [Admit you are trying to keep too many lives apart]
+	# NPC_TRUST:NurseSalma,2
+	# MESSAGE:Salma does not approve, but she decides honesty is worth something.
+	She tells you exhaustion makes liars sloppy and patients pay for other people's sloppiness first.
 	-> DONE
 
 === abu_samir ===
@@ -236,6 +303,23 @@ Abu Samir jerks his chin toward an empty stool before you even ask. That is as c
 	He tells you which supplier is cheating, which street got hotter with police, and which promises are worth less than thread.
 	-> DONE
 
+=== abu_samir_embarrassed ===
+Abu Samir does not raise his voice about the last mistake. The way he moves your stool to the side says enough on its own.
+
+*   [Own the mistake and ask for another chance]
+	# NPC_TRUST:WorkshopBossAbuSamir,3
+	# EMBARRASSED:WorkshopBossAbuSamir,false
+	# MESSAGE:Abu Samir agrees to another chance, but not a forgiving one.
+	He says cloth forgives nothing and neither do men running on margins this thin.
+	-> DONE
+
+*   [Act like he is overreacting]
+	# NPC_TRUST:WorkshopBossAbuSamir,-7
+	# EMBARRASSED:WorkshopBossAbuSamir,true
+	# MESSAGE:Abu Samir decides you have not learned the part that matters.
+	He turns away before you finish speaking, which in his workshop is worse than shouting.
+	-> DONE
+
 === nadia_cafe ===
 Nadia runs Ahwa El-Galaa from behind a cloud of steam and sharp memory. She knows who pays late, who tips, and who lies about both.
 
@@ -267,6 +351,21 @@ Nadia slides a glass of tea toward you without asking for payment first. Around 
 	# NPC_TRUST:CafeOwnerNadia,3
 	# MESSAGE:Nadia gives you the version of the truth that keeps women safe.
 	She names the corners to avoid after dark and the kind of smile that should make you turn around immediately.
+	-> DONE
+
+=== nadia_cafe_double_life ===
+Nadia studies the tiredness in your face like she is pricing it. The ahwa sees every kind of woman, but it remembers the ones trying to pass as two people at once.
+
+*   [Say you are just tired from work]
+	# NPC_TRUST:CafeOwnerNadia,-4
+	# MESSAGE:Nadia lets the lie go by, which is not the same as believing it.
+	She says women who come in carrying two stories usually lose track of which one is supposed to save them.
+	-> DONE
+
+*   [Ask whether she has ever kept two lives apart herself]
+	# NPC_TRUST:CafeOwnerNadia,4
+	# MESSAGE:Nadia answers with more sympathy than comfort.
+	She says every woman in Cairo splits herself somehow. The trick is deciding which half gets to survive.
 	-> DONE
 
 === hanan_fence ===

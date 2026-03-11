@@ -137,3 +137,15 @@ The day stretches before you, one more day in a city that can hold twelve millio
 
 Survive.
 -> DONE
+
+=== background_medical_clinic ===
+The smell of antiseptic, stale sweat, and bad fluorescent lighting lands in your body before it reaches your thoughts. For one ugly second, the clinic feels closer to the life you lost than any memory has managed in months.
+-> DONE
+
+=== background_prisoner_heat ===
+You do not need anyone to explain why police notice you faster. Some names stay filed in the state even when the paper itself is out of sight.
+-> DONE
+
+=== background_sudanese_solidarity ===
+The kindness comes in the way displaced people recognize one another without asking for a perfect explanation first. Someone presses food into your hand as if sparing you the embarrassment of needing it is part of the gift.
+-> DONE

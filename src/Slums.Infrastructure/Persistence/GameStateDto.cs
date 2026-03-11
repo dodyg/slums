@@ -26,14 +26,26 @@ public sealed record GameStateDto
     public int PolicePressure { get; init; }
     public int TotalCrimeEarnings { get; init; }
     public int CrimesCommitted { get; init; }
+    public int TotalHonestWorkEarnings { get; init; }
+    public int HonestShiftsCompleted { get; init; }
     public int DaysSurvived { get; init; }
+    public int LastCrimeDay { get; init; }
+    public int LastHonestWorkDay { get; init; }
+    public int LastPublicFacingWorkDay { get; init; }
     public Dictionary<string, int> SkillLevels { get; init; } = [];
     public Dictionary<string, int> NpcTrust { get; init; } = [];
     public Dictionary<string, int> NpcLastSeenDay { get; init; } = [];
+    public Dictionary<string, int> NpcLastFavorDay { get; init; } = [];
+    public Dictionary<string, int> NpcLastRefusalDay { get; init; } = [];
+    public Dictionary<string, bool> NpcHasUnpaidDebt { get; init; } = [];
+    public Dictionary<string, bool> NpcWasEmbarrassed { get; init; } = [];
+    public Dictionary<string, bool> NpcWasHelped { get; init; } = [];
+    public Dictionary<string, int> NpcRecentContactCount { get; init; } = [];
     public Dictionary<string, int> FactionReputation { get; init; } = [];
     public Dictionary<string, int> JobReliability { get; init; } = [];
     public Dictionary<string, int> JobShiftsCompleted { get; init; } = [];
     public Dictionary<string, int> JobLockoutUntilDay { get; init; } = [];
+    public Dictionary<string, int> RandomEventHistory { get; init; } = [];
     public Collection<string> StoryFlags { get; init; } = [];
 
     public static GameStateDto FromGameState(GameState gameState)
@@ -59,14 +71,26 @@ public sealed record GameStateDto
             PolicePressure = gameState.PolicePressure,
             TotalCrimeEarnings = gameState.TotalCrimeEarnings,
             CrimesCommitted = gameState.CrimesCommitted,
+            TotalHonestWorkEarnings = gameState.TotalHonestWorkEarnings,
+            HonestShiftsCompleted = gameState.HonestShiftsCompleted,
             DaysSurvived = gameState.DaysSurvived,
+            LastCrimeDay = gameState.LastCrimeDay,
+            LastHonestWorkDay = gameState.LastHonestWorkDay,
+            LastPublicFacingWorkDay = gameState.LastPublicFacingWorkDay,
             SkillLevels = gameState.Player.Skills.Levels.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value),
             NpcTrust = gameState.Relationships.NpcRelationships.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.Trust),
             NpcLastSeenDay = gameState.Relationships.NpcRelationships.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.LastSeenDay),
+            NpcLastFavorDay = gameState.Relationships.NpcRelationships.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.LastFavorDay),
+            NpcLastRefusalDay = gameState.Relationships.NpcRelationships.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.LastRefusalDay),
+            NpcHasUnpaidDebt = gameState.Relationships.NpcRelationships.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.HasUnpaidDebt),
+            NpcWasEmbarrassed = gameState.Relationships.NpcRelationships.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.WasEmbarrassed),
+            NpcWasHelped = gameState.Relationships.NpcRelationships.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.WasHelped),
+            NpcRecentContactCount = gameState.Relationships.NpcRelationships.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.RecentContactCount),
             FactionReputation = gameState.Relationships.FactionStandings.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.Reputation),
             JobReliability = gameState.JobProgress.Tracks.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.Reliability),
             JobShiftsCompleted = gameState.JobProgress.Tracks.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.ShiftsCompleted),
             JobLockoutUntilDay = gameState.JobProgress.Tracks.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.LockoutUntilDay),
+            RandomEventHistory = gameState.RandomEventHistory.ToDictionary(static pair => pair.Key, static pair => pair.Value),
             StoryFlags = new Collection<string>([.. gameState.StoryFlags])
         };
     }
@@ -91,6 +115,7 @@ public sealed record GameStateDto
         gameState.World.TravelTo(new LocationId(CurrentLocationId));
         gameState.SetPolicePressure(PolicePressure);
         gameState.SetCrimeCounters(TotalCrimeEarnings, CrimesCommitted);
+        gameState.SetWorkCounters(TotalHonestWorkEarnings, HonestShiftsCompleted, LastCrimeDay, LastHonestWorkDay, LastPublicFacingWorkDay);
         gameState.SetDaysSurvived(DaysSurvived);
         gameState.RestoreStoryFlags(StoryFlags);
 
@@ -100,6 +125,14 @@ public sealed record GameStateDto
             var trust = NpcTrust.GetValueOrDefault(key);
             var lastSeenDay = NpcLastSeenDay.GetValueOrDefault(key);
             gameState.Relationships.SetNpcRelationship(npcId, trust, lastSeenDay);
+            gameState.Relationships.SetNpcRelationshipMemory(
+                npcId,
+                NpcLastFavorDay.GetValueOrDefault(key),
+                NpcLastRefusalDay.GetValueOrDefault(key),
+                NpcHasUnpaidDebt.GetValueOrDefault(key),
+                NpcWasEmbarrassed.GetValueOrDefault(key),
+                NpcWasHelped.GetValueOrDefault(key),
+                NpcRecentContactCount.GetValueOrDefault(key));
         }
 
         foreach (var factionId in Enum.GetValues<FactionId>())
@@ -116,6 +149,11 @@ public sealed record GameStateDto
                 JobReliability.GetValueOrDefault(key, 50),
                 JobShiftsCompleted.GetValueOrDefault(key),
                 JobLockoutUntilDay.GetValueOrDefault(key));
+        }
+
+        foreach (var pair in RandomEventHistory)
+        {
+            gameState.RecordEventHistory(pair.Key, pair.Value);
         }
 
         return gameState;

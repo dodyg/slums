@@ -8,5 +8,8 @@ public enum EndingId
     StabilityHonestWork,
     CrimeKingpin,
     QuitTheLuxorDream,
-    Arrested
+    Arrested,
+    NetworkShelter,
+    LeavingCrime,
+    BuriedByHeat
 }

@@ -195,6 +195,11 @@ public sealed class InkNarrativeService : INarrativeService
             return;
         }
 
+        if (TryProcessRelationshipMemoryTag(key, valueStr))
+        {
+            return;
+        }
+
         if (!int.TryParse(valueStr, out var value))
         {
             return;
@@ -247,6 +252,51 @@ public sealed class InkNarrativeService : INarrativeService
         _currentStory.variablesState[variableName] = value;
     }
 
+    private bool TryProcessRelationshipMemoryTag(string key, string valueStr)
+    {
+        var npcParts = valueStr.Split(',', StringSplitOptions.TrimEntries);
+        if (npcParts.Length == 0 || !Enum.TryParse<NpcId>(npcParts[0], out var npcId))
+        {
+            return false;
+        }
+
+        switch (key)
+        {
+            case "FAVOR":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { FavorTarget = npcId });
+                return true;
+            case "REFUSAL":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { RefusalTarget = npcId });
+                return true;
+            case "DEBT":
+                if (npcParts.Length >= 2 && bool.TryParse(npcParts[1], out var debtState))
+                {
+                    _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { DebtTarget = npcId, DebtState = debtState });
+                    return true;
+                }
+
+                return false;
+            case "EMBARRASSED":
+                if (npcParts.Length >= 2 && bool.TryParse(npcParts[1], out var embarrassedState))
+                {
+                    _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { EmbarrassedTarget = npcId, EmbarrassedState = embarrassedState });
+                    return true;
+                }
+
+                return false;
+            case "HELPED":
+                if (npcParts.Length >= 2 && bool.TryParse(npcParts[1], out var helpedState))
+                {
+                    _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { HelpedTarget = npcId, HelpedState = helpedState });
+                    return true;
+                }
+
+                return false;
+            default:
+                return false;
+        }
+    }
+
     private static string LoadStoryResource()
     {
         var filesystemPath = System.IO.Path.Combine("content", "ink", "main.json");
@@ -288,7 +338,15 @@ public sealed class InkNarrativeService : INarrativeService
             NpcTrustTarget = next.NpcTrustTarget ?? existing.NpcTrustTarget,
             NpcTrustChange = existing.NpcTrustChange + next.NpcTrustChange,
             FactionTarget = next.FactionTarget ?? existing.FactionTarget,
-            FactionReputationChange = existing.FactionReputationChange + next.FactionReputationChange
+            FactionReputationChange = existing.FactionReputationChange + next.FactionReputationChange,
+            FavorTarget = next.FavorTarget ?? existing.FavorTarget,
+            RefusalTarget = next.RefusalTarget ?? existing.RefusalTarget,
+            DebtTarget = next.DebtTarget ?? existing.DebtTarget,
+            DebtState = next.DebtState ?? existing.DebtState,
+            EmbarrassedTarget = next.EmbarrassedTarget ?? existing.EmbarrassedTarget,
+            EmbarrassedState = next.EmbarrassedState ?? existing.EmbarrassedState,
+            HelpedTarget = next.HelpedTarget ?? existing.HelpedTarget,
+            HelpedState = next.HelpedState ?? existing.HelpedState
         };
     }
 

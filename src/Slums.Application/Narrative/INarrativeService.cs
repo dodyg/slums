@@ -34,4 +34,12 @@ public sealed record NarrativeOutcome
     public int NpcTrustChange { get; init; }
     public FactionId? FactionTarget { get; init; }
     public int FactionReputationChange { get; init; }
+    public NpcId? FavorTarget { get; init; }
+    public NpcId? RefusalTarget { get; init; }
+    public NpcId? DebtTarget { get; init; }
+    public bool? DebtState { get; init; }
+    public NpcId? EmbarrassedTarget { get; init; }
+    public bool? EmbarrassedState { get; init; }
+    public NpcId? HelpedTarget { get; init; }
+    public bool? HelpedState { get; init; }
 }

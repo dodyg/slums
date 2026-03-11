@@ -4,7 +4,7 @@ public sealed class RelationshipState
 {
     private readonly Dictionary<NpcId, NpcRelationship> _npcRelationships = Enum
         .GetValues<NpcId>()
-        .ToDictionary(static npcId => npcId, static npcId => new NpcRelationship(npcId, 0, 0));
+        .ToDictionary(static npcId => npcId, static npcId => new NpcRelationship(npcId));
 
     private readonly Dictionary<FactionId, FactionStanding> _factionStandings = Enum
         .GetValues<FactionId>()
@@ -26,7 +26,83 @@ public sealed class RelationshipState
 
     public void SetNpcRelationship(NpcId npcId, int trust, int lastSeenDay)
     {
-        _npcRelationships[npcId] = new NpcRelationship(npcId, trust, lastSeenDay);
+        var existing = GetNpcRelationship(npcId);
+        _npcRelationships[npcId] = existing with
+        {
+            Trust = trust,
+            LastSeenDay = lastSeenDay
+        };
+    }
+
+    public void SetNpcRelationshipMemory(
+        NpcId npcId,
+        int lastFavorDay,
+        int lastRefusalDay,
+        bool hasUnpaidDebt,
+        bool wasEmbarrassed,
+        bool wasHelped,
+        int recentContactCount)
+    {
+        var existing = GetNpcRelationship(npcId);
+        _npcRelationships[npcId] = existing with
+        {
+            LastFavorDay = Math.Max(0, lastFavorDay),
+            LastRefusalDay = Math.Max(0, lastRefusalDay),
+            HasUnpaidDebt = hasUnpaidDebt,
+            WasEmbarrassed = wasEmbarrassed,
+            WasHelped = wasHelped,
+            RecentContactCount = Math.Max(0, recentContactCount)
+        };
+    }
+
+    public void RecordFavor(NpcId npcId, int currentDay, bool hasUnpaidDebt = false)
+    {
+        var existing = GetNpcRelationship(npcId);
+        _npcRelationships[npcId] = existing with
+        {
+            LastFavorDay = Math.Max(0, currentDay),
+            HasUnpaidDebt = hasUnpaidDebt,
+            WasHelped = true,
+            RecentContactCount = existing.RecentContactCount + 1
+        };
+    }
+
+    public void RecordRefusal(NpcId npcId, int currentDay)
+    {
+        var existing = GetNpcRelationship(npcId);
+        _npcRelationships[npcId] = existing with
+        {
+            LastRefusalDay = Math.Max(0, currentDay),
+            RecentContactCount = existing.RecentContactCount + 1
+        };
+    }
+
+    public void SetDebtState(NpcId npcId, bool hasUnpaidDebt)
+    {
+        var existing = GetNpcRelationship(npcId);
+        _npcRelationships[npcId] = existing with { HasUnpaidDebt = hasUnpaidDebt };
+    }
+
+    public void SetEmbarrassedState(NpcId npcId, bool wasEmbarrassed)
+    {
+        var existing = GetNpcRelationship(npcId);
+        _npcRelationships[npcId] = existing with { WasEmbarrassed = wasEmbarrassed };
+    }
+
+    public void SetHelpedState(NpcId npcId, bool wasHelped)
+    {
+        var existing = GetNpcRelationship(npcId);
+        _npcRelationships[npcId] = existing with { WasHelped = wasHelped };
+    }
+
+    public void RecordContact(NpcId npcId, int currentDay)
+    {
+        var existing = GetNpcRelationship(npcId);
+        _npcRelationships[npcId] = existing with
+        {
+            LastSeenDay = Math.Max(existing.LastSeenDay, currentDay),
+            RecentContactCount = existing.RecentContactCount + 1
+        };
     }
 
     public void SetFactionStanding(FactionId factionId, int reputation)

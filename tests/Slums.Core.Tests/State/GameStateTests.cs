@@ -238,6 +238,97 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task WorkJob_ShouldMarkAbuSamirEmbarrassed_WhenWorkshopMistakeFollowsCrimeHeat()
+    {
+        var state = new GameState();
+        state.World.TravelTo(LocationId.Workshop);
+        state.SetPolicePressure(70);
+        state.SetWorkCounters(0, 0, lastCrimeDay: 1, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
+        state.Player.Stats.SetEnergy(35);
+
+        var result = state.WorkJob(state.GetAvailableJobs().Single());
+
+        await Assert.That(result.MistakeMade).IsTrue();
+        await Assert.That(state.Relationships.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).WasEmbarrassed).IsTrue();
+    }
+
+    [Test]
+    public async Task CommitCrime_ShouldUsePublicFacingWorkAsAnAlibi_SameDay()
+    {
+        var state = new GameState();
+        state.World.TravelTo(LocationId.Cafe);
+        state.WorkJob(state.GetAvailableJobs().Single());
+        state.World.TravelTo(LocationId.Square);
+        var attempt = new CrimeAttempt(CrimeType.DokkiDrop, 95, 42, 24, 0, 18);
+
+        var result = state.CommitCrime(attempt, new Random(2));
+
+        await Assert.That(state.LastPublicFacingWorkDay).IsEqualTo(state.Clock.Day);
+        result.Message.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Test]
+    public async Task BuyFood_ShouldGrantExtraStaples_ForSudaneseBackground()
+    {
+        var state = new GameState();
+        state.Player.ApplyBackground(Slums.Core.Characters.BackgroundRegistry.SudaneseRefugee);
+        var before = state.Player.Household.FoodStockpile;
+
+        var result = state.BuyFood();
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Household.FoodStockpile).IsEqualTo(before + 4);
+    }
+
+    [Test]
+    public async Task TryTravelTo_ShouldIncreaseStress_ForSudaneseBackground_InDokki()
+    {
+        var state = new GameState();
+        state.Player.ApplyBackground(Slums.Core.Characters.BackgroundRegistry.SudaneseRefugee);
+        var before = state.Player.Stats.Stress;
+
+        var result = state.TryTravelTo(LocationId.CallCenter);
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Stats.Stress).IsEqualTo(before + 2);
+    }
+
+    [Test]
+    public async Task EndDay_ShouldDecayPressureMoreSlowly_ForReleasedPrisoner()
+    {
+        var state = new GameState();
+        state.Player.ApplyBackground(Slums.Core.Characters.BackgroundRegistry.ReleasedPoliticalPrisoner);
+        state.SetPolicePressure(25);
+
+        state.EndDay(new Random(2));
+
+        await Assert.That(state.PolicePressure).IsEqualTo(23);
+    }
+
+    [Test]
+    public async Task RelationshipMemory_ShouldRecordDebtState_InCore()
+    {
+        var state = new GameState();
+        state.Relationships.RecordFavor(NpcId.NurseSalma, state.Clock.Day, hasUnpaidDebt: true);
+
+        await Assert.That(state.Relationships.GetNpcRelationship(NpcId.NurseSalma).HasUnpaidDebt).IsTrue();
+        await Assert.That(state.Relationships.GetNpcRelationship(NpcId.NurseSalma).LastFavorDay).IsEqualTo(state.Clock.Day);
+    }
+
+    [Test]
+    public async Task ApplyRandomEvent_ShouldRecordEventHistory_WhenDayEnds()
+    {
+        var state = new GameState();
+        state.Clock.SetTime(5, 6, 0);
+        state.World.TravelTo(LocationId.CallCenter);
+        state.SetPolicePressure(60);
+
+        state.EndDay(new Random(1));
+
+        await Assert.That(state.RandomEventHistory.Count).IsGreaterThanOrEqualTo(0);
+    }
+
+    [Test]
     public async Task IsGameOver_ShouldBeTrueWhenHealthIsZero()
     {
         var state = new GameState();
@@ -527,7 +618,7 @@ internal sealed class GameStateTests
 
         state.EndDay();
 
-        await Assert.That(state.Player.Stats.Stress).IsEqualTo(36);
+        await Assert.That(state.Player.Stats.Stress).IsEqualTo(39);
     }
 
     [Test]

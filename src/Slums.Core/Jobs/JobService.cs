@@ -218,12 +218,16 @@ public sealed class JobService
         var salmaTrust = relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust;
         if (salmaTrust >= 20 && track.Reliability >= 70)
         {
-            return CreateShiftVariant(baseShift, "Clinic Triage Support", "Cover intake and basic triage support when the hallway starts overflowing.", 11, 0, -3, 30, 0);
+            var payDelta = player.BackgroundType == BackgroundType.MedicalSchoolDropout ? 13 : 11;
+            var stressDelta = player.BackgroundType == BackgroundType.MedicalSchoolDropout ? -5 : -3;
+            return CreateShiftVariant(baseShift, "Clinic Triage Support", "Cover intake and basic triage support when the hallway starts overflowing.", payDelta, 0, stressDelta, 30, 0);
         }
 
-        if (salmaTrust >= 10 || player.Skills.GetLevel(SkillId.Medical) >= 2)
+        if (salmaTrust >= 10 || player.Skills.GetLevel(SkillId.Medical) >= 2 || player.BackgroundType == BackgroundType.MedicalSchoolDropout)
         {
-            return CreateShiftVariant(baseShift, "Clinic Intake Desk", "Take the intake desk and patient forms for the busier part of the morning.", 6, 0, -2, 0, 0);
+            var payDelta = player.BackgroundType == BackgroundType.MedicalSchoolDropout ? 8 : 6;
+            var stressDelta = player.BackgroundType == BackgroundType.MedicalSchoolDropout ? -4 : -2;
+            return CreateShiftVariant(baseShift, "Clinic Intake Desk", "Take the intake desk and patient forms for the busier part of the morning.", payDelta, 0, stressDelta, 0, 0);
         }
 
         return baseShift;
@@ -257,10 +261,32 @@ public sealed class JobService
 
         if (nadiaTrust >= 10 || player.Skills.GetLevel(SkillId.Persuasion) >= 2)
         {
-            return CreateShiftVariant(baseShift, "Cafe Rush Tables", "Take the evening rush when the tea keeps moving and the room never quiets down.", 5, 0, 2, 0, 0);
+            var rushShift = CreateShiftVariant(baseShift, "Cafe Rush Tables", "Take the evening rush when the tea keeps moving and the room never quiets down.", 5, 0, 2, 0, 0);
+            return ApplySudanesePenalty(player, rushShift);
         }
 
-        return baseShift;
+        return ApplySudanesePenalty(player, baseShift);
+    }
+
+    private static JobShift ApplySudanesePenalty(PlayerCharacter player, JobShift shift)
+    {
+        if (player.BackgroundType != BackgroundType.SudaneseRefugee)
+        {
+            return shift;
+        }
+
+        return new JobShift
+        {
+            Type = shift.Type,
+            Name = shift.Name,
+            Description = $"{shift.Description} The room reads your accent before it reads your effort.",
+            BasePay = Math.Max(0, shift.BasePay - 3),
+            EnergyCost = shift.EnergyCost,
+            StressCost = shift.StressCost + 2,
+            DurationMinutes = shift.DurationMinutes,
+            MinEnergyRequired = shift.MinEnergyRequired,
+            PayVariance = shift.PayVariance
+        };
     }
 
     private static JobShift CreateShiftVariant(JobShift baseShift, string name, string description, int payDelta, int energyDelta, int stressDelta, int durationDelta, int minEnergyDelta)

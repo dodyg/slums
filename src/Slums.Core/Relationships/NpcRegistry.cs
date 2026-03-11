@@ -68,24 +68,38 @@ public static class NpcRegistry
 
     public static string GetConversationKnot(NpcId npcId, RelationshipState relationshipState, int policePressure)
     {
+        return GetConversationKnot(npcId, relationshipState, policePressure, currentDay: 0, honestShiftsCompleted: 0, crimesCommitted: 0);
+    }
+
+    public static string GetConversationKnot(NpcId npcId, RelationshipState relationshipState, int policePressure, int currentDay, int honestShiftsCompleted, int crimesCommitted)
+    {
         ArgumentNullException.ThrowIfNull(relationshipState);
+
+        var relationship = relationshipState.GetNpcRelationship(npcId);
+        var maintainingDoubleLife = honestShiftsCompleted >= 3 && crimesCommitted > 0;
 
         return npcId switch
         {
-            NpcId.LandlordHajjMahmoud when relationshipState.GetNpcRelationship(npcId).Trust <= -15 => "landlord_rent_negotiation_hostile",
-            NpcId.LandlordHajjMahmoud when relationshipState.GetNpcRelationship(npcId).Trust >= 15 => "landlord_rent_negotiation_warm",
+            NpcId.LandlordHajjMahmoud when relationship.Trust <= -15 => "landlord_rent_negotiation_hostile",
+            NpcId.LandlordHajjMahmoud when relationship.Trust >= 15 => "landlord_rent_negotiation_warm",
             NpcId.LandlordHajjMahmoud => "landlord_rent_negotiation",
+            NpcId.FixerUmmKarim when relationship.LastRefusalDay > 0 && currentDay - relationship.LastRefusalDay <= 3 => "fixer_recent_refusal",
             NpcId.FixerUmmKarim when relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation >= 15 => "fixer_repeat_contact",
             NpcId.FixerUmmKarim => "fixer_first_contact",
             NpcId.OfficerKhalid when policePressure >= 70 => "officer_checkpoint_hot",
             NpcId.OfficerKhalid => "officer_checkpoint",
-            NpcId.NeighborMona when relationshipState.GetNpcRelationship(npcId).Trust >= 15 => "neighbor_mona_warm",
+            NpcId.NeighborMona when relationship.WasHelped => "neighbor_mona_helped",
+            NpcId.NeighborMona when relationship.Trust >= 15 => "neighbor_mona_warm",
             NpcId.NeighborMona => "neighbor_mona",
-            NpcId.NurseSalma when relationshipState.GetNpcRelationship(npcId).Trust >= 15 => "nurse_salma_warm",
+            NpcId.NurseSalma when relationship.HasUnpaidDebt => "nurse_salma_debt",
+            NpcId.NurseSalma when maintainingDoubleLife => "nurse_salma_suspicious",
+            NpcId.NurseSalma when relationship.Trust >= 15 => "nurse_salma_warm",
             NpcId.NurseSalma => "nurse_salma",
-            NpcId.WorkshopBossAbuSamir when relationshipState.GetNpcRelationship(npcId).Trust >= 15 => "abu_samir_warm",
+            NpcId.WorkshopBossAbuSamir when relationship.WasEmbarrassed => "abu_samir_embarrassed",
+            NpcId.WorkshopBossAbuSamir when relationship.Trust >= 15 => "abu_samir_warm",
             NpcId.WorkshopBossAbuSamir => "abu_samir",
-            NpcId.CafeOwnerNadia when relationshipState.GetNpcRelationship(npcId).Trust >= 15 => "nadia_cafe_warm",
+            NpcId.CafeOwnerNadia when maintainingDoubleLife => "nadia_cafe_double_life",
+            NpcId.CafeOwnerNadia when relationship.Trust >= 15 => "nadia_cafe_warm",
             NpcId.CafeOwnerNadia => "nadia_cafe",
             NpcId.FenceHanan when relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation >= 15 => "hanan_fence_warm",
             NpcId.FenceHanan => "hanan_fence",

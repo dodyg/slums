@@ -78,6 +78,7 @@ public sealed class JsonContentRepository : IContentRepository
                 EnergyChange = definition.EnergyChange,
                 HungerChange = definition.HungerChange,
                 StressChange = definition.StressChange,
+                PolicePressureChange = definition.PolicePressureChange,
                 MotherHealthChange = definition.MotherHealthChange,
                 FoodChange = definition.FoodChange,
                 InkKnot = definition.InkKnot
@@ -100,6 +101,12 @@ public sealed class JsonContentRepository : IContentRepository
             "at_clinic" => static state => state.World.CurrentLocationId == LocationId.Clinic,
             "at_workshop" => static state => state.World.CurrentLocationId == LocationId.Workshop,
             "at_cafe" => static state => state.World.CurrentLocationId == LocationId.Cafe,
+            "in_dokki" => static state => state.World.CurrentDistrict == DistrictId.Dokki,
+            "in_ard_al_liwa" => static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa,
+            "dokki_checkpoint_seen" => static state => state.GetEventCount("DokkiCheckpointSweep") > 0,
+            "imbaba_stressed" => static state => state.World.CurrentDistrict == DistrictId.Imbaba && state.Player.Stats.Stress >= 35,
+            "ard_al_liwa_low_money" => static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa && state.Player.Stats.Money < 120,
+            "sudanese_refugee_home" => static state => state.Player.BackgroundType == BackgroundType.SudaneseRefugee && state.World.CurrentDistrict == DistrictId.Imbaba,
             _ => null
         };
     }

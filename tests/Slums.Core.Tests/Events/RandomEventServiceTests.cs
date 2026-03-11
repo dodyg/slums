@@ -49,5 +49,25 @@ internal sealed class RandomEventServiceTests
         eventIds.Should().Contain("ClinicOverflow");
         eventIds.Should().Contain("WorkshopRushOrder");
         eventIds.Should().Contain("CafeSpill");
+        eventIds.Should().Contain("NeighborhoodSolidarity");
+        eventIds.Should().Contain("DokkiCheckpointSweep");
+        eventIds.Should().Contain("DokkiTransportFriction");
+        eventIds.Should().Contain("ClinicSupplyShortage");
+        eventIds.Should().Contain("ArdAlLiwaWorkshopSolidarity");
+    }
+
+    [Test]
+    public void RollDailyEvents_ShouldAllowDokkiCheckpointSweep_WhenInDokki()
+    {
+        var service = new RandomEventService();
+        var state = new GameState();
+        state.Clock.SetTime(6, 6, 0);
+        state.World.TravelTo(Slums.Core.World.LocationId.CallCenter);
+        state.SetPolicePressure(50);
+
+        var events = service.RollDailyEvents(state, new Random(1));
+
+        RandomEventRegistry.AllEvents.Single(static current => current.Id == "DokkiCheckpointSweep").Condition!(state).Should().BeTrue();
+        events.Should().NotBeNull();
     }
 }

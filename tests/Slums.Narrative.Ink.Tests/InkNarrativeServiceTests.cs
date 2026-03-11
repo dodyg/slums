@@ -173,4 +173,37 @@ internal sealed class InkNarrativeServiceTests
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Umm Karim does not raise her voice");
     }
+
+    [Test]
+    public void StartScene_ShouldLoadNpcMemoryVariant()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("nurse_salma_debt", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("Salma does not mention the medicine");
+    }
+
+    [Test]
+    public void StartScene_ShouldLoadDistrictEventScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("event_dokki_checkpoint_sweep", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("checkpoint appears");
+    }
+
+    [Test]
+    public void StartScene_ShouldLoadExpandedEndingScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        service.StartScene("ending_network_shelter", new GameState());
+
+        service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("difficult to erase");
+    }
 }

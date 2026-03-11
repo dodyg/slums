@@ -66,7 +66,14 @@ internal sealed class TalkScreen : ScreenSurface
         if (keyboard.IsKeyPressed(Keys.Enter))
         {
             var npcId = _npcs[_selectedIndex];
-            var knotName = NpcRegistry.GetConversationKnot(npcId, _gameState.Relationships, _gameState.PolicePressure);
+            _gameState.Relationships.RecordContact(npcId, _gameState.Clock.Day);
+            var knotName = NpcRegistry.GetConversationKnot(
+                npcId,
+                _gameState.Relationships,
+                _gameState.PolicePressure,
+                _gameState.Clock.Day,
+                _gameState.HonestShiftsCompleted,
+                _gameState.CrimesCommitted);
             _runtime.NarrativeService.StartScene(knotName, _gameState);
             IsFocused = false;
             GameHost.Instance.Screen = new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, _parentScreen);

@@ -71,5 +71,55 @@
     "MoneyChange": 10,
     "StressChange": 3,
     "InkKnot": "event_cafe_spill"
+  },
+  {
+    "Id": "NeighborhoodSolidarity",
+    "Description": "Women in the stairwell quietly route food, warnings, and spare change where they are needed most.",
+    "MinDay": 5,
+    "Weight": 8,
+    "ConditionId": "imbaba_stressed",
+    "FoodChange": 1,
+    "StressChange": -4,
+    "InkKnot": "event_neighborhood_solidarity"
+  },
+  {
+    "Id": "DokkiCheckpointSweep",
+    "Description": "A checkpoint sweep in Dokki turns every crossing into a test of tone, paperwork, and luck.",
+    "MinDay": 5,
+    "Weight": 9,
+    "ConditionId": "in_dokki",
+    "StressChange": 7,
+    "PolicePressureChange": 6,
+    "InkKnot": "event_dokki_checkpoint_sweep"
+  },
+  {
+    "Id": "DokkiTransportFriction",
+    "Description": "Microbuses stall, routes break, and half the district arrives late and irritated.",
+    "MinDay": 5,
+    "Weight": 7,
+    "ConditionId": "dokki_checkpoint_seen",
+    "EnergyChange": -6,
+    "StressChange": 4,
+    "InkKnot": "event_dokki_transport_friction"
+  },
+  {
+    "Id": "ClinicSupplyShortage",
+    "Description": "Rahma Clinic runs thin on basics, which means tempers rise before noon.",
+    "MinDay": 5,
+    "Weight": 7,
+    "ConditionId": "at_clinic",
+    "MoneyChange": -8,
+    "StressChange": 5,
+    "InkKnot": "event_clinic_supply_shortage"
+  },
+  {
+    "Id": "ArdAlLiwaWorkshopSolidarity",
+    "Description": "Someone in Ard al-Liwa passes work down the line instead of hoarding it for herself.",
+    "MinDay": 5,
+    "Weight": 8,
+    "ConditionId": "ard_al_liwa_low_money",
+    "MoneyChange": 16,
+    "StressChange": -3,
+    "InkKnot": "event_ardalliwa_solidarity"
   }
 ]

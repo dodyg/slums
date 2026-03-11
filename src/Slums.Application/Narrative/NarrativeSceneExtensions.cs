@@ -66,6 +66,31 @@ public static class NarrativeSceneExtensions
             state.ModifyNpcTrust(outcome.NpcTrustTarget.Value, outcome.NpcTrustChange);
         }
 
+        if (outcome.FavorTarget is not null)
+        {
+            state.Relationships.RecordFavor(outcome.FavorTarget.Value, state.Clock.Day, outcome.DebtState == true);
+        }
+
+        if (outcome.RefusalTarget is not null)
+        {
+            state.Relationships.RecordRefusal(outcome.RefusalTarget.Value, state.Clock.Day);
+        }
+
+        if (outcome.DebtTarget is not null && outcome.DebtState is not null)
+        {
+            state.Relationships.SetDebtState(outcome.DebtTarget.Value, outcome.DebtState.Value);
+        }
+
+        if (outcome.EmbarrassedTarget is not null && outcome.EmbarrassedState is not null)
+        {
+            state.Relationships.SetEmbarrassedState(outcome.EmbarrassedTarget.Value, outcome.EmbarrassedState.Value);
+        }
+
+        if (outcome.HelpedTarget is not null && outcome.HelpedState is not null)
+        {
+            state.Relationships.SetHelpedState(outcome.HelpedTarget.Value, outcome.HelpedState.Value);
+        }
+
         if (outcome.FactionTarget is not null && outcome.FactionReputationChange != 0)
         {
             state.ModifyFactionReputation(outcome.FactionTarget.Value, outcome.FactionReputationChange);

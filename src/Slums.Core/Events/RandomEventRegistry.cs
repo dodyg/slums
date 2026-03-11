@@ -61,7 +61,42 @@ public static class RandomEventRegistry
             new RandomEventEffect { MoneyChange = 10, StressChange = 3, InkKnot = "event_cafe_spill" },
             4,
             6,
-            static state => state.World.CurrentLocationId == LocationId.Cafe)
+            static state => state.World.CurrentLocationId == LocationId.Cafe),
+        new(
+            "NeighborhoodSolidarity",
+            "Women in the stairwell quietly route food, warnings, and spare change where they are needed most.",
+            new RandomEventEffect { FoodChange = 1, StressChange = -4, InkKnot = "event_neighborhood_solidarity" },
+            5,
+            8,
+            static state => state.World.CurrentDistrict == DistrictId.Imbaba && state.Player.Stats.Stress >= 35),
+        new(
+            "DokkiCheckpointSweep",
+            "A checkpoint sweep in Dokki turns every crossing into a test of tone, paperwork, and luck.",
+            new RandomEventEffect { StressChange = 7, PolicePressureChange = 6, InkKnot = "event_dokki_checkpoint_sweep" },
+            5,
+            9,
+            static state => state.World.CurrentDistrict == DistrictId.Dokki && state.PolicePressure >= 35),
+        new(
+            "DokkiTransportFriction",
+            "Microbuses stall, routes break, and half the district arrives late and irritated.",
+            new RandomEventEffect { EnergyChange = -6, StressChange = 4, InkKnot = "event_dokki_transport_friction" },
+            5,
+            7,
+            static state => state.World.CurrentDistrict == DistrictId.Dokki && state.GetEventCount("DokkiCheckpointSweep") > 0),
+        new(
+            "ClinicSupplyShortage",
+            "Rahma Clinic runs thin on basics, which means tempers rise before noon.",
+            new RandomEventEffect { StressChange = 5, MoneyChange = -8, InkKnot = "event_clinic_supply_shortage" },
+            5,
+            7,
+            static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa && state.World.CurrentLocationId == LocationId.Clinic),
+        new(
+            "ArdAlLiwaWorkshopSolidarity",
+            "Someone in Ard al-Liwa passes work down the line instead of hoarding it for herself.",
+            new RandomEventEffect { MoneyChange = 16, StressChange = -3, InkKnot = "event_ardalliwa_solidarity" },
+            5,
+            8,
+            static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa && state.Player.Stats.Money < 120)
     ];
 
     private static IReadOnlyList<RandomEvent> _events = DefaultEvents;

@@ -19,6 +19,7 @@ public sealed class GameState
     private readonly RandomEventService _randomEventService = new();
     private readonly Queue<string> _pendingNarrativeScenes = new();
     private readonly HashSet<string> _storyFlags = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, int> _randomEventHistory = new(StringComparer.OrdinalIgnoreCase);
     private bool _crimeCommittedToday;
 
     public Guid RunId { get; private set; } = Guid.NewGuid();
@@ -34,8 +35,14 @@ public sealed class GameState
     public int PolicePressure { get; private set; }
     public int TotalCrimeEarnings { get; private set; }
     public int CrimesCommitted { get; private set; }
+    public int TotalHonestWorkEarnings { get; private set; }
+    public int HonestShiftsCompleted { get; private set; }
     public int DaysSurvived { get; private set; }
+    public int LastCrimeDay { get; private set; }
+    public int LastHonestWorkDay { get; private set; }
+    public int LastPublicFacingWorkDay { get; private set; }
     public IReadOnlyCollection<string> StoryFlags => _storyFlags;
+    public IReadOnlyDictionary<string, int> RandomEventHistory => _randomEventHistory;
     public string? PendingEndingKnot { get; private set; }
 
     public event EventHandler<GameEventArgs>? GameEvent;
@@ -117,7 +124,14 @@ public sealed class GameState
 
         if (!_crimeCommittedToday && PolicePressure > 0)
         {
-            SetPolicePressure(PolicePressure - 5);
+            var pressureDecay = Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner ? 2 : 5;
+            SetPolicePressure(PolicePressure - pressureDecay);
+        }
+
+        if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout && Player.Household.MotherHealth < 60)
+        {
+            Player.Stats.ModifyStress(3);
+            RaiseEvent("Your training makes it harder to ignore every sign your mother's health is slipping.");
         }
 
         Clock.AdvanceToNextDay();
@@ -167,6 +181,12 @@ public sealed class GameState
 
         Player.Stats.ModifyMoney(-RecurringExpenses.TravelCost);
         Player.Stats.ModifyEnergy(-5);
+        if (Player.BackgroundType == BackgroundType.SudaneseRefugee && location.District == DistrictId.Dokki)
+        {
+            Player.Stats.ModifyStress(2);
+            RaiseEvent("Dokki's questions land harder when your accent gets there before your name does.");
+        }
+
         AdvanceTime(location.TravelTimeMinutes);
         World.TravelTo(locationId);
 
@@ -189,6 +209,13 @@ public sealed class GameState
         if (result.Success)
         {
             TotalCrimeEarnings += 0;
+            TotalHonestWorkEarnings += result.MoneyEarned;
+            HonestShiftsCompleted++;
+            LastHonestWorkDay = Clock.Day;
+            if (IsPublicFacingJob(job.Type))
+            {
+                LastPublicFacingWorkDay = Clock.Day;
+            }
             AdvanceTime(job.DurationMinutes);
             if (!result.MistakeMade)
             {
@@ -199,6 +226,9 @@ public sealed class GameState
             {
                 ModifyEmployerTrust(job.Type, -4);
             }
+
+            ApplyWorkCrimeSpillover(job, result);
+            ApplyBackgroundWorkFlavor(job, result);
 
             RaiseEvent(result.Message);
         }
@@ -230,16 +260,35 @@ public sealed class GameState
             return [];
         }
 
-        return CrimeRegistry.GetAvailableCrimes(location, Relationships);
+        var crimes = CrimeRegistry.GetAvailableCrimes(location, Relationships).ToList();
+
+        if (location.Id == LocationId.Square &&
+            crimes.All(static attempt => attempt.Type != CrimeType.DokkiDrop) &&
+            (JobProgress.GetTrack(JobType.CallCenterWork).Reliability >= 60 || JobProgress.GetTrack(JobType.CafeService).Reliability >= 60))
+        {
+            crimes.Add(new CrimeAttempt(CrimeType.DokkiDrop, 95, 42, 24, 0, 18));
+        }
+
+        if (location.Id == LocationId.Market &&
+            crimes.All(static attempt => attempt.Type != CrimeType.NetworkErrand) &&
+            Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner &&
+            Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation >= 10)
+        {
+            crimes.Add(new CrimeAttempt(CrimeType.NetworkErrand, 130, 48, 28, 0, 24));
+        }
+
+        return crimes;
     }
 
     public CrimeResult CommitCrime(CrimeAttempt attempt, Random? random = null)
     {
         ArgumentNullException.ThrowIfNull(attempt);
 
-        var result = _crimeService.AttemptCrime(attempt, Player, PolicePressure, random ?? new Random());
+        var modifiedAttempt = ApplyCrimeModifiers(attempt);
+        var result = _crimeService.AttemptCrime(modifiedAttempt, Player, PolicePressure, random ?? new Random());
         Player.Stats.ModifyEnergy(-result.EnergyCost);
         Player.Stats.ModifyStress(result.StressCost);
+        LastCrimeDay = Clock.Day;
 
         if (result.Success)
         {
@@ -248,6 +297,10 @@ public sealed class GameState
             CrimesCommitted++;
             ApplySkillGain(SkillId.StreetSmarts);
             ModifyFactionReputation(FactionId.ImbabaCrew, 4);
+            if (Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner)
+            {
+                ModifyFactionReputation(FactionId.ExPrisonerNetwork, 5);
+            }
             if (!HasStoryFlag("crime_first_success"))
             {
                 SetStoryFlag("crime_first_success");
@@ -283,6 +336,12 @@ public sealed class GameState
 
         Player.Stats.ModifyMoney(-RecurringExpenses.CheapFoodStockpile);
         Player.Household.AddStaples(3);
+        if (Player.BackgroundType == BackgroundType.SudaneseRefugee)
+        {
+            Player.Household.AddStaples(1);
+            RaiseEvent("A Sudanese women-led kitchen stretches the bread run a little farther for you.");
+        }
+
         RaiseEvent($"Bought food supplies for {RecurringExpenses.CheapFoodStockpile} LE. Stockpile: {Player.Household.FoodStockpile}");
         return true;
     }
@@ -592,6 +651,35 @@ public sealed class GameState
         CrimesCommitted = Math.Max(0, crimesCommitted);
     }
 
+    public void SetWorkCounters(int totalHonestWorkEarnings, int honestShiftsCompleted, int lastCrimeDay, int lastHonestWorkDay, int lastPublicFacingWorkDay)
+    {
+        TotalHonestWorkEarnings = Math.Max(0, totalHonestWorkEarnings);
+        HonestShiftsCompleted = Math.Max(0, honestShiftsCompleted);
+        LastCrimeDay = Math.Max(0, lastCrimeDay);
+        LastHonestWorkDay = Math.Max(0, lastHonestWorkDay);
+        LastPublicFacingWorkDay = Math.Max(0, lastPublicFacingWorkDay);
+    }
+
+    public void RecordEventHistory(string eventId, int count)
+    {
+        if (string.IsNullOrWhiteSpace(eventId))
+        {
+            return;
+        }
+
+        _randomEventHistory[eventId] = Math.Max(0, count);
+    }
+
+    public int GetEventCount(string eventId)
+    {
+        if (string.IsNullOrWhiteSpace(eventId))
+        {
+            return 0;
+        }
+
+        return _randomEventHistory.GetValueOrDefault(eventId);
+    }
+
     public void RestoreJobTrack(JobType jobType, int reliability, int shiftsCompleted, int lockoutUntilDay)
     {
         JobProgress.RestoreTrack(jobType, reliability, shiftsCompleted, lockoutUntilDay);
@@ -627,9 +715,92 @@ public sealed class GameState
         }
     }
 
+    private void ApplyWorkCrimeSpillover(JobShift job, JobResult result)
+    {
+        if (Clock.Day - LastCrimeDay > 1 || LastCrimeDay == 0)
+        {
+            return;
+        }
+
+        if (PolicePressure >= 60 && IsPublicFacingJob(job.Type))
+        {
+            Player.Stats.ModifyStress(4);
+            ModifyEmployerTrust(job.Type, -2);
+            RaiseEvent("The street heat follows you into work. People notice how tense you look.");
+        }
+
+        if (result.MistakeMade && job.Type == JobType.WorkshopSewing)
+        {
+            Relationships.SetEmbarrassedState(NpcId.WorkshopBossAbuSamir, true);
+            Relationships.RecordRefusal(NpcId.WorkshopBossAbuSamir, Clock.Day);
+        }
+    }
+
+    private void ApplyBackgroundWorkFlavor(JobShift job, JobResult result)
+    {
+        if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout &&
+            job.Type == JobType.ClinicReception &&
+            result.Success &&
+            !HasStoryFlag("background_medical_clinic_seen"))
+        {
+            SetStoryFlag("background_medical_clinic_seen");
+            QueueNarrativeScene("background_medical_clinic");
+        }
+
+        if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout &&
+            job.Type == JobType.ClinicReception &&
+            result.Success &&
+            Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust >= 12 &&
+            Player.Household.MotherHealth < 65)
+        {
+            Relationships.RecordFavor(NpcId.NurseSalma, Clock.Day, hasUnpaidDebt: true);
+            RaiseEvent("Nurse Salma quietly covers a little medicine for your mother. You owe her now.");
+        }
+    }
+
+    private CrimeAttempt ApplyCrimeModifiers(CrimeAttempt attempt)
+    {
+        var modifiedAttempt = attempt;
+
+        if (LastPublicFacingWorkDay == Clock.Day)
+        {
+            modifiedAttempt = modifiedAttempt with
+            {
+                DetectionRisk = Math.Max(5, modifiedAttempt.DetectionRisk - 8),
+                PolicePressureIncrease = Math.Max(1, modifiedAttempt.PolicePressureIncrease - 4)
+            };
+
+            RaiseEvent("The shift you worked today gives you a thin alibi and a cleaner reason to be seen moving.");
+        }
+
+        if (Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner)
+        {
+            modifiedAttempt = modifiedAttempt with
+            {
+                DetectionRisk = Math.Min(95, modifiedAttempt.DetectionRisk + 5),
+                PolicePressureIncrease = modifiedAttempt.PolicePressureIncrease + 5
+            };
+
+            if (!HasStoryFlag("background_prisoner_heat_seen"))
+            {
+                SetStoryFlag("background_prisoner_heat_seen");
+                QueueNarrativeScene("background_prisoner_heat");
+            }
+        }
+
+        return modifiedAttempt;
+    }
+
+    private static bool IsPublicFacingJob(JobType jobType)
+    {
+        return jobType is JobType.CallCenterWork or JobType.ClinicReception or JobType.CafeService;
+    }
+
     private void ApplyRandomEvent(RandomEvent randomEvent)
     {
         ArgumentNullException.ThrowIfNull(randomEvent);
+
+        RecordEventHistory(randomEvent.Id, GetEventCount(randomEvent.Id) + 1);
 
         var effect = randomEvent.Effect;
         if (effect.MoneyChange != 0)
@@ -658,6 +829,11 @@ public sealed class GameState
             Player.Stats.ModifyStress(effect.StressChange);
         }
 
+        if (effect.PolicePressureChange != 0)
+        {
+            SetPolicePressure(PolicePressure + effect.PolicePressureChange);
+        }
+
         if (effect.MotherHealthChange != 0)
         {
             Player.Household.UpdateMotherHealth(effect.MotherHealthChange);
@@ -676,6 +852,15 @@ public sealed class GameState
         }
 
         RaiseEvent(randomEvent.Description);
+
+        if (Player.BackgroundType == BackgroundType.SudaneseRefugee &&
+            randomEvent.Id == "NeighborhoodSolidarity" &&
+            !HasStoryFlag("background_sudanese_solidarity_seen"))
+        {
+            SetStoryFlag("background_sudanese_solidarity_seen");
+            QueueNarrativeScene("background_sudanese_solidarity");
+        }
+
         if (!string.IsNullOrWhiteSpace(effect.InkKnot))
         {
             QueueNarrativeScene(effect.InkKnot);
