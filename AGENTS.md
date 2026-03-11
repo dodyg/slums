@@ -154,6 +154,11 @@ This project uses SadConsole with the SFML host, which depends on CSFML native l
 - Builds and runs without issues on x86-64 Windows
 - CSFML native libraries are correctly resolved
 
+**Windows on ARM64:**
+- `Slums.Game` must run against the x64 .NET host because CSFML does not provide ARM64 Windows binaries in this setup
+- The game project defaults to `RuntimeIdentifier=win-x64` and `PlatformTarget=x64` when `PROCESSOR_ARCHITECTURE=ARM64`
+- Use `dotnet run --project .\src\Slums.Game\Slums.Game.csproj` from the repo root or `dotnet run` from `src/Slums.Game`; both should resolve to the x64 runtime automatically
+
 **WSL Linux on ARM64 (e.g., Apple Silicon with Parallels, Snapdragon Windows):**
 - Build succeeds but may produce warning `NETSDK1206` about `fedora-x64` runtime identifiers
 - This is a warning only and does not prevent building or running tests

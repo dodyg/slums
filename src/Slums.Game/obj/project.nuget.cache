@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "it5vfOm333o=",
+  "dgSpecHash": "DFu++fz7j9Y=",
   "success": true,
   "projectFilePath": "D:\\GitHub\\slums\\src\\Slums.Game\\Slums.Game.csproj",
   "expectedPackageFiles": [
@@ -44,7 +44,8 @@
     "C:\\Users\\dodyg\\.nuget\\packages\\sfml.window\\2.6.1\\sfml.window.2.6.1.nupkg.sha512",
     "C:\\Users\\dodyg\\.nuget\\packages\\system.diagnostics.eventlog\\9.0.0\\system.diagnostics.eventlog.9.0.0.nupkg.sha512",
     "C:\\Users\\dodyg\\.nuget\\packages\\thesadrogue.primitives\\1.6.0\\thesadrogue.primitives.1.6.0.nupkg.sha512",
-    "C:\\Users\\dodyg\\.nuget\\packages\\thesadrogue.primitives.sfml\\1.1.1\\thesadrogue.primitives.sfml.1.1.1.nupkg.sha512"
+    "C:\\Users\\dodyg\\.nuget\\packages\\thesadrogue.primitives.sfml\\1.1.1\\thesadrogue.primitives.sfml.1.1.1.nupkg.sha512",
+    "C:\\Users\\dodyg\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\10.0.4\\microsoft.netcore.app.host.win-x64.10.0.4.nupkg.sha512"
   ],
   "logs": []
 }

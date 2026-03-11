@@ -3,6 +3,10 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>Slums.Game</RootNamespace>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(OS)' == 'Windows_NT' and '$(PROCESSOR_ARCHITECTURE)' == 'ARM64'">win-x64</RuntimeIdentifier>
+    <PlatformTarget Condition="'$(PlatformTarget)' == '' and '$(OS)' == 'Windows_NT' and '$(PROCESSOR_ARCHITECTURE)' == 'ARM64'">x64</PlatformTarget>
+    <WindowsNativeRuntimeIdentifier>win-x64</WindowsNativeRuntimeIdentifier>
+    <WindowsNativeRuntimeIdentifier Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</WindowsNativeRuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,10 +23,10 @@
     <PackageReference Include="SadConsole.Host.SFML" />
   </ItemGroup>
 
-  <!-- Copy CSFML native DLLs to output root so the runtime can find them on Windows -->
-  <Target Name="CopyCsfmlNative" AfterTargets="Build">
+  <!-- Force the Windows-native CSFML DLLs into the app root so SFML can resolve them at startup. -->
+  <Target Name="CopyCsfmlNative" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
     <ItemGroup>
-      <CsfmlNative Include="$(OutputPath)runtimes\win-x64\native\*.dll" />
+      <CsfmlNative Include="$(OutputPath)runtimes\$(WindowsNativeRuntimeIdentifier)\native\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(CsfmlNative)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
   </Target>
