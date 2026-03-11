@@ -54,5 +54,25 @@ public static class NarrativeSceneExtensions
                 }
             }
         }
+
+        if (!string.IsNullOrWhiteSpace(outcome.SetFlag))
+        {
+            state.SetStoryFlag(outcome.SetFlag);
+        }
+
+        if (outcome.NpcTrustTarget is not null && outcome.NpcTrustChange != 0)
+        {
+            state.ModifyNpcTrust(outcome.NpcTrustTarget.Value, outcome.NpcTrustChange);
+        }
+
+        if (outcome.FactionTarget is not null && outcome.FactionReputationChange != 0)
+        {
+            state.ModifyFactionReputation(outcome.FactionTarget.Value, outcome.FactionReputationChange);
+        }
+
+        if (!string.IsNullOrWhiteSpace(outcome.Message))
+        {
+            state.AddEventMessage(outcome.Message);
+        }
     }
 }

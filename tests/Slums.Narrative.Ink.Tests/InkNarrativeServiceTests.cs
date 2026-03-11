@@ -8,7 +8,7 @@ namespace Slums.Narrative.Ink.Tests;
 internal sealed class InkNarrativeServiceTests
 {
     [Test]
-    public void StartScene_ShouldLoadMedicalIntroChoices()
+    public void StartScene_ShouldLoadMedicalIntroText()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
         var state = new GameState();
@@ -21,7 +21,7 @@ internal sealed class InkNarrativeServiceTests
     }
 
     [Test]
-    public void SelectChoice_ShouldAdvanceTheStory()
+    public void SelectChoice_ShouldEndScene_WhenCompiledStoryCannotAdvanceChoice()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
         var state = new GameState();
@@ -29,10 +29,9 @@ internal sealed class InkNarrativeServiceTests
 
         service.SelectChoice(0);
 
-        service.CurrentText.Should().Contain("You kneel beside her mattress.");
-        service.CurrentChoices.Should().ContainInOrder(
-            "Use your medical knowledge to help her",
-            "Promise to find the money for a real doctor");
+        service.IsSceneActive.Should().BeFalse();
+        service.CurrentText.Should().BeNull();
+        service.CurrentChoices.Should().BeEmpty();
     }
 
     [Test]

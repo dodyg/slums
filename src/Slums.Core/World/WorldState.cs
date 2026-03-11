@@ -16,7 +16,7 @@ public sealed class WorldState
     public DistrictId CurrentDistrict { get; private set; } = DistrictId.Imbaba;
     public LocationId CurrentLocationId { get; private set; } = LocationId.Home;
 
-    private static readonly Location[] Locations =
+    private static readonly Location[] DefaultLocations =
     [
         new Location
         {
@@ -70,26 +70,39 @@ public sealed class WorldState
         }
     ];
 
-    public static IReadOnlyList<Location> AllLocations => Locations;
+    private static IReadOnlyList<Location> _locations = DefaultLocations;
+
+    public static IReadOnlyList<Location> AllLocations => _locations;
+
+    public static void ConfigureLocations(IEnumerable<Location> locations)
+    {
+        ArgumentNullException.ThrowIfNull(locations);
+
+        var configuredLocations = locations.Where(static location => location is not null).ToArray();
+        if (configuredLocations.Length > 0)
+        {
+            _locations = configuredLocations;
+        }
+    }
 
     public Location? GetCurrentLocation()
     {
-        return Array.Find(Locations, l => l.Id == CurrentLocationId);
+        return _locations.FirstOrDefault(l => l.Id == CurrentLocationId);
     }
 
     public IEnumerable<Location> GetLocationsInCurrentDistrict()
     {
-        return Locations.Where(l => l.District == CurrentDistrict);
+        return _locations.Where(l => l.District == CurrentDistrict);
     }
 
     public IEnumerable<Location> GetTravelableLocations()
     {
-        return Locations.Where(l => l.Id != CurrentLocationId);
+        return _locations.Where(l => l.Id != CurrentLocationId);
     }
 
     public void TravelTo(LocationId locationId)
     {
-        var location = Locations.FirstOrDefault(l => l.Id == locationId);
+        var location = _locations.FirstOrDefault(l => l.Id == locationId);
         if (location is not null)
         {
             CurrentLocationId = locationId;

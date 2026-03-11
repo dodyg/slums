@@ -1,0 +1,44 @@
+[
+  {
+    "Id": "MotherHealthScare",
+    "Description": "Your mother has a bad morning and needs extra care.",
+    "MinDay": 3,
+    "Weight": 10,
+    "ConditionId": "mother_health_below_50",
+    "MotherHealthChange": -10,
+    "InkKnot": "event_mother_health_scare"
+  },
+  {
+    "Id": "NeighborhoodRumor",
+    "Description": "Rumors spread that the police are asking questions in the neighborhood.",
+    "MinDay": 3,
+    "Weight": 12,
+    "ConditionId": "high_police_pressure",
+    "StressChange": 10,
+    "InkKnot": "event_neighborhood_rumor"
+  },
+  {
+    "Id": "UnexpectedWork",
+    "Description": "A neighbor offers a quick errand for cash.",
+    "MinDay": 4,
+    "Weight": 6,
+    "ConditionId": "at_home",
+    "MoneyChange": 20
+  },
+  {
+    "Id": "PowerCut",
+    "Description": "The power cuts out again, leaving everyone tired and irritable.",
+    "MinDay": 3,
+    "Weight": 8,
+    "ConditionId": "in_imbaba",
+    "EnergyChange": -10
+  },
+  {
+    "Id": "GoodNeighbour",
+    "Description": "A good neighbour presses a bag of bread into your hand.",
+    "MinDay": 3,
+    "Weight": 7,
+    "ConditionId": "at_market",
+    "FoodChange": 1
+  }
+]

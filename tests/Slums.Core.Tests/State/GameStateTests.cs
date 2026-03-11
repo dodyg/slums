@@ -55,6 +55,17 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task EndDay_ShouldReturnPlayerHome()
+    {
+        var state = new GameState();
+        state.World.TravelTo(LocationId.Market);
+
+        state.EndDay(new Random(1));
+
+        await Assert.That(state.World.CurrentLocationId).IsEqualTo(LocationId.Home);
+    }
+
+    [Test]
     public async Task EndDay_ShouldApplyDailyDecayAndEat()
     {
         var state = new GameState();
@@ -175,6 +186,38 @@ internal sealed class GameStateTests
         state.TryTravelTo(LocationId.Market);
 
         events.Should().ContainMatch("*Traveled*");
+    }
+
+    [Test]
+    public async Task CommitCrime_ShouldApplyMoneyEnergyAndPressureChanges()
+    {
+        var state = new GameState();
+        var initialMoney = state.Player.Stats.Money;
+        var initialEnergy = state.Player.Stats.Energy;
+
+        var result = state.CommitCrime(new Slums.Core.Crimes.CrimeAttempt(
+            Slums.Core.Crimes.CrimeType.PettyTheft,
+            25,
+            20,
+            10,
+            0,
+            10), new Random(5));
+
+        await Assert.That(state.Player.Stats.Energy).IsLessThan(initialEnergy);
+        await Assert.That(state.PolicePressure).IsGreaterThan(0);
+        state.Player.Stats.Money.Should().BeGreaterOrEqualTo(initialMoney);
+        result.Message.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Test]
+    public async Task EndDay_ShouldDecayPolicePressure_OnCleanDay()
+    {
+        var state = new GameState();
+        state.SetPolicePressure(25);
+
+        state.EndDay(new Random(2));
+
+        await Assert.That(state.PolicePressure).IsEqualTo(20);
     }
 
     [Test]

@@ -1,7 +1,12 @@
 using Slums.Core.Characters;
 using Slums.Core.Clock;
+using Slums.Core.Crimes;
+using Slums.Core.Endings;
 using Slums.Core.Expenses;
+using Slums.Core.Events;
 using Slums.Core.Jobs;
+using Slums.Core.Relationships;
+using Slums.Core.Skills;
 using Slums.Core.World;
 
 namespace Slums.Core.State;
@@ -9,14 +14,27 @@ namespace Slums.Core.State;
 public sealed class GameState
 {
     private const int EndOfDayHour = 22;
+    private readonly CrimeService _crimeService = new();
+    private readonly RandomEventService _randomEventService = new();
+    private readonly Queue<string> _pendingNarrativeScenes = new();
+    private readonly HashSet<string> _storyFlags = new(StringComparer.OrdinalIgnoreCase);
+    private bool _crimeCommittedToday;
 
-    public Guid RunId { get; } = Guid.NewGuid();
+    public Guid RunId { get; private set; } = Guid.NewGuid();
     public GameClock Clock { get; } = new();
     public PlayerCharacter Player { get; } = new();
     public WorldState World { get; } = new();
+    public RelationshipState Relationships { get; } = new();
     public JobService Jobs { get; } = new();
     public bool IsGameOver { get; private set; }
     public string? GameOverReason { get; private set; }
+    public EndingId? EndingId { get; private set; }
+    public int PolicePressure { get; private set; }
+    public int TotalCrimeEarnings { get; private set; }
+    public int CrimesCommitted { get; private set; }
+    public int DaysSurvived { get; private set; }
+    public IReadOnlyCollection<string> StoryFlags => _storyFlags;
+    public string? PendingEndingKnot { get; private set; }
 
     public event EventHandler<GameEventArgs>? GameEvent;
 
@@ -57,7 +75,7 @@ public sealed class GameState
         }
     }
 
-    public void EndDay()
+    public void EndDay(Random? random = null)
     {
         Player.Stats.ApplyDailyDecay();
         Player.Household.ApplyDailyDecay();
@@ -83,15 +101,37 @@ public sealed class GameState
             RaiseEvent("No food at home. Your family goes hungry.");
         }
 
-        CheckGameOverConditions();
+        if (!_crimeCommittedToday && PolicePressure > 0)
+        {
+            SetPolicePressure(PolicePressure - 5);
+        }
+
         Clock.AdvanceToNextDay();
+        DaysSurvived++;
+        World.TravelTo(LocationId.Home);
+        RaiseEvent("You return home for the night.");
+
+        foreach (var randomEvent in _randomEventService.RollDailyEvents(this, random ?? new Random()))
+        {
+            ApplyRandomEvent(randomEvent);
+        }
+
+        _crimeCommittedToday = false;
+        CheckGameOverConditions();
     }
 
-    public void RestAtHome()
+    public bool RestAtHome()
     {
+        if (World.CurrentLocationId != LocationId.Home)
+        {
+            RaiseEvent("You need to go home to rest.");
+            return false;
+        }
+
         Player.Stats.Rest();
         AdvanceTime(8 * 60);
         RaiseEvent("You rest at home. 8 hours pass.");
+        return true;
     }
 
     public bool TryTravelTo(LocationId locationId)
@@ -131,12 +171,62 @@ public sealed class GameState
         
         if (result.Success)
         {
+            TotalCrimeEarnings += 0;
             AdvanceTime(job.DurationMinutes);
+            ApplySkillGain(GetSkillForJob(job.Type));
             RaiseEvent(result.Message);
         }
         else
         {
             RaiseEvent(result.Message);
+        }
+
+        CheckGameOverConditions();
+        return result;
+    }
+
+    public IReadOnlyList<CrimeAttempt> GetAvailableCrimes()
+    {
+        var location = World.GetCurrentLocation();
+        if (location is null)
+        {
+            return [];
+        }
+
+        return CrimeRegistry.GetAvailableCrimes(location, Relationships);
+    }
+
+    public CrimeResult CommitCrime(CrimeAttempt attempt, Random? random = null)
+    {
+        ArgumentNullException.ThrowIfNull(attempt);
+
+        var result = _crimeService.AttemptCrime(attempt, Player, PolicePressure, random ?? new Random());
+        Player.Stats.ModifyEnergy(-result.EnergyCost);
+        Player.Stats.ModifyStress(result.StressCost);
+
+        if (result.Success)
+        {
+            Player.Stats.ModifyMoney(result.MoneyEarned);
+            TotalCrimeEarnings += result.MoneyEarned;
+            CrimesCommitted++;
+            ApplySkillGain(SkillId.StreetSmarts);
+            ModifyFactionReputation(FactionId.ImbabaCrew, 4);
+            if (!HasStoryFlag("crime_first_success"))
+            {
+                SetStoryFlag("crime_first_success");
+                QueueNarrativeScene("crime_first_success");
+            }
+        }
+
+        _crimeCommittedToday = true;
+        SetPolicePressure(PolicePressure + result.PolicePressureDelta);
+        RaiseEvent(result.Message);
+
+        if (PolicePressure >= 80 && !HasStoryFlag("crime_warning"))
+        {
+            SetStoryFlag("crime_warning");
+            QueueNarrativeScene("crime_warning");
+            RaiseEvent("People are whispering that the police are getting close.");
         }
 
         CheckGameOverConditions();
@@ -159,35 +249,225 @@ public sealed class GameState
 
     public bool BuyMedicine()
     {
-        if (Player.Stats.Money < RecurringExpenses.MedicineCost)
+        var medicineCost = GetMedicineCost();
+        if (Player.Stats.Money < medicineCost)
         {
-            RaiseEvent($"Not enough money. Medicine costs {RecurringExpenses.MedicineCost} LE.");
+            RaiseEvent($"Not enough money. Medicine costs {medicineCost} LE.");
             return false;
         }
 
-        Player.Stats.ModifyMoney(-RecurringExpenses.MedicineCost);
+        Player.Stats.ModifyMoney(-medicineCost);
         Player.Household.UpdateMotherHealth(30);
-        RaiseEvent($"Bought medicine for {RecurringExpenses.MedicineCost} LE. Mother's health improved.");
+        ApplySkillGain(SkillId.Medical);
+        RaiseEvent($"Bought medicine for {medicineCost} LE. Mother's health improved.");
         return true;
+    }
+
+    public int GetMedicineCost()
+    {
+        return Player.Skills.GetLevel(SkillId.Medical) >= 3 ? 40 : RecurringExpenses.MedicineCost;
+    }
+
+    public IReadOnlyList<NpcId> GetReachableNpcs()
+    {
+        return NpcRegistry.GetReachableNpcs(World.CurrentLocationId, PolicePressure);
+    }
+
+    public void ModifyNpcTrust(NpcId npcId, int delta)
+    {
+        var adjustedDelta = delta;
+        if (delta > 0 && Player.Skills.GetLevel(SkillId.Persuasion) >= 3)
+        {
+            adjustedDelta += 5;
+        }
+
+        var message = RelationshipService.ModifyTrust(Relationships, npcId, adjustedDelta, Clock.Day);
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            RaiseEvent(message);
+        }
+    }
+
+    public void ModifyFactionReputation(FactionId factionId, int delta)
+    {
+        var message = RelationshipService.ModifyReputation(Relationships, factionId, delta);
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            RaiseEvent(message);
+        }
+    }
+
+    public void AddEventMessage(string message)
+    {
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            RaiseEvent(message);
+        }
+    }
+
+    public void SetStoryFlag(string flag)
+    {
+        if (!string.IsNullOrWhiteSpace(flag))
+        {
+            _storyFlags.Add(flag);
+        }
+    }
+
+    public bool HasStoryFlag(string flag)
+    {
+        return _storyFlags.Contains(flag);
+    }
+
+    public void RestoreStoryFlags(IEnumerable<string> flags)
+    {
+        ArgumentNullException.ThrowIfNull(flags);
+
+        _storyFlags.Clear();
+        foreach (var flag in flags.Where(static flag => !string.IsNullOrWhiteSpace(flag)))
+        {
+            _storyFlags.Add(flag);
+        }
+    }
+
+    public void QueueNarrativeScene(string knotName)
+    {
+        if (!string.IsNullOrWhiteSpace(knotName))
+        {
+            _pendingNarrativeScenes.Enqueue(knotName);
+        }
+    }
+
+    public bool TryDequeueNarrativeScene(out string knotName)
+    {
+        if (_pendingNarrativeScenes.Count > 0)
+        {
+            knotName = _pendingNarrativeScenes.Dequeue();
+            return true;
+        }
+
+        knotName = string.Empty;
+        return false;
+    }
+
+    public bool TryTakePendingEndingKnot(out string knotName)
+    {
+        if (!string.IsNullOrWhiteSpace(PendingEndingKnot))
+        {
+            knotName = PendingEndingKnot;
+            PendingEndingKnot = null;
+            return true;
+        }
+
+        knotName = string.Empty;
+        return false;
+    }
+
+    public void SetPolicePressure(int value)
+    {
+        PolicePressure = Math.Clamp(value, 0, 100);
+    }
+
+    public void SetRunId(Guid runId)
+    {
+        RunId = runId;
+    }
+
+    public void SetDaysSurvived(int daysSurvived)
+    {
+        DaysSurvived = Math.Max(0, daysSurvived);
+    }
+
+    public void SetCrimeCounters(int totalCrimeEarnings, int crimesCommitted)
+    {
+        TotalCrimeEarnings = Math.Max(0, totalCrimeEarnings);
+        CrimesCommitted = Math.Max(0, crimesCommitted);
     }
 
     private void CheckGameOverConditions()
     {
-        if (Player.Stats.Health <= 0)
+        var ending = EndingService.CheckEndings(this);
+        if (ending is null)
         {
-            IsGameOver = true;
-            GameOverReason = "Your health has failed completely.";
+            return;
         }
-        else if (!Player.Household.MotherAlive)
+
+        EndingId = ending;
+        IsGameOver = true;
+        GameOverReason = EndingService.GetMessage(ending.Value);
+        PendingEndingKnot = EndingService.GetInkKnot(ending.Value);
+    }
+
+    private void ApplyRandomEvent(RandomEvent randomEvent)
+    {
+        ArgumentNullException.ThrowIfNull(randomEvent);
+
+        var effect = randomEvent.Effect;
+        if (effect.MoneyChange != 0)
         {
-            IsGameOver = true;
-            GameOverReason = "Your mother has passed away. The grief is unbearable.";
+            Player.Stats.ModifyMoney(effect.MoneyChange);
         }
-        else if (Player.Stats.IsStarving && Player.Stats.IsExhausted && Player.Stats.Money <= 0)
+
+        if (effect.HealthChange != 0)
         {
-            IsGameOver = true;
-            GameOverReason = "Destitution. You have nothing left.";
+            Player.Stats.ModifyHealth(effect.HealthChange);
         }
+
+        if (effect.EnergyChange != 0)
+        {
+            Player.Stats.ModifyEnergy(effect.EnergyChange);
+        }
+
+        if (effect.HungerChange != 0)
+        {
+            Player.Stats.ModifyHunger(effect.HungerChange);
+        }
+
+        if (effect.StressChange != 0)
+        {
+            Player.Stats.ModifyStress(effect.StressChange);
+        }
+
+        if (effect.MotherHealthChange != 0)
+        {
+            Player.Household.UpdateMotherHealth(effect.MotherHealthChange);
+        }
+
+        if (effect.FoodChange > 0)
+        {
+            Player.Household.AddFood(effect.FoodChange);
+        }
+        else if (effect.FoodChange < 0)
+        {
+            for (var i = 0; i < -effect.FoodChange; i++)
+            {
+                Player.Household.ConsumeFood();
+            }
+        }
+
+        RaiseEvent(randomEvent.Description);
+        if (!string.IsNullOrWhiteSpace(effect.InkKnot))
+        {
+            QueueNarrativeScene(effect.InkKnot);
+        }
+    }
+
+    private void ApplySkillGain(SkillId skillId)
+    {
+        if (SkillService.ApplySkillGain(skillId, this, out var newLevel))
+        {
+            RaiseEvent($"{skillId} improves to {newLevel}.");
+        }
+    }
+
+    private static SkillId GetSkillForJob(JobType jobType)
+    {
+        return jobType switch
+        {
+            JobType.BakeryWork => SkillId.Physical,
+            JobType.HouseCleaning => SkillId.Physical,
+            JobType.CallCenterWork => SkillId.Persuasion,
+            _ => SkillId.StreetSmarts
+        };
     }
 
     private void RaiseEvent(string message)

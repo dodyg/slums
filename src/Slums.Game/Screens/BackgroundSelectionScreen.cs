@@ -3,16 +3,20 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Core.Characters;
+using Slums.Core.State;
 
 namespace Slums.Game.Screens;
 
 internal sealed class BackgroundSelectionScreen : ScreenSurface
 {
-    private static readonly Background[] Backgrounds = BackgroundRegistry.AllBackgrounds.ToArray();
+    private readonly GameRuntime _runtime;
+    private readonly GameState _gameState;
     private int _selectedIndex;
 
-    public BackgroundSelectionScreen(int width, int height) : base(width, height)
+    public BackgroundSelectionScreen(int width, int height, GameRuntime runtime, GameState gameState) : base(width, height)
     {
+        _runtime = runtime;
+        _gameState = gameState;
         _selectedIndex = 0;
         IsFocused = true;
         UseMouse = true;
@@ -23,6 +27,7 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
     {
         base.Render(delta);
         Surface.Clear();
+        var backgrounds = BackgroundRegistry.AllBackgrounds.ToArray();
 
         var centerX = Surface.Width / 2;
         var y = 1;
@@ -33,9 +38,9 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
         Surface.Print(2, y, "Your background shapes your starting conditions:", Color.Gray);
         y += 2;
 
-        for (var i = 0; i < Backgrounds.Length; i++)
+        for (var i = 0; i < backgrounds.Length; i++)
         {
-            var bg = Backgrounds[i];
+            var bg = backgrounds[i];
             var isSelected = i == _selectedIndex;
             var color = isSelected ? Color.Cyan : Color.White;
             var prefix = isSelected ? "> " : "  ";
@@ -62,7 +67,7 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
     private void RenderStatsPreview(int centerX, int startY)
     {
         var y = startY;
-        var selected = Backgrounds[_selectedIndex];
+        var selected = BackgroundRegistry.AllBackgrounds[_selectedIndex];
 
         Surface.Print(centerX - 10, y, "--- Starting Stats ---", Color.Cyan);
         y++;
@@ -117,13 +122,13 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
     {
         if (keyboard.IsKeyPressed(Keys.Up))
         {
-            _selectedIndex = (_selectedIndex - 1 + Backgrounds.Length) % Backgrounds.Length;
+            _selectedIndex = (_selectedIndex - 1 + BackgroundRegistry.AllBackgrounds.Count) % BackgroundRegistry.AllBackgrounds.Count;
             return true;
         }
 
         if (keyboard.IsKeyPressed(Keys.Down))
         {
-            _selectedIndex = (_selectedIndex + 1) % Backgrounds.Length;
+            _selectedIndex = (_selectedIndex + 1) % BackgroundRegistry.AllBackgrounds.Count;
             return true;
         }
 
@@ -135,7 +140,8 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
 
         if (keyboard.IsKeyPressed(Keys.Escape))
         {
-            GameHost.Instance.Screen = new MainMenuScreen(80, 25);
+            IsFocused = false;
+            GameHost.Instance.Screen = new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime);
             return true;
         }
 
@@ -153,9 +159,10 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
         var cellPosition = state.SurfaceCellPosition;
         var y = 5;
 
-        for (var i = 0; i < Backgrounds.Length; i++)
+        var backgrounds = BackgroundRegistry.AllBackgrounds.ToArray();
+        for (var i = 0; i < backgrounds.Length; i++)
         {
-            var bg = Backgrounds[i];
+            var bg = backgrounds[i];
             var lines = WrapText(bg.Description, Surface.Width - 6);
             var totalHeight = 2 + lines.Length + 1;
 
@@ -177,7 +184,11 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
 
     private void ConfirmSelection()
     {
-        var selectedBackground = Backgrounds[_selectedIndex];
-        GameHost.Instance.Screen = new GameScreen(80, 25, selectedBackground);
+        var selectedBackground = BackgroundRegistry.AllBackgrounds[_selectedIndex];
+        _gameState.Player.ApplyBackground(selectedBackground);
+        var nextScreen = new GameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState);
+        _runtime.NarrativeService.StartScene(selectedBackground.InkIntroKnot, _gameState);
+        IsFocused = false;
+        GameHost.Instance.Screen = new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, nextScreen);
     }
 }

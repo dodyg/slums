@@ -1,0 +1,57 @@
+[
+  {
+    "Id": {
+      "Value": "home"
+    },
+    "Name": "Your Apartment",
+    "Description": "A small two-room flat you share with your mother.",
+    "District": "Imbaba",
+    "HasJobOpportunities": false,
+    "HasCrimeOpportunities": false,
+    "TravelTimeMinutes": 0
+  },
+  {
+    "Id": {
+      "Value": "market"
+    },
+    "Name": "Souk Al-Gom'a",
+    "Description": "The Friday market, busy with vendors and shoppers.",
+    "District": "Imbaba",
+    "HasJobOpportunities": true,
+    "HasCrimeOpportunities": true,
+    "TravelTimeMinutes": 15
+  },
+  {
+    "Id": {
+      "Value": "bakery"
+    },
+    "Name": "Al-Forn Al-Baladi",
+    "Description": "A traditional bakery where bread is baked in stone ovens.",
+    "District": "Imbaba",
+    "HasJobOpportunities": true,
+    "HasCrimeOpportunities": false,
+    "TravelTimeMinutes": 10
+  },
+  {
+    "Id": {
+      "Value": "call_center"
+    },
+    "Name": "TechConnect Office",
+    "Description": "A modern call center serving international clients.",
+    "District": "Dokki",
+    "HasJobOpportunities": true,
+    "HasCrimeOpportunities": false,
+    "TravelTimeMinutes": 45
+  },
+  {
+    "Id": {
+      "Value": "square"
+    },
+    "Name": "Midan Al-Tahrir",
+    "Description": "The busy central square connecting districts.",
+    "District": "Dokki",
+    "HasJobOpportunities": false,
+    "HasCrimeOpportunities": true,
+    "TravelTimeMinutes": 40
+  }
+]

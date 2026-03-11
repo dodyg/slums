@@ -2,7 +2,7 @@ namespace Slums.Core.Characters;
 
 public static class BackgroundRegistry
 {
-    public static readonly Background MedicalSchoolDropout = new()
+    private static readonly Background DefaultMedicalSchoolDropout = new()
     {
         Type = BackgroundType.MedicalSchoolDropout,
         Name = "Medical School Dropout",
@@ -18,7 +18,7 @@ public static class BackgroundRegistry
         InkIntroKnot = "intro_medical"
     };
 
-    public static readonly Background ReleasedPoliticalPrisoner = new()
+    private static readonly Background DefaultReleasedPoliticalPrisoner = new()
     {
         Type = BackgroundType.ReleasedPoliticalPrisoner,
         Name = "Released Political Prisoner",
@@ -34,7 +34,7 @@ public static class BackgroundRegistry
         InkIntroKnot = "intro_prisoner"
     };
 
-    public static readonly Background SudaneseRefugee = new()
+    private static readonly Background DefaultSudaneseRefugee = new()
     {
         Type = BackgroundType.SudaneseRefugee,
         Name = "Sudanese Refugee",
@@ -50,13 +50,37 @@ public static class BackgroundRegistry
         InkIntroKnot = "intro_sudanese"
     };
 
-    public static IReadOnlyList<Background> AllBackgrounds => [MedicalSchoolDropout, ReleasedPoliticalPrisoner, SudaneseRefugee];
+    private static IReadOnlyList<Background> _backgrounds =
+    [
+        DefaultMedicalSchoolDropout,
+        DefaultReleasedPoliticalPrisoner,
+        DefaultSudaneseRefugee
+    ];
+
+    public static Background MedicalSchoolDropout => GetByType(BackgroundType.MedicalSchoolDropout);
+
+    public static Background ReleasedPoliticalPrisoner => GetByType(BackgroundType.ReleasedPoliticalPrisoner);
+
+    public static Background SudaneseRefugee => GetByType(BackgroundType.SudaneseRefugee);
+
+    public static IReadOnlyList<Background> AllBackgrounds => _backgrounds;
+
+    public static void Configure(IEnumerable<Background> backgrounds)
+    {
+        ArgumentNullException.ThrowIfNull(backgrounds);
+
+        var configuredBackgrounds = backgrounds.Where(static background => background is not null).ToArray();
+        if (configuredBackgrounds.Length > 0)
+        {
+            _backgrounds = configuredBackgrounds;
+        }
+    }
 
     public static Background GetByType(BackgroundType type) => type switch
     {
-        BackgroundType.MedicalSchoolDropout => MedicalSchoolDropout,
-        BackgroundType.ReleasedPoliticalPrisoner => ReleasedPoliticalPrisoner,
-        BackgroundType.SudaneseRefugee => SudaneseRefugee,
+        BackgroundType.MedicalSchoolDropout => _backgrounds.FirstOrDefault(static background => background.Type == BackgroundType.MedicalSchoolDropout) ?? DefaultMedicalSchoolDropout,
+        BackgroundType.ReleasedPoliticalPrisoner => _backgrounds.FirstOrDefault(static background => background.Type == BackgroundType.ReleasedPoliticalPrisoner) ?? DefaultReleasedPoliticalPrisoner,
+        BackgroundType.SudaneseRefugee => _backgrounds.FirstOrDefault(static background => background.Type == BackgroundType.SudaneseRefugee) ?? DefaultSudaneseRefugee,
         _ => throw new ArgumentOutOfRangeException(nameof(type))
     };
 }

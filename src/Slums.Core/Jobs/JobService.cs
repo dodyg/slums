@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Skills;
 using Slums.Core.World;
 
 namespace Slums.Core.Jobs;
@@ -19,13 +20,19 @@ public sealed class JobService
         }
 
         var pay = job.CalculatePay(_random);
+        var energyCost = job.EnergyCost;
+        if (player.Skills.GetLevel(SkillId.Physical) >= 3 &&
+            (job.Type == JobType.BakeryWork || job.Type == JobType.HouseCleaning))
+        {
+            energyCost = Math.Max(0, energyCost - 5);
+        }
 
         player.Stats.ModifyMoney(pay);
-        player.Stats.ModifyEnergy(-job.EnergyCost);
+        player.Stats.ModifyEnergy(-energyCost);
         player.Stats.ModifyStress(job.StressCost);
 
-        return JobResult.SuccessWork(pay, job.EnergyCost, job.StressCost,
-            $"Worked {job.Name}. Earned {pay} LE. (-{job.EnergyCost} Energy, +{job.StressCost} Stress)");
+        return JobResult.SuccessWork(pay, energyCost, job.StressCost,
+            $"Worked {job.Name}. Earned {pay} LE. (-{energyCost} Energy, +{job.StressCost} Stress)");
     }
 
 #pragma warning disable CA1822 // Methods don't access instance data but this is a service pattern

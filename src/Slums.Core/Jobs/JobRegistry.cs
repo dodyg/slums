@@ -2,7 +2,7 @@ namespace Slums.Core.Jobs;
 
 public static class JobRegistry
 {
-    public static readonly JobShift BakeryWork = new()
+    private static readonly JobShift DefaultBakeryWork = new()
     {
         Type = JobType.BakeryWork,
         Name = "Bakery Work (Forn)",
@@ -15,11 +15,11 @@ public static class JobRegistry
         PayVariance = 5
     };
 
-    public static readonly JobShift HouseCleaning = new()
+    private static readonly JobShift DefaultHouseCleaning = new()
     {
         Type = JobType.HouseCleaning,
         Name = "House Cleaning",
-        Description = "Clean homes in Dokki district",
+        Description = "Clean homes for families in the neighbourhood",
         BasePay = 15,
         EnergyCost = 35,
         StressCost = 10,
@@ -28,7 +28,7 @@ public static class JobRegistry
         PayVariance = 3
     };
 
-    public static readonly JobShift CallCenterWork = new()
+    private static readonly JobShift DefaultCallCenterWork = new()
     {
         Type = JobType.CallCenterWork,
         Name = "Call Center Shift",
@@ -41,16 +41,29 @@ public static class JobRegistry
         PayVariance = 7
     };
 
-    public static IReadOnlyList<JobShift> AllJobs => [BakeryWork, HouseCleaning, CallCenterWork];
+    private static IReadOnlyList<JobShift> _jobs = [DefaultBakeryWork, DefaultHouseCleaning, DefaultCallCenterWork];
+
+    public static JobShift BakeryWork => GetJobByType(JobType.BakeryWork) ?? DefaultBakeryWork;
+
+    public static JobShift HouseCleaning => GetJobByType(JobType.HouseCleaning) ?? DefaultHouseCleaning;
+
+    public static JobShift CallCenterWork => GetJobByType(JobType.CallCenterWork) ?? DefaultCallCenterWork;
+
+    public static IReadOnlyList<JobShift> AllJobs => _jobs;
+
+    public static void Configure(IEnumerable<JobShift> jobs)
+    {
+        ArgumentNullException.ThrowIfNull(jobs);
+
+        var configuredJobs = jobs.Where(static job => job is not null).ToArray();
+        if (configuredJobs.Length > 0)
+        {
+            _jobs = configuredJobs;
+        }
+    }
 
     public static JobShift? GetJobByType(JobType type)
     {
-        return type switch
-        {
-            JobType.BakeryWork => BakeryWork,
-            JobType.HouseCleaning => HouseCleaning,
-            JobType.CallCenterWork => CallCenterWork,
-            _ => null
-        };
+        return _jobs.FirstOrDefault(job => job.Type == type);
     }
 }

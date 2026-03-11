@@ -139,6 +139,7 @@ internal sealed class ShopScreen : ScreenSurface
 
     private void ReturnToParentScreen()
     {
+        IsFocused = false;
         _parentScreen.IsFocused = true;
         GameHost.Instance.Screen = _parentScreen;
     }

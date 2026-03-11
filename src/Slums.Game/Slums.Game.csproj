@@ -19,4 +19,23 @@
     <PackageReference Include="SadConsole.Host.SFML" />
   </ItemGroup>
 
+  <!-- Copy CSFML native DLLs to output root so the runtime can find them on Windows -->
+  <Target Name="CopyCsfmlNative" AfterTargets="Build">
+    <ItemGroup>
+      <CsfmlNative Include="$(OutputPath)runtimes\win-x64\native\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CsfmlNative)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <ItemGroup>
+    <None Include="..\..\content\data\**\*.json">
+      <Link>content\data\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\content\ink\**\*.*">
+      <Link>content\ink\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

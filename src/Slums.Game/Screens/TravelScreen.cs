@@ -49,6 +49,7 @@ internal sealed class TravelScreen : ScreenSurface
             
             var rowY = DestinationStartY + i * DestinationRowHeight;
             Surface.Print(DestinationStartX, rowY, $"{prefix}{displayName}", color);
+            Surface.Print(Surface.Width - travelInfo.Length - 2, rowY, travelInfo, Color.Yellow);
             Surface.Print(6, rowY + 1, $"{loc.Description[..Math.Min(50, loc.Description.Length)]}", Color.DarkGray);
         }
     }
@@ -123,6 +124,7 @@ internal sealed class TravelScreen : ScreenSurface
 
     private void ReturnToParentScreen()
     {
+        IsFocused = false;
         _parentScreen.IsFocused = true;
         GameHost.Instance.Screen = _parentScreen;
     }

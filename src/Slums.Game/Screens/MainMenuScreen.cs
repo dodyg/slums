@@ -8,10 +8,12 @@ namespace Slums.Game.Screens;
 internal sealed class MainMenuScreen : ScreenSurface
 {
     private static readonly string[] MenuItems = ["New Game", "Load Game", "Quit"];
+    private readonly GameRuntime _runtime;
     private int _selectedIndex;
 
-    public MainMenuScreen(int width, int height) : base(width, height)
+    public MainMenuScreen(int width, int height, GameRuntime runtime) : base(width, height)
     {
+        _runtime = runtime;
         _selectedIndex = 0;
         IsFocused = true;
         UseMouse = true;
@@ -100,9 +102,12 @@ internal sealed class MainMenuScreen : ScreenSurface
         switch (_selectedIndex)
         {
             case 0:
-                GameHost.Instance.Screen = new BackgroundSelectionScreen(80, 25);
+                IsFocused = false;
+                GameHost.Instance.Screen = new BackgroundSelectionScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, new Slums.Core.State.GameState());
                 break;
             case 1:
+                IsFocused = false;
+                GameHost.Instance.Screen = new LoadGameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime);
                 break;
             case 2:
                 Environment.Exit(0);

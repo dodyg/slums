@@ -47,6 +47,19 @@ public sealed record GameClock
         Minute = 0;
     }
 
+    public void SetTime(int day, int hour, int minute)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(day, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(hour, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(hour, 23);
+        ArgumentOutOfRangeException.ThrowIfLessThan(minute, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(minute, 59);
+
+        Day = day;
+        Hour = hour;
+        Minute = minute;
+    }
+
     public bool IsEndOfDay => Hour >= 22;
 }
 
