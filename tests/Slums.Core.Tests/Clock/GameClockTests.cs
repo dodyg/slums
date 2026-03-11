@@ -5,7 +5,7 @@ using TUnit.Core;
 
 namespace Slums.Core.Tests;
 
-public class GameClockTests
+internal sealed class GameClockTests
 {
     [Test]
     public async Task Constructor_ShouldInitializeToDay1Morning()

@@ -60,7 +60,6 @@
           "centralPackageVersions": {
             "coverlet.collector": "6.0.2",
             "FluentAssertions": "7.0.0",
-            "ink-engine-runtime": "0.8.4-nightly-1250",
             "Microsoft.Extensions.DependencyInjection": "9.0.0",
             "Microsoft.Extensions.Hosting": "9.0.0",
             "Microsoft.Extensions.Logging": "9.0.0",
@@ -69,6 +68,7 @@
             "Microsoft.NET.Test.Sdk": "17.12.0",
             "MonoGame.Framework.DesktopGL": "3.8.1.303",
             "NSubstitute": "5.3.0",
+            "Qyl27.Ink.Engine": "1.2.0",
             "SadConsole": "10.8.0",
             "SadConsole.Host.MonoGame": "10.8.0",
             "SadConsole.Host.SFML": "10.8.0",
@@ -413,7 +413,6 @@
           "centralPackageVersions": {
             "coverlet.collector": "6.0.2",
             "FluentAssertions": "7.0.0",
-            "ink-engine-runtime": "0.8.4-nightly-1250",
             "Microsoft.Extensions.DependencyInjection": "9.0.0",
             "Microsoft.Extensions.Hosting": "9.0.0",
             "Microsoft.Extensions.Logging": "9.0.0",
@@ -422,6 +421,7 @@
             "Microsoft.NET.Test.Sdk": "17.12.0",
             "MonoGame.Framework.DesktopGL": "3.8.1.303",
             "NSubstitute": "5.3.0",
+            "Qyl27.Ink.Engine": "1.2.0",
             "SadConsole": "10.8.0",
             "SadConsole.Host.MonoGame": "10.8.0",
             "SadConsole.Host.SFML": "10.8.0",
@@ -801,7 +801,6 @@
           "centralPackageVersions": {
             "coverlet.collector": "6.0.2",
             "FluentAssertions": "7.0.0",
-            "ink-engine-runtime": "0.8.4-nightly-1250",
             "Microsoft.Extensions.DependencyInjection": "9.0.0",
             "Microsoft.Extensions.Hosting": "9.0.0",
             "Microsoft.Extensions.Logging": "9.0.0",
@@ -810,6 +809,7 @@
             "Microsoft.NET.Test.Sdk": "17.12.0",
             "MonoGame.Framework.DesktopGL": "3.8.1.303",
             "NSubstitute": "5.3.0",
+            "Qyl27.Ink.Engine": "1.2.0",
             "SadConsole": "10.8.0",
             "SadConsole.Host.MonoGame": "10.8.0",
             "SadConsole.Host.SFML": "10.8.0",
@@ -1161,7 +1161,6 @@
           "centralPackageVersions": {
             "coverlet.collector": "6.0.2",
             "FluentAssertions": "7.0.0",
-            "ink-engine-runtime": "0.8.4-nightly-1250",
             "Microsoft.Extensions.DependencyInjection": "9.0.0",
             "Microsoft.Extensions.Hosting": "9.0.0",
             "Microsoft.Extensions.Logging": "9.0.0",
@@ -1170,6 +1169,7 @@
             "Microsoft.NET.Test.Sdk": "17.12.0",
             "MonoGame.Framework.DesktopGL": "3.8.1.303",
             "NSubstitute": "5.3.0",
+            "Qyl27.Ink.Engine": "1.2.0",
             "SadConsole": "10.8.0",
             "SadConsole.Host.MonoGame": "10.8.0",
             "SadConsole.Host.SFML": "10.8.0",
@@ -1519,16 +1519,15 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "dependencies": {
-            "ink-engine-runtime": {
+            "Qyl27.Ink.Engine": {
               "target": "Package",
-              "version": "[0.8.4-nightly-1250, )",
+              "version": "[1.2.0, )",
               "versionCentrallyManaged": true
             }
           },
           "centralPackageVersions": {
             "coverlet.collector": "6.0.2",
             "FluentAssertions": "7.0.0",
-            "ink-engine-runtime": "0.8.4-nightly-1250",
             "Microsoft.Extensions.DependencyInjection": "9.0.0",
             "Microsoft.Extensions.Hosting": "9.0.0",
             "Microsoft.Extensions.Logging": "9.0.0",
@@ -1537,6 +1536,7 @@
             "Microsoft.NET.Test.Sdk": "17.12.0",
             "MonoGame.Framework.DesktopGL": "3.8.1.303",
             "NSubstitute": "5.3.0",
+            "Qyl27.Ink.Engine": "1.2.0",
             "SadConsole": "10.8.0",
             "SadConsole.Host.MonoGame": "10.8.0",
             "SadConsole.Host.SFML": "10.8.0",

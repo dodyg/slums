@@ -5,7 +5,7 @@ using TUnit.Core;
 
 namespace Slums.Application.Tests.Narrative;
 
-internal class NarrativeSceneExtensionsTests
+internal sealed class NarrativeSceneExtensionsTests
 {
     [Test]
     public async Task ApplyOutcome_ShouldModifyMoney_WhenMoneyChangeIsNonZero()

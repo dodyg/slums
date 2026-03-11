@@ -5,7 +5,7 @@ using TUnit.Core.Interfaces;
 
 namespace Slums.Core.Tests.Clock;
 
-public sealed class AutomaticTimeAdvancerTests
+internal sealed class AutomaticTimeAdvancerTests
 {
     [Test]
     public async Task CollectElapsedMinutes_ShouldReturnZeroUntilThresholdReached()

@@ -4,7 +4,7 @@ using TUnit.Core;
 
 namespace Slums.Core.Tests.World;
 
-public class WorldStateTests
+internal sealed class WorldStateTests
 {
     [Test]
     public async Task Constructor_ShouldInitializeAtHomeInImbaba()

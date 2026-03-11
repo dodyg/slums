@@ -10,7 +10,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ink-engine-runtime" />
+    <PackageReference Include="Qyl27.Ink.Engine" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\content\ink\main.json" LogicalName="Slums.Narrative.Ink.Content.main.json" />
   </ItemGroup>
 
 </Project>

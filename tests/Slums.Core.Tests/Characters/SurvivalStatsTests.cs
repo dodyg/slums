@@ -5,7 +5,7 @@ using TUnit.Core.Interfaces;
 
 namespace Slums.Core.Tests.Characters;
 
-public class SurvivalStatsTests
+internal sealed class SurvivalStatsTests
 {
     [Test]
     public async Task Constructor_ShouldInitializeWithDefaultValues()

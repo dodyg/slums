@@ -1,14 +1,13 @@
 <Project>
   <PropertyGroup>
     <SadConsoleVersion>10.8.0</SadConsoleVersion>
-    <InkVersion>0.8.4-nightly-1250</InkVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="SadConsole" Version="$(SadConsoleVersion)" />
     <PackageVersion Include="SadConsole.Host.MonoGame" Version="$(SadConsoleVersion)" />
     <PackageVersion Include="SadConsole.Host.SFML" Version="$(SadConsoleVersion)" />
     <PackageVersion Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
-    <PackageVersion Include="ink-engine-runtime" Version="$(InkVersion)" />
+    <PackageVersion Include="Qyl27.Ink.Engine" Version="1.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.0" />

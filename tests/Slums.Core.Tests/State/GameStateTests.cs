@@ -6,7 +6,7 @@ using TUnit.Core.Interfaces;
 
 namespace Slums.Core.Tests.State;
 
-internal class GameStateTests
+internal sealed class GameStateTests
 {
     [Test]
     public async Task Constructor_ShouldInitializeWithDefaultValues()

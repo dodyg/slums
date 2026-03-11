@@ -58,6 +58,11 @@ public sealed class InkNarrativeService : INarrativeService
             LogSceneStartFailed(_logger, knotName, ex);
             EndScene();
         }
+        catch (Exception ex)
+        {
+            LogSceneStartFailed(_logger, knotName, ex);
+            EndScene();
+        }
     }
 
     public void SelectChoice(int choiceIndex)
@@ -187,7 +192,7 @@ public sealed class InkNarrativeService : INarrativeService
 
     private static string LoadStoryResource()
     {
-        var filesystemPath = Path.Combine("content", "ink", "main.json");
+        var filesystemPath = System.IO.Path.Combine("content", "ink", "main.json");
         if (File.Exists(filesystemPath))
         {
             return File.ReadAllText(filesystemPath);

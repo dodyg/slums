@@ -1,12 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "MWy5/elOrRE=",
+  "dgSpecHash": "6YWqoyrvq3s=",
   "success": true,
   "projectFilePath": "/mnt/d/GitHub/slums/src/Slums.Game/Slums.Game.csproj",
   "expectedPackageFiles": [
     "/home/dodyg/.nuget/packages/coroutine/2.1.5/coroutine.2.1.5.nupkg.sha512",
     "/home/dodyg/.nuget/packages/csfml/2.6.1/csfml.2.6.1.nupkg.sha512",
-    "/home/dodyg/.nuget/packages/ink-engine-runtime/0.8.4-nightly-1250/ink-engine-runtime.0.8.4-nightly-1250.nupkg.sha512",
     "/home/dodyg/.nuget/packages/microsoft.extensions.configuration/9.0.0/microsoft.extensions.configuration.9.0.0.nupkg.sha512",
     "/home/dodyg/.nuget/packages/microsoft.extensions.configuration.abstractions/9.0.0/microsoft.extensions.configuration.abstractions.9.0.0.nupkg.sha512",
     "/home/dodyg/.nuget/packages/microsoft.extensions.configuration.binder/9.0.0/microsoft.extensions.configuration.binder.9.0.0.nupkg.sha512",
@@ -35,6 +34,7 @@
     "/home/dodyg/.nuget/packages/microsoft.extensions.options.configurationextensions/9.0.0/microsoft.extensions.options.configurationextensions.9.0.0.nupkg.sha512",
     "/home/dodyg/.nuget/packages/microsoft.extensions.primitives/9.0.0/microsoft.extensions.primitives.9.0.0.nupkg.sha512",
     "/home/dodyg/.nuget/packages/newtonsoft.json/13.0.4/newtonsoft.json.13.0.4.nupkg.sha512",
+    "/home/dodyg/.nuget/packages/qyl27.ink.engine/1.2.0/qyl27.ink.engine.1.2.0.nupkg.sha512",
     "/home/dodyg/.nuget/packages/sadconsole/10.8.0/sadconsole.10.8.0.nupkg.sha512",
     "/home/dodyg/.nuget/packages/sadconsole.host.sfml/10.8.0/sadconsole.host.sfml.10.8.0.nupkg.sha512",
     "/home/dodyg/.nuget/packages/sfml.audio/2.6.1/sfml.audio.2.6.1.nupkg.sha512",

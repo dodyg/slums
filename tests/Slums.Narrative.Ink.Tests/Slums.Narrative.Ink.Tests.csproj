@@ -1,13 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>Slums.Core.Tests</RootNamespace>
+    <RootNamespace>Slums.Narrative.Ink.Tests</RootNamespace>
     <IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>
     <NoWarn>$(NoWarn);CA1707</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Slums.Narrative.Ink\Slums.Narrative.Ink.csproj" />
+    <ProjectReference Include="..\..\src\Slums.Application\Slums.Application.csproj" />
     <ProjectReference Include="..\..\src\Slums.Core\Slums.Core.csproj" />
   </ItemGroup>
 

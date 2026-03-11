@@ -735,19 +735,6 @@
           }
         }
       },
-      "ink-engine-runtime/0.8.4-nightly-1250": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard2.0/ink-engine-runtime.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/ink-engine-runtime.dll": {
-            "related": ".xml"
-          }
-        }
-      },
       "Microsoft.Extensions.Configuration/9.0.0": {
         "type": "package",
         "dependencies": {
@@ -1337,6 +1324,19 @@
           }
         }
       },
+      "Qyl27.Ink.Engine/1.2.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/ink-engine-runtime.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/ink-engine-runtime.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "SadConsole/10.8.0": {
         "type": "package",
         "dependencies": {
@@ -1548,9 +1548,9 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
         "dependencies": {
+          "Qyl27.Ink.Engine": "1.2.0",
           "Slums.Application": "1.0.0",
-          "Slums.Core": "1.0.0",
-          "ink-engine-runtime": "0.8.4-nightly-1250"
+          "Slums.Core": "1.0.0"
         },
         "compile": {
           "bin/placeholder/Slums.Narrative.Ink.dll": {}
@@ -1772,21 +1772,6 @@
         "runtimes/win-x86/native/csfml-window.dll",
         "runtimes/win-x86/native/openal32.dll",
         "sfml-icon.png"
-      ]
-    },
-    "ink-engine-runtime/0.8.4-nightly-1250": {
-      "sha512": "Gi0c/rRsG+bxxmiO67d35O8sK9KAXx7FPl3/T9MlvKnxTY08epCWIv5AHftbtsaFflYauiU4a1CKJfmOOJkH2g==",
-      "type": "package",
-      "path": "ink-engine-runtime/0.8.4-nightly-1250",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "ink-engine-runtime.0.8.4-nightly-1250.nupkg.sha512",
-        "ink-engine-runtime.nuspec",
-        "lib/netstandard1.0/ink-engine-runtime.dll",
-        "lib/netstandard1.0/ink-engine-runtime.xml",
-        "lib/netstandard2.0/ink-engine-runtime.dll",
-        "lib/netstandard2.0/ink-engine-runtime.xml"
       ]
     },
     "Microsoft.Extensions.Configuration/9.0.0": {
@@ -2657,6 +2642,22 @@
         "packageIcon.png"
       ]
     },
+    "Qyl27.Ink.Engine/1.2.0": {
+      "sha512": "K8/7lzc4Dv/ZxWFafOgWHIJ6m188Xq0M9VbxXf16twPtZB1Xe1WkVndde3xT4LJlxPtqiq5hAovtU3dv11iRzg==",
+      "type": "package",
+      "path": "qyl27.ink.engine/1.2.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "README.md",
+        "icon.png",
+        "lib/netstandard2.0/ink-engine-runtime.dll",
+        "lib/netstandard2.0/ink-engine-runtime.xml",
+        "qyl27.ink.engine.1.2.0.nupkg.sha512",
+        "qyl27.ink.engine.nuspec"
+      ]
+    },
     "SadConsole/10.8.0": {
       "sha512": "5s5Qg9tL53+CdSiKODS6BQK1I26gjhinVjSZ5uAUl3MMFGR11Fq8eP3sLqtSn1ltsQDX1zNqHkbGxf3v9VcNZA==",
       "type": "package",
@@ -2970,7 +2971,6 @@
         "centralPackageVersions": {
           "coverlet.collector": "6.0.2",
           "FluentAssertions": "7.0.0",
-          "ink-engine-runtime": "0.8.4-nightly-1250",
           "Microsoft.Extensions.DependencyInjection": "9.0.0",
           "Microsoft.Extensions.Hosting": "9.0.0",
           "Microsoft.Extensions.Logging": "9.0.0",
@@ -2979,6 +2979,7 @@
           "Microsoft.NET.Test.Sdk": "17.12.0",
           "MonoGame.Framework.DesktopGL": "3.8.1.303",
           "NSubstitute": "5.3.0",
+          "Qyl27.Ink.Engine": "1.2.0",
           "SadConsole": "10.8.0",
           "SadConsole.Host.MonoGame": "10.8.0",
           "SadConsole.Host.SFML": "10.8.0",

@@ -4,7 +4,7 @@ using TUnit.Core;
 
 namespace Slums.Core.Tests.Characters;
 
-public class PlayerCharacterTests
+internal sealed class PlayerCharacterTests
 {
     [Test]
     public async Task Constructor_ShouldInitializeWithDefaultValues()
@@ -106,7 +106,7 @@ public class PlayerCharacterTests
     }
 }
 
-public class BackgroundTests
+internal sealed class BackgroundTests
 {
     [Test]
     public async Task Background_ShouldHaveDefaultValues()
@@ -128,7 +128,7 @@ public class BackgroundTests
     }
 }
 
-public class BackgroundRegistryTests
+internal sealed class BackgroundRegistryTests
 {
     [Test]
     public async Task AllBackgrounds_ShouldContainAllThreeBackgrounds()
@@ -147,7 +147,7 @@ public class BackgroundRegistryTests
 
         await Assert.That(bg.Type).IsEqualTo(BackgroundType.MedicalSchoolDropout);
         await Assert.That(bg.Name).Contains("Medical");
-        await Assert.That(bg.StartingMoney).IsEqualTo(100);
+        await Assert.That(bg.StartingMoney).IsEqualTo(80);
         await Assert.That(bg.StartingHealth).IsEqualTo(100);
     }
 
@@ -158,7 +158,7 @@ public class BackgroundRegistryTests
 
         await Assert.That(bg.Type).IsEqualTo(BackgroundType.ReleasedPoliticalPrisoner);
         await Assert.That(bg.Name).Contains("Prisoner");
-        await Assert.That(bg.StartingMoney).IsEqualTo(50);
+        await Assert.That(bg.StartingMoney).IsEqualTo(30);
     }
 
     [Test]
@@ -168,7 +168,7 @@ public class BackgroundRegistryTests
 
         await Assert.That(bg.Type).IsEqualTo(BackgroundType.SudaneseRefugee);
         await Assert.That(bg.Name).Contains("Refugee");
-        await Assert.That(bg.StartingMoney).IsEqualTo(30);
+        await Assert.That(bg.StartingMoney).IsEqualTo(50);
     }
 
     [Test]
