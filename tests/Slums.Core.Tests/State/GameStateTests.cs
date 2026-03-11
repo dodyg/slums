@@ -31,15 +31,17 @@ internal sealed class GameStateTests
     }
 
     [Test]
-    public async Task EndDay_ShouldConsumeFoodAndFeedPlayer()
+    public async Task EatAtHome_ShouldFeedPlayerAndMother()
     {
         var state = new GameState();
-        state.Player.Stats.ModifyHunger(-30);
 
-        state.EndDay();
+        var result = state.EatAtHome();
 
+        await Assert.That(result).IsTrue();
         await Assert.That(state.Player.Household.FoodStockpile).IsEqualTo(2);
-        await Assert.That(state.Player.Stats.Hunger).IsEqualTo(55);
+        await Assert.That(state.Player.Household.FedMotherToday).IsTrue();
+        await Assert.That(state.Player.Nutrition.AteToday).IsTrue();
+        await Assert.That(state.Player.Stats.Hunger).IsEqualTo(97);
     }
 
     [Test]
@@ -66,14 +68,54 @@ internal sealed class GameStateTests
     }
 
     [Test]
-    public async Task EndDay_ShouldApplyDailyDecayAndEat()
+    public async Task EatAtHome_WithoutStaples_ShouldFail()
+    {
+        var state = new GameState();
+        state.Player.Household.SetFoodStockpile(0);
+
+        var result = state.EatAtHome();
+
+        await Assert.That(result).IsFalse();
+        await Assert.That(state.Player.Nutrition.AteToday).IsFalse();
+        await Assert.That(state.Player.Household.FedMotherToday).IsFalse();
+    }
+
+    [Test]
+    public async Task EatStreetFood_ShouldCostMoneyAndFeedOnlyPlayer()
     {
         var state = new GameState();
 
-        state.EndDay();
+        var result = state.EatStreetFood();
 
-        await Assert.That(state.Player.Stats.Hunger).IsEqualTo(85);
-        await Assert.That(state.Player.Stats.Energy).IsEqualTo(75);
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(92);
+        await Assert.That(state.Player.Nutrition.AteToday).IsTrue();
+        await Assert.That(state.Player.Household.FedMotherToday).IsFalse();
+    }
+
+    [Test]
+    public async Task BuyMedicine_ShouldIncreaseMedicineStock()
+    {
+        var state = new GameState();
+
+        var result = state.BuyMedicine();
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Household.MedicineStock).IsEqualTo(2);
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(50);
+    }
+
+    [Test]
+    public async Task GiveMotherMedicine_ShouldConsumeMedicineStock()
+    {
+        var state = new GameState();
+        state.Player.Household.SetMedicineStock(2);
+
+        var result = state.GiveMotherMedicine();
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Household.MedicineStock).IsEqualTo(1);
+        await Assert.That(state.Player.Household.MedicationGivenToday).IsTrue();
     }
 
     [Test]
@@ -218,6 +260,84 @@ internal sealed class GameStateTests
         state.EndDay(new Random(2));
 
         await Assert.That(state.PolicePressure).IsEqualTo(20);
+    }
+
+    [Test]
+    public async Task EndDay_PlayerWithoutMeal_ShouldLoseEnergyAndGainStress()
+    {
+        var state = new GameState();
+
+        state.EndDay();
+
+        await Assert.That(state.Player.Stats.Energy).IsEqualTo(58);
+        await Assert.That(state.Player.Stats.Stress).IsEqualTo(31);
+        await Assert.That(state.Player.Stats.Hunger).IsEqualTo(57);
+    }
+
+    [Test]
+    public async Task EndDay_PlayerUnderfedForTwoDays_ShouldLoseHealth()
+    {
+        var state = new GameState();
+        state.Player.Nutrition.SetDaysUndereating(1);
+
+        state.EndDay();
+
+        await Assert.That(state.Player.Stats.Health).IsEqualTo(95);
+    }
+
+    [Test]
+    public async Task EndDay_MotherFragileWithoutMedicine_ShouldLoseHealth()
+    {
+        var state = new GameState();
+        state.Player.Household.SetMotherHealth(45);
+        state.Player.Household.FeedMother();
+
+        state.EndDay();
+
+        await Assert.That(state.Player.Household.MotherHealth).IsEqualTo(39);
+    }
+
+    [Test]
+    public async Task EndDay_MotherInCrisisWithoutCheck_ShouldIncreasePlayerStress()
+    {
+        var state = new GameState();
+        state.Player.Household.SetMotherHealth(20);
+        state.Player.Household.FeedMother();
+        state.Player.Household.SetMedicineStock(1);
+        state.Player.Household.GiveMedicine();
+
+        state.EndDay();
+
+        await Assert.That(state.Player.Stats.Stress).IsEqualTo(36);
+    }
+
+    [Test]
+    public async Task EndDay_ShouldResetNutritionAndCareFlagsForNextDay()
+    {
+        var state = new GameState();
+        state.EatAtHome();
+        state.Player.Household.SetMedicineStock(1);
+        state.GiveMotherMedicine();
+        state.CheckOnMother();
+
+        state.EndDay();
+
+        await Assert.That(state.Player.Nutrition.AteToday).IsFalse();
+        await Assert.That(state.Player.Household.FedMotherToday).IsFalse();
+        await Assert.That(state.Player.Household.MedicationGivenToday).IsFalse();
+        await Assert.That(state.Player.Household.CheckedOnMotherToday).IsFalse();
+    }
+
+    [Test]
+    public async Task EndDay_ShouldTriggerGameOver_WhenMotherHealthFallsToZero()
+    {
+        var state = new GameState();
+        state.Player.Household.SetMotherHealth(4);
+
+        state.EndDay();
+
+        await Assert.That(state.IsGameOver).IsTrue();
+        await Assert.That(state.GameOverReason).Contains("mother");
     }
 
     [Test]

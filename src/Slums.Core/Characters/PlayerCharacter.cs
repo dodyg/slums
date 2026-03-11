@@ -11,12 +11,18 @@ public enum BackgroundType
 
 public sealed class PlayerCharacter
 {
+    public PlayerCharacter()
+    {
+        Stats.SetHunger(Nutrition.Satiety);
+    }
+
     public string Name { get; set; } = "Amira";
     public int Age { get; init; } = 24;
     public BackgroundType BackgroundType { get; private set; } = BackgroundType.MedicalSchoolDropout;
     public Background? Background { get; private set; }
     public SurvivalStats Stats { get; } = new();
-    public HouseholdState Household { get; } = new();
+    public NutritionState Nutrition { get; } = new();
+    public HouseholdCareState Household { get; } = new();
     public SkillState Skills { get; } = new();
     public bool HasSelectedBackground { get; private set; }
 
@@ -31,10 +37,12 @@ public sealed class PlayerCharacter
         Stats.SetMoney(background.StartingMoney);
         Stats.SetHealth(background.StartingHealth);
         Stats.SetEnergy(background.StartingEnergy);
-        Stats.SetHunger(background.StartingHunger);
+        Nutrition.SetSatiety(background.StartingHunger);
+        Stats.SetHunger(Nutrition.Satiety);
         Stats.SetStress(background.StartingStress);
         Household.SetMotherHealth(background.MotherStartingHealth);
         Household.SetFoodStockpile(background.FoodStockpile);
+        Household.SetMedicineStock(0);
 
         Skills.Restore([]);
         switch (background.Type)

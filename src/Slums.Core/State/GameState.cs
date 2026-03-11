@@ -14,6 +14,7 @@ namespace Slums.Core.State;
 public sealed class GameState
 {
     private const int EndOfDayHour = 22;
+    private const int StreetFoodCost = 8;
     private readonly CrimeService _crimeService = new();
     private readonly RandomEventService _randomEventService = new();
     private readonly Queue<string> _pendingNarrativeScenes = new();
@@ -78,7 +79,15 @@ public sealed class GameState
     public void EndDay(Random? random = null)
     {
         Player.Stats.ApplyDailyDecay();
-        Player.Household.ApplyDailyDecay();
+
+        var nutritionResolution = Player.Nutrition.ResolveDay();
+        Player.Stats.ModifyEnergy(nutritionResolution.EnergyDelta);
+        Player.Stats.ModifyHealth(nutritionResolution.HealthDelta);
+        Player.Stats.ModifyStress(nutritionResolution.StressDelta);
+        SyncLegacyHunger();
+
+        var motherCareResolution = Player.Household.ResolveDay();
+        Player.Stats.ModifyStress(motherCareResolution.StressDelta);
 
         if (Player.Stats.Money >= RecurringExpenses.DailyRentCost)
         {
@@ -90,15 +99,19 @@ public sealed class GameState
             RaiseEvent("Could not pay rent! The landlord is angry.");
         }
 
-        if (Player.Household.HasEnoughFood)
+        if (!Player.Nutrition.AteToday)
         {
-            Player.Household.ConsumeFood();
-            Player.Stats.Eat(20);
+            RaiseEvent("You go to sleep hungry.");
         }
-        else
+
+        if (!Player.Household.FedMotherToday)
         {
-            Player.Stats.ModifyHunger(-10);
-            RaiseEvent("No food at home. Your family goes hungry.");
+            RaiseEvent("Your mother went without a proper meal today.");
+        }
+
+        if (!Player.Household.MedicationGivenToday && Player.Household.MotherNeedsCare)
+        {
+            RaiseEvent("Your mother needed medicine today and did not get it.");
         }
 
         if (!_crimeCommittedToday && PolicePressure > 0)
@@ -110,6 +123,9 @@ public sealed class GameState
         DaysSurvived++;
         World.TravelTo(LocationId.Home);
         RaiseEvent("You return home for the night.");
+
+        Player.Nutrition.BeginNewDay();
+        Player.Household.BeginNewDay();
 
         foreach (var randomEvent in _randomEventService.RollDailyEvents(this, random ?? new Random()))
         {
@@ -242,7 +258,7 @@ public sealed class GameState
         }
 
         Player.Stats.ModifyMoney(-RecurringExpenses.CheapFoodStockpile);
-        Player.Household.AddFood(3);
+        Player.Household.AddStaples(3);
         RaiseEvent($"Bought food supplies for {RecurringExpenses.CheapFoodStockpile} LE. Stockpile: {Player.Household.FoodStockpile}");
         return true;
     }
@@ -257,9 +273,56 @@ public sealed class GameState
         }
 
         Player.Stats.ModifyMoney(-medicineCost);
-        Player.Household.UpdateMotherHealth(30);
+        Player.Household.AddMedicine(2);
         ApplySkillGain(SkillId.Medical);
-        RaiseEvent($"Bought medicine for {medicineCost} LE. Mother's health improved.");
+        RaiseEvent($"Bought medicine for {medicineCost} LE. Medicine stock: {Player.Household.MedicineStock}");
+        return true;
+    }
+
+    public bool EatAtHome()
+    {
+        if (!Player.Household.FeedMother())
+        {
+            RaiseEvent("There is not enough food at home.");
+            return false;
+        }
+
+        Player.Nutrition.Eat(MealQuality.Basic);
+        SyncLegacyHunger();
+        RaiseEvent("You eat a simple meal at home and make sure your mother eats too.");
+        return true;
+    }
+
+    public bool EatStreetFood()
+    {
+        if (Player.Stats.Money < StreetFoodCost)
+        {
+            RaiseEvent("You do not have enough money for street food.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-StreetFoodCost);
+        Player.Nutrition.Eat(MealQuality.Basic);
+        SyncLegacyHunger();
+        RaiseEvent("You grab a cheap meal from the street.");
+        return true;
+    }
+
+    public void CheckOnMother()
+    {
+        Player.Household.CheckOnMother();
+        RaiseEvent(GetMotherStatusMessage());
+    }
+
+    public bool GiveMotherMedicine()
+    {
+        if (!Player.Household.GiveMedicine())
+        {
+            RaiseEvent("You have no medicine to give.");
+            return false;
+        }
+
+        RaiseEvent("You give your mother her medicine.");
         return true;
     }
 
@@ -419,7 +482,8 @@ public sealed class GameState
 
         if (effect.HungerChange != 0)
         {
-            Player.Stats.ModifyHunger(effect.HungerChange);
+            Player.Nutrition.ModifySatiety(effect.HungerChange);
+            SyncLegacyHunger();
         }
 
         if (effect.StressChange != 0)
@@ -459,6 +523,22 @@ public sealed class GameState
         }
     }
 
+    private void SyncLegacyHunger()
+    {
+        Player.Stats.SetHunger(Player.Nutrition.Satiety);
+    }
+
+    private string GetMotherStatusMessage()
+    {
+        return Player.Household.MotherCondition switch
+        {
+            MotherCondition.Stable => "Your mother seems stable today.",
+            MotherCondition.Fragile => "Your mother looks fragile and needs attention.",
+            MotherCondition.Crisis => "Your mother is in crisis. She needs care immediately.",
+            _ => "You check on your mother."
+        };
+    }
+
     private static SkillId GetSkillForJob(JobType jobType)
     {
         return jobType switch
@@ -482,7 +562,7 @@ public sealed class GameState
             $"Day {Clock.Day} - {Clock.TimeOfDay}",
             $"Time: {Clock.Hour:D2}:{Clock.Minute:D2}",
             $"Money: {Player.Stats.Money} LE",
-            $"Hunger: {Player.Stats.Hunger}%",
+            $"Hunger: {Player.Nutrition.Satiety}%",
             $"Energy: {Player.Stats.Energy}%",
             $"Health: {Player.Stats.Health}%",
             $"Stress: {Player.Stats.Stress}%",

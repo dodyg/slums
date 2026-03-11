@@ -59,12 +59,14 @@ internal sealed class NarrativeSceneExtensionsTests
     public async Task ApplyOutcome_ShouldModifyHunger_WhenHungerChangeIsNonZero()
     {
         var state = new GameState();
-        state.Player.Stats.ModifyHunger(-30);
-        var initialHunger = state.Player.Stats.Hunger;
+        state.Player.Nutrition.ModifySatiety(-30);
+        state.Player.Stats.SetHunger(state.Player.Nutrition.Satiety);
+        var initialHunger = state.Player.Nutrition.Satiety;
         var outcome = new NarrativeOutcome { HungerChange = 20 };
 
         state.ApplyOutcome(outcome);
 
+        await Assert.That(state.Player.Nutrition.Satiety).IsEqualTo(initialHunger + 20);
         await Assert.That(state.Player.Stats.Hunger).IsEqualTo(initialHunger + 20);
     }
 

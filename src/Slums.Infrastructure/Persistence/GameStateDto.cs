@@ -11,11 +11,13 @@ public sealed record GameStateDto
 {
     public int Money { get; init; }
     public int Hunger { get; init; }
+    public int DaysUndereating { get; init; }
     public int Energy { get; init; }
     public int Health { get; init; }
     public int Stress { get; init; }
     public int MotherHealth { get; init; }
     public int FoodStockpile { get; init; }
+    public int MedicineStock { get; init; }
     public int Day { get; init; }
     public int Hour { get; init; }
     public int Minute { get; init; }
@@ -38,12 +40,14 @@ public sealed record GameStateDto
         return new GameStateDto
         {
             Money = gameState.Player.Stats.Money,
-            Hunger = gameState.Player.Stats.Hunger,
+            Hunger = gameState.Player.Nutrition.Satiety,
+            DaysUndereating = gameState.Player.Nutrition.DaysUndereating,
             Energy = gameState.Player.Stats.Energy,
             Health = gameState.Player.Stats.Health,
             Stress = gameState.Player.Stats.Stress,
             MotherHealth = gameState.Player.Household.MotherHealth,
             FoodStockpile = gameState.Player.Household.FoodStockpile,
+            MedicineStock = gameState.Player.Household.MedicineStock,
             Day = gameState.Clock.Day,
             Hour = gameState.Clock.Hour,
             Minute = gameState.Clock.Minute,
@@ -67,12 +71,15 @@ public sealed record GameStateDto
         gameState.SetRunId(runId);
         gameState.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType));
         gameState.Player.Stats.SetMoney(Money);
-        gameState.Player.Stats.SetHunger(Hunger);
+        gameState.Player.Nutrition.SetSatiety(Hunger);
+        gameState.Player.Nutrition.SetDaysUndereating(DaysUndereating);
+        gameState.Player.Stats.SetHunger(gameState.Player.Nutrition.Satiety);
         gameState.Player.Stats.SetEnergy(Energy);
         gameState.Player.Stats.SetHealth(Health);
         gameState.Player.Stats.SetStress(Stress);
         gameState.Player.Household.SetMotherHealth(MotherHealth);
         gameState.Player.Household.SetFoodStockpile(FoodStockpile);
+        gameState.Player.Household.SetMedicineStock(MedicineStock);
         gameState.Player.Skills.Restore(SkillLevels.Select(static pair => new KeyValuePair<SkillId, int>(Enum.Parse<SkillId>(pair.Key), pair.Value)));
         gameState.Clock.SetTime(Day, Hour, Minute);
         gameState.World.TravelTo(new LocationId(CurrentLocationId));

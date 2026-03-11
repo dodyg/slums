@@ -27,7 +27,8 @@ public static class NarrativeSceneExtensions
         
         if (outcome.HungerChange != 0)
         {
-            state.Player.Stats.ModifyHunger(outcome.HungerChange);
+            state.Player.Nutrition.ModifySatiety(outcome.HungerChange);
+            state.Player.Stats.SetHunger(state.Player.Nutrition.Satiety);
         }
         
         if (outcome.StressChange != 0)
