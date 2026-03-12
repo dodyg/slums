@@ -13,7 +13,6 @@ using Slums.Game.Screens;
 
 namespace Slums.Game;
 
-[global::System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated via DI")]
 internal sealed class SadConsoleGame : IGame
 {
     private readonly ILogger<SadConsoleGame> _logger;
