@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
-using Slums.Core.Expenses;
+using Slums.Application.Activities;
 using Slums.Core.State;
 
 namespace Slums.Game.Screens;
@@ -11,11 +11,11 @@ internal sealed class ShopScreen : ScreenSurface
 {
     private const int OptionsStartX = 2;
     private const int OptionsStartY = 8;
+    private const string CancelOptionLabel = "Cancel";
     private readonly GameState _gameState;
     private readonly GameScreen _parentScreen;
+    private readonly ShopMenuStatusQuery _shopMenuStatusQuery = new();
     private int _selectedIndex;
-
-    private static readonly string[] Options = ["Buy Food (15 LE)", "Buy Medicine (50 LE)", "Cancel"];
 
     public ShopScreen(int width, int height, GameState gameState, GameScreen parentScreen) 
         : base(width, height)
@@ -32,6 +32,12 @@ internal sealed class ShopScreen : ScreenSurface
     {
         base.Render(delta);
         Surface.Clear();
+        var purchaseOptions = GetPurchaseOptions();
+        var optionCount = purchaseOptions.Count + 1;
+        if (_selectedIndex >= optionCount)
+        {
+            _selectedIndex = optionCount - 1;
+        }
 
         var y = 2;
         Surface.Print(OptionsStartX, y++, "=== Shop ===", Color.Cyan);
@@ -43,24 +49,26 @@ internal sealed class ShopScreen : ScreenSurface
             _gameState.Player.Household.MotherNeedsCare ? Color.Red : Color.Green);
         y = OptionsStartY;
 
-        for (var i = 0; i < Options.Length; i++)
+        for (var i = 0; i < optionCount; i++)
         {
             var prefix = i == _selectedIndex ? "> " : "  ";
             var color = i == _selectedIndex ? Color.Cyan : Color.White;
-
-            var canAfford = i switch
+            string label;
+            if (i < purchaseOptions.Count)
             {
-                0 => _gameState.Player.Stats.Money >= RecurringExpenses.CheapFoodStockpile,
-                1 => _gameState.Player.Stats.Money >= RecurringExpenses.MedicineCost,
-                _ => true
-            };
-
-            if (!canAfford && i < 2)
+                var option = purchaseOptions[i];
+                label = $"{option.Name} ({option.Cost} LE)";
+                if (!option.CanAfford)
+                {
+                    color = Color.DarkGray;
+                }
+            }
+            else
             {
-                color = Color.DarkGray;
+                label = CancelOptionLabel;
             }
 
-            Surface.Print(OptionsStartX, y++, $"{prefix}{Options[i]}", color);
+            Surface.Print(OptionsStartX, y++, $"{prefix}{label}", color);
         }
 
         y++;
@@ -69,15 +77,16 @@ internal sealed class ShopScreen : ScreenSurface
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)
     {
+        var optionCount = GetOptionCount();
         if (keyboard.IsKeyPressed(Keys.Up))
         {
-            _selectedIndex = (_selectedIndex - 1 + Options.Length) % Options.Length;
+            _selectedIndex = (_selectedIndex - 1 + optionCount) % optionCount;
             return true;
         }
 
         if (keyboard.IsKeyPressed(Keys.Down))
         {
-            _selectedIndex = (_selectedIndex + 1) % Options.Length;
+            _selectedIndex = (_selectedIndex + 1) % optionCount;
             return true;
         }
 
@@ -104,10 +113,14 @@ internal sealed class ShopScreen : ScreenSurface
             return handled;
         }
 
+        var purchaseOptions = GetPurchaseOptions();
         var cellPosition = state.SurfaceCellPosition;
-        for (var i = 0; i < Options.Length; i++)
+        for (var i = 0; i < purchaseOptions.Count + 1; i++)
         {
-            var endX = OptionsStartX + Options[i].Length + 2;
+            var label = i < purchaseOptions.Count
+                ? $"{purchaseOptions[i].Name} ({purchaseOptions[i].Cost} LE)"
+                : CancelOptionLabel;
+            var endX = OptionsStartX + label.Length + 2;
             if (cellPosition.Y == OptionsStartY + i && cellPosition.X >= OptionsStartX && cellPosition.X < endX)
             {
                 _selectedIndex = i;
@@ -142,5 +155,15 @@ internal sealed class ShopScreen : ScreenSurface
         IsFocused = false;
         _parentScreen.IsFocused = true;
         GameHost.Instance.Screen = _parentScreen;
+    }
+
+    private IReadOnlyList<ShopMenuStatus> GetPurchaseOptions()
+    {
+        return _shopMenuStatusQuery.GetStatuses(_gameState);
+    }
+
+    private int GetOptionCount()
+    {
+        return GetPurchaseOptions().Count + 1;
     }
 }

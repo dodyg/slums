@@ -1,0 +1,3 @@
+namespace Slums.Application.Activities;
+
+public sealed record ShopMenuStatus(string Name, int Cost, bool CanAfford);
