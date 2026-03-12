@@ -1,5 +1,21 @@
 # Ending scenes
 
+=== ending_destitution ===
+There is a point where the city stops offering you choices and starts offering you corners. Rent becomes arrears. Hunger becomes the plan for tomorrow too. You are still alive, but life narrows into borrowed shade, shut doors, and the humiliation of needing one more day from people who have none to spare.
+-> DONE
+
+=== ending_mother_died ===
+After the room goes quiet, Cairo sounds indecently normal. Pots clang in the stairwell. Someone downstairs argues over bread. A microbus horn cuts through the afternoon as if nothing in your flat has been divided into before and after.
+
+You bury your mother with help, debt, and the stunned courtesy people reserve for grief they know will not save you. When the mourners leave, the apartment feels smaller than poverty ever made it. Whatever comes next has to be built around an absence you could not bargain with.
+-> DONE
+
+=== ending_collapse ===
+It is not one dramatic blow that stops you. It is missed meals, bad sleep, heat trapped in concrete, and one more demand made of a body that has already spent itself. When you finally fold, strangers gather just long enough to prove that pity can be real and still not be enough.
+
+By the time you understand how close to the edge you were living, the life you had been trying to hold together is already slipping past your hands. Cairo does not mark the spot where you fell. It simply keeps moving.
+-> DONE
+
 === ending_stability ===
 It is not victory. It is rent paid on time, bread on the table, and mornings that do not begin with panic already in your throat. In Cairo, that counts for something close to grace.
 -> DONE
@@ -58,6 +74,12 @@ Stopping feels less like redemption than refusal. The city taught you what surve
 
 === ending_leaving_crime_sudanese ===
 You do not get the old life back, and no one pretends otherwise. What changes is the direction of the fear. It stops coming from the next errand, the next handoff, the next face that might remember you, and begins shrinking back into something survivable.
+-> DONE
+
+=== ending_crime_kingpin ===
+The money finally arrives in amounts that change how people look at you. Doors open faster. Favors come wrapped as respect. Even the ones above you speak more carefully now.
+
+But every rung you climbed belongs to someone else too. The errands are bigger, the witnesses closer, the punishment for hesitation clearer. From the outside it looks like power. Up close it is only a better-lit cage, and Cairo knows exactly how to keep the key.
 -> DONE
 
 === ending_buried_by_heat ===

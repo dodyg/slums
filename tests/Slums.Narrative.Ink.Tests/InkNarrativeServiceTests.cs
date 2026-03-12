@@ -262,6 +262,27 @@ internal sealed class InkNarrativeServiceTests
     }
 
     [Test]
+    public void StartScene_ShouldLoadAllFormerlyAbruptEndingScenes()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+        var expectations = new Dictionary<string, string>
+        {
+            ["ending_destitution"] = "stops offering you choices",
+            ["ending_mother_died"] = "room goes quiet",
+            ["ending_collapse"] = "not one dramatic blow",
+            ["ending_crime_kingpin"] = "better-lit cage"
+        };
+
+        foreach (var expectation in expectations)
+        {
+            service.StartScene(expectation.Key, new GameState());
+
+            service.IsSceneActive.Should().BeTrue();
+            service.CurrentText.Should().Contain(expectation.Value);
+        }
+    }
+
+    [Test]
     public void StartScene_ShouldLoadEndingVariantScene()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);

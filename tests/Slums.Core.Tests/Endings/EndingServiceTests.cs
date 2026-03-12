@@ -110,4 +110,18 @@ internal sealed class EndingServiceTests
 
         await Assert.That(EndingService.GetInkKnot(state, EndingId.NetworkShelter)).IsEqualTo("ending_network_shelter_salma");
     }
+
+    [Test]
+    public async Task GetInkKnot_ShouldReturnNarrativeScene_ForEveryEnding()
+    {
+        var state = new GameState();
+
+        foreach (var endingId in Enum.GetValues<EndingId>())
+        {
+            var knotName = EndingService.GetInkKnot(state, endingId);
+
+            await Assert.That(knotName).IsNotNull();
+            await Assert.That(knotName.Length).IsGreaterThan(0);
+        }
+    }
 }

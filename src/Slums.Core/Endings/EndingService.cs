@@ -105,21 +105,25 @@ public static class EndingService
         };
     }
 
-    public static string? GetInkKnot(EndingId endingId)
+    public static string GetInkKnot(EndingId endingId)
     {
         return endingId switch
         {
+            EndingId.Destitution => "ending_destitution",
+            EndingId.MotherDied => "ending_mother_died",
+            EndingId.CollapseFromExhaustion => "ending_collapse",
             EndingId.StabilityHonestWork => "ending_stability",
+            EndingId.CrimeKingpin => "ending_crime_kingpin",
             EndingId.QuitTheLuxorDream => "ending_luxor",
             EndingId.Arrested => "ending_arrested",
             EndingId.NetworkShelter => "ending_network_shelter",
             EndingId.LeavingCrime => "ending_leaving_crime",
             EndingId.BuriedByHeat => "ending_buried_by_heat",
-            _ => null
+            _ => throw new ArgumentOutOfRangeException(nameof(endingId))
         };
     }
 
-    public static string? GetInkKnot(GameState gameState, EndingId endingId)
+    public static string GetInkKnot(GameState gameState, EndingId endingId)
     {
         ArgumentNullException.ThrowIfNull(gameState);
 

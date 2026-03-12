@@ -481,6 +481,8 @@ internal sealed class GameStateTests
 
         await Assert.That(state.IsGameOver).IsTrue();
         await Assert.That(state.GameOverReason).Contains("health");
+        await Assert.That(TryTakePendingEndingKnot(state, out var knotName)).IsTrue();
+        await Assert.That(knotName).IsEqualTo("ending_collapse");
     }
 
     [Test]
@@ -815,6 +817,8 @@ internal sealed class GameStateTests
 
         await Assert.That(state.IsGameOver).IsTrue();
         await Assert.That(state.GameOverReason).Contains("mother");
+        await Assert.That(TryTakePendingEndingKnot(state, out var knotName)).IsTrue();
+        await Assert.That(knotName).IsEqualTo("ending_mother_died");
     }
 
     [Test]
@@ -847,6 +851,17 @@ internal sealed class GameStateTests
             }
         }
 
+        return false;
+    }
+
+    private static bool TryTakePendingEndingKnot(GameState state, out string knotName)
+    {
+        if (state.TryTakePendingEndingKnot(out knotName))
+        {
+            return true;
+        }
+
+        knotName = string.Empty;
         return false;
     }
 }
