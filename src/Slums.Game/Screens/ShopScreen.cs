@@ -49,6 +49,14 @@ internal sealed class ShopScreen : ScreenSurface
         Surface.Print(OptionsStartX, y++, $"Food Stockpile: {_context.FoodStockpile}", Color.White);
         Surface.Print(OptionsStartX, y++, $"Mother's Health: {_context.MotherHealth}%", 
             _context.MotherNeedsCare ? Color.Red : Color.Green);
+        if (_context.HasClinicServices)
+        {
+            var clinicColor = _context.ClinicOpenToday ? Color.Green : Color.Orange;
+            var clinicLine = _context.ClinicOpenToday
+                ? $"Clinic: Open today ({_context.ClinicVisitCost} LE)"
+                : $"Clinic: Closed today ({_context.ClinicOpenDaysSummary})";
+            Surface.Print(OptionsStartX, y++, clinicLine, clinicColor);
+        }
         y = OptionsStartY;
 
         for (var i = 0; i < optionCount; i++)
@@ -74,6 +82,12 @@ internal sealed class ShopScreen : ScreenSurface
         }
 
         y++;
+        var selectedOption = _selectedIndex < purchaseOptions.Count ? purchaseOptions[_selectedIndex] : null;
+        if (!string.IsNullOrWhiteSpace(selectedOption?.Note))
+        {
+            Surface.Print(OptionsStartX, y++, selectedOption.Note, Color.DarkGray);
+        }
+
         Surface.Print(OptionsStartX, y++, "Arrow keys to select, Enter to buy, Escape to cancel", Color.DarkGray);
     }
 
@@ -136,17 +150,25 @@ internal sealed class ShopScreen : ScreenSurface
 
     private void ExecuteSelection()
     {
-        switch (_selectedIndex)
+        var purchaseOptions = GetPurchaseOptions();
+        if (_selectedIndex >= purchaseOptions.Count)
         {
-            case 0:
+            ReturnToParentScreen();
+            return;
+        }
+
+        var selectedOption = purchaseOptions[_selectedIndex];
+        switch (selectedOption.Name)
+        {
+            case "Buy Food":
                 _gameState.BuyFood();
                 break;
-            case 1:
+            case "Buy Medicine":
                 _gameState.BuyMedicine();
                 break;
-            case 2:
-                ReturnToParentScreen();
-                return;
+            case "Take Mother to Clinic":
+                _gameState.TakeMotherToClinic();
+                break;
         }
 
         ReturnToParentScreen();

@@ -63,6 +63,9 @@
     "District": "ArdAlLiwa",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
+    "HasClinicServices": true,
+    "ClinicVisitBaseCost": 35,
+    "ClinicOpenDays": ["Saturday", "Sunday", "Monday", "Wednesday", "Thursday"],
     "TravelTimeMinutes": 25
   },
   {
@@ -96,6 +99,9 @@
     "District": "BulaqAlDakrour",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
+    "HasClinicServices": true,
+    "ClinicVisitBaseCost": 46,
+    "ClinicOpenDays": ["Saturday", "Sunday", "Tuesday", "Thursday"],
     "TravelTimeMinutes": 30
   },
   {

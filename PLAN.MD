@@ -21,6 +21,7 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - a working multi-project .NET 10 solution with shared build settings
 - SadConsole game flow with main menu, background selection, narrative, and gameplay screens
 - core survival simulation for money, hunger, energy, health, stress, rent, food, and time
+- mother-clinic care at clinic-capable locations with schedule-aware availability and variable pricing
 - three playable backgrounds with distinct systemic advantages and liabilities
 - travel across Imbaba, Dokki, and Ard al-Liwa
 - honest work progression with reliability, variant unlocks, and temporary lockouts
@@ -107,6 +108,16 @@ Expand content that reflects the systems already in place.
 - add more spillover follow-up scenes
 - add more district-event and background-specific aftermath content
 - expand conversation pools beyond 100 days if needed
+
+## Household Care Enhancement
+
+Status: implemented.
+
+Completed steps:
+
+1. Added location-driven clinic access so only clinic-capable locations offer mother treatment.
+2. Added variable clinic pricing plus relationship and medical-skill discounts.
+3. Added clinic opening-day rules and surfaced the paid clinic option in the shop flow and status page.
 
 ## Suggested Next Ticket
 

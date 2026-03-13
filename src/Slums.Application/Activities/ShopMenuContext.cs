@@ -8,11 +8,18 @@ public sealed record ShopMenuContext(
     int MedicineCost,
     int FoodStockpile,
     int MotherHealth,
-    bool MotherNeedsCare)
+    bool MotherNeedsCare,
+    bool HasClinicServices,
+    bool ClinicOpenToday,
+    int ClinicVisitCost,
+    string ClinicDayName,
+    string ClinicOpenDaysSummary)
 {
     public static ShopMenuContext Create(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
+
+        var clinicStatus = gameSession.GetCurrentLocationClinicStatus();
 
         return new ShopMenuContext(
             gameSession.Player.Stats.Money,
@@ -20,6 +27,11 @@ public sealed record ShopMenuContext(
             gameSession.GetMedicineCost(),
             gameSession.Player.Household.FoodStockpile,
             gameSession.Player.Household.MotherHealth,
-            gameSession.Player.Household.MotherNeedsCare);
+            gameSession.Player.Household.MotherNeedsCare,
+            clinicStatus.HasClinicServices,
+            clinicStatus.IsOpenToday,
+            clinicStatus.VisitCost,
+            clinicStatus.CurrentDayName,
+            clinicStatus.OpenDaysSummary);
     }
 }

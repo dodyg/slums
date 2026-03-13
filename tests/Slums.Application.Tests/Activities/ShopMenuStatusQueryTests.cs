@@ -30,6 +30,40 @@ internal sealed class ShopMenuStatusQueryTests
     }
 
     [Test]
+    public void GetStatuses_ShouldIncludeClinicOption_OnlyWhereClinicServicesExist()
+    {
+        var query = new ShopMenuStatusQuery();
+        using var marketState = new GameSession();
+        marketState.World.TravelTo(LocationId.Market);
+        using var clinicState = new GameSession();
+        clinicState.World.TravelTo(LocationId.Clinic);
+
+        var marketStatuses = query.GetStatuses(ShopMenuContext.Create(marketState));
+        var clinicStatuses = query.GetStatuses(ShopMenuContext.Create(clinicState));
+
+        marketStatuses.Should().HaveCount(2);
+        clinicStatuses.Should().HaveCount(3);
+        clinicStatuses[2].Name.Should().Be("Take Mother to Clinic");
+        clinicStatuses[2].Cost.Should().Be(35);
+        clinicStatuses[2].CanAfford.Should().BeTrue();
+    }
+
+    [Test]
+    public void GetStatuses_ShouldDisableClinicOption_WhenClosedToday()
+    {
+        var query = new ShopMenuStatusQuery();
+        using var gameState = new GameSession();
+        gameState.Clock.SetTime(day: 4, hour: 10, minute: 0);
+        gameState.World.TravelTo(LocationId.Clinic);
+
+        var statuses = query.GetStatuses(ShopMenuContext.Create(gameState));
+
+        statuses.Should().HaveCount(3);
+        statuses[2].CanAfford.Should().BeFalse();
+        statuses[2].Note.Should().Contain("Closed on Tuesday");
+    }
+
+    [Test]
     public void GetStatuses_ShouldReflectMedicineDiscounts_AndAffordability()
     {
         var query = new ShopMenuStatusQuery();
@@ -41,7 +75,7 @@ internal sealed class ShopMenuStatusQueryTests
 
         var statuses = query.GetStatuses(ShopMenuContext.Create(gameState));
 
-        statuses.Should().HaveCount(2);
+        statuses.Should().HaveCount(3);
         statuses[1].Cost.Should().Be(32);
         statuses[1].CanAfford.Should().BeFalse();
     }

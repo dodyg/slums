@@ -38,6 +38,9 @@ public sealed class GameStatusPageQuery
                 $"Police pressure: {context.PolicePressure}",
                 $"Food: {household.FoodStockpile} | Medicine: {household.MedicineStock}",
                 $"Local prices: food {context.FoodCost} LE | street {context.StreetFoodCost} LE | medicine {context.MedicineCost} LE",
+                context.HasClinicServices
+                    ? $"Clinic here: {(context.ClinicOpenToday ? "open" : "closed")} today | visit {context.ClinicVisitCost} LE | days {context.ClinicOpenDaysSummary}"
+                    : "Clinic here: none",
                 $"Mother: {household.MotherHealth}% {household.MotherCondition}",
                 $"Mother fed today: {ToYesNo(household.FedMotherToday)}"
             ]);

@@ -537,6 +537,62 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         return true;
     }
 
+    public MotherClinicVisitResult TakeMotherToClinic()
+    {
+        var clinicStatus = GetCurrentLocationClinicStatus();
+        if (!clinicStatus.HasClinicServices)
+        {
+            RaiseEvent("There is no clinic service at this location.");
+            return new MotherClinicVisitResult(false, 0, 0);
+        }
+
+        if (!clinicStatus.IsOpenToday)
+        {
+            RaiseEvent($"{clinicStatus.LocationName} is closed today. Open days: {clinicStatus.OpenDaysSummary}.");
+            return new MotherClinicVisitResult(false, clinicStatus.VisitCost, 0);
+        }
+
+        if (Player.Stats.Money < clinicStatus.VisitCost)
+        {
+            RaiseEvent($"Not enough money. A clinic visit costs {clinicStatus.VisitCost} LE here.");
+            return new MotherClinicVisitResult(false, clinicStatus.VisitCost, 0);
+        }
+
+        var healthBonus = 0;
+        if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout)
+        {
+            healthBonus += 5;
+        }
+
+        if (World.CurrentLocationId == LocationId.Clinic && Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust >= 15)
+        {
+            healthBonus += 3;
+        }
+
+        if (World.CurrentLocationId == LocationId.Pharmacy && Relationships.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= 12)
+        {
+            healthBonus += 2;
+        }
+
+        var healthChange = Math.Clamp(15 + healthBonus, 0, 100 - Player.Household.MotherHealth);
+
+        Player.Stats.ModifyMoney(-clinicStatus.VisitCost);
+        Player.Household.UpdateMotherHealth(healthChange);
+        Player.Stats.ModifyEnergy(-10);
+        AdvanceTime(90);
+        ApplySkillGain(SkillId.Medical);
+
+        RaiseEvent($"You take your mother into {clinicStatus.LocationName}. The visit costs {clinicStatus.VisitCost} LE. Her health improves by {healthChange}.");
+
+        if (!HasStoryFlag("mother_clinic_first_visit"))
+        {
+            SetStoryFlag("mother_clinic_first_visit");
+            QueueNarrativeScene("mother_clinic_first_visit");
+        }
+
+        return new MotherClinicVisitResult(true, clinicStatus.VisitCost, healthChange);
+    }
+
 #pragma warning disable CA1024
     public int GetFoodCost()
     {
@@ -562,6 +618,32 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             DistrictId.Shubra => 9,
             _ => 8
         };
+    }
+
+    public CurrentLocationClinicStatus GetCurrentLocationClinicStatus()
+    {
+        var location = World.GetCurrentLocation();
+        var currentDay = GetCurrentDayOfWeek();
+        var currentDayName = currentDay.ToString();
+
+        if (location is null || !location.HasClinicServices)
+        {
+            return new CurrentLocationClinicStatus(
+                HasClinicServices: false,
+                IsOpenToday: false,
+                VisitCost: 0,
+                LocationName: location?.Name ?? "Unknown",
+                CurrentDayName: currentDayName,
+                OpenDaysSummary: "No clinic here");
+        }
+
+        return new CurrentLocationClinicStatus(
+            HasClinicServices: true,
+            IsOpenToday: location.ClinicOpenDays.Contains(currentDay),
+            VisitCost: GetClinicVisitCost(location),
+            LocationName: location.Name,
+            CurrentDayName: currentDayName,
+            OpenDaysSummary: FormatOpenDays(location.ClinicOpenDays));
     }
 #pragma warning restore CA1024
 
@@ -598,6 +680,34 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
 
         return travelCost;
+    }
+
+    private int GetClinicVisitCost(Location location)
+    {
+        ArgumentNullException.ThrowIfNull(location);
+
+        var visitCost = location.ClinicVisitBaseCost;
+        if (visitCost <= 0)
+        {
+            return 0;
+        }
+
+        if (Player.Skills.GetLevel(SkillId.Medical) >= 2)
+        {
+            visitCost = Math.Max(20, visitCost - 5);
+        }
+
+        if (location.Id == LocationId.Clinic && Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust >= 20)
+        {
+            visitCost = Math.Max(18, visitCost - 6);
+        }
+
+        if (location.Id == LocationId.Pharmacy && Relationships.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= 12)
+        {
+            visitCost = Math.Max(20, visitCost - 4);
+        }
+
+        return visitCost;
     }
 
     private int GetTravelEnergyCost(Location destination)
@@ -1306,6 +1416,12 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Stats.SetHunger(Player.Nutrition.Satiety);
     }
 
+    private DayOfWeek GetCurrentDayOfWeek()
+    {
+        var offset = (Clock.Day - 1) % 7;
+        return (DayOfWeek)(((int)DayOfWeek.Saturday + offset) % 7);
+    }
+
     private string GetMotherStatusMessage()
     {
         return Player.Household.MotherCondition switch
@@ -1315,6 +1431,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             MotherCondition.Crisis => "Your mother is in crisis. She needs care immediately.",
             _ => "You check on your mother."
         };
+    }
+
+    private static string FormatOpenDays(IEnumerable<DayOfWeek> openDays)
+    {
+        return string.Join(", ", openDays.Select(static day => day.ToString()[..3]));
     }
 
     private static SkillId GetSkillForJob(JobType jobType)

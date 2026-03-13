@@ -22,11 +22,17 @@ public sealed record GameStatusContext(
     int FoodCost,
     int StreetFoodCost,
     int MedicineCost,
+    bool HasClinicServices,
+    bool ClinicOpenToday,
+    int ClinicVisitCost,
+    string ClinicOpenDaysSummary,
     IReadOnlySet<string> StoryFlags)
 {
     public static GameStatusContext Create(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
+
+        var clinicStatus = gameSession.GetCurrentLocationClinicStatus();
 
         return new GameStatusContext(
             gameSession.Clock,
@@ -44,6 +50,10 @@ public sealed record GameStatusContext(
             gameSession.GetFoodCost(),
             gameSession.GetStreetFoodCost(),
             gameSession.GetMedicineCost(),
+            clinicStatus.HasClinicServices,
+            clinicStatus.IsOpenToday,
+            clinicStatus.VisitCost,
+            clinicStatus.OpenDaysSummary,
             gameSession.StoryFlags.ToHashSet(StringComparer.Ordinal));
     }
 

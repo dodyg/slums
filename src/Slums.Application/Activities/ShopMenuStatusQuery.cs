@@ -8,10 +8,25 @@ public sealed class ShopMenuStatusQuery
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        return
-        [
-            new ShopMenuStatus("Buy Food", context.FoodCost, context.Money >= context.FoodCost),
-            new ShopMenuStatus("Buy Medicine", context.MedicineCost, context.Money >= context.MedicineCost)
-        ];
+        var statuses = new List<ShopMenuStatus>
+        {
+            new("Buy Food", context.FoodCost, context.Money >= context.FoodCost),
+            new("Buy Medicine", context.MedicineCost, context.Money >= context.MedicineCost)
+        };
+
+        if (context.HasClinicServices)
+        {
+            var note = context.ClinicOpenToday
+                ? $"Improves your mother's health. Open today. Cost: {context.ClinicVisitCost} LE."
+                : $"Closed on {context.ClinicDayName}. Open: {context.ClinicOpenDaysSummary}.";
+
+            statuses.Add(new ShopMenuStatus(
+                "Take Mother to Clinic",
+                context.ClinicVisitCost,
+                context.ClinicOpenToday && context.Money >= context.ClinicVisitCost,
+                note));
+        }
+
+        return statuses;
     }
 }

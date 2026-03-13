@@ -8,6 +8,9 @@ public sealed class Location
     public DistrictId District { get; init; }
     public bool HasJobOpportunities { get; init; }
     public bool HasCrimeOpportunities { get; init; }
+    public bool HasClinicServices { get; init; }
+    public int ClinicVisitBaseCost { get; init; }
+    public IReadOnlyList<DayOfWeek> ClinicOpenDays { get; init; } = [];
     public int TravelTimeMinutes { get; init; } = 30;
 }
 
@@ -76,6 +79,9 @@ public sealed class WorldState
             District = DistrictId.ArdAlLiwa,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
+            HasClinicServices = true,
+            ClinicVisitBaseCost = 35,
+            ClinicOpenDays = [DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Thursday],
             TravelTimeMinutes = 25
         },
         new Location
@@ -106,6 +112,9 @@ public sealed class WorldState
             District = DistrictId.BulaqAlDakrour,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
+            HasClinicServices = true,
+            ClinicVisitBaseCost = 46,
+            ClinicOpenDays = [DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Tuesday, DayOfWeek.Thursday],
             TravelTimeMinutes = 30
         },
         new Location

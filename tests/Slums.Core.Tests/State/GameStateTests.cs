@@ -156,6 +156,61 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task TakeMotherToClinic_ShouldFail_WhenLocationHasNoClinic()
+    {
+        using var state = new GameSession();
+        state.World.TravelTo(LocationId.Market);
+
+        var result = state.TakeMotherToClinic();
+
+        await Assert.That(result.Success).IsFalse();
+        await Assert.That(result.TotalCost).IsEqualTo(0);
+        await Assert.That(state.Player.Household.MotherHealth).IsEqualTo(70);
+    }
+
+    [Test]
+    public async Task TakeMotherToClinic_ShouldFail_WhenClinicIsClosedToday()
+    {
+        using var state = new GameSession();
+        state.Clock.SetTime(day: 4, hour: 10, minute: 0);
+        state.World.TravelTo(LocationId.Clinic);
+
+        var result = state.TakeMotherToClinic();
+
+        await Assert.That(result.Success).IsFalse();
+        await Assert.That(result.TotalCost).IsEqualTo(35);
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(100);
+    }
+
+    [Test]
+    public async Task TakeMotherToClinic_ShouldImproveMotherHealth_AndChargeLocationPrice()
+    {
+        using var state = new GameSession();
+        state.World.TravelTo(LocationId.Clinic);
+        state.Player.Household.SetMotherHealth(50);
+
+        var result = state.TakeMotherToClinic();
+
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(result.TotalCost).IsEqualTo(35);
+        await Assert.That(result.HealthChange).IsEqualTo(20);
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(65);
+        await Assert.That(state.Player.Household.MotherHealth).IsEqualTo(70);
+    }
+
+    [Test]
+    public async Task TakeMotherToClinic_ShouldUseDifferentClinicPrice_ByLocation()
+    {
+        using var state = new GameSession();
+        state.World.TravelTo(LocationId.Pharmacy);
+
+        var status = state.GetCurrentLocationClinicStatus();
+
+        await Assert.That(status.HasClinicServices).IsTrue();
+        await Assert.That(status.VisitCost).IsEqualTo(46);
+    }
+
+    [Test]
     public async Task RestAtHome_ShouldRestoreEnergyAndAdvanceTime()
     {
         using var state = new GameSession();
@@ -305,7 +360,7 @@ internal sealed class GameStateTests
     public async Task TryWalkTo_ShouldFailIfTooExhausted()
     {
         using var state = new GameSession();
-        state.Player.Stats.ModifyEnergy(-60);
+        state.Player.Stats.SetEnergy(14);
 
         var result = state.TryWalkTo(LocationId.CallCenter);
 

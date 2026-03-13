@@ -44,6 +44,19 @@ internal sealed class GameStatusPageQueryTests
     }
 
     [Test]
+    public void GetPages_ShouldExposeClinicStatus_OnSurvivalPage()
+    {
+        var query = new GameStatusPageQuery();
+        using var gameState = new GameSession();
+        gameState.World.TravelTo(LocationId.Clinic);
+
+        var pages = query.GetPages(GameStatusContext.Create(gameState));
+
+        var survival = pages.Single(static page => page.Title == "Survival");
+        survival.Lines.Should().Contain(static line => line.Contains("Clinic here: open today | visit 35 LE", StringComparison.Ordinal));
+    }
+
+    [Test]
     public void GetPages_ShouldExposeProgressTrajectoryHints()
     {
         var query = new GameStatusPageQuery();

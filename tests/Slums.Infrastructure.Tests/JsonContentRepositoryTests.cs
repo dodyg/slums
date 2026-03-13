@@ -82,6 +82,44 @@ internal sealed class JsonContentRepositoryTests
     }
 
     [Test]
+    public void LoadLocations_ShouldDeserializeClinicMetadata()
+    {
+        var contentDirectory = CreateTempDirectory();
+        try
+        {
+            File.WriteAllText(Path.Combine(contentDirectory, "locations.json"), """
+            [
+              {
+                "Id": { "Value": "clinic" },
+                "Name": "Rahma Clinic",
+                "Description": "desc",
+                "District": "ArdAlLiwa",
+                "HasJobOpportunities": true,
+                "HasCrimeOpportunities": false,
+                "HasClinicServices": true,
+                "ClinicVisitBaseCost": 35,
+                "ClinicOpenDays": ["Saturday", "Sunday", "Thursday"],
+                "TravelTimeMinutes": 25
+              }
+            ]
+            """);
+
+            var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
+
+            var locations = repository.LoadLocations();
+
+            locations.Should().HaveCount(1);
+            locations[0].HasClinicServices.Should().BeTrue();
+            locations[0].ClinicVisitBaseCost.Should().Be(35);
+            locations[0].ClinicOpenDays.Should().Contain(DayOfWeek.Thursday);
+        }
+        finally
+        {
+            DeleteDirectory(contentDirectory);
+        }
+    }
+
+    [Test]
     public void LoadRandomEvents_ShouldMapLocationSpecificConditions()
     {
         var contentDirectory = CreateTempDirectory();
