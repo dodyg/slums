@@ -12,6 +12,9 @@ public sealed class Location
     public int ClinicVisitBaseCost { get; init; }
     public IReadOnlyList<DayOfWeek> ClinicOpenDays { get; init; } = [];
     public int TravelTimeMinutes { get; init; } = 30;
+    public bool HasCafe { get; init; }
+    public bool HasBar { get; init; }
+    public bool HasBilliards { get; init; }
 }
 
 public sealed class WorldState
@@ -39,7 +42,8 @@ public sealed class WorldState
             District = DistrictId.Imbaba,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
-            TravelTimeMinutes = 15
+            TravelTimeMinutes = 15,
+            HasCafe = true
         },
         new Location
         {
@@ -69,7 +73,8 @@ public sealed class WorldState
             District = DistrictId.Dokki,
             HasJobOpportunities = false,
             HasCrimeOpportunities = true,
-            TravelTimeMinutes = 40
+            TravelTimeMinutes = 40,
+            HasBar = true
         },
         new Location
         {
@@ -102,7 +107,8 @@ public sealed class WorldState
             District = DistrictId.Dokki,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
-            TravelTimeMinutes = 35
+            TravelTimeMinutes = 35,
+            HasCafe = true
         },
         new Location
         {
@@ -115,7 +121,8 @@ public sealed class WorldState
             HasClinicServices = true,
             ClinicVisitBaseCost = 46,
             ClinicOpenDays = [DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Tuesday, DayOfWeek.Thursday],
-            TravelTimeMinutes = 30
+            TravelTimeMinutes = 30,
+            HasCafe = true
         },
         new Location
         {
@@ -125,7 +132,8 @@ public sealed class WorldState
             District = DistrictId.BulaqAlDakrour,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
-            TravelTimeMinutes = 30
+            TravelTimeMinutes = 30,
+            HasBilliards = true
         },
         new Location
         {
@@ -135,7 +143,8 @@ public sealed class WorldState
             District = DistrictId.Shubra,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
-            TravelTimeMinutes = 40
+            TravelTimeMinutes = 40,
+            HasBilliards = true
         }
     ];
 

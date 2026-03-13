@@ -25,6 +25,7 @@ internal sealed class GameScreen : ScreenSurface
     private readonly GameStatusPageQuery _statusPageQuery = new();
     private readonly TalkNpcStatusQuery _talkNpcStatusQuery = new();
     private readonly ClinicTravelMenuQuery _clinicTravelMenuQuery = new();
+    private readonly EntertainmentMenuQuery _entertainmentMenuQuery = new();
     private readonly AutomaticTimeAdvancer _automaticTimeAdvancer;
     private readonly ScreenActionKeyGate _actionKeyGate = new();
     private readonly List<string> _eventLog = new(10);
@@ -313,6 +314,9 @@ internal sealed class GameScreen : ScreenSurface
             case "Talk":
                 ShowTalkMenu();
                 break;
+            case "Entertainment":
+                ShowEntertainmentMenu();
+                break;
             case "Shop":
                 ShowShopMenu();
                 break;
@@ -422,6 +426,20 @@ internal sealed class GameScreen : ScreenSurface
         GameHost.Instance.Screen = new ClinicTravelScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, clinicContext, clinics, this);
     }
 
+    private void ShowEntertainmentMenu()
+    {
+        var entertainmentContext = EntertainmentMenuContext.Create(_gameState);
+        var activities = _entertainmentMenuQuery.GetStatuses(entertainmentContext).ToList();
+        if (activities.Count == 0)
+        {
+            AddEventLogEntry("No entertainment available here.");
+            return;
+        }
+
+        IsFocused = false;
+        GameHost.Instance.Screen = new EntertainmentScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, entertainmentContext, activities, this);
+    }
+
     private void AddEventLogEntry(string message)
     {
         _eventLog.Add(message);
@@ -460,6 +478,11 @@ internal sealed class GameScreen : ScreenSurface
         if (_gameState.GetReachableNpcs().Count > 0)
         {
             actions.Add("Talk");
+        }
+
+        if (location is { HasCafe: true } or { HasBar: true } or { HasBilliards: true })
+        {
+            actions.Add("Entertainment");
         }
 
         actions.Add("Shop");

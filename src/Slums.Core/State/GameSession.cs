@@ -2,6 +2,7 @@ using Slums.Core.Characters;
 using Slums.Core.Clock;
 using Slums.Core.Crimes;
 using Slums.Core.Endings;
+using Slums.Core.Entertainment;
 using Slums.Core.Expenses;
 using Slums.Core.Events;
 using Slums.Core.Jobs;
@@ -312,6 +313,77 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         ArgumentNullException.ThrowIfNull(destination);
 
         return destination.TravelTimeMinutes * 3;
+    }
+
+    public IReadOnlyList<EntertainmentActivity> GetAvailableEntertainmentActivities()
+    {
+        var location = World.GetCurrentLocation();
+        if (location is null)
+        {
+            return [];
+        }
+
+        return EntertainmentRegistry.GetActivitiesForLocation(
+            location.HasCafe,
+            location.HasBar,
+            location.HasBilliards).ToArray();
+    }
+
+    public bool TryPerformEntertainment(EntertainmentActivity activity)
+    {
+        ArgumentNullException.ThrowIfNull(activity);
+
+        if (Player.Stats.Money < activity.BaseCost)
+        {
+            RaiseEvent($"You cannot afford {activity.Name} right now.");
+            return false;
+        }
+
+        if (Player.Stats.Energy < activity.EnergyCost)
+        {
+            RaiseEvent($"You are too tired for {activity.Name}.");
+            return false;
+        }
+
+        var location = World.GetCurrentLocation();
+        if (location is null)
+        {
+            RaiseEvent("You are nowhere.");
+            return false;
+        }
+
+        var availableActivities = GetAvailableEntertainmentActivities();
+        if (!availableActivities.Contains(activity))
+        {
+            RaiseEvent($"{activity.Name} is not available here.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-activity.BaseCost);
+        Player.Stats.ModifyStress(-activity.StressReduction);
+        if (activity.EnergyCost > 0)
+        {
+            Player.Stats.ModifyEnergy(-activity.EnergyCost);
+        }
+
+        AdvanceTime(activity.DurationMinutes);
+
+        RaiseEvent(GetEntertainmentFlavorMessage(activity));
+        return true;
+    }
+
+    private static string GetEntertainmentFlavorMessage(EntertainmentActivity activity)
+    {
+        return activity.Type switch
+        {
+            EntertainmentActivityType.Coffee => "The coffee is strong and bitter. You feel a little lighter.",
+            EntertainmentActivityType.Shisha => "Apple smoke curls around you. The afternoon drifts by.",
+            EntertainmentActivityType.Billiards => "You win some, you lose some. The company is good.",
+            EntertainmentActivityType.BarDrinking => "The drink burns going down. For a while, things feel far away.",
+            EntertainmentActivityType.FootballWatching => "The crowd screams at the TV. You scream with them.",
+            EntertainmentActivityType.SocialHangout => "Just talking. Just listening. It helps.",
+            _ => $"You spent some time on {activity.Name}."
+        };
     }
 
     public JobResult WorkJob(JobShift job, Random? random = null)

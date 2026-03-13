@@ -76,14 +76,16 @@ Keep static world data in `content/data/` when it does not need hardcoded rules.
 
 ## Current Priorities
 
-### 1. Walking as Travel Alternative
+### 1. Entertainment Activities
 
-Allow characters to walk to a location if they don't have money for transfer.
+Allow players to visit entertainment venues to reduce stress.
 
-- walking costs no money but consumes more energy and takes more time than paid transport
-- update `TryTravelTo` in GameSession to support a walk option
-- update TravelScreen to show walking as an alternative when money is insufficient
-- walking should reflect the harshness of Cairo's streets through higher stress or fatigue
+- add entertainment venue flags (HasCafe, HasBar, HasBilliards) to Location class
+- implement 6 activity types: coffee, shisha, billiards, bar drinking, football watching, social hangout
+- costs vary by activity (coffee 5-15 LE, shisha 20-40 LE, bars 50-80 LE)
+- time costs vary by activity (coffee 30min, shisha 90min, billiards 60min, bar 120min)
+- stress reduction varies by activity
+- addiction/withdrawal system deferred to a follow-up pass
 
 ### 2. UI Clarity
 
@@ -132,16 +134,22 @@ Completed steps:
 4. Created `ClinicTravelScreen` in Slums.Game/Screens for clinic selection UI.
 5. Wired "Take Mother to Clinic" action into GameScreen, visible when player is at Home.
 
+## Walking as Travel Alternative
+
+Status: implemented.
+
+Completed steps:
+
+1. Added `TryWalkTo` method in GameSession that costs no money, 3x energy, and 3x time compared to paid transport.
+2. Updated TravelScreen to show walking option with cost preview.
+3. Added background-specific flavor for Sudanese Refugee walking in Dokki.
+
 ## Suggested Next Ticket
 
-If only one follow-up slice is implemented next, implement the walking travel alternative.
+If only one follow-up slice is implemented next, improve UI clarity around deeper systems:
 
-Deliver:
-
-- add `TryWalkTo` method in GameSession (or extend `TryTravelTo` with a walk mode)
-- walking costs no money, higher energy, and more time than paid transport
-- update TravelScreen to offer walking option when money is insufficient
-- add event-log feedback for the walking experience
+- explain why work variants improve, worsen, or lock out
+- surface debt, suspicion, relationship-memory, and district-pressure signals
 
 ## Narrative Enhancement Pass
 
