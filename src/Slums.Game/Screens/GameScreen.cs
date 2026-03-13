@@ -143,7 +143,6 @@ internal sealed class GameScreen : ScreenSurface
     {
         var actions = GetActions();
         Surface.Print(0, ActionHeaderY, "--- Actions ---", Color.Cyan);
-        Surface.Print(0, ActionHeaderY + 1, "(Time flows automatically. Arrow keys, Enter, Tab cycles status)", Color.DarkGray);
 
         for (var i = 0; i < actions.Count; i++)
         {
