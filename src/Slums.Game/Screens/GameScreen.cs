@@ -24,6 +24,7 @@ internal sealed class GameScreen : ScreenSurface
     private readonly CrimeMenuStatusQuery _crimeMenuStatusQuery = new();
     private readonly GameStatusPageQuery _statusPageQuery = new();
     private readonly TalkNpcStatusQuery _talkNpcStatusQuery = new();
+    private readonly ClinicTravelMenuQuery _clinicTravelMenuQuery = new();
     private readonly AutomaticTimeAdvancer _automaticTimeAdvancer;
     private readonly ScreenActionKeyGate _actionKeyGate = new();
     private readonly List<string> _eventLog = new(10);
@@ -322,6 +323,9 @@ internal sealed class GameScreen : ScreenSurface
             case "Give Mother Medicine":
                 _gameState.GiveMotherMedicine();
                 break;
+            case "Take Mother to Clinic":
+                ShowClinicTravelMenu();
+                break;
             case "Travel":
                 ShowTravelMenu();
                 break;
@@ -405,6 +409,20 @@ internal sealed class GameScreen : ScreenSurface
         GameHost.Instance.Screen = new SaveGameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState, this);
     }
 
+    private void ShowClinicTravelMenu()
+    {
+        var clinicContext = ClinicTravelMenuContext.Create(_gameState);
+        var clinics = _clinicTravelMenuQuery.GetStatuses(clinicContext).ToList();
+        if (clinics.Count == 0)
+        {
+            AddEventLogEntry("No clinics available.");
+            return;
+        }
+
+        IsFocused = false;
+        GameHost.Instance.Screen = new ClinicTravelScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, clinicContext, clinics, this);
+    }
+
     private void AddEventLogEntry(string message)
     {
         _eventLog.Add(message);
@@ -448,6 +466,7 @@ internal sealed class GameScreen : ScreenSurface
             actions.Add("Eat at Home");
             actions.Add("Check on Mother");
             actions.Add("Give Mother Medicine");
+            actions.Add("Take Mother to Clinic");
         }
         else
         {

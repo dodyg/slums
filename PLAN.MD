@@ -22,6 +22,7 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - SadConsole game flow with main menu, background selection, narrative, and gameplay screens
 - core survival simulation for money, hunger, energy, health, stress, rent, food, and time
 - mother-clinic care at clinic-capable locations with schedule-aware availability and variable pricing
+- clinic travel menu accessible from Home for integrated travel+visit action
 - three playable backgrounds with distinct systemic advantages and liabilities
 - travel across Imbaba, Dokki, and Ard al-Liwa
 - honest work progression with reliability, variant unlocks, and temporary lockouts
@@ -118,6 +119,18 @@ Completed steps:
 1. Added location-driven clinic access so only clinic-capable locations offer mother treatment.
 2. Added variable clinic pricing plus relationship and medical-skill discounts.
 3. Added clinic opening-day rules and surfaced the paid clinic option in the shop flow and status page.
+
+## Clinic Travel From Home
+
+Status: implemented.
+
+Completed steps:
+
+1. Added `GetClinicLocations()`, `GetClinicTravelOption()`, and `TravelAndTakeMotherToClinic()` to GameSession for integrated travel+clinic action.
+2. Created `ClinicTravelOption` and `TravelAndClinicVisitResult` records in Slums.Core/State.
+3. Created `ClinicTravelMenuQuery`, `ClinicTravelMenuContext`, `ClinicTravelMenuStatus`, and `ClinicTravelOptionContext` in Slums.Application/Activities.
+4. Created `ClinicTravelScreen` in Slums.Game/Screens for clinic selection UI.
+5. Wired "Take Mother to Clinic" action into GameScreen, visible when player is at Home.
 
 ## Suggested Next Ticket
 

@@ -106,6 +106,31 @@ Each background has unique:
 - BulaqAlDakrour: Pharmacy, microbus depot
 - Shubra: Laundry
 
+## Clinic Travel System
+
+Players can initiate clinic visits directly from Home via an integrated travel+visit action.
+
+**Flow** (from Home location):
+1. Player selects "Take Mother to Clinic" action
+2. UI displays available clinics with: name, district, total cost (travel + clinic), open status
+3. Player selects a clinic; system validates affordability and hours
+4. System deducts travel cost, energy; advances time; travels to clinic
+5. System performs clinic visit (deducts clinic cost, heals mother)
+
+**Core Methods** (GameSession):
+- `GetClinicLocations()`: Returns all locations with `HasClinicServices`
+- `GetClinicTravelOption(LocationId)`: Returns `ClinicTravelOption` record with costs, time, open status
+- `TravelAndTakeMotherToClinic(LocationId)`: Executes integrated travel + clinic visit, returns `TravelAndClinicVisitResult`
+
+**Clinic Locations**:
+- Rahma Clinic (Ard Al-Liwa): Base cost 35 LE
+- Saidaleeya Pharmacy (Bulaq): Base cost 46 LE
+
+**Modifiers**:
+- Refugee background: +2 stress when traveling to Dokki
+- Medical skill and NPC trust can reduce clinic costs
+- Clinics have opening-day schedules (may be closed certain days)
+
 **District Effects**:
 - Food costs vary (13-20 LE)
 - Street food costs vary (7-10 LE)

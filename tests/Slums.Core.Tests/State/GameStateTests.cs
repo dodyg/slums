@@ -1035,6 +1035,107 @@ internal sealed class GameStateTests
         summary[2].Should().Contain("Money");
     }
 
+    [Test]
+    public async Task GetClinicLocations_ShouldReturnAllClinics()
+    {
+        using var state = new GameSession();
+
+        var clinics = state.GetClinicLocations();
+
+        clinics.Should().NotBeEmpty();
+        clinics.Should().Contain(l => l.Id == LocationId.Clinic);
+        clinics.Should().Contain(l => l.Id == LocationId.Pharmacy);
+    }
+
+    [Test]
+    public async Task GetClinicTravelOption_ShouldReturnValidOption_ForClinicLocation()
+    {
+        using var state = new GameSession();
+
+        var option = state.GetClinicTravelOption(LocationId.Clinic);
+
+        await Assert.That(option.IsValidOption).IsTrue();
+        await Assert.That(option.LocationName).IsEqualTo("Rahma Clinic");
+        await Assert.That(option.DistrictName).IsEqualTo("ArdAlLiwa");
+        await Assert.That(option.TravelCost).IsGreaterThan(0);
+        await Assert.That(option.ClinicCost).IsGreaterThan(0);
+        await Assert.That(option.TotalCost).IsEqualTo(option.TravelCost + option.ClinicCost);
+    }
+
+    [Test]
+    public async Task GetClinicTravelOption_ShouldReturnInvalidOption_ForNonClinicLocation()
+    {
+        using var state = new GameSession();
+
+        var option = state.GetClinicTravelOption(LocationId.Market);
+
+        await Assert.That(option.IsValidOption).IsFalse();
+    }
+
+    [Test]
+    public async Task TravelAndTakeMotherToClinic_ShouldSucceed_FromHome()
+    {
+        using var state = new GameSession();
+        state.Player.Household.SetMotherHealth(50);
+        var initialMoney = state.Player.Stats.Money;
+
+        var result = state.TravelAndTakeMotherToClinic(LocationId.Clinic);
+
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(result.TotalCost).IsGreaterThan(0);
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(initialMoney - result.TotalCost);
+        await Assert.That(state.Player.Household.MotherHealth).IsGreaterThan(50);
+        await Assert.That(state.World.CurrentLocationId).IsEqualTo(LocationId.Clinic);
+    }
+
+    [Test]
+    public async Task TravelAndTakeMotherToClinic_ShouldFail_WhenClinicClosed()
+    {
+        using var state = new GameSession();
+        state.Clock.SetTime(day: 4, hour: 10, minute: 0);
+
+        var result = state.TravelAndTakeMotherToClinic(LocationId.Clinic);
+
+        await Assert.That(result.Success).IsFalse();
+        await Assert.That(state.World.CurrentLocationId).IsEqualTo(LocationId.Home);
+    }
+
+    [Test]
+    public async Task TravelAndTakeMotherToClinic_ShouldFail_WhenInsufficientMoney()
+    {
+        using var state = new GameSession();
+        state.Player.Stats.ModifyMoney(-99);
+
+        var result = state.TravelAndTakeMotherToClinic(LocationId.Clinic);
+
+        await Assert.That(result.Success).IsFalse();
+        await Assert.That(state.World.CurrentLocationId).IsEqualTo(LocationId.Home);
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task TravelAndTakeMotherToClinic_ShouldAdvanceTime()
+    {
+        using var state = new GameSession();
+
+        var result = state.TravelAndTakeMotherToClinic(LocationId.Clinic);
+
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(state.Clock.Minute).IsGreaterThan(0);
+    }
+
+    [Test]
+    public async Task TravelAndTakeMotherToClinic_ShouldConsumeTravelEnergy()
+    {
+        using var state = new GameSession();
+        var initialEnergy = state.Player.Stats.Energy;
+
+        var result = state.TravelAndTakeMotherToClinic(LocationId.Clinic);
+
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(state.Player.Stats.Energy).IsLessThan(initialEnergy);
+    }
+
     private static GameSession CreateCrimeState(LocationId locationId)
     {
         var state = new GameSession();

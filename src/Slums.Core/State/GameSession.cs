@@ -647,6 +647,104 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     }
 #pragma warning restore CA1024
 
+#pragma warning disable CA1822
+    public IReadOnlyList<Location> GetClinicLocations()
+#pragma warning restore CA1822
+    {
+        return WorldState.AllLocations
+            .Where(l => l.HasClinicServices)
+            .ToList();
+    }
+
+    public ClinicTravelOption GetClinicTravelOption(LocationId clinicLocationId)
+    {
+        var location = WorldState.AllLocations.FirstOrDefault(l => l.Id == clinicLocationId);
+        if (location is null || !location.HasClinicServices)
+        {
+            return new ClinicTravelOption(
+                LocationId: clinicLocationId,
+                LocationName: "Unknown",
+                DistrictName: "Unknown",
+                TravelCost: 0,
+                ClinicCost: 0,
+                TotalCost: 0,
+                IsOpenToday: false,
+                OpenDaysSummary: "No clinic at this location",
+                TravelTimeMinutes: 0,
+                CanAfford: false,
+                IsValidOption: false);
+        }
+
+        var travelCost = GetTravelCost(location);
+        var clinicCost = GetClinicVisitCost(location);
+        var totalCost = travelCost + clinicCost;
+        var currentDay = GetCurrentDayOfWeek();
+
+        return new ClinicTravelOption(
+            LocationId: clinicLocationId,
+            LocationName: location.Name,
+            DistrictName: location.District.ToString(),
+            TravelCost: travelCost,
+            ClinicCost: clinicCost,
+            TotalCost: totalCost,
+            IsOpenToday: location.ClinicOpenDays.Contains(currentDay),
+            OpenDaysSummary: FormatOpenDays(location.ClinicOpenDays),
+            TravelTimeMinutes: location.TravelTimeMinutes,
+            CanAfford: Player.Stats.Money >= totalCost,
+            IsValidOption: true);
+    }
+
+    public TravelAndClinicVisitResult TravelAndTakeMotherToClinic(LocationId clinicLocationId)
+    {
+        var option = GetClinicTravelOption(clinicLocationId);
+        if (!option.IsValidOption)
+        {
+            RaiseEvent("There is no clinic service at that location.");
+            return new TravelAndClinicVisitResult(false, 0, 0, 0, 0);
+        }
+
+        if (!option.IsOpenToday)
+        {
+            RaiseEvent($"{option.LocationName} is closed today. Open days: {option.OpenDaysSummary}.");
+            return new TravelAndClinicVisitResult(false, option.TravelCost, option.ClinicCost, option.TotalCost, 0);
+        }
+
+        if (Player.Stats.Money < option.TotalCost)
+        {
+            RaiseEvent($"Not enough money. Travel + clinic visit costs {option.TotalCost} LE ({option.TravelCost} LE travel + {option.ClinicCost} LE clinic).");
+            return new TravelAndClinicVisitResult(false, option.TravelCost, option.ClinicCost, option.TotalCost, 0);
+        }
+
+        var travelEnergyCost = GetTravelEnergyCost(
+            WorldState.AllLocations.First(l => l.Id == clinicLocationId));
+
+        Player.Stats.ModifyMoney(-option.TravelCost);
+        Player.Stats.ModifyEnergy(-travelEnergyCost);
+        AdvanceTime(option.TravelTimeMinutes);
+        World.TravelTo(clinicLocationId);
+
+        if (Player.BackgroundType == BackgroundType.SudaneseRefugee)
+        {
+            var location = WorldState.AllLocations.First(l => l.Id == clinicLocationId);
+            if (location.District == DistrictId.Dokki)
+            {
+                Player.Stats.ModifyStress(2);
+                RaiseEvent("Dokki's questions land harder when your accent gets there before your name does.");
+            }
+        }
+
+        RaiseEvent($"Traveled to {option.LocationName} with your mother.");
+
+        var clinicResult = TakeMotherToClinic();
+
+        return new TravelAndClinicVisitResult(
+            clinicResult.Success,
+            option.TravelCost,
+            clinicResult.TotalCost,
+            option.TravelCost + clinicResult.TotalCost,
+            clinicResult.HealthChange);
+    }
+
     public int GetMedicineCost()
     {
         var districtCost = World.CurrentDistrict switch
