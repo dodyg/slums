@@ -157,14 +157,14 @@ internal sealed class GameScreen : ScreenSurface
         var y = 18;
         Surface.Print(45, y++, "--- Event Log ---", Color.Cyan);
 
-        for (var i = 0; i < _eventLog.Count; i++)
+        for (var i = _eventLog.Count - 1; i >= 0; i--)
         {
             var text = _eventLog[i];
             if (text.Length > 32)
             {
                 text = text[..32] + "...";
             }
-            Surface.Print(45, y + i, text, Color.Gray);
+            Surface.Print(45, y + (_eventLog.Count - 1 - i), text, Color.Gray);
         }
     }
 
