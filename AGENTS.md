@@ -11,6 +11,7 @@ Before coding, read:
 1. `REQS.md`
 2. `PLAN.MD`
 3. `AGENTS.md`
+4. `MEMORY.MD`
 
 Do not start implementation from memory alone.
 
