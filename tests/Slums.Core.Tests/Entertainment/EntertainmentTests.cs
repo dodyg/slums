@@ -4,14 +4,14 @@ using Slums.Core.World;
 
 namespace Slums.Core.Tests.Entertainment;
 
-public sealed class EntertainmentTests
+internal sealed class EntertainmentTests
 {
     [Test]
     public async Task EntertainmentRegistry_ShouldReturnAllActivities()
     {
         var activities = EntertainmentRegistry.AllActivities;
 
-        await Assert.That(activities).HasCount(6);
+        await Assert.That(activities.Count).IsEqualTo(6);
     }
 
     [Test]

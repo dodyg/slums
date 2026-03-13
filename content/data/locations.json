@@ -19,7 +19,8 @@
     "District": "Imbaba",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,
-    "TravelTimeMinutes": 15
+    "TravelTimeMinutes": 15,
+    "HasCafe": true
   },
   {
     "Id": {
@@ -52,7 +53,8 @@
     "District": "Dokki",
     "HasJobOpportunities": false,
     "HasCrimeOpportunities": true,
-    "TravelTimeMinutes": 40
+    "TravelTimeMinutes": 40,
+    "HasBar": true
   },
   {
     "Id": {
@@ -88,7 +90,8 @@
     "District": "Dokki",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
-    "TravelTimeMinutes": 35
+    "TravelTimeMinutes": 35,
+    "HasCafe": true
   },
   {
     "Id": {
@@ -102,7 +105,8 @@
     "HasClinicServices": true,
     "ClinicVisitBaseCost": 46,
     "ClinicOpenDays": ["Saturday", "Sunday", "Tuesday", "Thursday"],
-    "TravelTimeMinutes": 30
+    "TravelTimeMinutes": 30,
+    "HasCafe": true
   },
   {
     "Id": {
@@ -113,7 +117,8 @@
     "District": "BulaqAlDakrour",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,
-    "TravelTimeMinutes": 30
+    "TravelTimeMinutes": 30,
+    "HasBilliards": true
   },
   {
     "Id": {
@@ -124,6 +129,7 @@
     "District": "Shubra",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,
-    "TravelTimeMinutes": 40
+    "TravelTimeMinutes": 40,
+    "HasBilliards": true
   }
 ]
