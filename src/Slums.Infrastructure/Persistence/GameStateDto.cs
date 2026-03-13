@@ -46,6 +46,7 @@ public sealed record GameStateDto
     public Dictionary<string, int> JobShiftsCompleted { get; init; } = [];
     public Dictionary<string, int> JobLockoutUntilDay { get; init; } = [];
     public Dictionary<string, int> RandomEventHistory { get; init; } = [];
+    public Dictionary<string, Collection<string>> NpcSeenConversationKnots { get; init; } = [];
     public Collection<string> StoryFlags { get; init; } = [];
 
     public static GameStateDto FromGameState(GameState gameState)
@@ -91,6 +92,9 @@ public sealed record GameStateDto
             JobShiftsCompleted = gameState.JobProgress.Tracks.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.ShiftsCompleted),
             JobLockoutUntilDay = gameState.JobProgress.Tracks.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.LockoutUntilDay),
             RandomEventHistory = gameState.RandomEventHistory.ToDictionary(static pair => pair.Key, static pair => pair.Value),
+            NpcSeenConversationKnots = gameState.Relationships.NpcRelationships.ToDictionary(
+                static pair => pair.Key.ToString(),
+                static pair => new Collection<string>([.. pair.Value.SeenConversationKnots])),
             StoryFlags = new Collection<string>([.. gameState.StoryFlags])
         };
     }
@@ -133,6 +137,11 @@ public sealed record GameStateDto
                 NpcWasEmbarrassed.GetValueOrDefault(key),
                 NpcWasHelped.GetValueOrDefault(key),
                 NpcRecentContactCount.GetValueOrDefault(key));
+
+            if (NpcSeenConversationKnots.TryGetValue(key, out var seenKnots))
+            {
+                gameState.Relationships.RestoreConversationHistory(npcId, seenKnots);
+            }
         }
 
         foreach (var factionId in Enum.GetValues<FactionId>())

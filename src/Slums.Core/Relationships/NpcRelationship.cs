@@ -9,4 +9,7 @@ public sealed record NpcRelationship(
 	bool HasUnpaidDebt = false,
 	bool WasEmbarrassed = false,
 	bool WasHelped = false,
-	int RecentContactCount = 0);
+	int RecentContactCount = 0)
+{
+	public IReadOnlySet<string> SeenConversationKnots { get; init; } = new HashSet<string>();
+}

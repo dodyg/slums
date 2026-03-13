@@ -26,6 +26,7 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - honest work progression with reliability, variant unlocks, and temporary lockouts
 - crime routes with contact-specific access, risk, aftermath, and police pressure behavior
 - recurring NPC interactions driven by trust, faction standing, and relationship memory
+- conversation pool system with 100+ unique dialogues per NPC context to prevent repeats for 100 days
 - district-specific random events with event-history-aware gating
 - save/load for the expanded simulation and narrative state
 - multiple ending paths based on long-term behavior, pressure, and survival trajectory
@@ -96,6 +97,7 @@ Expand content that reflects the systems already in place.
 - add more memory-reactive NPC variants
 - add more spillover follow-up scenes
 - add more district-event and background-specific aftermath content
+- expand conversation pools beyond 100 days if needed
 
 ## Suggested Next Ticket
 

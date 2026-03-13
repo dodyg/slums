@@ -94,58 +94,15 @@ public static class NpcRegistry
         ArgumentNullException.ThrowIfNull(relationshipState);
 
         var relationship = relationshipState.GetNpcRelationship(npcId);
-        var maintainingDoubleLife = honestShiftsCompleted >= 3 && crimesCommitted > 0;
+        var context = ConversationPoolRegistry.DetermineContext(npcId, relationship, policePressure, currentDay, honestShiftsCompleted, crimesCommitted, currentMoney, motherHealth);
+        var pool = ConversationPoolRegistry.GetConversationPool(npcId, context);
+        var seenKnots = relationship.SeenConversationKnots;
+        var available = pool.Where(k => !seenKnots.Contains(k)).ToList();
 
-        return npcId switch
-        {
-            NpcId.LandlordHajjMahmoud when currentMoney < 40 && relationship.Trust >= 15 => "landlord_rent_broke_soft",
-            NpcId.LandlordHajjMahmoud when currentMoney < 40 => "landlord_rent_broke",
-            NpcId.LandlordHajjMahmoud when relationship.Trust <= -15 => "landlord_rent_negotiation_hostile",
-            NpcId.LandlordHajjMahmoud when relationship.Trust >= 15 => "landlord_rent_negotiation_warm",
-            NpcId.LandlordHajjMahmoud => "landlord_rent_negotiation",
-            NpcId.FixerUmmKarim when maintainingDoubleLife && relationship.Trust >= 10 => "fixer_double_life",
-            NpcId.FixerUmmKarim when relationship.Trust >= 25 => "fixer_trusted_operator",
-            NpcId.FixerUmmKarim when relationship.LastRefusalDay > 0 && currentDay - relationship.LastRefusalDay <= 3 => "fixer_recent_refusal",
-            NpcId.FixerUmmKarim when relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation >= 15 => "fixer_repeat_contact",
-            NpcId.FixerUmmKarim => "fixer_first_contact",
-            NpcId.OfficerKhalid when policePressure >= 70 => "officer_checkpoint_hot",
-            NpcId.OfficerKhalid when relationship.Trust <= -10 => "officer_checkpoint_marked",
-            NpcId.OfficerKhalid => "officer_checkpoint",
-            NpcId.NeighborMona when policePressure >= 70 && crimesCommitted > 0 => "neighbor_mona_heat",
-            NpcId.NeighborMona when currentMoney < 40 => "neighbor_mona_lean_week",
-            NpcId.NeighborMona when relationship.WasHelped => "neighbor_mona_helped",
-            NpcId.NeighborMona when relationship.Trust >= 15 => "neighbor_mona_warm",
-            NpcId.NeighborMona => "neighbor_mona",
-            NpcId.NurseSalma when relationship.HasUnpaidDebt && relationship.Trust >= 15 => "nurse_salma_debt_warm",
-            NpcId.NurseSalma when relationship.HasUnpaidDebt => "nurse_salma_debt",
-            NpcId.NurseSalma when motherHealth < 40 => "nurse_salma_urgent",
-            NpcId.NurseSalma when maintainingDoubleLife => "nurse_salma_suspicious",
-            NpcId.NurseSalma when relationship.Trust >= 15 => "nurse_salma_warm",
-            NpcId.NurseSalma => "nurse_salma",
-            NpcId.WorkshopBossAbuSamir when relationship.WasEmbarrassed => "abu_samir_embarrassed",
-            NpcId.WorkshopBossAbuSamir when relationship.Trust <= -10 => "abu_samir_cold",
-            NpcId.WorkshopBossAbuSamir when relationship.Trust >= 15 => "abu_samir_warm",
-            NpcId.WorkshopBossAbuSamir => "abu_samir",
-            NpcId.CafeOwnerNadia when maintainingDoubleLife => "nadia_cafe_double_life",
-            NpcId.CafeOwnerNadia when relationship.Trust <= -10 => "nadia_cafe_cold",
-            NpcId.CafeOwnerNadia when relationship.Trust >= 15 => "nadia_cafe_warm",
-            NpcId.CafeOwnerNadia => "nadia_cafe",
-            NpcId.FenceHanan when relationship.Trust <= -10 => "hanan_fence_cold",
-            NpcId.FenceHanan when relationshipState.GetFactionStanding(FactionId.ImbabaCrew).Reputation >= 15 => "hanan_fence_warm",
-            NpcId.FenceHanan => "hanan_fence",
-            NpcId.RunnerYoussef when policePressure >= 70 => "youssef_runner_hot",
-            NpcId.RunnerYoussef when relationship.Trust >= 15 && crimesCommitted >= 2 => "youssef_runner_embedded",
-            NpcId.RunnerYoussef => "youssef_runner",
-            NpcId.PharmacistMariam when motherHealth < 40 => "mariam_pharmacy_urgent",
-            NpcId.PharmacistMariam when relationship.Trust >= 15 => "mariam_pharmacy_warm",
-            NpcId.PharmacistMariam => "mariam_pharmacy",
-            NpcId.DispatcherSafaa when relationship.RecentContactCount >= 3 => "safaa_depot_regular",
-            NpcId.DispatcherSafaa when relationship.Trust >= 15 => "safaa_depot_warm",
-            NpcId.DispatcherSafaa => "safaa_depot",
-            NpcId.LaundryOwnerIman when currentMoney < 50 => "iman_laundry_lean",
-            NpcId.LaundryOwnerIman when relationship.Trust >= 15 => "iman_laundry_warm",
-            NpcId.LaundryOwnerIman => "iman_laundry",
-            _ => throw new ArgumentOutOfRangeException(nameof(npcId))
-        };
+#pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
+        return available.Count > 0
+            ? available[Random.Shared.Next(available.Count)]
+            : pool[Random.Shared.Next(pool.Count)];
+#pragma warning restore CA5394
     }
 }

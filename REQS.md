@@ -49,6 +49,7 @@ Interview-complete working requirements draft based on the user's answers.
 ## World and Story Expectations
 - The game should include a rich cast of characters, including neighbors, landlords, employers, police, hustlers, and rivals.
 - The player should be able to interact with people repeatedly rather than only through one-off encounters.
+- NPC conversations should have enough variety to avoid repetition for at least 100 in-game days within the same relationship context.
 - The world should support tension between survival, dignity, loyalty, ambition, and danger.
 
 ## Setting Scope

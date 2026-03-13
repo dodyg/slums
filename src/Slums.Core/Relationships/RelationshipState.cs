@@ -109,4 +109,36 @@ public sealed class RelationshipState
     {
         _factionStandings[factionId] = new FactionStanding(factionId, reputation);
     }
+
+    public void RecordSeenConversation(NpcId npcId, string knotName)
+    {
+        if (string.IsNullOrWhiteSpace(knotName))
+        {
+            return;
+        }
+
+        var existing = GetNpcRelationship(npcId);
+        var seenKnots = new HashSet<string>(existing.SeenConversationKnots) { knotName };
+        _npcRelationships[npcId] = existing with { SeenConversationKnots = seenKnots };
+    }
+
+    public void RestoreConversationHistory(NpcId npcId, IEnumerable<string> seenKnots)
+    {
+        ArgumentNullException.ThrowIfNull(seenKnots);
+
+        var existing = GetNpcRelationship(npcId);
+        var knotSet = new HashSet<string>(seenKnots.Where(static k => !string.IsNullOrWhiteSpace(k)));
+        _npcRelationships[npcId] = existing with { SeenConversationKnots = knotSet };
+    }
+
+    public bool HasSeenConversation(NpcId npcId, string knotName)
+    {
+        if (string.IsNullOrWhiteSpace(knotName))
+        {
+            return false;
+        }
+
+        var relationship = GetNpcRelationship(npcId);
+        return relationship.SeenConversationKnots.Contains(knotName);
+    }
 }
