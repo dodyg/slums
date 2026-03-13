@@ -74,7 +74,16 @@ Keep static world data in `content/data/` when it does not need hardcoded rules.
 
 ## Current Priorities
 
-### 1. UI Clarity
+### 1. Walking as Travel Alternative
+
+Allow characters to walk to a location if they don't have money for transfer.
+
+- walking costs no money but consumes more energy and takes more time than paid transport
+- update `TryTravelTo` in GameSession to support a walk option
+- update TravelScreen to show walking as an alternative when money is insufficient
+- walking should reflect the harshness of Cairo's streets through higher stress or fatigue
+
+### 2. UI Clarity
 
 Make the deeper systems legible to the player.
 
@@ -82,7 +91,7 @@ Make the deeper systems legible to the player.
 - explain why crime routes are available, blocked, or unusually risky
 - surface debt, suspicion, relationship-memory, and district-pressure signals in menus or logs
 
-### 2. Balance Pass
+### 3. Balance Pass
 
 Tune the expanded simulation without flattening background identity.
 
@@ -90,7 +99,7 @@ Tune the expanded simulation without flattening background identity.
 - review district event frequency and recurrence
 - add regression tests around balance-sensitive thresholds
 
-### 3. More Authored Reactivity
+### 4. More Authored Reactivity
 
 Expand content that reflects the systems already in place.
 
@@ -101,13 +110,14 @@ Expand content that reflects the systems already in place.
 
 ## Suggested Next Ticket
 
-If only one follow-up slice is implemented next, do the UI explanation pass for work and crime menus.
+If only one follow-up slice is implemented next, implement the walking travel alternative.
 
 Deliver:
 
-- visible reason strings for work variant changes
-- visible gating and modifier reason strings for crime routes
-- clearer event-log messaging for background and spillover effects
+- add `TryWalkTo` method in GameSession (or extend `TryTravelTo` with a walk mode)
+- walking costs no money, higher energy, and more time than paid transport
+- update TravelScreen to offer walking option when money is insufficient
+- add event-log feedback for the walking experience
 
 ## Narrative Enhancement Pass
 

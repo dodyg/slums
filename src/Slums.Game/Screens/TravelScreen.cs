@@ -10,7 +10,7 @@ namespace Slums.Game.Screens;
 internal sealed class TravelScreen : ScreenSurface
 {
     private const int DestinationStartX = 4;
-    private const int DestinationStartY = 5;
+    private const int DestinationStartY = 6;
     private const int ListRowHeight = 2;
     private readonly GameSession _gameState;
     private readonly IReadOnlyList<Location> _locations;
@@ -36,22 +36,26 @@ internal sealed class TravelScreen : ScreenSurface
 
         var centerX = Surface.Width / 2;
         Surface.Print(centerX - 5, 2, "=== Travel ===", Color.Cyan);
-        Surface.Print(2, 4, "Select destination (T to quick travel, Esc to cancel):", Color.Gray);
+        Surface.Print(2, 4, "Select destination (Enter=travel, W=walk, Esc=cancel):", Color.Gray);
 
         for (var i = 0; i < _locations.Count; i++)
         {
             var loc = _locations[i];
             var isCurrentLocation = loc.Id == _gameState.World.CurrentLocationId;
+            var canAffordTravel = _gameState.CanAffordTravel(loc.Id);
             var prefix = i == _selectedIndex ? "> " : "  ";
-            var color = i == _selectedIndex ? Color.Cyan : isCurrentLocation ? Color.DarkGray : Color.White;
+            var nameColor = i == _selectedIndex ? Color.Cyan : isCurrentLocation ? Color.DarkGray : canAffordTravel ? Color.White : Color.Orange;
 
             var currentLocationSuffix = isCurrentLocation ? " [Current]" : string.Empty;
             var displayName = $"{loc.Name} ({DistrictInfo.GetName(loc.District)}){currentLocationSuffix}";
-            var travelInfo = $"[{loc.TravelTimeMinutes} min]";
+            var walkTime = loc.TravelTimeMinutes * 3;
+            var travelInfo = canAffordTravel 
+                ? $"[{loc.TravelTimeMinutes} min]" 
+                : $"[Walk: {walkTime} min]";
             
             var rowY = DestinationStartY + i * ListRowHeight;
-            Surface.Print(DestinationStartX, rowY, $"{prefix}{displayName}", color);
-            Surface.Print(Surface.Width - travelInfo.Length - 2, rowY, travelInfo, Color.Yellow);
+            Surface.Print(DestinationStartX, rowY, $"{prefix}{displayName}", nameColor);
+            Surface.Print(Surface.Width - travelInfo.Length - 2, rowY, travelInfo, canAffordTravel ? Color.Yellow : Color.Orange);
             Surface.Print(6, rowY + 1, $"{loc.Description[..Math.Min(50, loc.Description.Length)]}", Color.DarkGray);
         }
     }
@@ -73,6 +77,12 @@ internal sealed class TravelScreen : ScreenSurface
         if (keyboard.IsKeyPressed(Keys.Enter))
         {
             TravelToSelected();
+            return true;
+        }
+
+        if (keyboard.IsKeyPressed(Keys.W))
+        {
+            WalkToSelected();
             return true;
         }
 
@@ -124,11 +134,23 @@ internal sealed class TravelScreen : ScreenSurface
         ReturnToParentScreen();
     }
 
+    private void WalkToSelected()
+    {
+        var location = _locations[_selectedIndex];
+        var success = _gameState.TryWalkTo(location.Id);
+        
+        if (!success)
+        {
+            _parentScreen.IsFocused = true;
+        }
+
+        ReturnToParentScreen();
+    }
+
     private void ReturnToParentScreen()
     {
         IsFocused = false;
         _parentScreen.IsFocused = true;
         GameHost.Instance.Screen = _parentScreen;
     }
-
 }

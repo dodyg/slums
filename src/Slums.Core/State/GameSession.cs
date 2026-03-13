@@ -250,6 +250,70 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         return true;
     }
 
+    public bool TryWalkTo(LocationId locationId)
+    {
+        var location = WorldState.AllLocations.FirstOrDefault(l => l.Id == locationId);
+        if (location is null)
+        {
+            return false;
+        }
+
+        if (World.CurrentLocationId == locationId)
+        {
+            RaiseEvent($"You are already at {location.Name}.");
+            return false;
+        }
+
+        var walkEnergyCost = GetWalkEnergyCost(location);
+        var walkTimeMinutes = GetWalkTimeMinutes(location);
+
+        if (Player.Stats.Energy < walkEnergyCost)
+        {
+            RaiseEvent("You are too exhausted to walk that far.");
+            return false;
+        }
+
+        Player.Stats.ModifyEnergy(-walkEnergyCost);
+        Player.Stats.ModifyStress(3);
+
+        if (Player.BackgroundType == BackgroundType.SudaneseRefugee && location.District == DistrictId.Dokki)
+        {
+            Player.Stats.ModifyStress(2);
+            RaiseEvent("Dokki's stares follow you the entire way on foot.");
+        }
+
+        AdvanceTime(walkTimeMinutes);
+        World.TravelTo(locationId);
+
+        RaiseEvent($"Walked to {location.Name}. The streets took their toll.");
+        return true;
+    }
+
+    public bool CanAffordTravel(LocationId locationId)
+    {
+        var location = WorldState.AllLocations.FirstOrDefault(l => l.Id == locationId);
+        if (location is null)
+        {
+            return false;
+        }
+
+        return Player.Stats.Money >= GetTravelCost(location);
+    }
+
+    private int GetWalkEnergyCost(Location destination)
+    {
+        ArgumentNullException.ThrowIfNull(destination);
+
+        return GetTravelEnergyCost(destination) * 3;
+    }
+
+    private static int GetWalkTimeMinutes(Location destination)
+    {
+        ArgumentNullException.ThrowIfNull(destination);
+
+        return destination.TravelTimeMinutes * 3;
+    }
+
     public JobResult WorkJob(JobShift job, Random? random = null)
     {
         ArgumentNullException.ThrowIfNull(job);

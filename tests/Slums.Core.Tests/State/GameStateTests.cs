@@ -254,6 +254,110 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task TryWalkTo_ShouldSucceedWithoutSpendingMoney()
+    {
+        using var state = new GameSession();
+        state.Player.Stats.ModifyMoney(-99);
+
+        var result = state.TryWalkTo(LocationId.Market);
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.World.CurrentLocationId).IsEqualTo(LocationId.Market);
+        await Assert.That(state.Player.Stats.Money).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task TryWalkTo_ShouldCostMoreEnergyThanTravel()
+    {
+        using var state = new GameSession();
+        var energyBefore = state.Player.Stats.Energy;
+
+        var result = state.TryWalkTo(LocationId.Market);
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Stats.Energy).IsEqualTo(energyBefore - 15);
+    }
+
+    [Test]
+    public async Task TryWalkTo_ShouldTakeTripleTime()
+    {
+        using var state = new GameSession();
+
+        var result = state.TryWalkTo(LocationId.Market);
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Clock.Minute).IsEqualTo(45);
+    }
+
+    [Test]
+    public async Task TryWalkTo_ShouldIncreaseStress()
+    {
+        using var state = new GameSession();
+        var stressBefore = state.Player.Stats.Stress;
+
+        var result = state.TryWalkTo(LocationId.Market);
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Stats.Stress).IsEqualTo(stressBefore + 3);
+    }
+
+    [Test]
+    public async Task TryWalkTo_ShouldFailIfTooExhausted()
+    {
+        using var state = new GameSession();
+        state.Player.Stats.ModifyEnergy(-60);
+
+        var result = state.TryWalkTo(LocationId.CallCenter);
+
+        await Assert.That(result).IsFalse();
+        await Assert.That(state.World.CurrentLocationId).IsEqualTo(LocationId.Home);
+    }
+
+    [Test]
+    public async Task TryWalkTo_CurrentLocation_ShouldFail()
+    {
+        using var state = new GameSession();
+
+        var result = state.TryWalkTo(LocationId.Home);
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task TryWalkTo_ShouldIncreaseStress_ForSudaneseBackground_InDokki()
+    {
+        using var state = new GameSession();
+        state.Player.ApplyBackground(Slums.Core.Characters.BackgroundRegistry.SudaneseRefugee);
+        var stressBefore = state.Player.Stats.Stress;
+
+        var result = state.TryWalkTo(LocationId.CallCenter);
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Stats.Stress).IsEqualTo(stressBefore + 5);
+    }
+
+    [Test]
+    public async Task CanAffordTravel_ShouldReturnTrue_WhenPlayerHasEnoughMoney()
+    {
+        using var state = new GameSession();
+
+        var result = state.CanAffordTravel(LocationId.Market);
+
+        await Assert.That(result).IsTrue();
+    }
+
+    [Test]
+    public async Task CanAffordTravel_ShouldReturnFalse_WhenPlayerLacksMoney()
+    {
+        using var state = new GameSession();
+        state.Player.Stats.ModifyMoney(-99);
+
+        var result = state.CanAffordTravel(LocationId.Market);
+
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
     public async Task WorkJob_ShouldTriggerEndDayWhenShiftPassesCurfew()
     {
         using var state = new GameSession();
