@@ -4,6 +4,7 @@ using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
 using Slums.Core.State;
+using Slums.Game.Input;
 
 namespace Slums.Game.Screens;
 
@@ -18,6 +19,7 @@ internal sealed class CrimeScreen : ScreenSurface
     private readonly IReadOnlyList<CrimeMenuStatus> _crimeAttempts;
     private readonly GameScreen _parentScreen;
     private readonly GameRuntime _runtime;
+    private readonly ScreenActionKeyGate _actionKeyGate = new();
     private int _selectedIndex;
 
     public CrimeScreen(int width, int height, GameRuntime runtime, GameSession gameState, CrimeMenuContext context, IReadOnlyList<CrimeMenuStatus> crimeAttempts, GameScreen parentScreen)
@@ -31,6 +33,7 @@ internal sealed class CrimeScreen : ScreenSurface
         IsFocused = true;
         UseMouse = true;
         FocusOnMouseClick = true;
+        _actionKeyGate.SuppressActionKeysUntilRelease();
     }
 
     public override void Render(TimeSpan delta)
@@ -82,13 +85,13 @@ internal sealed class CrimeScreen : ScreenSurface
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Enter))
+        if (_actionKeyGate.TryConsumeConfirm(keyboard.IsKeyPressed(Keys.Enter)))
         {
             AttemptSelectedCrime();
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Escape))
+        if (_actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape)))
         {
             ReturnToParentScreen();
             return true;
@@ -146,6 +149,7 @@ internal sealed class CrimeScreen : ScreenSurface
     private void ReturnToParentScreen()
     {
         IsFocused = false;
+        _parentScreen.SuppressActionKeysUntilRelease();
         _parentScreen.IsFocused = true;
         GameHost.Instance.Screen = _parentScreen;
     }

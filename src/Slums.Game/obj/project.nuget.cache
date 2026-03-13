@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "xKrlrj1fQZo=",
+  "dgSpecHash": "w8ShCVSerb8=",
   "success": true,
   "projectFilePath": "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj",
   "expectedPackageFiles": [
     "/home/dodyg/.nuget/packages/coroutine/2.1.5/coroutine.2.1.5.nupkg.sha512",
     "/home/dodyg/.nuget/packages/csfml/2.6.1/csfml.2.6.1.nupkg.sha512",
+    "/home/dodyg/.nuget/packages/entitiesdb/3.5.0/entitiesdb.3.5.0.nupkg.sha512",
     "/home/dodyg/.nuget/packages/microsoft.extensions.configuration/9.0.0/microsoft.extensions.configuration.9.0.0.nupkg.sha512",
     "/home/dodyg/.nuget/packages/microsoft.extensions.configuration.abstractions/9.0.0/microsoft.extensions.configuration.abstractions.9.0.0.nupkg.sha512",
     "/home/dodyg/.nuget/packages/microsoft.extensions.configuration.binder/9.0.0/microsoft.extensions.configuration.binder.9.0.0.nupkg.sha512",

@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Slums.Application\Slums.Application.csproj" />
     <ProjectReference Include="..\..\src\Slums.Core\Slums.Core.csproj" />
+    <ProjectReference Include="..\..\src\Slums.Game\Slums.Game.csproj" />
   </ItemGroup>
 
   <ItemGroup>

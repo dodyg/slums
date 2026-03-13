@@ -101,9 +101,10 @@ public sealed class InkNarrativeService : INarrativeService
         CurrentText = textBuilder.ToString().Trim();
         CurrentChoices = _currentStory.currentChoices.Select(static c => c.text).ToList();
 
-        if (_currentStory.currentChoices.Count == 0 && !_currentStory.canContinue)
+        if (_currentStory.currentChoices.Count == 0 && !_currentStory.canContinue && string.IsNullOrWhiteSpace(CurrentText))
         {
             LogStoryEnded(_logger);
+            _currentStory = null;
         }
     }
 

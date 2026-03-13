@@ -7,6 +7,7 @@ using Slums.Application.Narrative;
 using Slums.Core.Clock;
 using Slums.Core.State;
 using Slums.Core.World;
+using Slums.Game.Input;
 
 namespace Slums.Game.Screens;
 
@@ -24,6 +25,7 @@ internal sealed class GameScreen : ScreenSurface
     private readonly GameStatusPageQuery _statusPageQuery = new();
     private readonly TalkNpcStatusQuery _talkNpcStatusQuery = new();
     private readonly AutomaticTimeAdvancer _automaticTimeAdvancer;
+    private readonly ScreenActionKeyGate _actionKeyGate = new();
     private readonly List<string> _eventLog = new(10);
     private int _selectedAction;
     private int _selectedStatusPage;
@@ -201,11 +203,13 @@ internal sealed class GameScreen : ScreenSurface
     {
         if (_gameState.IsGameOver)
         {
-            if (keyboard.IsKeyPressed(Keys.Enter))
+            if (_actionKeyGate.TryConsumeConfirm(keyboard.IsKeyPressed(Keys.Enter)))
             {
                 IsFocused = false;
                 GameHost.Instance.Screen = new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime);
             }
+
+            _actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape));
             return true;
         }
 
@@ -223,7 +227,7 @@ internal sealed class GameScreen : ScreenSurface
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Enter))
+        if (_actionKeyGate.TryConsumeConfirm(keyboard.IsKeyPressed(Keys.Enter)))
         {
             ExecuteAction();
             return true;
@@ -241,7 +245,7 @@ internal sealed class GameScreen : ScreenSurface
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Escape))
+        if (_actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape)))
         {
             IsFocused = false;
             GameHost.Instance.Screen = new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime);
@@ -255,6 +259,11 @@ internal sealed class GameScreen : ScreenSurface
         }
 
         return base.ProcessKeyboard(keyboard);
+    }
+
+    internal void SuppressActionKeysUntilRelease()
+    {
+        _actionKeyGate.SuppressActionKeysUntilRelease();
     }
 
     public override bool ProcessMouse(MouseScreenObjectState state)
