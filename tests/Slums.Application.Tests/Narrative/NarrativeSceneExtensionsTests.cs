@@ -10,7 +10,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public async Task ApplyOutcome_ShouldModifyMoney_WhenMoneyChangeIsNonZero()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var initialMoney = state.Player.Stats.Money;
         var outcome = new NarrativeOutcome { MoneyChange = 50 };
 
@@ -22,7 +22,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public async Task ApplyOutcome_ShouldReduceMoney_WhenMoneyChangeIsNegative()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var initialMoney = state.Player.Stats.Money;
         var outcome = new NarrativeOutcome { MoneyChange = -30 };
 
@@ -34,7 +34,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public async Task ApplyOutcome_ShouldModifyHealth_WhenHealthChangeIsNonZero()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var initialHealth = state.Player.Stats.Health;
         var outcome = new NarrativeOutcome { HealthChange = -20 };
 
@@ -46,7 +46,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public async Task ApplyOutcome_ShouldModifyEnergy_WhenEnergyChangeIsNonZero()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var initialEnergy = state.Player.Stats.Energy;
         var outcome = new NarrativeOutcome { EnergyChange = -15 };
 
@@ -58,7 +58,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public async Task ApplyOutcome_ShouldModifyHunger_WhenHungerChangeIsNonZero()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         state.Player.Nutrition.ModifySatiety(-30);
         state.Player.Stats.SetHunger(state.Player.Nutrition.Satiety);
         var initialHunger = state.Player.Nutrition.Satiety;
@@ -73,7 +73,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public async Task ApplyOutcome_ShouldModifyStress_WhenStressChangeIsNonZero()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var initialStress = state.Player.Stats.Stress;
         var outcome = new NarrativeOutcome { StressChange = 25 };
 
@@ -85,7 +85,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public async Task ApplyOutcome_ShouldModifyMotherHealth_WhenMotherHealthChangeIsNonZero()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var initialMotherHealth = state.Player.Household.MotherHealth;
         var outcome = new NarrativeOutcome { MotherHealthChange = -10 };
 
@@ -97,7 +97,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public async Task ApplyOutcome_ShouldAddFood_WhenFoodChangeIsPositive()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var initialFood = state.Player.Household.FoodStockpile;
         var outcome = new NarrativeOutcome { FoodChange = 5 };
 
@@ -109,7 +109,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public async Task ApplyOutcome_ShouldRemoveFood_WhenFoodChangeIsNegative()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var initialFood = state.Player.Household.FoodStockpile;
         var outcome = new NarrativeOutcome { FoodChange = -2 };
 
@@ -121,7 +121,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public async Task ApplyOutcome_ShouldDoNothing_WhenAllChangesAreZero()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var initialMoney = state.Player.Stats.Money;
         var initialHealth = state.Player.Stats.Health;
         var initialEnergy = state.Player.Stats.Energy;
@@ -137,7 +137,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public async Task ApplyOutcome_ShouldHandleMultipleChanges()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var initialMoney = state.Player.Stats.Money;
         var initialHealth = state.Player.Stats.Health;
         var initialStress = state.Player.Stats.Stress;
@@ -161,7 +161,7 @@ internal sealed class NarrativeSceneExtensionsTests
     {
         var outcome = new NarrativeOutcome { MoneyChange = 10 };
 
-        var act = () => ((GameState)null!).ApplyOutcome(outcome);
+        var act = () => ((INarrativeOutcomeTarget)null!).ApplyOutcome(outcome);
 
         await Assert.That(act).Throws<ArgumentNullException>();
     }
@@ -169,7 +169,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public async Task ApplyOutcome_ShouldThrow_WhenOutcomeIsNull()
     {
-        var state = new GameState();
+        using var state = new GameSession();
 
         var act = () => state.ApplyOutcome(null!);
 
@@ -179,7 +179,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public void ApplyOutcome_ShouldClampHealthToValidRange()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var outcome = new NarrativeOutcome { HealthChange = -200 };
 
         state.ApplyOutcome(outcome);
@@ -190,7 +190,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public void ApplyOutcome_ShouldClampEnergyToValidRange()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var outcome = new NarrativeOutcome { EnergyChange = 200 };
 
         state.ApplyOutcome(outcome);
@@ -201,7 +201,7 @@ internal sealed class NarrativeSceneExtensionsTests
     [Test]
     public void ApplyOutcome_ShouldClampStressToValidRange()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         var outcome = new NarrativeOutcome { StressChange = 200 };
 
         state.ApplyOutcome(outcome);
@@ -209,4 +209,3 @@ internal sealed class NarrativeSceneExtensionsTests
         state.Player.Stats.Stress.Should().BeLessOrEqualTo(100);
     }
 }
-

@@ -1,14 +1,13 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Slums.Application.Narrative;
 using Slums.Application.Persistence;
-using Slums.Core.State;
 
 namespace Slums.Infrastructure.Persistence;
 
 public sealed class JsonSaveGameStore : ISaveGameStore
 {
-    private const int CurrentSaveVersion = 1;
+    private const int CurrentSaveVersion = 2;
+    private const int StreamBufferSize = 4096;
     private readonly ILogger<JsonSaveGameStore> _logger;
     private readonly string _saveDirectory;
 
@@ -18,54 +17,55 @@ public sealed class JsonSaveGameStore : ISaveGameStore
         _saveDirectory = saveDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Slums", "saves");
     }
 
-    public async Task SaveAsync(GameState gameState, INarrativeService narrativeService, string slot, CancellationToken cancellationToken = default)
+    public async Task SaveAsync(SaveGameRequest request, string slot, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(gameState);
-        ArgumentNullException.ThrowIfNull(narrativeService);
+        ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(slot);
 
         Directory.CreateDirectory(_saveDirectory);
         var path = GetSlotPath(slot);
         var now = DateTimeOffset.UtcNow;
-        var existingEnvelope = await ReadEnvelopeAsync(path, cancellationToken).ConfigureAwait(false);
+        var existingDocument = await ReadDocumentAsync(path, cancellationToken).ConfigureAwait(false);
 
-        var envelope = new SaveEnvelope(
+        var document = new GameSessionSaveDocument(
             CurrentSaveVersion,
-            gameState.RunId,
-            existingEnvelope?.CreatedUtc ?? now,
+            existingDocument?.CreatedUtc ?? now,
             now,
-            BuildCheckpointName(gameState),
-            GameStateDto.FromGameState(gameState),
-            new NarrativeStateDto { LastKnot = narrativeService.LastKnot });
+            request.CheckpointName,
+            GameSessionSnapshot.Capture(request.GameSession),
+            new NarrativeProgressSnapshot { LastKnot = request.LastKnot });
 
-        using var stream = File.Create(path);
-        await JsonSerializer.SerializeAsync(stream, envelope, SaveGameJsonContext.Default.SaveEnvelope, cancellationToken).ConfigureAwait(false);
+        var stream = OpenWriteStream(path);
+        await using (stream.ConfigureAwait(false))
+        {
+            await JsonSerializer.SerializeAsync(stream, document, SaveGameJsonContext.Default.GameSessionSaveDocument, cancellationToken).ConfigureAwait(false);
+        }
     }
 
-    public async Task<LoadedGameState?> LoadAsync(string slot, CancellationToken cancellationToken = default)
+    public async Task<LoadedGameSession?> LoadAsync(string slot, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(slot);
 
         var path = GetSlotPath(slot);
-        var envelope = await ReadEnvelopeAsync(path, cancellationToken).ConfigureAwait(false);
-        if (envelope is null)
+        var document = await ReadDocumentAsync(path, cancellationToken).ConfigureAwait(false);
+        if (document is null)
         {
             return null;
         }
 
-        if (envelope.SaveVersion != CurrentSaveVersion)
+        if (document.SaveVersion != CurrentSaveVersion)
         {
-            LogVersionMismatch(_logger, slot, envelope.SaveVersion, CurrentSaveVersion);
+            LogVersionMismatch(_logger, slot, document.SaveVersion, CurrentSaveVersion);
             return null;
         }
 
-        return new LoadedGameState(
+        return LoadedGameSession.Create(
             slot,
-            envelope.CheckpointName,
-            envelope.CreatedUtc,
-            envelope.LastPlayedUtc,
-            envelope.NarrativeState.LastKnot,
-            envelope.GameState.ToGameState(envelope.RunId));
+            document.CheckpointName,
+            document.CreatedUtc,
+            document.LastPlayedUtc,
+            document.NarrativeProgress.LastKnot,
+            document.SessionSnapshot.Restore);
     }
 
     public async Task<IReadOnlyList<SaveSlotMetadata>> ListSlotsAsync(CancellationToken cancellationToken = default)
@@ -78,13 +78,13 @@ public sealed class JsonSaveGameStore : ISaveGameStore
         var slots = new List<SaveSlotMetadata>();
         foreach (var filePath in Directory.EnumerateFiles(_saveDirectory, "*.json", SearchOption.TopDirectoryOnly))
         {
-            var envelope = await ReadEnvelopeAsync(filePath, cancellationToken).ConfigureAwait(false);
-            if (envelope is null || envelope.SaveVersion != CurrentSaveVersion)
+            var document = await ReadDocumentAsync(filePath, cancellationToken).ConfigureAwait(false);
+            if (document is null || document.SaveVersion != CurrentSaveVersion)
             {
                 continue;
             }
 
-            slots.Add(new SaveSlotMetadata(Path.GetFileNameWithoutExtension(filePath), envelope.CheckpointName, envelope.LastPlayedUtc));
+            slots.Add(new SaveSlotMetadata(Path.GetFileNameWithoutExtension(filePath), document.CheckpointName, document.LastPlayedUtc));
         }
 
         return slots
@@ -92,7 +92,7 @@ public sealed class JsonSaveGameStore : ISaveGameStore
             .ToArray();
     }
 
-    private async Task<SaveEnvelope?> ReadEnvelopeAsync(string path, CancellationToken cancellationToken)
+    private async Task<GameSessionSaveDocument?> ReadDocumentAsync(string path, CancellationToken cancellationToken)
     {
         if (!File.Exists(path))
         {
@@ -101,8 +101,11 @@ public sealed class JsonSaveGameStore : ISaveGameStore
 
         try
         {
-            using var stream = File.OpenRead(path);
-            return await JsonSerializer.DeserializeAsync(stream, SaveGameJsonContext.Default.SaveEnvelope, cancellationToken).ConfigureAwait(false);
+            var stream = OpenReadStream(path);
+            await using (stream.ConfigureAwait(false))
+            {
+                return await JsonSerializer.DeserializeAsync(stream, SaveGameJsonContext.Default.GameSessionSaveDocument, cancellationToken).ConfigureAwait(false);
+            }
         }
         catch (JsonException exception)
         {
@@ -116,15 +119,33 @@ public sealed class JsonSaveGameStore : ISaveGameStore
         }
     }
 
+    private static FileStream OpenReadStream(string path)
+    {
+        return new FileStream(path, new FileStreamOptions
+        {
+            Mode = FileMode.Open,
+            Access = FileAccess.Read,
+            Share = FileShare.Read,
+            BufferSize = StreamBufferSize,
+            Options = FileOptions.Asynchronous | FileOptions.SequentialScan
+        });
+    }
+
+    private static FileStream OpenWriteStream(string path)
+    {
+        return new FileStream(path, new FileStreamOptions
+        {
+            Mode = FileMode.Create,
+            Access = FileAccess.Write,
+            Share = FileShare.None,
+            BufferSize = StreamBufferSize,
+            Options = FileOptions.Asynchronous | FileOptions.SequentialScan
+        });
+    }
+
     private string GetSlotPath(string slot)
     {
         return Path.Combine(_saveDirectory, $"{slot}.json");
-    }
-
-    private static string BuildCheckpointName(GameState gameState)
-    {
-        var backgroundName = gameState.Player.Background?.Name ?? gameState.Player.BackgroundType.ToString();
-        return $"{backgroundName} - Day {gameState.Clock.Day}";
     }
 
     private static readonly Action<ILogger, string, int, int, Exception?> LogVersionMismatchDelegate =

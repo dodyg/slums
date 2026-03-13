@@ -10,7 +10,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnStabilityHonestWork_WhenCriteriaMet()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         state.Player.Stats.SetMoney(250);
         state.SetDaysSurvived(30);
         state.SetPolicePressure(10);
@@ -23,7 +23,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnNull_WhenCriteriaAreNotMet()
     {
-        var state = new GameState();
+        using var state = new GameSession();
 
         var ending = EndingService.CheckEndings(state);
 
@@ -33,7 +33,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnArrested_WhenPolicePressureHitsMaximum()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         state.SetPolicePressure(100);
 
         var ending = EndingService.CheckEndings(state);
@@ -44,7 +44,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnNetworkShelter_WhenCommunityTrustIsHigh()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         state.SetDaysSurvived(30);
         state.Player.Stats.SetMoney(140);
         state.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.NeighborMona, 40, 1);
@@ -60,11 +60,12 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnLeavingCrime_WhenCrimeStopsAndWorkCarriesYou()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         state.SetDaysSurvived(30);
         state.SetPolicePressure(30);
         state.SetCrimeCounters(300, 5);
-        state.SetWorkCounters(totalHonestWorkEarnings: 220, honestShiftsCompleted: 6, lastCrimeDay: 25, lastHonestWorkDay: 30, lastPublicFacingWorkDay: 30);
+        state.SetCrimeCounters(300, 5, lastCrimeDay: 25);
+        state.SetWorkCounters(totalHonestWorkEarnings: 220, honestShiftsCompleted: 6, lastHonestWorkDay: 30, lastPublicFacingWorkDay: 30);
         state.Clock.SetTime(30, 6, 0);
 
         var ending = EndingService.CheckEndings(state);
@@ -75,7 +76,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnBuriedByHeat_WhenCrimeAndPressureStayHigh()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         state.SetDaysSurvived(30);
         state.SetCrimeCounters(500, 7);
         state.SetPolicePressure(90);
@@ -89,10 +90,10 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task GetInkKnot_ShouldUseBackgroundSpecificVariant_ForStabilityAndLeavingCrime()
     {
-        var stabilityState = new GameState();
+        using var stabilityState = new GameSession();
         stabilityState.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
 
-        var leavingCrimeState = new GameState();
+        using var leavingCrimeState = new GameSession();
         leavingCrimeState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
 
         await Assert.That(EndingService.GetInkKnot(stabilityState, EndingId.StabilityHonestWork)).IsEqualTo("ending_stability_sudanese");
@@ -102,7 +103,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task GetInkKnot_ShouldUseStrongestSupportContact_ForNetworkShelter()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         state.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.NeighborMona, 20, 1);
         state.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.NurseSalma, 35, 1);
         state.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.CafeOwnerNadia, 22, 1);
@@ -114,7 +115,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task GetInkKnot_ShouldReturnNarrativeScene_ForEveryEnding()
     {
-        var state = new GameState();
+        using var state = new GameSession();
 
         foreach (var endingId in Enum.GetValues<EndingId>())
         {

@@ -66,6 +66,7 @@ Never put business rules directly in the UI project.
 
 Put these here:
 
+- the canonical `GameSession` runtime boundary backed by EntitiesDb
 - survival rules
 - time progression
 - money/rent/food logic
@@ -81,22 +82,24 @@ Do not put SadConsole, Ink, or file IO here.
 
 Put orchestration here:
 
+- contracts that operate on `GameSession`
 - new game flow
 - background selection
 - travel commands
 - activity commands
 - scene triggering
-- save/load use cases
+- save/load use cases, including `LoadedGameSession` handoff
 
 ### `Slums.Infrastructure`
 
 Put adapters here:
 
 - save file storage
-- JSON serialization
+- `GameSession` snapshot capture/restore and JSON serialization
 - content loading
 - environment-specific paths
 - seeded randomness implementation
+- `LoadedGameSession` creation at the persistence boundary
 
 ### `Slums.Narrative.Ink`
 
@@ -106,8 +109,10 @@ Put these here:
 - variable synchronization
 - choice advancement
 - mapping narrative outcomes back to application/domain concepts
+- fail-fast story loading when Ink content is missing or invalid
 
 Do not move core simulation rules into Ink scripts.
+Do not add a fallback narrative runtime that hides Ink failures.
 
 ### `Slums.Game`
 
@@ -190,8 +195,12 @@ Minimum expectation by layer:
 - `Slums.Infrastructure.Tests`: serialization and content-loading tests
 
 **Running Tests:**
-- On .NET 10 SDK and later, `dotnet test` requires opt-in to the new testing platform
-- Run tests directly by executing each test project: `dotnet run --project tests/Slums.Core.Tests`
+- Use this validation workflow from the repo root:
+  1. `dotnet build Slums.slnx`
+  2. `dotnet run --project tests/Slums.Core.Tests`
+  3. `dotnet run --project tests/Slums.Application.Tests`
+  4. `dotnet run --project tests/Slums.Infrastructure.Tests`
+  5. `dotnet run --project tests/Slums.Narrative.Ink.Tests`
 - Test projects are configured as executables (`OutputType=Exe`) for direct execution
 
 Run existing build and test commands before finishing work.
@@ -232,8 +241,10 @@ If content touches those boundaries, choose implication and consequence over exp
 - Read existing files before creating new abstractions.
 - Reuse models and services instead of duplicating state.
 - Prefer feature-oriented folders within each project.
-- Keep `GameState` as the canonical source of truth.
+- Keep `GameSession` as the canonical runtime boundary, with EntitiesDb as its backing runtime store.
+- Keep persistence centered on `GameSession` snapshots and `LoadedGameSession`; do not reintroduce parallel save-state models.
 - Use Ink for authored branching scenes, not for core economy simulation.
+- Treat missing or invalid Ink content as a hard failure; do not restore fallback narrative behavior.
 - Add content in `content/` before hardcoding large world datasets.
 - Update `PLAN.MD` and `AGENTS.md` if architectural direction changes.
 
@@ -246,4 +257,3 @@ Before ending an implementation task:
 3. docs are updated if architecture or workflow changed
 4. no UI-specific logic leaked into domain projects
 5. no simulation-specific logic leaked into the SadConsole project
-

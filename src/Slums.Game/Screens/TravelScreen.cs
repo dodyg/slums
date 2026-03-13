@@ -12,12 +12,12 @@ internal sealed class TravelScreen : ScreenSurface
     private const int DestinationStartX = 4;
     private const int DestinationStartY = 5;
     private const int ListRowHeight = 2;
-    private readonly GameState _gameState;
+    private readonly GameSession _gameState;
     private readonly IReadOnlyList<Location> _locations;
     private readonly GameScreen _parentScreen;
     private int _selectedIndex;
 
-    public TravelScreen(int width, int height, GameState gameState, IReadOnlyList<Location> locations, GameScreen parentScreen) 
+    public TravelScreen(int width, int height, GameSession gameState, IReadOnlyList<Location> locations, GameScreen parentScreen) 
         : base(width, height)
     {
         _gameState = gameState;

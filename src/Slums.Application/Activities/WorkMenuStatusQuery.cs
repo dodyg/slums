@@ -1,5 +1,4 @@
 using Slums.Core.Characters;
-using Slums.Core.State;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
 
@@ -8,78 +7,61 @@ namespace Slums.Application.Activities;
 public sealed class WorkMenuStatusQuery
 {
 #pragma warning disable CA1822
-    public IReadOnlyList<WorkMenuStatus> GetStatuses(GameState gameState)
+    public IReadOnlyList<WorkMenuStatus> GetStatuses(WorkMenuContext context)
 #pragma warning restore CA1822
     {
-        ArgumentNullException.ThrowIfNull(gameState);
+        ArgumentNullException.ThrowIfNull(context);
 
-        var location = gameState.World.GetCurrentLocation();
-        if (location is null)
-        {
-            return [];
-        }
-
-        return gameState
-            .GetAvailableJobs()
-            .Select(job =>
+        return context
+            .Options
+            .Select(option =>
             {
-                var preview = gameState.Jobs.PreviewJob(job.Type, gameState.Player, gameState.Relationships, gameState.JobProgress);
-                var track = gameState.JobProgress.GetTrack(job.Type);
-                var canPerform = gameState.Jobs.CanPerformJob(
-                    job,
-                    gameState.Player,
-                    location,
-                    gameState.Relationships,
-                    gameState.JobProgress,
-                    gameState.Clock.Day,
-                    out var reason);
-
-                int? lockoutUntilDay = track.IsLockedOut(gameState.Clock.Day)
-                    ? track.LockoutUntilDay
+                int? lockoutUntilDay = option.Track.IsLockedOut(context.CurrentDay)
+                    ? option.Track.LockoutUntilDay
                     : null;
 
                 return new WorkMenuStatus(
-                    preview.Job,
-                    track.Reliability,
-                    track.ShiftsCompleted,
+                    option.Preview.Job,
+                    option.Track.Reliability,
+                    option.Track.ShiftsCompleted,
                     lockoutUntilDay,
-                    canPerform,
-                    canPerform ? null : reason,
-                    preview.VariantReason,
-                    preview.NextUnlockHint,
-                    preview.ActiveModifiers,
-                    preview.RiskWarning,
-                    GetNarrativeSignals(gameState, preview.Job));
+                    option.CanPerform,
+                    option.AvailabilityReason,
+                    option.Preview.VariantReason,
+                    option.Preview.NextUnlockHint,
+                    option.Preview.ActiveModifiers,
+                    option.Preview.RiskWarning,
+                    GetNarrativeSignals(context, option.Preview.Job));
             })
             .ToArray();
     }
 
-    private static List<string> GetNarrativeSignals(GameState gameState, JobShift job)
+    private static List<string> GetNarrativeSignals(WorkMenuContext context, JobShift job)
     {
         var signals = new List<string>();
-        var recentCrimeHeat = gameState.LastCrimeDay > 0 && gameState.Clock.Day - gameState.LastCrimeDay <= 1;
+        var recentCrimeHeat = context.LastCrimeDay > 0 && context.CurrentDay - context.LastCrimeDay <= 1;
 
-        if (recentCrimeHeat && gameState.PolicePressure >= 60 && IsPublicFacingJob(job.Type))
+        if (recentCrimeHeat && context.PolicePressure >= 60 && IsPublicFacingJob(job.Type))
         {
             signals.Add("Taking this public-facing shift now can trigger a police-heat suspicion follow-up.");
         }
 
         if (job.Type == JobType.ClinicReception)
         {
-            if (gameState.Player.BackgroundType == BackgroundType.MedicalSchoolDropout && !gameState.HasStoryFlag("background_medical_clinic_seen"))
+            if (context.Player.BackgroundType == BackgroundType.MedicalSchoolDropout && !context.HasStoryFlag("background_medical_clinic_seen"))
             {
                 signals.Add("A successful clinic shift can trigger a medical-dropout reflection scene.");
             }
 
-            if (gameState.Player.BackgroundType == BackgroundType.MedicalSchoolDropout &&
-                gameState.Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust >= 12 &&
-                gameState.Player.Household.MotherHealth < 65)
+            if (context.Player.BackgroundType == BackgroundType.MedicalSchoolDropout &&
+                context.Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust >= 12 &&
+                context.Player.Household.MotherHealth < 65)
             {
                 signals.Add("A strong clinic day can push Salma to quietly help with medicine.");
             }
         }
 
-        if (job.Type == JobType.WorkshopSewing && recentCrimeHeat && gameState.Player.Stats.Energy <= 40)
+        if (job.Type == JobType.WorkshopSewing && recentCrimeHeat && context.Player.Stats.Energy <= 40)
         {
             signals.Add("A bad workshop shift under street heat can leave Abu Samir remembering the embarrassment.");
         }

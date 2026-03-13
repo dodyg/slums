@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
+using Slums.Application.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 
@@ -14,17 +15,20 @@ internal sealed class TalkScreen : ScreenSurface
     private const int ListY = 6;
     private const int ListRowHeight = 2;
     private const int DetailX = 34;
+    private readonly TalkNpcContext _context;
     private readonly GameRuntime _runtime;
-    private readonly GameState _gameState;
+    private readonly GameSession _gameState;
     private readonly IReadOnlyList<TalkNpcStatus> _npcs;
     private readonly GameScreen _parentScreen;
+    private readonly TalkSceneRequestFactory _talkSceneRequestFactory = new();
     private int _selectedIndex;
 
-    public TalkScreen(int width, int height, GameRuntime runtime, GameState gameState, IReadOnlyList<TalkNpcStatus> npcs, GameScreen parentScreen)
+    public TalkScreen(int width, int height, GameRuntime runtime, GameSession gameState, TalkNpcContext context, IReadOnlyList<TalkNpcStatus> npcs, GameScreen parentScreen)
         : base(width, height)
     {
         _runtime = runtime;
         _gameState = gameState;
+        _context = context;
         _npcs = npcs;
         _parentScreen = parentScreen;
         IsFocused = true;
@@ -73,18 +77,8 @@ internal sealed class TalkScreen : ScreenSurface
         if (keyboard.IsKeyPressed(Keys.Enter))
         {
             var npcId = _npcs[_selectedIndex].NpcId;
-            _gameState.Relationships.RecordContact(npcId, _gameState.Clock.Day);
-            var knotName = NpcRegistry.GetConversationKnot(
-                npcId,
-                _gameState.Relationships,
-                _gameState.PolicePressure,
-                _gameState.Clock.Day,
-                _gameState.HonestShiftsCompleted,
-                _gameState.CrimesCommitted,
-                _gameState.Player.Stats.Money,
-                _gameState.Player.Household.MotherHealth);
-            _gameState.Relationships.RecordSeenConversation(npcId, knotName);
-            _runtime.NarrativeService.StartScene(knotName, _gameState);
+            var talkScene = _talkSceneRequestFactory.Create(_gameState, _context, npcId);
+            _runtime.NarrativeService.StartScene(talkScene.KnotName, talkScene.SceneState);
             IsFocused = false;
             GameHost.Instance.Screen = new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, _parentScreen);
             return true;

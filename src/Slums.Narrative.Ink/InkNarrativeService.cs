@@ -4,7 +4,6 @@ using Ink.Runtime;
 using Microsoft.Extensions.Logging;
 using Slums.Application.Narrative;
 using Slums.Core.Relationships;
-using Slums.Core.State;
 
 namespace Slums.Narrative.Ink;
 
@@ -24,45 +23,29 @@ public sealed class InkNarrativeService : INarrativeService
         _logger = logger;
     }
 
-    public void StartScene(string knotName, GameState gameState)
+    public void StartScene(string knotName, NarrativeSceneState sceneState)
     {
         ArgumentNullException.ThrowIfNull(knotName);
-        ArgumentNullException.ThrowIfNull(gameState);
+        ArgumentNullException.ThrowIfNull(sceneState);
 
         LastKnot = knotName;
         _pendingOutcome = null;
         _currentStory = null;
+        var story = new Story(LoadStoryResource());
+        SyncVariablesToInk(story, sceneState);
+        story.ChoosePathString(knotName);
+        _currentStory = story;
+        ContinueStory();
+        LogSceneStarted(_logger, knotName);
+    }
 
-        string storyJson;
-        try
-        {
-            storyJson = LoadStoryResource();
-        }
-        catch (InvalidOperationException ex)
-        {
-            LogStoryLoadFailed(_logger, ex);
-            EndScene();
-            return;
-        }
-
-        try
-        {
-            _currentStory = new Story(storyJson);
-            SyncVariablesToInk(gameState);
-            _currentStory.ChoosePathString(knotName);
-            ContinueStory();
-            LogSceneStarted(_logger, knotName);
-        }
-        catch (StoryException ex)
-        {
-            LogSceneStartFailed(_logger, knotName, ex);
-            EndScene();
-        }
-        catch (ArgumentException ex)
-        {
-            LogSceneStartFailed(_logger, knotName, ex);
-            EndScene();
-        }
+    public void RestoreProgress(string? lastKnot)
+    {
+        LastKnot = string.IsNullOrWhiteSpace(lastKnot) ? null : lastKnot;
+        _pendingOutcome = null;
+        _currentStory = null;
+        CurrentText = null;
+        CurrentChoices = [];
     }
 
     public void SelectChoice(int choiceIndex)
@@ -73,21 +56,8 @@ public sealed class InkNarrativeService : INarrativeService
             return;
         }
 
-        try
-        {
-            _currentStory.ChooseChoiceIndex(choiceIndex);
-            ContinueStory();
-        }
-        catch (StoryException ex)
-        {
-            LogChoiceAdvanceFailed(_logger, choiceIndex, ex);
-            EndScene();
-        }
-        catch (ArgumentException ex)
-        {
-            LogChoiceAdvanceFailed(_logger, choiceIndex, ex);
-            EndScene();
-        }
+        _currentStory.ChooseChoiceIndex(choiceIndex);
+        ContinueStory();
     }
 
     public void EndScene()
@@ -220,36 +190,31 @@ public sealed class InkNarrativeService : INarrativeService
         };
     }
 
-    private void SyncVariablesToInk(GameState gameState)
+    private static void SyncVariablesToInk(Story story, NarrativeSceneState sceneState)
     {
-        if (_currentStory is null)
-        {
-            return;
-        }
+        TrySetGlobalVariable(story, "money", sceneState.Money);
+        TrySetGlobalVariable(story, "health", sceneState.Health);
+        TrySetGlobalVariable(story, "energy", sceneState.Energy);
+        TrySetGlobalVariable(story, "hunger", sceneState.Hunger);
+        TrySetGlobalVariable(story, "stress", sceneState.Stress);
+        TrySetGlobalVariable(story, "mother_health", sceneState.MotherHealth);
+        TrySetGlobalVariable(story, "food_stockpile", sceneState.FoodStockpile);
+        TrySetGlobalVariable(story, "day", sceneState.Day);
 
-        TrySetGlobalVariable("money", gameState.Player.Stats.Money);
-        TrySetGlobalVariable("health", gameState.Player.Stats.Health);
-        TrySetGlobalVariable("energy", gameState.Player.Stats.Energy);
-        TrySetGlobalVariable("hunger", gameState.Player.Stats.Hunger);
-        TrySetGlobalVariable("stress", gameState.Player.Stats.Stress);
-        TrySetGlobalVariable("mother_health", gameState.Player.Household.MotherHealth);
-        TrySetGlobalVariable("food_stockpile", gameState.Player.Household.FoodStockpile);
-        TrySetGlobalVariable("day", gameState.Clock.Day);
-
-        if (gameState.Player.Background is not null)
+        if (!string.IsNullOrWhiteSpace(sceneState.Background))
         {
-            TrySetGlobalVariable("background", gameState.Player.Background.Type.ToString());
+            TrySetGlobalVariable(story, "background", sceneState.Background);
         }
     }
 
-    private void TrySetGlobalVariable(string variableName, object value)
+    private static void TrySetGlobalVariable(Story story, string variableName, object value)
     {
-        if (_currentStory is null || !_currentStory.variablesState.GlobalVariableExistsWithName(variableName))
+        if (!story.variablesState.GlobalVariableExistsWithName(variableName))
         {
             return;
         }
 
-        _currentStory.variablesState[variableName] = value;
+        story.variablesState[variableName] = value;
     }
 
     private bool TryProcessRelationshipMemoryTag(string key, string valueStr)
@@ -317,6 +282,7 @@ public sealed class InkNarrativeService : INarrativeService
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }
+
     private static NarrativeOutcome MergeOutcome(NarrativeOutcome? existing, NarrativeOutcome next)
     {
         if (existing is null)
@@ -353,29 +319,24 @@ public sealed class InkNarrativeService : INarrativeService
     private static readonly Action<ILogger, string, Exception?> LogSceneStartedDelegate =
         LoggerMessage.Define<string>(LogLevel.Information, new EventId(1, "SceneStarted"), "Started Ink scene: {KnotName}");
 
-    private static readonly Action<ILogger, string, Exception?> LogSceneStartFailedDelegate =
-        LoggerMessage.Define<string>(LogLevel.Error, new EventId(2, "SceneStartFailed"), "Failed to start Ink scene: {KnotName}");
-
-    private static readonly Action<ILogger, Exception?> LogStoryLoadFailedDelegate =
-        LoggerMessage.Define(LogLevel.Error, new EventId(3, "StoryLoadFailed"), "Failed to load Ink story resource");
-
     private static readonly Action<ILogger, int, Exception?> LogInvalidChoiceDelegate =
-        LoggerMessage.Define<int>(LogLevel.Warning, new EventId(4, "InvalidChoice"), "Invalid choice selection: {ChoiceIndex}");
-
-    private static readonly Action<ILogger, int, Exception?> LogChoiceAdvanceFailedDelegate =
-        LoggerMessage.Define<int>(LogLevel.Error, new EventId(5, "ChoiceAdvanceFailed"), "Failed to advance Ink choice: {ChoiceIndex}");
+        LoggerMessage.Define<int>(LogLevel.Warning, new EventId(2, "InvalidChoice"), "Invalid choice selection: {ChoiceIndex}");
 
     private static readonly Action<ILogger, Exception?> LogSceneEndedDelegate =
-        LoggerMessage.Define(LogLevel.Debug, new EventId(6, "SceneEnded"), "Ended Ink scene");
+        LoggerMessage.Define(LogLevel.Debug, new EventId(3, "SceneEnded"), "Ended Ink scene");
 
     private static readonly Action<ILogger, Exception?> LogStoryEndedDelegate =
-        LoggerMessage.Define(LogLevel.Debug, new EventId(7, "StoryEnded"), "Story reached natural end");
+        LoggerMessage.Define(LogLevel.Debug, new EventId(4, "StoryEnded"), "Story reached natural end");
 
-    private static void LogSceneStarted(ILogger logger, string knotName) => LogSceneStartedDelegate(logger, knotName, null);
-    private static void LogSceneStartFailed(ILogger logger, string knotName, Exception ex) => LogSceneStartFailedDelegate(logger, knotName, ex);
-    private static void LogStoryLoadFailed(ILogger logger, Exception ex) => LogStoryLoadFailedDelegate(logger, ex);
-    private static void LogInvalidChoice(ILogger logger, int index) => LogInvalidChoiceDelegate(logger, index, null);
-    private static void LogChoiceAdvanceFailed(ILogger logger, int index, Exception ex) => LogChoiceAdvanceFailedDelegate(logger, index, ex);
-    private static void LogSceneEnded(ILogger logger) => LogSceneEndedDelegate(logger, null);
-    private static void LogStoryEnded(ILogger logger) => LogStoryEndedDelegate(logger, null);
+    private static void LogSceneStarted(ILogger logger, string knotName) =>
+        LogSceneStartedDelegate(logger, knotName, null);
+
+    private static void LogInvalidChoice(ILogger logger, int choiceIndex) =>
+        LogInvalidChoiceDelegate(logger, choiceIndex, null);
+
+    private static void LogSceneEnded(ILogger logger) =>
+        LogSceneEndedDelegate(logger, null);
+
+    private static void LogStoryEnded(ILogger logger) =>
+        LogStoryEndedDelegate(logger, null);
 }

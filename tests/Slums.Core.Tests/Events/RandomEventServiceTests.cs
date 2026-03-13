@@ -11,12 +11,12 @@ internal sealed class RandomEventServiceTests
     public void RollDailyEvents_ShouldBeDeterministic_WithSeededRandom()
     {
         var service = new RandomEventService();
-        var firstState = new GameState();
+        using var firstState = new GameSession();
         firstState.Clock.SetTime(5, 6, 0);
         firstState.SetPolicePressure(70);
         firstState.Player.Household.SetMotherHealth(40);
 
-        var secondState = new GameState();
+        using var secondState = new GameSession();
         secondState.Clock.SetTime(5, 6, 0);
         secondState.SetPolicePressure(70);
         secondState.Player.Household.SetMotherHealth(40);
@@ -31,7 +31,7 @@ internal sealed class RandomEventServiceTests
     public void RollDailyEvents_ShouldFilterMotherHealthScare_WhenMotherIsHealthy()
     {
         var service = new RandomEventService();
-        var state = new GameState();
+        using var state = new GameSession();
         state.Clock.SetTime(5, 6, 0);
         state.SetPolicePressure(70);
         state.Player.Household.SetMotherHealth(80);
@@ -64,7 +64,7 @@ internal sealed class RandomEventServiceTests
     public void RollDailyEvents_ShouldAllowDokkiCheckpointSweep_WhenInDokki()
     {
         var service = new RandomEventService();
-        var state = new GameState();
+        using var state = new GameSession();
         state.Clock.SetTime(6, 6, 0);
         state.World.TravelTo(Slums.Core.World.LocationId.CallCenter);
         state.SetPolicePressure(50);
@@ -79,7 +79,7 @@ internal sealed class RandomEventServiceTests
     public void RollDailyEvents_ShouldAllowBulaqMedicineQueue_WhenAtPharmacy()
     {
         var service = new RandomEventService();
-        var state = new GameState();
+        using var state = new GameSession();
         state.Clock.SetTime(6, 6, 0);
         state.World.TravelTo(Slums.Core.World.LocationId.Pharmacy);
 

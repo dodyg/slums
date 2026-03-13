@@ -1,9 +1,9 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
-using Slums.Application.Narrative;
+using Slums.Application.Persistence;
 using Slums.Core.Characters;
 using Slums.Core.Jobs;
+using Slums.Core.Relationships;
 using Slums.Core.World;
 using Slums.Infrastructure.Persistence;
 using TUnit.Core;
@@ -13,50 +13,78 @@ namespace Slums.Infrastructure.Tests;
 internal sealed class JsonSaveGameStoreTests
 {
     [Test]
-    public async Task SaveAndLoad_ShouldRoundTripGameState()
+    public async Task SaveAndLoad_ShouldRoundTripGameSessionSnapshot()
     {
         var saveDirectory = CreateTempDirectory("slums-save-tests");
         try
         {
             var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
-            var narrative = Substitute.For<INarrativeService>();
-            narrative.LastKnot.Returns("crime_warning");
 
-            var state = new Slums.Core.State.GameState();
-            state.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
-            state.Player.Stats.SetMoney(222);
-            state.Player.Stats.SetHealth(77);
-            state.Player.Stats.SetEnergy(55);
-            state.Player.Household.SetMotherHealth(63);
-            state.World.TravelTo(LocationId.Market);
-            state.SetPolicePressure(30);
-            state.SetDaysSurvived(7);
-            state.SetCrimeCounters(120, 2);
-            state.SetWorkCounters(140, 4, lastCrimeDay: 5, lastHonestWorkDay: 7, lastPublicFacingWorkDay: 7);
-            state.SetStoryFlag("crime_warning");
-            state.RestoreJobTrack(JobType.ClinicReception, 74, 5, 9);
-            state.Relationships.RecordFavor(Slums.Core.Relationships.NpcId.NurseSalma, 7, hasUnpaidDebt: true);
-            state.RecordEventHistory("DokkiCheckpointSweep", 2);
+            using var gameSession = new Slums.Core.State.GameSession();
+            var runId = Guid.NewGuid();
+            gameSession.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+            gameSession.Player.Stats.SetMoney(222);
+            gameSession.Player.Nutrition.SetSatiety(41);
+            gameSession.Player.Nutrition.SetDaysUndereating(2);
+            gameSession.Player.Stats.SetHunger(gameSession.Player.Nutrition.Satiety);
+            gameSession.Player.Stats.SetHealth(77);
+            gameSession.Player.Stats.SetEnergy(55);
+            gameSession.Player.Stats.SetStress(38);
+            gameSession.Player.Household.SetMotherHealth(63);
+            gameSession.Player.Household.SetFoodStockpile(5);
+            gameSession.Player.Household.SetMedicineStock(2);
+            gameSession.World.TravelTo(LocationId.Market);
+            gameSession.RestoreCrimeState(30, 120, 2, 5, hasCrimeCommittedToday: true);
+            gameSession.RestoreWorkState(140, 4, 7, 7);
+            gameSession.RestoreRunState(runId, 7, isGameOver: false, gameOverReason: null, endingId: null, pendingEndingKnot: null);
+            gameSession.SetStoryFlag("crime_warning");
+            gameSession.QueueNarrativeScene("queued_scene");
+            gameSession.RestoreJobTrack(JobType.ClinicReception, 74, 5, 9);
+            gameSession.Relationships.RecordFavor(NpcId.NurseSalma, 7, hasUnpaidDebt: true);
+            gameSession.Relationships.RecordSeenConversation(NpcId.NurseSalma, "nurse_intro_1");
+            gameSession.Relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 11);
+            gameSession.RecordEventHistory("DokkiCheckpointSweep", 2);
 
-            await store.SaveAsync(state, narrative, "slot1").ConfigureAwait(false);
+            await store.SaveAsync(SaveGameRequest.Create(gameSession, "crime_warning"), "slot1").ConfigureAwait(false);
             var loaded = await store.LoadAsync("slot1").ConfigureAwait(false);
 
             loaded.Should().NotBeNull();
-            loaded!.LastKnot.Should().Be("crime_warning");
-            loaded.GameState.Player.Stats.Money.Should().Be(222);
-            loaded.GameState.Player.Stats.Health.Should().Be(77);
-            loaded.GameState.World.CurrentLocationId.Should().Be(LocationId.Market);
-            loaded.GameState.PolicePressure.Should().Be(30);
-            loaded.GameState.CrimesCommitted.Should().Be(2);
-            loaded.GameState.StoryFlags.Should().Contain("crime_warning");
-            loaded.GameState.JobProgress.GetTrack(JobType.ClinicReception).Reliability.Should().Be(74);
-            loaded.GameState.JobProgress.GetTrack(JobType.ClinicReception).ShiftsCompleted.Should().Be(5);
-            loaded.GameState.JobProgress.GetTrack(JobType.ClinicReception).LockoutUntilDay.Should().Be(9);
-            loaded.GameState.TotalHonestWorkEarnings.Should().Be(140);
-            loaded.GameState.LastCrimeDay.Should().Be(5);
-            loaded.GameState.LastPublicFacingWorkDay.Should().Be(7);
-            loaded.GameState.Relationships.GetNpcRelationship(Slums.Core.Relationships.NpcId.NurseSalma).HasUnpaidDebt.Should().BeTrue();
-            loaded.GameState.GetEventCount("DokkiCheckpointSweep").Should().Be(2);
+            var loadedSession = loaded!;
+            using (loadedSession)
+            {
+                loadedSession.LastKnot.Should().Be("crime_warning");
+                var restoredSession = loadedSession.TakeGameSession();
+
+                try
+                {
+                    restoredSession.RunId.Should().Be(runId);
+                    restoredSession.Player.Stats.Money.Should().Be(222);
+                    restoredSession.Player.Nutrition.Satiety.Should().Be(41);
+                    restoredSession.Player.Nutrition.DaysUndereating.Should().Be(2);
+                    restoredSession.Player.Stats.Health.Should().Be(77);
+                    restoredSession.World.CurrentLocationId.Should().Be(LocationId.Market);
+                    restoredSession.PolicePressure.Should().Be(30);
+                    restoredSession.CrimesCommitted.Should().Be(2);
+                    restoredSession.TotalHonestWorkEarnings.Should().Be(140);
+                    restoredSession.LastCrimeDay.Should().Be(5);
+                    restoredSession.LastHonestWorkDay.Should().Be(7);
+                    restoredSession.LastPublicFacingWorkDay.Should().Be(7);
+                    restoredSession.HasCrimeCommittedToday.Should().BeTrue();
+                    restoredSession.StoryFlags.Should().Contain("crime_warning");
+                    restoredSession.PendingNarrativeScenes.Should().ContainSingle().Which.Should().Be("queued_scene");
+                    restoredSession.JobProgress.GetTrack(JobType.ClinicReception).Reliability.Should().Be(74);
+                    restoredSession.JobProgress.GetTrack(JobType.ClinicReception).ShiftsCompleted.Should().Be(5);
+                    restoredSession.JobProgress.GetTrack(JobType.ClinicReception).LockoutUntilDay.Should().Be(9);
+                    restoredSession.Relationships.GetNpcRelationship(NpcId.NurseSalma).HasUnpaidDebt.Should().BeTrue();
+                    restoredSession.Relationships.HasSeenConversation(NpcId.NurseSalma, "nurse_intro_1").Should().BeTrue();
+                    restoredSession.Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation.Should().Be(11);
+                    restoredSession.GetEventCount("DokkiCheckpointSweep").Should().Be(2);
+                }
+                finally
+                {
+                    restoredSession.Dispose();
+                }
+            }
         }
         finally
         {
@@ -74,34 +102,66 @@ internal sealed class JsonSaveGameStoreTests
             await File.WriteAllTextAsync(path, """
             {
               "SaveVersion": 999,
-              "RunId": "00000000-0000-0000-0000-000000000001",
               "CreatedUtc": "2026-03-11T00:00:00+00:00",
               "LastPlayedUtc": "2026-03-11T00:00:00+00:00",
               "CheckpointName": "bad",
-              "GameState": {
-                "Money": 100,
-                "Hunger": 80,
-                "Energy": 80,
-                "Health": 100,
-                "Stress": 20,
-                "MotherHealth": 70,
-                "FoodStockpile": 3,
-                "Day": 1,
-                "Hour": 6,
-                "Minute": 0,
-                "BackgroundType": "MedicalSchoolDropout",
-                "CurrentLocationId": "home",
-                "PolicePressure": 0,
-                "TotalCrimeEarnings": 0,
-                "CrimesCommitted": 0,
-                "DaysSurvived": 0,
-                "SkillLevels": {},
-                "NpcTrust": {},
-                "NpcLastSeenDay": {},
-                "FactionReputation": {},
-                "StoryFlags": []
+              "SessionSnapshot": {
+                "Clock": {
+                  "Day": 1,
+                  "Hour": 6,
+                  "Minute": 0
+                },
+                "Player": {
+                  "BackgroundType": "MedicalSchoolDropout",
+                  "Money": 100,
+                  "Satiety": 80,
+                  "DaysUndereating": 0,
+                  "Energy": 80,
+                  "Health": 100,
+                  "Stress": 20,
+                  "MotherHealth": 70,
+                  "FoodStockpile": 3,
+                  "MedicineStock": 0,
+                  "SkillLevels": {}
+                },
+                "World": {
+                  "CurrentLocationId": "home"
+                },
+                "Relationships": {
+                  "Npcs": {},
+                  "Factions": {}
+                },
+                "JobProgress": {
+                  "Tracks": {}
+                },
+                "Crime": {
+                  "PolicePressure": 0,
+                  "TotalCrimeEarnings": 0,
+                  "CrimesCommitted": 0,
+                  "LastCrimeDay": 0,
+                  "HasCrimeCommittedToday": false
+                },
+                "Work": {
+                  "TotalHonestWorkEarnings": 0,
+                  "HonestShiftsCompleted": 0,
+                  "LastHonestWorkDay": 0,
+                  "LastPublicFacingWorkDay": 0
+                },
+                "Run": {
+                  "RunId": "00000000-0000-0000-0000-000000000001",
+                  "IsGameOver": false,
+                  "GameOverReason": null,
+                  "EndingId": null,
+                  "DaysSurvived": 0,
+                  "PendingEndingKnot": null
+                },
+                "Narrative": {
+                  "StoryFlags": [],
+                  "RandomEventHistory": {},
+                  "PendingNarrativeScenes": []
+                }
               },
-              "NarrativeState": {
+              "NarrativeProgress": {
                 "LastKnot": null
               }
             }

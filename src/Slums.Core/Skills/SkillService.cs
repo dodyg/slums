@@ -4,7 +4,7 @@ namespace Slums.Core.Skills;
 
 public static class SkillService
 {
-    public static bool ApplySkillGain(SkillId skillId, GameState gameState, out int newLevel)
+    public static bool ApplySkillGain(SkillId skillId, GameSession gameState, out int newLevel)
     {
         ArgumentNullException.ThrowIfNull(gameState);
 

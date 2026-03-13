@@ -8,4 +8,4 @@ public sealed record RandomEvent(
     RandomEventEffect Effect,
     int MinDay,
     int Weight,
-    Func<GameState, bool>? Condition);
+    Func<GameSession, bool>? Condition);

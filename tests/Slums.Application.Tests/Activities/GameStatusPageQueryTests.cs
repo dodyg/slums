@@ -15,9 +15,9 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeExpectedPageSet()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
 
-        var pages = query.GetPages(gameState);
+        var pages = query.GetPages(GameStatusContext.Create(gameState));
 
         pages.Select(static page => page.Title).Should().ContainInOrder("Survival", "Skills", "Network", "Signals", "Progress");
     }
@@ -26,13 +26,13 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeSkillAndNetworkDetails()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
         gameState.Player.Skills.SetLevel(SkillId.Persuasion, 4);
         gameState.Relationships.SetFactionStanding(FactionId.ImbabaCrew, 22);
         gameState.Relationships.SetNpcRelationship(NpcId.FixerUmmKarim, 14, 2);
 
-        var pages = query.GetPages(gameState);
+        var pages = query.GetPages(GameStatusContext.Create(gameState));
 
         var skills = pages.Single(static page => page.Title == "Skills");
         var network = pages.Single(static page => page.Title == "Network");
@@ -47,7 +47,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeProgressTrajectoryHints()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.SetDaysSurvived(30);
         gameState.SetCrimeCounters(totalCrimeEarnings: 1050, crimesCommitted: 2);
         gameState.SetPolicePressure(10);
@@ -55,7 +55,7 @@ internal sealed class GameStatusPageQueryTests
         gameState.Player.Stats.ModifyMoney(600);
         gameState.Player.Household.UpdateMotherHealth(10);
 
-        var pages = query.GetPages(gameState);
+        var pages = query.GetPages(GameStatusContext.Create(gameState));
 
         var progress = pages.Single(static page => page.Title == "Progress");
         progress.Lines.Should().Contain(static line => line.Contains("Crime earnings: 1050 LE", StringComparison.Ordinal));
@@ -67,17 +67,17 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldIncludeSignalsPage_WithActiveNarrativeHooks()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Clinic);
         gameState.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
         gameState.SetPolicePressure(65);
-        gameState.SetWorkCounters(0, 0, lastCrimeDay: 1, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
-        gameState.SetCrimeCounters(150, 2);
+        gameState.SetWorkCounters(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
+        gameState.SetCrimeCounters(150, 2, lastCrimeDay: 1);
         gameState.Player.Household.SetMotherHealth(55);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 18, 1);
         gameState.Relationships.SetNpcRelationship(NpcId.NurseSalma, 12, 1);
 
-        var pages = query.GetPages(gameState);
+        var pages = query.GetPages(GameStatusContext.Create(gameState));
 
         var signalsPage = pages.Single(static page => page.Title == "Signals");
         signalsPage.Lines.Should().Contain(static text => text.Contains("Public-facing work", StringComparison.Ordinal));

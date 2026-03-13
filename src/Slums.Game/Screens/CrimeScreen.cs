@@ -13,17 +13,19 @@ internal sealed class CrimeScreen : ScreenSurface
     private const int ListY = 6;
     private const int ListRowHeight = 2;
     private const int DetailX = 36;
-    private readonly GameState _gameState;
+    private readonly CrimeMenuContext _context;
+    private readonly GameSession _gameState;
     private readonly IReadOnlyList<CrimeMenuStatus> _crimeAttempts;
     private readonly GameScreen _parentScreen;
     private readonly GameRuntime _runtime;
     private int _selectedIndex;
 
-    public CrimeScreen(int width, int height, GameRuntime runtime, GameState gameState, IReadOnlyList<CrimeMenuStatus> crimeAttempts, GameScreen parentScreen)
+    public CrimeScreen(int width, int height, GameRuntime runtime, GameSession gameState, CrimeMenuContext context, IReadOnlyList<CrimeMenuStatus> crimeAttempts, GameScreen parentScreen)
         : base(width, height)
     {
         _runtime = runtime;
         _gameState = gameState;
+        _context = context;
         _crimeAttempts = crimeAttempts;
         _parentScreen = parentScreen;
         IsFocused = true;
@@ -37,7 +39,7 @@ internal sealed class CrimeScreen : ScreenSurface
         Surface.Clear();
 
         Surface.Print(ListX, 2, "=== Crime ===", Color.Cyan);
-        Surface.Print(ListX, 4, $"Police Pressure: {_gameState.PolicePressure}", GetPressureColor(_gameState.PolicePressure));
+        Surface.Print(ListX, 4, $"Police Pressure: {_context.PolicePressure}", GetPressureColor(_context.PolicePressure));
         Surface.Print(DetailX, 2, "=== Route Detail ===", Color.Cyan);
 
         for (var i = 0; i < _crimeAttempts.Count; i++)

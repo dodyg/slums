@@ -6,7 +6,7 @@ namespace Slums.Core.Endings;
 
 public static class EndingService
 {
-    public static EndingId? CheckEndings(GameState gameState)
+    public static EndingId? CheckEndings(GameSession gameState)
     {
         ArgumentNullException.ThrowIfNull(gameState);
 
@@ -123,7 +123,7 @@ public static class EndingService
         };
     }
 
-    public static string GetInkKnot(GameState gameState, EndingId endingId)
+    public static string GetInkKnot(GameSession gameState, EndingId endingId)
     {
         ArgumentNullException.ThrowIfNull(gameState);
 
@@ -158,7 +158,7 @@ public static class EndingService
         };
     }
 
-    private static string GetNetworkShelterKnot(GameState gameState)
+    private static string GetNetworkShelterKnot(GameSession gameState)
     {
         var rankedContacts = new[]
         {

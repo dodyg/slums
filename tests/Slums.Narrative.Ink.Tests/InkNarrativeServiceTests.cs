@@ -1,5 +1,7 @@
+using Ink.Runtime;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
+using Slums.Application.Narrative;
 using Slums.Core.State;
 using TUnit.Core;
 
@@ -7,13 +9,19 @@ namespace Slums.Narrative.Ink.Tests;
 
 internal sealed class InkNarrativeServiceTests
 {
+    private static void StartScene(Slums.Narrative.Ink.InkNarrativeService service, string knotName)
+    {
+        using var state = new GameSession();
+        service.StartScene(knotName, NarrativeSceneState.Create(state));
+    }
+
     [Test]
     public void StartScene_ShouldLoadMedicalIntroText()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
-        var state = new GameState();
+        using var state = new GameSession();
 
-        service.StartScene("intro_medical", state);
+        service.StartScene("intro_medical", NarrativeSceneState.Create(state));
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Three years of medical school.");
@@ -24,8 +32,8 @@ internal sealed class InkNarrativeServiceTests
     public void SelectChoice_ShouldAdvanceMedicalIntroScene()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
-        var state = new GameState();
-        service.StartScene("intro_medical", state);
+        using var state = new GameSession();
+        service.StartScene("intro_medical", NarrativeSceneState.Create(state));
 
         service.SelectChoice(0);
 
@@ -38,12 +46,11 @@ internal sealed class InkNarrativeServiceTests
     public void StartScene_ShouldEndScene_WhenKnotDoesNotExist()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+        using var state = new GameSession();
 
-        service.StartScene("missing_knot", new GameState());
-
-        service.IsSceneActive.Should().BeFalse();
-        service.CurrentText.Should().BeNull();
-        service.CurrentChoices.Should().BeEmpty();
+        FluentActions.Invoking(() => service.StartScene("missing_knot", NarrativeSceneState.Create(state)))
+            .Should()
+            .Throw<StoryException>();
     }
 
     [Test]
@@ -58,7 +65,7 @@ internal sealed class InkNarrativeServiceTests
     public void EndScene_ShouldClearNarrativeState()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
-        service.StartScene("intro_medical", new GameState());
+        StartScene(service, "intro_medical");
 
         service.EndScene();
 
@@ -69,11 +76,28 @@ internal sealed class InkNarrativeServiceTests
     }
 
     [Test]
+    public void RestoreProgress_ShouldRememberLastKnot_AndClearActiveScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        StartScene(service, "fixer_first_contact");
+        service.SelectChoice(0);
+
+        service.RestoreProgress("crime_warning");
+
+        service.IsSceneActive.Should().BeFalse();
+        service.CurrentText.Should().BeNull();
+        service.CurrentChoices.Should().BeEmpty();
+        service.GetPendingOutcome().Should().BeNull();
+        service.LastKnot.Should().Be("crime_warning");
+    }
+
+    [Test]
     public void StartScene_ShouldLoadInkNpcConversationWithChoices()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("landlord_rent_negotiation", new GameState());
+        StartScene(service, "landlord_rent_negotiation");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Hajj Mahmoud");
@@ -85,7 +109,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("fixer_first_contact", new GameState());
+        StartScene(service, "fixer_first_contact");
         service.SelectChoice(0);
 
         var outcome = service.GetPendingOutcome();
@@ -100,7 +124,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("nurse_salma", new GameState());
+        StartScene(service, "nurse_salma");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Nurse Salma");
@@ -112,7 +136,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("hanan_fence", new GameState());
+        StartScene(service, "hanan_fence");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Hanan");
@@ -124,7 +148,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("crime_hanan_cover", new GameState());
+        StartScene(service, "crime_hanan_cover");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Hanan never admits she helped.");
@@ -135,7 +159,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("crime_youssef_escape", new GameState());
+        StartScene(service, "crime_youssef_escape");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Youssef keeps you moving");
@@ -146,7 +170,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("crime_hanan_fence_success", new GameState());
+        StartScene(service, "crime_hanan_fence_success");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Hanan takes the wrapped bundle");
@@ -157,7 +181,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("crime_youssef_drop_detected", new GameState());
+        StartScene(service, "crime_youssef_drop_detected");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("The handoff lands");
@@ -168,7 +192,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("crime_ummkarim_errand_failure", new GameState());
+        StartScene(service, "crime_ummkarim_errand_failure");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Umm Karim does not raise her voice");
@@ -179,7 +203,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("crime_safaa_skim_success", new GameState());
+        StartScene(service, "crime_safaa_skim_success");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("depot is chaos anyway");
@@ -190,7 +214,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("nurse_salma_debt", new GameState());
+        StartScene(service, "nurse_salma_debt");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Salma does not mention the medicine");
@@ -201,11 +225,11 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("fixer_double_life", new GameState());
+        StartScene(service, "fixer_double_life");
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("two stories belong to the same woman");
 
-        service.StartScene("neighbor_mona_heat", new GameState());
+        StartScene(service, "neighbor_mona_heat");
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("does not start with gossip this time");
     }
@@ -215,15 +239,15 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("landlord_rent_broke", new GameState());
+        StartScene(service, "landlord_rent_broke");
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("week has gone badly");
 
-        service.StartScene("mariam_pharmacy_urgent", new GameState());
+        StartScene(service, "mariam_pharmacy_urgent");
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("urgency before the details are finished");
 
-        service.StartScene("safaa_depot_regular", new GameState());
+        StartScene(service, "safaa_depot_regular");
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("being expected");
     }
@@ -233,7 +257,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("event_dokki_checkpoint_sweep", new GameState());
+        StartScene(service, "event_dokki_checkpoint_sweep");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("checkpoint appears");
@@ -244,7 +268,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("event_mother_wrong_money", new GameState());
+        StartScene(service, "event_mother_wrong_money");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("looks at the money longer than she looks at you");
@@ -255,7 +279,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("ending_network_shelter", new GameState());
+        StartScene(service, "ending_network_shelter");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("difficult to erase");
@@ -275,7 +299,7 @@ internal sealed class InkNarrativeServiceTests
 
         foreach (var expectation in expectations)
         {
-            service.StartScene(expectation.Key, new GameState());
+            StartScene(service, expectation.Key);
 
             service.IsSceneActive.Should().BeTrue();
             service.CurrentText.Should().Contain(expectation.Value);
@@ -287,7 +311,7 @@ internal sealed class InkNarrativeServiceTests
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
 
-        service.StartScene("ending_network_shelter_salma", new GameState());
+        StartScene(service, "ending_network_shelter_salma");
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Salma never lets hardship become abstract");

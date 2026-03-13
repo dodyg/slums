@@ -26,12 +26,13 @@ content/
 ```
 
 **Dependency Direction**: Always inward. `Slums.Core` references nothing. UI never contains business logic.
+`GameSession` is the canonical runtime boundary, and persistence crosses that boundary through snapshots plus `LoadedGameSession`.
 
 ## Core Simulation Loop
 
-### GameState (src/Slums.Core/State/GameState.cs)
+### GameSession (src/Slums.Core/State/GameSession.cs)
 
-The single source of truth for all game state. Contains:
+The canonical runtime boundary for an active run. `GameSession` is backed internally by EntitiesDb and contains:
 
 - **Clock**: Day/hour/minute tracking, time-of-day enum
 - **Player**: Character stats, skills, nutrition, household
@@ -205,7 +206,7 @@ Mistakes cause:
 
 Defined in `RandomEventRegistry`, filtered by:
 - MinDay: event cannot fire before day N
-- Condition(GameState): custom eligibility check
+- Condition(GameSession): custom eligibility check
 
 Each event has:
 - Weight: selection probability
@@ -218,6 +219,7 @@ Each event has:
 - Loads compiled `content/ink/main.json`
 - Syncs game state variables to Ink: money, health, energy, hunger, stress, mother_health, food_stockpile, day, background
 - Processes tags for outcomes: MONEY, HEALTH, ENERGY, HUNGER, STRESS, MOTHER_HEALTH, FOOD, FLAG, MESSAGE, NPC_TRUST, FACTION_REP
+- Fails fast if the compiled Ink story cannot be loaded; there is no fallback narrative runtime
 
 ### Narrative Outcome Tags
 In Ink files, use tags like:
@@ -229,7 +231,7 @@ In Ink files, use tags like:
 ```
 
 ### Scene Queue
-GameState maintains `_pendingNarrativeScenes` queue. Scenes are dequeued by the UI layer and passed to InkNarrativeService.
+GameSession maintains `_pendingNarrativeScenes` queue. Scenes are dequeued by the UI layer and passed to InkNarrativeService.
 
 ## Ending Conditions (EndingService)
 
@@ -251,7 +253,8 @@ Ending Ink knots have variants by background (e.g., `ending_stability_medical`) 
 ## Save/Load
 
 - JSON serialization via `JsonSaveGameStore`
-- Full state preservation including story flags, event history, job progress
+- `GameSessionSnapshot` captures and restores the full `GameSession` state, including story flags, event history, pending narrative scenes, and job progress
+- `LoadedGameSession` wraps loaded metadata plus `GameSession` ownership across the persistence boundary
 - Loaded via `LoadGameUseCase`, saved via `SaveGameUseCase`
 
 ## Content Boundaries
@@ -270,7 +273,7 @@ When making changes:
 1. `REQS.md` - product requirements
 2. `PLAN.MD` - current priorities and roadmap
 3. `AGENTS.md` - coding standards and architecture rules
-4. `src/Slums.Core/State/GameState.cs` - central state machine
+4. `src/Slums.Core/State/GameSession.cs` - canonical runtime boundary
 5. `src/Slums.Core/Endings/EndingService.cs` - ending conditions
 6. `src/Slums.Core/Jobs/JobService.cs` - work variants and mistakes
 7. `src/Slums.Core/Crimes/CrimeService.cs` - crime resolution
@@ -280,7 +283,12 @@ When making changes:
 - Framework: TUnit
 - Assertions: FluentAssertions
 - Mocking: NSubstitute
-- Run tests: `dotnet run --project tests/Slums.Core.Tests` (executable test projects)
+- Validation workflow:
+  1. `dotnet build ./Slums.slnx`
+  2. `dotnet run --project tests/Slums.Core.Tests`
+  3. `dotnet run --project tests/Slums.Application.Tests`
+  4. `dotnet run --project tests/Slums.Infrastructure.Tests`
+  5. `dotnet run --project tests/Slums.Narrative.Ink.Tests`
 
 ## Building and Running
 

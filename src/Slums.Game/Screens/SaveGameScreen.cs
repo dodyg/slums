@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
+using Slums.Application.Persistence;
 using Slums.Core.State;
 
 namespace Slums.Game.Screens;
@@ -10,11 +11,11 @@ internal sealed class SaveGameScreen : ScreenSurface
 {
     private static readonly string[] Slots = ["slot1", "slot2", "slot3"];
     private readonly GameRuntime _runtime;
-    private readonly GameState _gameState;
+    private readonly GameSession _gameState;
     private readonly GameScreen _parentScreen;
     private int _selectedIndex;
 
-    public SaveGameScreen(int width, int height, GameRuntime runtime, GameState gameState, GameScreen parentScreen)
+    public SaveGameScreen(int width, int height, GameRuntime runtime, GameSession gameState, GameScreen parentScreen)
         : base(width, height)
     {
         _runtime = runtime;
@@ -61,7 +62,7 @@ internal sealed class SaveGameScreen : ScreenSurface
         if (keyboard.IsKeyPressed(Keys.Enter))
         {
             var slot = Slots[_selectedIndex];
-            _runtime.SaveGameUseCase.ExecuteAsync(_gameState, _runtime.NarrativeService, slot).GetAwaiter().GetResult();
+            _runtime.SaveGameUseCase.ExecuteAsync(SaveGameRequest.Create(_gameState, _runtime.NarrativeService.LastKnot), slot).GetAwaiter().GetResult();
             _gameState.AddEventMessage($"Saved game to {slot}.");
             ReturnToParentScreen();
             return true;

@@ -11,20 +11,66 @@ public enum BackgroundType
 
 public sealed class PlayerCharacter
 {
+    private readonly PlayerIdentityState _identity;
+
     public PlayerCharacter()
+        : this(new PlayerIdentityState(), new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new SkillState())
     {
+    }
+
+    internal PlayerCharacter(
+        PlayerIdentityState identity,
+        SurvivalStats stats,
+        NutritionState nutrition,
+        HouseholdCareState household,
+        SkillState skills)
+    {
+        _identity = identity ?? throw new ArgumentNullException(nameof(identity));
+        Stats = stats ?? throw new ArgumentNullException(nameof(stats));
+        Nutrition = nutrition ?? throw new ArgumentNullException(nameof(nutrition));
+        Household = household ?? throw new ArgumentNullException(nameof(household));
+        Skills = skills ?? throw new ArgumentNullException(nameof(skills));
+
         Stats.SetHunger(Nutrition.Satiety);
     }
 
-    public string Name { get; set; } = "Amira";
-    public int Age { get; init; } = 24;
-    public BackgroundType BackgroundType { get; private set; } = BackgroundType.MedicalSchoolDropout;
-    public Background? Background { get; private set; }
-    public SurvivalStats Stats { get; } = new();
-    public NutritionState Nutrition { get; } = new();
-    public HouseholdCareState Household { get; } = new();
-    public SkillState Skills { get; } = new();
-    public bool HasSelectedBackground { get; private set; }
+    public string Name
+    {
+        get => _identity.Name;
+        set => _identity.Name = value;
+    }
+
+    public int Age
+    {
+        get => _identity.Age;
+        init => _identity.Age = value;
+    }
+
+    public BackgroundType BackgroundType
+    {
+        get => _identity.BackgroundType;
+        private set => _identity.BackgroundType = value;
+    }
+
+    public Background? Background
+    {
+        get => _identity.Background;
+        private set => _identity.Background = value;
+    }
+
+    public SurvivalStats Stats { get; }
+
+    public NutritionState Nutrition { get; }
+
+    public HouseholdCareState Household { get; }
+
+    public SkillState Skills { get; }
+
+    public bool HasSelectedBackground
+    {
+        get => _identity.HasSelectedBackground;
+        private set => _identity.HasSelectedBackground = value;
+    }
 
     public void ApplyBackground(Background background)
     {

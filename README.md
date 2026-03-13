@@ -30,8 +30,17 @@ From the repo root:
 
 ```powershell
 dotnet build .\Slums.slnx
-dotnet test .\Slums.slnx
+dotnet run --project .\tests\Slums.Core.Tests
+dotnet run --project .\tests\Slums.Application.Tests
+dotnet run --project .\tests\Slums.Infrastructure.Tests
+dotnet run --project .\tests\Slums.Narrative.Ink.Tests
 ```
+
+## Architecture notes
+
+- `GameSession` is the canonical runtime boundary and is backed internally by EntitiesDb.
+- Save/load works through `GameSession` snapshots and `LoadedGameSession`.
+- Ink loading is intentionally fail-fast; missing or invalid story content is treated as an error.
 
 ## Ink workflow
 

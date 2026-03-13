@@ -88,7 +88,7 @@ public sealed class JsonContentRepository : IContentRepository
             CreateCondition(definition.ConditionId));
     }
 
-    private static Func<GameState, bool>? CreateCondition(string? conditionId)
+    private static Func<GameSession, bool>? CreateCondition(string? conditionId)
     {
         return conditionId switch
         {

@@ -8,41 +8,76 @@ using Slums.Core.Jobs;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.World;
+using EntitiesDb;
 
 namespace Slums.Core.State;
 
-public sealed class GameState
+public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 {
     private const int EndOfDayHour = 22;
+    private readonly EntityDatabase _database;
     private readonly CrimeService _crimeService = new();
     private readonly RandomEventService _randomEventService = new();
-    private readonly Queue<string> _pendingNarrativeScenes = new();
-    private readonly HashSet<string> _storyFlags = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, int> _randomEventHistory = new(StringComparer.OrdinalIgnoreCase);
-    private bool _crimeCommittedToday;
+    private readonly PlayerIdentityState _playerIdentity;
+    private readonly GameRunState _runState;
+    private readonly GameCrimeState _crimeState;
+    private readonly GameWorkState _workState;
+    private readonly GameNarrativeState _narrativeState;
+    private readonly Random _sharedRandom;
+    private readonly Queue<string> _pendingNarrativeScenes;
+    private readonly HashSet<string> _storyFlags;
+    private readonly Dictionary<string, int> _randomEventHistory;
 
-    public Guid RunId { get; private set; } = Guid.NewGuid();
-    public GameClock Clock { get; } = new();
-    public PlayerCharacter Player { get; } = new();
-    public WorldState World { get; } = new();
-    public RelationshipState Relationships { get; } = new();
-    public JobProgressState JobProgress { get; } = new();
-    public JobService Jobs { get; } = new();
-    public bool IsGameOver { get; private set; }
-    public string? GameOverReason { get; private set; }
-    public EndingId? EndingId { get; private set; }
-    public int PolicePressure { get; private set; }
-    public int TotalCrimeEarnings { get; private set; }
-    public int CrimesCommitted { get; private set; }
-    public int TotalHonestWorkEarnings { get; private set; }
-    public int HonestShiftsCompleted { get; private set; }
-    public int DaysSurvived { get; private set; }
-    public int LastCrimeDay { get; private set; }
-    public int LastHonestWorkDay { get; private set; }
-    public int LastPublicFacingWorkDay { get; private set; }
+    public GameSession(Random? sharedRandom = null)
+    {
+        Clock = new GameClock();
+        _playerIdentity = new PlayerIdentityState();
+        Player = new PlayerCharacter(_playerIdentity, new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new SkillState());
+        World = new WorldState();
+        Relationships = new RelationshipState();
+        JobProgress = new JobProgressState();
+        Jobs = new JobService();
+        _runState = new GameRunState();
+        _crimeState = new GameCrimeState();
+        _workState = new GameWorkState();
+        _narrativeState = new GameNarrativeState();
+        _sharedRandom = sharedRandom ?? new Random();
+        _pendingNarrativeScenes = _narrativeState.PendingNarrativeScenes;
+        _storyFlags = _narrativeState.StoryFlags;
+        _randomEventHistory = _narrativeState.RandomEventHistory;
+        _database = new EntityDatabase(new EntityDatabaseOptions(16384, int.MaxValue, -1));
+        _database.Create(_playerIdentity, Player.Stats, Player.Nutrition, Player.Household, Player.Skills);
+        _database.Create(Clock, World);
+        _database.Create(Relationships, JobProgress);
+        _database.Create(_crimeState);
+        _database.Create(_workState);
+        _database.Create(_runState, _narrativeState);
+    }
+
+    public Guid RunId { get => _runState.RunId; private set => _runState.RunId = value; }
+    public GameClock Clock { get; }
+    public PlayerCharacter Player { get; }
+    public WorldState World { get; }
+    public RelationshipState Relationships { get; }
+    public JobProgressState JobProgress { get; }
+    public JobService Jobs { get; }
+    public bool IsGameOver { get => _runState.IsGameOver; private set => _runState.IsGameOver = value; }
+    public string? GameOverReason { get => _runState.GameOverReason; private set => _runState.GameOverReason = value; }
+    public EndingId? EndingId { get => _runState.EndingId; private set => _runState.EndingId = value; }
+    public int PolicePressure { get => _crimeState.PolicePressure; private set => _crimeState.PolicePressure = value; }
+    public int TotalCrimeEarnings { get => _crimeState.TotalCrimeEarnings; private set => _crimeState.TotalCrimeEarnings = value; }
+    public int CrimesCommitted { get => _crimeState.CrimesCommitted; private set => _crimeState.CrimesCommitted = value; }
+    public int TotalHonestWorkEarnings { get => _workState.TotalHonestWorkEarnings; private set => _workState.TotalHonestWorkEarnings = value; }
+    public int HonestShiftsCompleted { get => _workState.HonestShiftsCompleted; private set => _workState.HonestShiftsCompleted = value; }
+    public int DaysSurvived { get => _runState.DaysSurvived; private set => _runState.DaysSurvived = value; }
+    public int LastCrimeDay { get => _crimeState.LastCrimeDay; private set => _crimeState.LastCrimeDay = value; }
+    public int LastHonestWorkDay { get => _workState.LastHonestWorkDay; private set => _workState.LastHonestWorkDay = value; }
+    public int LastPublicFacingWorkDay { get => _workState.LastPublicFacingWorkDay; private set => _workState.LastPublicFacingWorkDay = value; }
     public IReadOnlyCollection<string> StoryFlags => _storyFlags;
     public IReadOnlyDictionary<string, int> RandomEventHistory => _randomEventHistory;
-    public string? PendingEndingKnot { get; private set; }
+    public bool HasCrimeCommittedToday => CrimeCommittedToday;
+    public string? PendingEndingKnot { get => _runState.PendingEndingKnot; private set => _runState.PendingEndingKnot = value; }
+    private bool CrimeCommittedToday { get => _crimeState.CrimeCommittedToday; set => _crimeState.CrimeCommittedToday = value; }
 
     public event EventHandler<GameEventArgs>? GameEvent;
 
@@ -121,9 +156,9 @@ public sealed class GameState
             RaiseEvent("Your mother needed medicine today and did not get it.");
         }
 
-        if (!_crimeCommittedToday && PolicePressure > 0)
+        if (!CrimeCommittedToday && PolicePressure > 0)
         {
-            var pressureDecay = Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner ? 2 : 5;
+            var pressureDecay = ActivityLedgerSystem.GetDailyPolicePressureDecay(Player.BackgroundType);
             SetPolicePressure(PolicePressure - pressureDecay);
         }
 
@@ -141,14 +176,14 @@ public sealed class GameState
         Player.Nutrition.BeginNewDay();
         Player.Household.BeginNewDay();
 
-        foreach (var randomEvent in _randomEventService.RollDailyEvents(this, random ?? new Random()))
+        foreach (var randomEvent in _randomEventService.RollDailyEvents(this, random ?? _sharedRandom))
         {
             ApplyRandomEvent(randomEvent);
         }
 
         QueueNarrativeFollowUpScenes();
 
-        _crimeCommittedToday = false;
+        ActivityLedgerSystem.BeginNewDay(_crimeState);
         CheckGameOverConditions();
     }
 
@@ -215,7 +250,7 @@ public sealed class GameState
         return true;
     }
 
-    public JobResult WorkJob(JobShift job)
+    public JobResult WorkJob(JobShift job, Random? random = null)
     {
         ArgumentNullException.ThrowIfNull(job);
 
@@ -225,18 +260,11 @@ public sealed class GameState
             return JobResult.Failed("You are nowhere.");
         }
 
-        var result = Jobs.PerformJob(job, Player, location, Relationships, JobProgress, Clock.Day);
-        
+        var result = Jobs.PerformJob(job, Player, location, Relationships, JobProgress, Clock.Day, random ?? _sharedRandom);
+
         if (result.Success)
         {
-            TotalCrimeEarnings += 0;
-            TotalHonestWorkEarnings += result.MoneyEarned;
-            HonestShiftsCompleted++;
-            LastHonestWorkDay = Clock.Day;
-            if (IsPublicFacingJob(job.Type))
-            {
-                LastPublicFacingWorkDay = Clock.Day;
-            }
+            ActivityLedgerSystem.RecordWorkShift(_workState, Clock, job, result);
             AdvanceTime(job.DurationMinutes);
             if (!result.MistakeMade)
             {
@@ -322,16 +350,14 @@ public sealed class GameState
         var modifierEvaluation = EvaluateCrimeModifiers(attempt);
         var modifiedAttempt = modifierEvaluation.Attempt;
         ApplyCrimeModifierSideEffects(modifierEvaluation.ActiveModifiers);
-        var result = _crimeService.AttemptCrime(modifiedAttempt, Player, PolicePressure, random ?? new Random());
+        var result = _crimeService.AttemptCrime(modifiedAttempt, Player, PolicePressure, random ?? _sharedRandom);
         Player.Stats.ModifyEnergy(-result.EnergyCost);
         Player.Stats.ModifyStress(result.StressCost);
-        LastCrimeDay = Clock.Day;
+        ActivityLedgerSystem.RecordCrimeOutcome(_crimeState, Clock, result);
 
         if (result.Success)
         {
             Player.Stats.ModifyMoney(result.MoneyEarned);
-            TotalCrimeEarnings += result.MoneyEarned;
-            CrimesCommitted++;
             ApplySkillGain(SkillId.StreetSmarts);
             ModifyFactionReputation(FactionId.ImbabaCrew, 4);
             if (Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner)
@@ -347,7 +373,6 @@ public sealed class GameState
 
         QueueContactCrimeScene(attempt, result);
 
-        _crimeCommittedToday = true;
         SetPolicePressure(PolicePressure + result.PolicePressureDelta);
         RaiseEvent(result.Message);
         ApplyCrimeContactAftermath(result);
@@ -529,9 +554,56 @@ public sealed class GameState
         return energyCost;
     }
 
+    public int CurrentDay => Clock.Day;
+
     public IReadOnlyList<NpcId> GetReachableNpcs()
     {
         return NpcRegistry.GetReachableNpcs(World.CurrentLocationId, PolicePressure);
+    }
+
+    public void AdjustMoney(int delta)
+    {
+        Player.Stats.ModifyMoney(delta);
+    }
+
+    public void AdjustHealth(int delta)
+    {
+        Player.Stats.ModifyHealth(delta);
+    }
+
+    public void AdjustEnergy(int delta)
+    {
+        Player.Stats.ModifyEnergy(delta);
+    }
+
+    public void AdjustHunger(int delta)
+    {
+        Player.Nutrition.ModifySatiety(delta);
+        SyncLegacyHunger();
+    }
+
+    public void AdjustStress(int delta)
+    {
+        Player.Stats.ModifyStress(delta);
+    }
+
+    public void AdjustMotherHealth(int delta)
+    {
+        Player.Household.UpdateMotherHealth(delta);
+    }
+
+    public void AdjustFoodStockpile(int delta)
+    {
+        if (delta > 0)
+        {
+            Player.Household.AddFood(delta);
+            return;
+        }
+
+        for (var i = 0; i < -delta; i++)
+        {
+            Player.Household.ConsumeFood();
+        }
     }
 
     public void ModifyNpcTrust(NpcId npcId, int delta)
@@ -547,6 +619,31 @@ public sealed class GameState
         {
             RaiseEvent(message);
         }
+    }
+
+    public void RecordFavor(NpcId npcId, bool hasUnpaidDebt)
+    {
+        Relationships.RecordFavor(npcId, Clock.Day, hasUnpaidDebt);
+    }
+
+    public void RecordRefusal(NpcId npcId)
+    {
+        Relationships.RecordRefusal(npcId, Clock.Day);
+    }
+
+    public void SetDebtState(NpcId npcId, bool hasUnpaidDebt)
+    {
+        Relationships.SetDebtState(npcId, hasUnpaidDebt);
+    }
+
+    public void SetEmbarrassedState(NpcId npcId, bool value)
+    {
+        Relationships.SetEmbarrassedState(npcId, value);
+    }
+
+    public void SetHelpedState(NpcId npcId, bool value)
+    {
+        Relationships.SetHelpedState(npcId, value);
     }
 
     public void ModifyFactionReputation(FactionId factionId, int delta)
@@ -622,6 +719,8 @@ public sealed class GameState
         knotName = string.Empty;
         return false;
     }
+
+    public IReadOnlyList<string> PendingNarrativeScenes => [.. _pendingNarrativeScenes];
 
     public void SetPolicePressure(int value)
     {
@@ -796,6 +895,22 @@ public sealed class GameState
         RunId = runId;
     }
 
+    public void RestoreRunState(
+        Guid runId,
+        int daysSurvived,
+        bool isGameOver,
+        string? gameOverReason,
+        EndingId? endingId,
+        string? pendingEndingKnot)
+    {
+        SetRunId(runId);
+        SetDaysSurvived(daysSurvived);
+        IsGameOver = isGameOver;
+        GameOverReason = string.IsNullOrWhiteSpace(gameOverReason) ? null : gameOverReason;
+        EndingId = endingId;
+        PendingEndingKnot = string.IsNullOrWhiteSpace(pendingEndingKnot) ? null : pendingEndingKnot;
+    }
+
     public void SetDaysSurvived(int daysSurvived)
     {
         DaysSurvived = Math.Max(0, daysSurvived);
@@ -803,15 +918,35 @@ public sealed class GameState
 
     public void SetCrimeCounters(int totalCrimeEarnings, int crimesCommitted)
     {
-        TotalCrimeEarnings = Math.Max(0, totalCrimeEarnings);
-        CrimesCommitted = Math.Max(0, crimesCommitted);
+        SetCrimeCounters(totalCrimeEarnings, crimesCommitted, LastCrimeDay);
     }
 
-    public void SetWorkCounters(int totalHonestWorkEarnings, int honestShiftsCompleted, int lastCrimeDay, int lastHonestWorkDay, int lastPublicFacingWorkDay)
+    public void SetCrimeCounters(int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay)
+    {
+        TotalCrimeEarnings = Math.Max(0, totalCrimeEarnings);
+        CrimesCommitted = Math.Max(0, crimesCommitted);
+        LastCrimeDay = Math.Max(0, lastCrimeDay);
+    }
+
+    public void RestoreCrimeState(int policePressure, int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay, bool hasCrimeCommittedToday)
+    {
+        SetPolicePressure(policePressure);
+        SetCrimeCounters(totalCrimeEarnings, crimesCommitted, lastCrimeDay);
+        CrimeCommittedToday = hasCrimeCommittedToday;
+    }
+
+    public void SetWorkCounters(int totalHonestWorkEarnings, int honestShiftsCompleted, int lastHonestWorkDay, int lastPublicFacingWorkDay)
     {
         TotalHonestWorkEarnings = Math.Max(0, totalHonestWorkEarnings);
         HonestShiftsCompleted = Math.Max(0, honestShiftsCompleted);
-        LastCrimeDay = Math.Max(0, lastCrimeDay);
+        LastHonestWorkDay = Math.Max(0, lastHonestWorkDay);
+        LastPublicFacingWorkDay = Math.Max(0, lastPublicFacingWorkDay);
+    }
+
+    public void RestoreWorkState(int totalHonestWorkEarnings, int honestShiftsCompleted, int lastHonestWorkDay, int lastPublicFacingWorkDay)
+    {
+        TotalHonestWorkEarnings = Math.Max(0, totalHonestWorkEarnings);
+        HonestShiftsCompleted = Math.Max(0, honestShiftsCompleted);
         LastHonestWorkDay = Math.Max(0, lastHonestWorkDay);
         LastPublicFacingWorkDay = Math.Max(0, lastPublicFacingWorkDay);
     }
@@ -824,6 +959,29 @@ public sealed class GameState
         }
 
         _randomEventHistory[eventId] = Math.Max(0, count);
+    }
+
+    public void RestoreNarrativeState(
+        IEnumerable<string> storyFlags,
+        IEnumerable<KeyValuePair<string, int>> randomEventHistory,
+        IEnumerable<string> pendingNarrativeScenes)
+    {
+        ArgumentNullException.ThrowIfNull(storyFlags);
+        ArgumentNullException.ThrowIfNull(randomEventHistory);
+        ArgumentNullException.ThrowIfNull(pendingNarrativeScenes);
+
+        RestoreStoryFlags(storyFlags);
+        _randomEventHistory.Clear();
+        foreach (var pair in randomEventHistory)
+        {
+            RecordEventHistory(pair.Key, pair.Value);
+        }
+
+        _pendingNarrativeScenes.Clear();
+        foreach (var scene in pendingNarrativeScenes.Where(static scene => !string.IsNullOrWhiteSpace(scene)))
+        {
+            _pendingNarrativeScenes.Enqueue(scene);
+        }
     }
 
     public int GetEventCount(string eventId)
@@ -881,7 +1039,7 @@ public sealed class GameState
             return;
         }
 
-        if (PolicePressure >= 60 && IsPublicFacingJob(job.Type))
+        if (PolicePressure >= 60 && ActivityLedgerSystem.IsPublicFacingJob(job.Type))
         {
             Player.Stats.ModifyStress(4);
             ModifyEmployerTrust(job.Type, -2);
@@ -925,7 +1083,7 @@ public sealed class GameState
 
     private void QueueNarrativeFollowUpScenes()
     {
-        if (_crimeCommittedToday &&
+        if (CrimeCommittedToday &&
             TotalCrimeEarnings >= 150 &&
             CrimesCommitted >= 2 &&
             Player.Household.MotherHealth < 65 &&
@@ -935,7 +1093,7 @@ public sealed class GameState
             QueueNarrativeScene("event_mother_wrong_money");
         }
 
-        if (_crimeCommittedToday &&
+        if (CrimeCommittedToday &&
             PolicePressure >= 60 &&
             Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust >= 15 &&
             !HasStoryFlag("event_neighbor_watch_seen"))
@@ -998,11 +1156,6 @@ public sealed class GameState
                 QueueNarrativeScene("background_prisoner_heat");
             }
         }
-    }
-
-    private static bool IsPublicFacingJob(JobType jobType)
-    {
-        return jobType is JobType.CallCenterWork or JobType.ClinicReception or JobType.CafeService or JobType.PharmacyStock or JobType.MicrobusDispatch;
     }
 
     private void ApplyRandomEvent(RandomEvent randomEvent)
@@ -1133,11 +1286,9 @@ public sealed class GameState
             $"Location: {World.GetCurrentLocation()?.Name ?? "Unknown"}"
         ];
     }
-}
 
-public sealed class GameEventArgs(string message) : EventArgs
-{
-    public string Message { get; } = message;
+    public void Dispose()
+    {
+        _database.Dispose();
+    }
 }
-
-internal sealed record CrimeModifierEvaluation(CrimeAttempt Attempt, IReadOnlyList<string> ActiveModifiers);

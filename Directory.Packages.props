@@ -3,6 +3,7 @@
     <SadConsoleVersion>10.8.0</SadConsoleVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="EntitiesDb" Version="3.5.0" />
     <PackageVersion Include="SadConsole" Version="$(SadConsoleVersion)" />
     <PackageVersion Include="SadConsole.Host.MonoGame" Version="$(SadConsoleVersion)" />
     <PackageVersion Include="SadConsole.Host.SFML" Version="$(SadConsoleVersion)" />

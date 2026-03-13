@@ -22,7 +22,7 @@ internal sealed class SkillIntegrationTests
     [Test]
     public void BuyMedicine_ShouldUseReducedCost_WhenMedicalSkillIsHighEnough()
     {
-        var state = new GameState();
+        using var state = new GameSession();
         state.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
 
         state.GetMedicineCost().Should().Be(42);

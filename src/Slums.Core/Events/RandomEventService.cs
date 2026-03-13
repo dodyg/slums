@@ -5,7 +5,7 @@ namespace Slums.Core.Events;
 public sealed class RandomEventService
 {
 #pragma warning disable CA1822
-    public IReadOnlyList<RandomEvent> RollDailyEvents(GameState gameState, Random random)
+    public IReadOnlyList<RandomEvent> RollDailyEvents(GameSession gameState, Random random)
 #pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameState);

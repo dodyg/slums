@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
+using Slums.Application.Narrative;
 using Slums.Core.Clock;
 using Slums.Core.State;
 using Slums.Core.World;
@@ -17,7 +18,7 @@ internal sealed class GameScreen : ScreenSurface
     private const int MaxEventLogEntries = 8;
     private static readonly TimeSpan RealTimePerGameMinute = TimeSpan.FromSeconds(1);
     private readonly GameRuntime _runtime;
-    private readonly GameState _gameState;
+    private readonly GameSession _gameState;
     private readonly WorkMenuStatusQuery _workMenuStatusQuery = new();
     private readonly CrimeMenuStatusQuery _crimeMenuStatusQuery = new();
     private readonly GameStatusPageQuery _statusPageQuery = new();
@@ -28,7 +29,7 @@ internal sealed class GameScreen : ScreenSurface
     private int _selectedStatusPage;
     private bool _hasLoggedGameOver;
 
-    public GameScreen(int width, int height, GameRuntime runtime, GameState gameState) : base(width, height)
+    public GameScreen(int width, int height, GameRuntime runtime, GameSession gameState) : base(width, height)
     {
         _runtime = runtime;
         _gameState = gameState;
@@ -88,17 +89,19 @@ internal sealed class GameScreen : ScreenSurface
 
     private void RenderHud()
     {
+        var statusContext = GameStatusContext.Create(_gameState);
+
         Surface.Print(0, 0, "=== SLUMS - Cairo Survival ===", Color.Yellow);
-        Surface.Print(0, 2, $"Day {_gameState.Clock.Day} - {_gameState.Clock.TimeOfDay}", Color.White);
-        Surface.Print(0, 3, $"Time: {_gameState.Clock.Hour:D2}:{_gameState.Clock.Minute:D2}", Color.Gray);
-        Surface.Print(0, 4, $"Police Pressure: {_gameState.PolicePressure}", _gameState.PolicePressure >= 80 ? Color.Red : Color.Orange);
+        Surface.Print(0, 2, $"Day {statusContext.Clock.Day} - {statusContext.Clock.TimeOfDay}", Color.White);
+        Surface.Print(0, 3, $"Time: {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2}", Color.Gray);
+        Surface.Print(0, 4, $"Police Pressure: {statusContext.PolicePressure}", statusContext.PolicePressure >= 80 ? Color.Red : Color.Orange);
 
         // Money is displayed as a plain figure; the bar is only meaningful for 0-100 bounded stats
-        Surface.Print(0, Surface.Height - 20 + GetStatLine("Money"), $"Money: {_gameState.Player.Stats.Money} LE", Color.Gold);
-        RenderStat("Hunger", _gameState.Player.Stats.Hunger, 100, GetStatColor(_gameState.Player.Stats.Hunger));
-        RenderStat("Energy", _gameState.Player.Stats.Energy, 100, GetStatColor(_gameState.Player.Stats.Energy));
-        RenderStat("Health", _gameState.Player.Stats.Health, 100, GetStatColor(_gameState.Player.Stats.Health));
-        RenderStat("Stress", _gameState.Player.Stats.Stress, 100, GetStressColor(_gameState.Player.Stats.Stress));
+        Surface.Print(0, Surface.Height - 20 + GetStatLine("Money"), $"Money: {statusContext.Player.Stats.Money} LE", Color.Gold);
+        RenderStat("Hunger", statusContext.Player.Stats.Hunger, 100, GetStatColor(statusContext.Player.Stats.Hunger));
+        RenderStat("Energy", statusContext.Player.Stats.Energy, 100, GetStatColor(statusContext.Player.Stats.Energy));
+        RenderStat("Health", statusContext.Player.Stats.Health, 100, GetStatColor(statusContext.Player.Stats.Health));
+        RenderStat("Stress", statusContext.Player.Stats.Stress, 100, GetStressColor(statusContext.Player.Stats.Stress));
     }
 
     private void RenderStat(string name, int value, int max, Color color)
@@ -167,7 +170,7 @@ internal sealed class GameScreen : ScreenSurface
     {
         var x = 45;
         var y = 0;
-        var pages = _statusPageQuery.GetPages(_gameState);
+        var pages = _statusPageQuery.GetPages(GameStatusContext.Create(_gameState));
         if (pages.Count == 0)
         {
             return;
@@ -327,7 +330,8 @@ internal sealed class GameScreen : ScreenSurface
 
     private void ShowWorkMenu()
     {
-        var jobs = _workMenuStatusQuery.GetStatuses(_gameState).ToList();
+        var workContext = WorkMenuContext.Create(_gameState);
+        var jobs = _workMenuStatusQuery.GetStatuses(workContext).ToList();
         if (jobs.Count == 0)
         {
             AddEventLogEntry("No work available here.");
@@ -335,12 +339,13 @@ internal sealed class GameScreen : ScreenSurface
         }
 
         IsFocused = false;
-        GameHost.Instance.Screen = new WorkScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, jobs, this);
+        GameHost.Instance.Screen = new WorkScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, workContext, jobs, this);
     }
 
     private void ShowCrimeMenu()
     {
-        var crimes = _crimeMenuStatusQuery.GetStatuses(_gameState).ToList();
+        var crimeContext = CrimeMenuContext.Create(_gameState);
+        var crimes = _crimeMenuStatusQuery.GetStatuses(crimeContext).ToList();
         if (crimes.Count == 0)
         {
             AddEventLogEntry("No crime opportunities here.");
@@ -348,12 +353,13 @@ internal sealed class GameScreen : ScreenSurface
         }
 
         IsFocused = false;
-        GameHost.Instance.Screen = new CrimeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState, crimes, this);
+        GameHost.Instance.Screen = new CrimeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState, crimeContext, crimes, this);
     }
 
     private void ShowTalkMenu()
     {
-        var npcStatuses = _talkNpcStatusQuery.GetStatuses(_gameState);
+        var talkContext = TalkNpcContext.Create(_gameState);
+        var npcStatuses = _talkNpcStatusQuery.GetStatuses(talkContext);
         if (npcStatuses.Count == 0)
         {
             AddEventLogEntry("No one is available to talk.");
@@ -361,13 +367,14 @@ internal sealed class GameScreen : ScreenSurface
         }
 
         IsFocused = false;
-        GameHost.Instance.Screen = new TalkScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState, npcStatuses, this);
+        GameHost.Instance.Screen = new TalkScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState, talkContext, npcStatuses, this);
     }
 
     private void ShowShopMenu()
     {
+        var shopContext = ShopMenuContext.Create(_gameState);
         IsFocused = false;
-        GameHost.Instance.Screen = new ShopScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, this);
+        GameHost.Instance.Screen = new ShopScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, shopContext, this);
     }
 
     private void ShowTravelMenu()
@@ -457,7 +464,7 @@ internal sealed class GameScreen : ScreenSurface
             return false;
         }
 
-        _runtime.NarrativeService.StartScene(knotName, _gameState);
+        _runtime.NarrativeService.StartScene(knotName, NarrativeSceneState.Create(_gameState));
         IsFocused = false;
         GameHost.Instance.Screen = new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, this);
         return true;
@@ -470,7 +477,7 @@ internal sealed class GameScreen : ScreenSurface
             return false;
         }
 
-        _runtime.NarrativeService.StartScene(knotName, _gameState);
+        _runtime.NarrativeService.StartScene(knotName, NarrativeSceneState.Create(_gameState));
         IsFocused = false;
         GameHost.Instance.Screen = new NarrativeScreen(
             GameRuntime.ScreenWidth,
@@ -484,7 +491,7 @@ internal sealed class GameScreen : ScreenSurface
 
     private void CycleStatusPage()
     {
-        var pages = _statusPageQuery.GetPages(_gameState);
+        var pages = _statusPageQuery.GetPages(GameStatusContext.Create(_gameState));
         if (pages.Count == 0)
         {
             return;

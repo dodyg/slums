@@ -13,15 +13,17 @@ internal sealed class WorkScreen : ScreenSurface
     private const int ListY = 5;
     private const int ListRowHeight = 2;
     private const int DetailX = 36;
-    private readonly GameState _gameState;
+    private readonly WorkMenuContext _context;
+    private readonly GameSession _gameState;
     private readonly List<WorkMenuStatus> _jobs;
     private readonly GameScreen _parentScreen;
     private int _selectedIndex;
 
-    public WorkScreen(int width, int height, GameState gameState, List<WorkMenuStatus> jobs, GameScreen parentScreen)
+    public WorkScreen(int width, int height, GameSession gameState, WorkMenuContext context, List<WorkMenuStatus> jobs, GameScreen parentScreen)
         : base(width, height)
     {
         _gameState = gameState;
+        _context = context;
         _jobs = jobs;
         _parentScreen = parentScreen;
         _selectedIndex = 0;
@@ -55,8 +57,8 @@ internal sealed class WorkScreen : ScreenSurface
         RenderSelectedJobDetails();
 
         Surface.Print(2, Surface.Height - 3, "Arrow keys to select, Enter to work, Escape to cancel", Color.DarkGray);
-        Surface.Print(2, Surface.Height - 2, $"Your Energy: {_gameState.Player.Stats.Energy}%",
-            _gameState.Player.Stats.Energy < 30 ? Color.Red : Color.Green);
+        Surface.Print(2, Surface.Height - 2, $"Your Energy: {_context.Player.Stats.Energy}%",
+            _context.Player.Stats.Energy < 30 ? Color.Red : Color.Green);
     }
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)

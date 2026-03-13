@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
+using Slums.Application.Narrative;
 using Slums.Core.Characters;
 using Slums.Core.State;
 
@@ -10,10 +11,10 @@ namespace Slums.Game.Screens;
 internal sealed class BackgroundSelectionScreen : ScreenSurface
 {
     private readonly GameRuntime _runtime;
-    private readonly GameState _gameState;
+    private readonly GameSession _gameState;
     private int _selectedIndex;
 
-    public BackgroundSelectionScreen(int width, int height, GameRuntime runtime, GameState gameState) : base(width, height)
+    public BackgroundSelectionScreen(int width, int height, GameRuntime runtime, GameSession gameState) : base(width, height)
     {
         _runtime = runtime;
         _gameState = gameState;
@@ -187,7 +188,7 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
         var selectedBackground = BackgroundRegistry.AllBackgrounds[_selectedIndex];
         _gameState.Player.ApplyBackground(selectedBackground);
         var nextScreen = new GameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState);
-        _runtime.NarrativeService.StartScene(selectedBackground.InkIntroKnot, _gameState);
+        _runtime.NarrativeService.StartScene(selectedBackground.InkIntroKnot, NarrativeSceneState.Create(_gameState));
         IsFocused = false;
         GameHost.Instance.Screen = new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, nextScreen);
     }

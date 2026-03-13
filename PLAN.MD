@@ -28,15 +28,15 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - recurring NPC interactions driven by trust, faction standing, and relationship memory
 - conversation pool system with 100+ unique dialogues per NPC context to prevent repeats for 100 days
 - district-specific random events with event-history-aware gating
-- save/load for the expanded simulation and narrative state
+- save/load built around `GameSession` snapshots plus `LoadedGameSession` handoff
 - multiple ending paths based on long-term behavior, pressure, and survival trajectory
 
 ## Architecture Guardrails
 
-- `Slums.Core` owns simulation rules and state. It must not depend on SadConsole, Ink, or file IO.
-- `Slums.Application` owns contracts and orchestration. It must not depend on SadConsole.
-- `Slums.Infrastructure` owns JSON persistence, static content loading, and environment-specific adapters.
-- `Slums.Narrative.Ink` owns Ink loading, variable sync, and narrative outcome mapping.
+- `Slums.Core` owns simulation rules and the EntitiesDb-backed `GameSession` runtime boundary. It must not depend on SadConsole, Ink, or file IO.
+- `Slums.Application` owns contracts and orchestration, including the `LoadedGameSession` persistence handoff. It must not depend on SadConsole.
+- `Slums.Infrastructure` owns `GameSession` snapshot persistence, static content loading, and environment-specific adapters.
+- `Slums.Narrative.Ink` owns Ink loading, variable sync, and narrative outcome mapping. Missing or invalid story content should fail fast rather than falling back.
 - `Slums.Game` owns screen flow, HUDs, menus, and input. It must not become the home of business rules.
 
 Dependency flow must remain inward:
@@ -124,8 +124,11 @@ Completed steps:
 When relevant to the change:
 
 1. Run `npm run compile-ink` from `src/Slums.Game` after editing Ink files.
-2. Run `dotnet build .\Slums.slnx` from the repo root.
-3. Run `dotnet test .\Slums.slnx` from the repo root.
+2. Run `dotnet build Slums.slnx` from the repo root.
+3. Run `dotnet run --project tests/Slums.Core.Tests` from the repo root.
+4. Run `dotnet run --project tests/Slums.Application.Tests` from the repo root.
+5. Run `dotnet run --project tests/Slums.Infrastructure.Tests` from the repo root.
+6. Run `dotnet run --project tests/Slums.Narrative.Ink.Tests` from the repo root.
 
 Every rules change requires tests.
 
@@ -135,4 +138,3 @@ Every rules change requires tests.
 - Do not add back long historical phase breakdowns or obsolete gap lists.
 - Update `AGENTS.md` when architecture or workflow expectations change.
 - Update `README.md` if the description of planning documents changes.
-

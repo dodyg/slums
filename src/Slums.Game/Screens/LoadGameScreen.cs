@@ -90,8 +90,22 @@ internal sealed class LoadGameScreen : ScreenSurface
                 return true;
             }
 
-            IsFocused = false;
-            GameHost.Instance.Screen = new GameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, loadedGame.GameState);
+            using (loadedGame)
+            {
+                _runtime.NarrativeService.RestoreProgress(loadedGame.LastKnot);
+                var gameSession = loadedGame.TakeGameSession();
+                try
+                {
+                    IsFocused = false;
+                    GameHost.Instance.Screen = new GameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, gameSession);
+                }
+                catch
+                {
+                    gameSession.Dispose();
+                    throw;
+                }
+            }
+
             return true;
         }
 

@@ -2,7 +2,6 @@ using Slums.Core.Characters;
 using Slums.Core.Crimes;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
-using Slums.Core.State;
 using Slums.Core.World;
 
 namespace Slums.Application.Activities;
@@ -10,108 +9,79 @@ namespace Slums.Application.Activities;
 public sealed class CrimeMenuStatusQuery
 {
 #pragma warning disable CA1822
-    public IReadOnlyList<CrimeMenuStatus> GetStatuses(GameState gameState)
+    public IReadOnlyList<CrimeMenuStatus> GetStatuses(CrimeMenuContext context)
 #pragma warning restore CA1822
     {
-        ArgumentNullException.ThrowIfNull(gameState);
+        ArgumentNullException.ThrowIfNull(context);
 
-        var location = gameState.World.GetCurrentLocation();
-        if (location is null || !location.HasCrimeOpportunities)
+        if (context.Location is null || !context.Location.HasCrimeOpportunities)
         {
             return [];
         }
 
-        var baseStatuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, gameState.Relationships);
-        var availableByType = gameState
-            .GetAvailableCrimes()
-            .GroupBy(static attempt => attempt.Type)
-            .ToDictionary(static group => group.Key, static group => group.Last());
-
-        return baseStatuses
-            .Select(status => BuildStatus(gameState, location, status, availableByType))
-            .ToArray();
+        return context.Options.Select(option => BuildStatus(context, option)).ToArray();
     }
 
-    private static CrimeMenuStatus BuildStatus(
-        GameState gameState,
-        Location location,
-        CrimeOpportunityStatus baseStatus,
-        Dictionary<CrimeType, CrimeAttempt> availableByType)
+    private static CrimeMenuStatus BuildStatus(CrimeMenuContext context, CrimeMenuOptionContext option)
     {
-        var preview = gameState.PreviewCrime(baseStatus.Attempt);
-
-        if (availableByType.TryGetValue(baseStatus.Attempt.Type, out var availableAttempt))
-        {
-            return new CrimeMenuStatus(
-                availableAttempt,
-                true,
-                GetStatusText(gameState, location, availableAttempt, baseStatus.IsAvailable),
-                null,
-                preview.Resolution.DetectionChance,
-                preview.Resolution.SuccessChance,
-                preview.Resolution.PolicePressureIfDetected,
-                preview.Resolution.PolicePressureIfUndetected,
-                preview.ActiveModifiers,
-                GetNarrativeSignals(gameState, availableAttempt));
-        }
-
         return new CrimeMenuStatus(
-            baseStatus.Attempt,
-            false,
-            GetStatusText(gameState, location, baseStatus.Attempt, baseStatus.IsAvailable),
-            baseStatus.BlockReason,
-            preview.Resolution.DetectionChance,
-            preview.Resolution.SuccessChance,
-            preview.Resolution.PolicePressureIfDetected,
-            preview.Resolution.PolicePressureIfUndetected,
-                preview.ActiveModifiers,
-                GetNarrativeSignals(gameState, baseStatus.Attempt));
+            option.Attempt,
+            option.IsAvailable,
+            GetStatusText(context, option.Attempt, option.AvailableViaRegistry),
+            option.BlockReason,
+            option.Preview.Resolution.DetectionChance,
+            option.Preview.Resolution.SuccessChance,
+            option.Preview.Resolution.PolicePressureIfDetected,
+            option.Preview.Resolution.PolicePressureIfUndetected,
+            option.Preview.ActiveModifiers,
+            GetNarrativeSignals(context, option.Attempt));
     }
 
-    private static string? GetStatusText(GameState gameState, Location location, CrimeAttempt attempt, bool availableViaRegistry)
+    private static string? GetStatusText(CrimeMenuContext context, CrimeAttempt attempt, bool availableViaRegistry)
     {
-        var districtStanding = gameState.Relationships.GetFactionStanding(GetFactionForDistrict(location.District)).Reputation;
+        var location = context.Location ?? throw new InvalidOperationException("Crime menu context requires a location.");
+        var districtStanding = context.Relationships.GetFactionStanding(GetFactionForDistrict(location.District)).Reputation;
 
         return attempt.Type switch
         {
-            CrimeType.MarketFencing => $"Hanan trust: {gameState.Relationships.GetNpcRelationship(NpcId.FenceHanan).Trust}",
-            CrimeType.DokkiDrop when !availableViaRegistry && IsDokkiWorkCoverUnlock(gameState, location) => "Unlocked through reliable day work in Dokki.",
-            CrimeType.DokkiDrop => $"Youssef trust: {gameState.Relationships.GetNpcRelationship(NpcId.RunnerYoussef).Trust} | Dokki standing: {gameState.Relationships.GetFactionStanding(FactionId.DokkiThugs).Reputation}",
-            CrimeType.NetworkErrand when !availableViaRegistry && IsExPrisonerUnlock(gameState, location) => "Unlocked through ex-prisoner network standing.",
-            CrimeType.NetworkErrand => $"Umm Karim trust: {gameState.Relationships.GetNpcRelationship(NpcId.FixerUmmKarim).Trust} | Imbaba standing: {gameState.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}",
-            CrimeType.DepotFareSkim when !availableViaRegistry && IsDepotWorkUnlock(gameState, location) => "Unlocked through reliable depot work in Bulaq al-Dakrour.",
-            CrimeType.DepotFareSkim => $"Safaa trust: {gameState.Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust} | Imbaba standing: {gameState.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}",
-            CrimeType.ShubraBundleLift when !availableViaRegistry && IsLaundryWorkUnlock(gameState, location) => "Unlocked through reliable laundry work in Shubra.",
-            CrimeType.ShubraBundleLift => $"Iman trust: {gameState.Relationships.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust} | Imbaba standing: {gameState.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}",
+            CrimeType.MarketFencing => $"Hanan trust: {context.Relationships.GetNpcRelationship(NpcId.FenceHanan).Trust}",
+            CrimeType.DokkiDrop when !availableViaRegistry && IsDokkiWorkCoverUnlock(context, location) => "Unlocked through reliable day work in Dokki.",
+            CrimeType.DokkiDrop => $"Youssef trust: {context.Relationships.GetNpcRelationship(NpcId.RunnerYoussef).Trust} | Dokki standing: {context.Relationships.GetFactionStanding(FactionId.DokkiThugs).Reputation}",
+            CrimeType.NetworkErrand when !availableViaRegistry && IsExPrisonerUnlock(context, location) => "Unlocked through ex-prisoner network standing.",
+            CrimeType.NetworkErrand => $"Umm Karim trust: {context.Relationships.GetNpcRelationship(NpcId.FixerUmmKarim).Trust} | Imbaba standing: {context.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}",
+            CrimeType.DepotFareSkim when !availableViaRegistry && IsDepotWorkUnlock(context, location) => "Unlocked through reliable depot work in Bulaq al-Dakrour.",
+            CrimeType.DepotFareSkim => $"Safaa trust: {context.Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust} | Imbaba standing: {context.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}",
+            CrimeType.ShubraBundleLift when !availableViaRegistry && IsLaundryWorkUnlock(context, location) => "Unlocked through reliable laundry work in Shubra.",
+            CrimeType.ShubraBundleLift => $"Iman trust: {context.Relationships.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust} | Imbaba standing: {context.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}",
             _ when attempt.StreetRepRequired > 0 => $"Street rep: {districtStanding}/{attempt.StreetRepRequired}",
             _ => null
         };
     }
 
-    private static bool IsDokkiWorkCoverUnlock(GameState gameState, Location location)
+    private static bool IsDokkiWorkCoverUnlock(CrimeMenuContext context, Location location)
     {
         return location.Id == LocationId.Square &&
-               (gameState.JobProgress.GetTrack(JobType.CallCenterWork).Reliability >= 60 ||
-                gameState.JobProgress.GetTrack(JobType.CafeService).Reliability >= 60);
+               (context.JobProgress.GetTrack(JobType.CallCenterWork).Reliability >= 60 ||
+                context.JobProgress.GetTrack(JobType.CafeService).Reliability >= 60);
     }
 
-    private static bool IsExPrisonerUnlock(GameState gameState, Location location)
+    private static bool IsExPrisonerUnlock(CrimeMenuContext context, Location location)
     {
         return location.Id == LocationId.Market &&
-               gameState.Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner &&
-               gameState.Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation >= 10;
+               context.Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner &&
+               context.Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation >= 10;
     }
 
-    private static bool IsDepotWorkUnlock(GameState gameState, Location location)
+    private static bool IsDepotWorkUnlock(CrimeMenuContext context, Location location)
     {
         return location.Id == LocationId.Depot &&
-               gameState.JobProgress.GetTrack(JobType.MicrobusDispatch).Reliability >= 60;
+               context.JobProgress.GetTrack(JobType.MicrobusDispatch).Reliability >= 60;
     }
 
-    private static bool IsLaundryWorkUnlock(GameState gameState, Location location)
+    private static bool IsLaundryWorkUnlock(CrimeMenuContext context, Location location)
     {
         return location.Id == LocationId.Laundry &&
-               gameState.JobProgress.GetTrack(JobType.LaundryPressing).Reliability >= 60;
+               context.JobProgress.GetTrack(JobType.LaundryPressing).Reliability >= 60;
     }
 
     private static FactionId GetFactionForDistrict(DistrictId districtId)
@@ -124,28 +94,28 @@ public sealed class CrimeMenuStatusQuery
         };
     }
 
-    private static List<string> GetNarrativeSignals(GameState gameState, CrimeAttempt attempt)
+    private static List<string> GetNarrativeSignals(CrimeMenuContext context, CrimeAttempt attempt)
     {
         var signals = new List<string>();
 
-        if (!gameState.HasStoryFlag("crime_first_success"))
+        if (!context.HasStoryFlag("crime_first_success"))
         {
             signals.Add("Your first successful crime still has a dedicated aftermath scene waiting.");
         }
 
-        if (HasUnseenRouteAftermath(gameState, attempt.Type))
+        if (HasUnseenRouteAftermath(context, attempt.Type))
         {
             signals.Add("This route still has unseen first-time aftermath content.");
         }
 
-        var projectedCrimeEarnings = gameState.TotalCrimeEarnings + Math.Max(0, attempt.BaseReward);
-        var projectedCrimeCount = gameState.CrimesCommitted + 1;
-        if (projectedCrimeEarnings >= 150 && projectedCrimeCount >= 2 && gameState.Player.Household.MotherHealth < 65 && !gameState.HasStoryFlag("event_mother_wrong_money_seen"))
+        var projectedCrimeEarnings = context.TotalCrimeEarnings + Math.Max(0, attempt.BaseReward);
+        var projectedCrimeCount = context.CrimesCommitted + 1;
+        if (projectedCrimeEarnings >= 150 && projectedCrimeCount >= 2 && context.Player.Household.MotherHealth < 65 && !context.HasStoryFlag("event_mother_wrong_money_seen"))
         {
             signals.Add("Another profitable run could make home money feel suspicious tonight.");
         }
 
-        if (gameState.PolicePressure >= 60 && gameState.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust >= 15 && !gameState.HasStoryFlag("event_neighbor_watch_seen"))
+        if (context.PolicePressure >= 60 && context.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust >= 15 && !context.HasStoryFlag("event_neighbor_watch_seen"))
         {
             signals.Add("If tonight gets hotter, Mona is positioned to warn you before the building closes in.");
         }
@@ -153,7 +123,7 @@ public sealed class CrimeMenuStatusQuery
         return signals;
     }
 
-    private static bool HasUnseenRouteAftermath(GameState gameState, CrimeType crimeType)
+    private static bool HasUnseenRouteAftermath(CrimeMenuContext context, CrimeType crimeType)
     {
         string[] flagNames = crimeType switch
         {
@@ -165,6 +135,6 @@ public sealed class CrimeMenuStatusQuery
             _ => []
         };
 
-        return flagNames.Any(flagName => !gameState.HasStoryFlag(flagName));
+        return flagNames.Any(flagName => !context.HasStoryFlag(flagName));
     }
 }

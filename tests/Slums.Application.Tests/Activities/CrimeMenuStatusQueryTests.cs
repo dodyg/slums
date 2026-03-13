@@ -17,10 +17,10 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExposeBlockedContactRouteReason()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Market);
 
-        var statuses = query.GetStatuses(gameState);
+        var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
 
         var fencing = statuses.Single(static status => status.Attempt.Type == CrimeType.MarketFencing);
         fencing.IsAvailable.Should().BeFalse();
@@ -33,11 +33,11 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldMarkDokkiDropAvailable_WhenReliableWorkUnlockApplies()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Square);
         gameState.JobProgress.RestoreTrack(JobType.CallCenterWork, reliability: 60, shiftsCompleted: 3, lockoutUntilDay: 0);
 
-        var statuses = query.GetStatuses(gameState);
+        var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
 
         var dokkiDrop = statuses.Single(static status => status.Attempt.Type == CrimeType.DokkiDrop);
         dokkiDrop.IsAvailable.Should().BeTrue();
@@ -48,12 +48,12 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldMarkNetworkErrandAvailable_WhenExPrisonerUnlockApplies()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Market);
         gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
         gameState.Relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 10);
 
-        var statuses = query.GetStatuses(gameState);
+        var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
 
         var networkErrand = statuses.Single(static status => status.Attempt.Type == CrimeType.NetworkErrand);
         networkErrand.IsAvailable.Should().BeTrue();
@@ -64,11 +64,11 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldMarkDepotFareSkimAvailable_WhenReliableDepotWorkUnlockApplies()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Depot);
         gameState.JobProgress.RestoreTrack(JobType.MicrobusDispatch, reliability: 60, shiftsCompleted: 3, lockoutUntilDay: 0);
 
-        var statuses = query.GetStatuses(gameState);
+        var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
 
         var fareSkim = statuses.Single(static status => status.Attempt.Type == CrimeType.DepotFareSkim);
         fareSkim.IsAvailable.Should().BeTrue();
@@ -79,11 +79,11 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldMarkShubraBundleLiftAvailable_WhenReliableLaundryWorkUnlockApplies()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Laundry);
         gameState.JobProgress.RestoreTrack(JobType.LaundryPressing, reliability: 60, shiftsCompleted: 3, lockoutUntilDay: 0);
 
-        var statuses = query.GetStatuses(gameState);
+        var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
 
         var bundleLift = statuses.Single(static status => status.Attempt.Type == CrimeType.ShubraBundleLift);
         bundleLift.IsAvailable.Should().BeTrue();
@@ -94,14 +94,14 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExposeEffectiveCrimeModifiers()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Square);
         gameState.SetPolicePressure(70);
         gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
         gameState.Player.Skills.SetLevel(SkillId.StreetSmarts, 3);
-        gameState.SetWorkCounters(totalHonestWorkEarnings: 0, honestShiftsCompleted: 0, lastCrimeDay: 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: gameState.Clock.Day);
+        gameState.SetWorkCounters(totalHonestWorkEarnings: 0, honestShiftsCompleted: 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: gameState.Clock.Day);
 
-        var statuses = query.GetStatuses(gameState);
+        var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
 
         var pettyTheft = statuses.Single(static status => status.Attempt.Type == CrimeType.PettyTheft);
         pettyTheft.ActiveModifiers.Should().Contain(static text => text.Contains("thin alibi", StringComparison.Ordinal));
@@ -115,14 +115,14 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExposeNarrativeSignals_ForHomeSuspicionAndMonaWarning()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Square);
         gameState.SetCrimeCounters(120, 1);
         gameState.Player.Household.SetMotherHealth(50);
         gameState.SetPolicePressure(65);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 18, 1);
 
-        var statuses = query.GetStatuses(gameState);
+        var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
 
         var pettyTheft = statuses.Single(static status => status.Attempt.Type == CrimeType.PettyTheft);
         pettyTheft.NarrativeSignals.Should().Contain(static text => text.Contains("first successful crime", StringComparison.Ordinal));

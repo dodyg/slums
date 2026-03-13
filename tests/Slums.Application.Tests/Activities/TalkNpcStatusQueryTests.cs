@@ -14,7 +14,7 @@ internal sealed class TalkNpcStatusQueryTests
     public void GetStatuses_ShouldExposeReachableNpcMemoryFlags()
     {
         var query = new TalkNpcStatusQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Home);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 16, 3);
         gameState.Relationships.SetNpcRelationshipMemory(
@@ -26,7 +26,7 @@ internal sealed class TalkNpcStatusQueryTests
             wasHelped: true,
             recentContactCount: 3);
 
-        var statuses = query.GetStatuses(gameState);
+        var statuses = query.GetStatuses(TalkNpcContext.Create(gameState));
 
         var mona = statuses.Single(static npc => npc.NpcId == NpcId.NeighborMona);
         mona.Summary.Should().Contain("stairwell");
@@ -40,12 +40,12 @@ internal sealed class TalkNpcStatusQueryTests
     public void GetStatuses_ShouldExposeFactionAndHeatSummaries()
     {
         var query = new TalkNpcStatusQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Square);
         gameState.SetPolicePressure(75);
         gameState.Relationships.SetFactionStanding(FactionId.DokkiThugs, 18);
 
-        var statuses = query.GetStatuses(gameState);
+        var statuses = query.GetStatuses(TalkNpcContext.Create(gameState));
 
         var khalid = statuses.Single(static npc => npc.NpcId == NpcId.OfficerKhalid);
         var youssef = statuses.Single(static npc => npc.NpcId == NpcId.RunnerYoussef);
@@ -59,13 +59,13 @@ internal sealed class TalkNpcStatusQueryTests
     public void GetStatuses_ShouldExposeDoubleLifeSuspicion()
     {
         var query = new TalkNpcStatusQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Clinic);
         gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
-        gameState.SetCrimeCounters(totalCrimeEarnings: 90, crimesCommitted: 2);
-        gameState.SetWorkCounters(totalHonestWorkEarnings: 120, honestShiftsCompleted: 3, lastCrimeDay: 1, lastHonestWorkDay: 2, lastPublicFacingWorkDay: 2);
+        gameState.SetCrimeCounters(totalCrimeEarnings: 90, crimesCommitted: 2, lastCrimeDay: 1);
+        gameState.SetWorkCounters(totalHonestWorkEarnings: 120, honestShiftsCompleted: 3, lastHonestWorkDay: 2, lastPublicFacingWorkDay: 2);
 
-        var statuses = query.GetStatuses(gameState);
+        var statuses = query.GetStatuses(TalkNpcContext.Create(gameState));
 
         var salma = statuses.Single(static npc => npc.NpcId == NpcId.NurseSalma);
         salma.Summary.Should().Contain("stories and your days stop matching");
@@ -77,18 +77,18 @@ internal sealed class TalkNpcStatusQueryTests
     {
         var query = new TalkNpcStatusQuery();
 
-        var homeState = new GameState();
+        using var homeState = new GameSession();
         homeState.World.TravelTo(LocationId.Home);
         homeState.Player.Stats.ModifyMoney(-85);
-        var homeStatuses = query.GetStatuses(homeState);
+        var homeStatuses = query.GetStatuses(TalkNpcContext.Create(homeState));
 
         homeStatuses.Single(static npc => npc.NpcId == NpcId.LandlordHajjMahmoud).Summary.Should().Contain("visibly short");
         homeStatuses.Single(static npc => npc.NpcId == NpcId.NeighborMona).Summary.Should().Contain("week tightening");
 
-        var clinicState = new GameState();
+        using var clinicState = new GameSession();
         clinicState.World.TravelTo(LocationId.Clinic);
         clinicState.Player.Household.SetMotherHealth(30);
-        var clinicStatuses = query.GetStatuses(clinicState);
+        var clinicStatuses = query.GetStatuses(TalkNpcContext.Create(clinicState));
 
         clinicStatuses.Single(static npc => npc.NpcId == NpcId.NurseSalma).Summary.Should().Contain("mother's condition");
     }
@@ -98,7 +98,7 @@ internal sealed class TalkNpcStatusQueryTests
     {
         var query = new TalkNpcStatusQuery();
 
-        var clinicState = new GameState();
+        using var clinicState = new GameSession();
         clinicState.World.TravelTo(LocationId.Clinic);
         clinicState.Relationships.SetNpcRelationship(NpcId.NurseSalma, 18, 1);
         clinicState.Relationships.SetNpcRelationshipMemory(
@@ -110,13 +110,13 @@ internal sealed class TalkNpcStatusQueryTests
             wasHelped: false,
             recentContactCount: 2);
 
-        var homeState = new GameState();
+        using var homeState = new GameSession();
         homeState.World.TravelTo(LocationId.Home);
         homeState.SetPolicePressure(75);
         homeState.SetCrimeCounters(120, 2);
 
-        var clinicStatuses = query.GetStatuses(clinicState);
-        var homeStatuses = query.GetStatuses(homeState);
+        var clinicStatuses = query.GetStatuses(TalkNpcContext.Create(clinicState));
+        var homeStatuses = query.GetStatuses(TalkNpcContext.Create(homeState));
 
         clinicStatuses.Single(static npc => npc.NpcId == NpcId.NurseSalma).TriggerSignals.Should().Contain(static text => text.Contains("owe Salma", StringComparison.Ordinal));
         clinicStatuses.Single(static npc => npc.NpcId == NpcId.NurseSalma).TriggerSignals.Should().Contain(static text => text.Contains("High trust", StringComparison.Ordinal));

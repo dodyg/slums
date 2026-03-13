@@ -14,11 +14,11 @@ internal sealed class ShopMenuStatusQueryTests
     public void GetStatuses_ShouldUseDynamicDistrictPrices()
     {
         var query = new ShopMenuStatusQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.CallCenter);
         gameState.Player.Stats.SetMoney(59);
 
-        var statuses = query.GetStatuses(gameState);
+        var statuses = query.GetStatuses(ShopMenuContext.Create(gameState));
 
         statuses.Should().HaveCount(2);
         statuses[0].Name.Should().Be("Buy Food");
@@ -33,13 +33,13 @@ internal sealed class ShopMenuStatusQueryTests
     public void GetStatuses_ShouldReflectMedicineDiscounts_AndAffordability()
     {
         var query = new ShopMenuStatusQuery();
-        var gameState = new GameState();
+        using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Pharmacy);
         gameState.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 12, 0);
         gameState.Player.Skills.SetLevel(SkillId.Medical, 3);
         gameState.Player.Stats.SetMoney(31);
 
-        var statuses = query.GetStatuses(gameState);
+        var statuses = query.GetStatuses(ShopMenuContext.Create(gameState));
 
         statuses.Should().HaveCount(2);
         statuses[1].Cost.Should().Be(32);

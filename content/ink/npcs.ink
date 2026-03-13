@@ -948,6 +948,119 @@ The landlord mentions his own struggles with building costs.
 	# NPC_TRUST:LandlordHajjMahmoud,5
 	-> DONE
 
+=== landlord_rent_negotiation ===
+Hajj Mahmoud waits at the stairwell, prayer beads in hand. He asks for the rent without raising his voice, which somehow makes it worse.
+
+*   [Answer politely and ask for time]
+	# STRESS:5
+	# NPC_TRUST:LandlordHajjMahmoud,8
+	# MESSAGE:Hajj Mahmoud gives you a little room to breathe.
+	You keep your voice low and tell him what little truth you can afford. He mutters that sabr has limits, but he steps aside and lets the matter rest for today.
+	-> DONE
+
+*   [Answer defiantly]
+	# STRESS:10
+	# NPC_TRUST:LandlordHajjMahmoud,-12
+	# MESSAGE:The exchange hardens. The rent feels heavier already.
+	You answer with the sharpness that comes from being cornered too often. He says nothing for a moment. Then he nods once, the way people do when they decide not to forget.
+	-> DONE
+
+=== landlord_rent_broke ===
+Hajj Mahmoud studies your face before he looks at the ledger. Even he can tell this week has gone badly.
+
+*   [Admit you are behind]
+	# STRESS:4
+	# NPC_TRUST:LandlordHajjMahmoud,3
+	You tell him the truth in plain words. He does not forgive the debt, but he stops pressing for humiliation on top of it.
+	-> DONE
+
+=== fixer_first_contact ===
+Umm Karim watches the crowd instead of you. She says there are always errands for women who keep their mouths shut and their feet moving.
+
+*   [Listen carefully]
+	# NPC_TRUST:FixerUmmKarim,8
+	# FACTION_REP:ImbabaCrew,6
+	# FLAG:fixer_met
+	# MESSAGE:Umm Karim decides you may be useful.
+	She gives you no names and no promises. Only times, corners, and the warning that loose talk gets people buried socially if not literally.
+	-> DONE
+
+*   [Refuse and leave]
+	# STRESS:-2
+	# NPC_TRUST:FixerUmmKarim,-6
+	# MESSAGE:You walk away, but the offer lingers in your mind.
+	Umm Karim shrugs as if she expected nothing more. In Cairo, another desperate person is never far away.
+	-> DONE
+
+=== fixer_double_life ===
+Umm Karim smiles with half her mouth, as if even that is borrowed. In this part of Cairo, two stories belong to the same woman more often than one honest version ever could.
+
+*   [Keep listening]
+	# STRESS:2
+	She tells you just enough to remind you that everybody here performs survival in layers.
+	-> DONE
+
+=== nurse_salma ===
+Nurse Salma keeps writing as you speak, her pen moving faster than the clinic line outside the door.
+
+*   [Ask about extra shifts]
+	# NPC_TRUST:NurseSalma,4
+	She finally looks up. "Extra shifts exist," she says, "but so do ten cousins and twenty debts. Tell me why I should risk my name for you."
+	-> DONE
+
+*   [Ask quietly about cheap medicine for your mother]
+	# NPC_TRUST:NurseSalma,6
+	# MESSAGE:Salma hears the fear under your voice before she answers.
+	She lowers her voice. "There may be something after evening rounds. Don't ask for charity. Ask me what has not been recorded yet."
+	-> DONE
+
+=== nurse_salma_debt ===
+Salma does not mention the medicine directly. That is how you know she remembers exactly what it cost her to help you last time.
+
+*   [Acknowledge the debt]
+	# DEBT:NurseSalma,true
+	# NPC_TRUST:NurseSalma,2
+	You tell her you have not forgotten. Her shoulders loosen by a fraction, which counts as grace in a clinic like this.
+	-> DONE
+
+=== hanan_fence ===
+Hanan leans against the shuttered kiosk like she owns the hour between closing and trouble.
+
+*   [Ask what kind of goods move quietly this week]
+	# NPC_TRUST:FenceHanan,4
+	She names categories instead of objects, neighborhoods instead of buyers, and leaves the dangerous parts for you to imagine.
+	-> DONE
+
+*   [Ask for easy money]
+	# STRESS:3
+	# NPC_TRUST:FenceHanan,-3
+	Hanan laughs once. "Easy money is what people call it before they owe someone interest on their fear."
+	-> DONE
+
+=== neighbor_mona_heat ===
+Mona from upstairs does not start with gossip this time. She starts by asking whether anyone has been following you home.
+
+*   [Tell her no]
+	# STRESS:2
+	You lie automatically. She hears it anyway and decides not to shame you for it.
+	-> DONE
+
+=== mariam_pharmacy_urgent ===
+Mariam hears the urgency before the details are finished. She reaches for the blister packs first and the questions second.
+
+*   [Explain your mother's condition]
+	# NPC_TRUST:PharmacistMariam,3
+	She tells you what she can spare cheaply and what will still cost more than you can manage.
+	-> DONE
+
+=== safaa_depot_regular ===
+Safaa barely glances up when you arrive. There is something bleakly reassuring about being expected.
+
+*   [Take the ledger and start]
+	# NPC_TRUST:DispatcherSafaa,2
+	She nods once, as if punctuality is the only kind of intimacy work is allowed to have.
+	-> DONE
+
 === landlord_warm_22 ===
 He sets aside his ledger and listens more carefully.
 

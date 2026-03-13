@@ -1,0 +1,55 @@
+using Slums.Core.Characters;
+using Slums.Core.Clock;
+using Slums.Core.Relationships;
+using Slums.Core.State;
+using Slums.Core.World;
+
+namespace Slums.Application.Activities;
+
+public sealed record GameStatusContext(
+    GameClock Clock,
+    PlayerCharacter Player,
+    WorldState World,
+    RelationshipState Relationships,
+    int PolicePressure,
+    int DaysSurvived,
+    int HonestShiftsCompleted,
+    int TotalHonestWorkEarnings,
+    int CrimesCommitted,
+    int TotalCrimeEarnings,
+    int LastCrimeDay,
+    int LastHonestWorkDay,
+    int FoodCost,
+    int StreetFoodCost,
+    int MedicineCost,
+    IReadOnlySet<string> StoryFlags)
+{
+    public static GameStatusContext Create(GameSession gameSession)
+    {
+        ArgumentNullException.ThrowIfNull(gameSession);
+
+        return new GameStatusContext(
+            gameSession.Clock,
+            gameSession.Player,
+            gameSession.World,
+            gameSession.Relationships,
+            gameSession.PolicePressure,
+            gameSession.DaysSurvived,
+            gameSession.HonestShiftsCompleted,
+            gameSession.TotalHonestWorkEarnings,
+            gameSession.CrimesCommitted,
+            gameSession.TotalCrimeEarnings,
+            gameSession.LastCrimeDay,
+            gameSession.LastHonestWorkDay,
+            gameSession.GetFoodCost(),
+            gameSession.GetStreetFoodCost(),
+            gameSession.GetMedicineCost(),
+            gameSession.StoryFlags.ToHashSet(StringComparer.Ordinal));
+    }
+
+    public bool HasStoryFlag(string flag)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(flag);
+        return StoryFlags.Contains(flag);
+    }
+}

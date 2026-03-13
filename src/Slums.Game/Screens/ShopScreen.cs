@@ -12,14 +12,16 @@ internal sealed class ShopScreen : ScreenSurface
     private const int OptionsStartX = 2;
     private const int OptionsStartY = 8;
     private const string CancelOptionLabel = "Cancel";
-    private readonly GameState _gameState;
+    private readonly ShopMenuContext _context;
+    private readonly GameSession _gameState;
     private readonly GameScreen _parentScreen;
     private readonly ShopMenuStatusQuery _shopMenuStatusQuery = new();
     private int _selectedIndex;
 
-    public ShopScreen(int width, int height, GameState gameState, GameScreen parentScreen) 
+    public ShopScreen(int width, int height, GameSession gameState, ShopMenuContext context, GameScreen parentScreen) 
         : base(width, height)
     {
+        _context = context;
         _gameState = gameState;
         _parentScreen = parentScreen;
         _selectedIndex = 0;
@@ -43,10 +45,10 @@ internal sealed class ShopScreen : ScreenSurface
         Surface.Print(OptionsStartX, y++, "=== Shop ===", Color.Cyan);
         y++;
 
-        Surface.Print(OptionsStartX, y++, $"Your Money: {_gameState.Player.Stats.Money} LE", Color.Gold);
-        Surface.Print(OptionsStartX, y++, $"Food Stockpile: {_gameState.Player.Household.FoodStockpile}", Color.White);
-        Surface.Print(OptionsStartX, y++, $"Mother's Health: {_gameState.Player.Household.MotherHealth}%", 
-            _gameState.Player.Household.MotherNeedsCare ? Color.Red : Color.Green);
+        Surface.Print(OptionsStartX, y++, $"Your Money: {_context.Money} LE", Color.Gold);
+        Surface.Print(OptionsStartX, y++, $"Food Stockpile: {_context.FoodStockpile}", Color.White);
+        Surface.Print(OptionsStartX, y++, $"Mother's Health: {_context.MotherHealth}%", 
+            _context.MotherNeedsCare ? Color.Red : Color.Green);
         y = OptionsStartY;
 
         for (var i = 0; i < optionCount; i++)
@@ -159,7 +161,7 @@ internal sealed class ShopScreen : ScreenSurface
 
     private IReadOnlyList<ShopMenuStatus> GetPurchaseOptions()
     {
-        return _shopMenuStatusQuery.GetStatuses(_gameState);
+        return _shopMenuStatusQuery.GetStatuses(_context);
     }
 
     private int GetOptionCount()

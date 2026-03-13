@@ -10,17 +10,17 @@ namespace Slums.Game.Screens;
 internal sealed class NarrativeScreen : ScreenSurface
 {
     private readonly INarrativeService _narrativeService;
-    private readonly GameState _gameState;
+    private readonly INarrativeOutcomeTarget _narrativeOutcomeTarget;
     private readonly ScreenSurface _nextScreen;
     private readonly List<string> _wrappedLines = [];
     private int _selectedChoiceIndex;
     private int _scrollOffset;
 
-    public NarrativeScreen(int width, int height, INarrativeService narrativeService, GameState gameState, ScreenSurface nextScreen)
+    public NarrativeScreen(int width, int height, INarrativeService narrativeService, INarrativeOutcomeTarget narrativeOutcomeTarget, ScreenSurface nextScreen)
         : base(width, height)
     {
         _narrativeService = narrativeService;
-        _gameState = gameState;
+        _narrativeOutcomeTarget = narrativeOutcomeTarget;
         _nextScreen = nextScreen;
         IsFocused = true;
         UseMouse = true;
@@ -175,7 +175,7 @@ internal sealed class NarrativeScreen : ScreenSurface
         var outcome = _narrativeService.GetPendingOutcome();
         if (outcome is not null)
         {
-            _gameState.ApplyOutcome(outcome);
+            _narrativeOutcomeTarget.ApplyOutcome(outcome);
             _narrativeService.ClearPendingOutcome();
         }
 

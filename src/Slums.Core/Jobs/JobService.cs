@@ -7,8 +7,6 @@ namespace Slums.Core.Jobs;
 
 public sealed class JobService
 {
-    private readonly Random _random = new();
-
 #pragma warning disable CA1822
     public JobPreview PreviewJob(JobType jobType, PlayerCharacter player, RelationshipState relationshipState, JobProgressState jobProgressState)
 #pragma warning restore CA1822
@@ -32,13 +30,14 @@ public sealed class JobService
             riskWarning);
     }
 
-    public JobResult PerformJob(JobShift job, PlayerCharacter player, Location currentLocation, RelationshipState relationshipState, JobProgressState jobProgressState, int currentDay)
+    public JobResult PerformJob(JobShift job, PlayerCharacter player, Location currentLocation, RelationshipState relationshipState, JobProgressState jobProgressState, int currentDay, Random? random = null)
     {
         ArgumentNullException.ThrowIfNull(job);
         ArgumentNullException.ThrowIfNull(player);
         ArgumentNullException.ThrowIfNull(currentLocation);
         ArgumentNullException.ThrowIfNull(relationshipState);
         ArgumentNullException.ThrowIfNull(jobProgressState);
+        random ??= new Random();
 
         if (!CanPerformJob(job, player, currentLocation, relationshipState, jobProgressState, currentDay, out var reason))
         {
@@ -49,10 +48,10 @@ public sealed class JobService
 
         if (ShouldApplyMistake(resolvedJob, player))
         {
-            return PerformMistakeShift(resolvedJob, player, jobProgressState, currentDay);
+            return PerformMistakeShift(resolvedJob, player, jobProgressState, currentDay, random);
         }
 
-        var pay = resolvedJob.CalculatePay(_random);
+        var pay = resolvedJob.CalculatePay(random);
         var energyCost = resolvedJob.EnergyCost;
         if (player.Skills.GetLevel(SkillId.Physical) >= 3 &&
             (resolvedJob.Type == JobType.BakeryWork || resolvedJob.Type == JobType.HouseCleaning || resolvedJob.Type == JobType.WorkshopSewing))
@@ -145,10 +144,10 @@ public sealed class JobService
         };
     }
 
-    private JobResult PerformMistakeShift(JobShift job, PlayerCharacter player, JobProgressState jobProgressState, int currentDay)
+    private static JobResult PerformMistakeShift(JobShift job, PlayerCharacter player, JobProgressState jobProgressState, int currentDay, Random random)
     {
 #pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
-        var reducedPay = Math.Max(0, (job.BasePay / 2) + _random.Next(0, Math.Max(2, job.PayVariance)));
+        var reducedPay = Math.Max(0, (job.BasePay / 2) + random.Next(0, Math.Max(2, job.PayVariance)));
 #pragma warning restore CA5394
         var stressCost = job.StressCost + GetMistakeStressPenalty(job.Type);
         var lockoutDays = GetLockoutDays(job.Type);

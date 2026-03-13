@@ -1,6 +1,3 @@
-using Slums.Application.Narrative;
-using Slums.Core.State;
-
 namespace Slums.Application.Persistence;
 
 public sealed class SaveGameUseCase
@@ -12,12 +9,11 @@ public sealed class SaveGameUseCase
         _saveGameStore = saveGameStore;
     }
 
-    public Task ExecuteAsync(GameState gameState, INarrativeService narrativeService, string slot, CancellationToken cancellationToken = default)
+    public Task ExecuteAsync(SaveGameRequest request, string slot, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(gameState);
-        ArgumentNullException.ThrowIfNull(narrativeService);
+        ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(slot);
 
-        return _saveGameStore.SaveAsync(gameState, narrativeService, slot, cancellationToken);
+        return _saveGameStore.SaveAsync(request, slot, cancellationToken);
     }
 }

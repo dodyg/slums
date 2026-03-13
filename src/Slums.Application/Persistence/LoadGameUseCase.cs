@@ -9,7 +9,7 @@ public sealed class LoadGameUseCase
         _saveGameStore = saveGameStore;
     }
 
-    public Task<LoadedGameState?> ExecuteAsync(string slot, CancellationToken cancellationToken = default)
+    public Task<LoadedGameSession?> ExecuteAsync(string slot, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(slot);
         return _saveGameStore.LoadAsync(slot, cancellationToken);
