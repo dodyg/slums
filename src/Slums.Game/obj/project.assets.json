@@ -2983,7 +2983,7 @@
           "SadConsole": "10.8.0",
           "SadConsole.Host.MonoGame": "10.8.0",
           "SadConsole.Host.SFML": "10.8.0",
-          "TUnit": "0.6.159"
+          "TUnit": "1.19.22"
         },
         "imports": [
           "net461",

@@ -188,6 +188,11 @@ Minimum expectation by layer:
 - `Slums.Narrative.Ink.Tests`: scene loading, variable sync, and choice progression
 - `Slums.Infrastructure.Tests`: serialization and content-loading tests
 
+**Running Tests:**
+- On .NET 10 SDK and later, `dotnet test` requires opt-in to the new testing platform
+- Run tests directly by executing each test project: `dotnet run --project tests/Slums.Core.Tests`
+- Test projects are configured as executables (`OutputType=Exe`) for direct execution
+
 Run existing build and test commands before finishing work.
 
 ## Vertical Slice Priority
