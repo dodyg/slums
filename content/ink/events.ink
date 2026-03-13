@@ -4,6 +4,11 @@
 Your mother tries to smile through the dizziness, but the way her hand clamps around the bedframe tells the truth faster than her face can hide it.
 -> DONE
 
+=== mother_clinic_first_visit ===
+The clinic walls are peeling, but the doctor's hands are clean. Your mother sits quiet on the examination table, her eyes tracing the water stain on the ceiling. She does not complain about the cost or the wait. She only thanks you twice, which is worse than any scolding.
+# MESSAGE:Your mother's first clinic visit leaves her quieter than usual.
+-> DONE
+
 === event_neighborhood_rumor ===
 A neighbour lowers her voice and says plainclothes men were asking for names two alleys over, pretending not to be police badly enough to insult everyone.
 -> DONE

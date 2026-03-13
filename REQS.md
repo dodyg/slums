@@ -69,6 +69,7 @@ Interview-complete working requirements draft based on the user's answers.
 
 ## Honest Work Path
 - Honest work should feel exhausting, unstable, and underpaid rather than empowering by default.
+- Work opportunities are tied to specific locations; the work option is hidden in locations with no available jobs.
 - Confirmed job types include:
   - house cleaning
   - working at a forn/bakery

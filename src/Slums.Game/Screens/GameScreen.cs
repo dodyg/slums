@@ -446,9 +446,13 @@ internal sealed class GameScreen : ScreenSurface
 
     private List<string> GetActions()
     {
-        var actions = new List<string> { "Rest", "Work" };
+        var actions = new List<string> { "Rest" };
         var isAtHome = _gameState.World.CurrentLocationId == LocationId.Home;
         var location = _gameState.World.GetCurrentLocation();
+        if (location?.HasJobOpportunities == true)
+        {
+            actions.Add("Work");
+        }
         if (location?.HasCrimeOpportunities == true)
         {
             actions.Add("Crime");
