@@ -125,6 +125,11 @@ internal sealed class WorkScreen : ScreenSurface
         }
 
         var job = _jobs[_selectedIndex];
+        if (!job.CanPerform)
+        {
+            return;
+        }
+
         _workCommand.Execute(_gameState, job.Job);
         ReturnToParentScreen();
     }
@@ -133,12 +138,12 @@ internal sealed class WorkScreen : ScreenSurface
     {
         if (status.LockoutUntilDay is int lockoutUntilDay)
         {
-            return $"Locked out until day {lockoutUntilDay + 1}.";
+            return $"Locked to day {lockoutUntilDay + 1} | Rel {status.Reliability}";
         }
 
         return status.CanPerform
-            ? "Ready to work."
-            : status.AvailabilityReason ?? "Not available right now.";
+            ? $"Ready | Rel {status.Reliability}"
+            : status.AvailabilityReason ?? $"Blocked | Rel {status.Reliability}";
     }
 
     private static string TrimToFit(string text, int maxLength)
@@ -170,10 +175,27 @@ internal sealed class WorkScreen : ScreenSurface
         Surface.Print(DetailX, y++, $"Reliability {selected.Reliability} | Shifts {selected.ShiftsCompleted}", Color.Gray);
 
         y++;
+        Surface.Print(DetailX, y++, "Current access:", Color.Cyan);
+        foreach (var signal in selected.AvailabilitySignals)
+        {
+            foreach (var line in WrapText($"- {signal}", detailWidth))
+            {
+                Surface.Print(DetailX, y++, line, selected.CanPerform ? Color.Gray : Color.Orange);
+            }
+        }
+
+        y++;
         Surface.Print(DetailX, y++, "Why this shift:", Color.Cyan);
         foreach (var line in WrapText(selected.VariantReason, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.White);
+        }
+
+        y++;
+        Surface.Print(DetailX, y++, "Reliability outlook:", Color.Cyan);
+        foreach (var line in WrapText(selected.ReliabilitySummary, detailWidth))
+        {
+            Surface.Print(DetailX, y++, line, Color.LightGray);
         }
 
         if (!string.IsNullOrWhiteSpace(selected.NextUnlockHint))

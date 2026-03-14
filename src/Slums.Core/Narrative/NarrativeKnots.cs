@@ -9,6 +9,8 @@ public static class NarrativeKnots
     public const string BackgroundMedicalClinic = "background_medical_clinic";
     public const string EventMotherWrongMoney = "event_mother_wrong_money";
     public const string EventNeighborWatch = "event_neighbor_watch";
+    public const string EventRentFinalWarning = "event_rent_final_warning";
+    public const string EventInvestmentSuspension = "event_investment_suspension";
     public const string BackgroundPrisonerHeat = "background_prisoner_heat";
     public const string BackgroundSudaneseSolidarity = "background_sudanese_solidarity";
 

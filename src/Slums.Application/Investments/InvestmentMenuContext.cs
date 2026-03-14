@@ -7,6 +7,7 @@ public sealed record InvestmentMenuContext(
     IReadOnlyList<InvestmentDefinition> Opportunities,
     IReadOnlyDictionary<InvestmentType, InvestmentEligibility> EligibilityByType,
     IReadOnlyList<Investment> ActiveInvestments,
+    IReadOnlyDictionary<InvestmentType, Investment> ActiveInvestmentsByType,
     string? LocationName)
 {
     public static InvestmentMenuContext Create(GameSession gameSession)
@@ -21,6 +22,7 @@ public sealed record InvestmentMenuContext(
                 static definition => definition.Type,
                 definition => gameSession.CheckInvestmentEligibility(definition)),
             gameSession.ActiveInvestments,
+            gameSession.ActiveInvestments.ToDictionary(static investment => investment.Type),
             gameSession.World.GetCurrentLocation()?.Name);
     }
 }

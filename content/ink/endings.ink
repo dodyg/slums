@@ -36,6 +36,18 @@ The life you build is still called temporary by people who have never watched ye
 The train south feels unreal at first. Even after Giza falls behind, you keep waiting for the city to pull you back by the wrist. Luxor is not a miracle, only a place where your chest loosens and the future stops looking like a trap with rent due.
 -> DONE
 
+=== ending_luxor_medical ===
+The train south feels unreal at first. In Luxor, nobody mistakes you for the student you were supposed to become, which is painful and freeing at once. What survives is not the degree but the discipline: clean hands, careful doses, and a refusal to let care become another broken promise.
+-> DONE
+
+=== ending_luxor_prisoner ===
+Leaving for Luxor does not erase the state file with your name on it. It does something quieter and still radical: it forces distance between your future and the rooms where other people learned to speak about you as if surveillance were fate.
+-> DONE
+
+=== ending_luxor_sudanese ===
+The train south feels like moving toward air instead of scrutiny. Luxor is not free of paperwork, suspicion, or the vocabulary people use for women they still call temporary. But it gives your household room to become ordinary, and ordinary can feel almost holy after Cairo.
+-> DONE
+
 === ending_arrested ===
 The holding cell smells of heat, metal, and old fear. Somewhere above you, Cairo keeps bargaining, praying, hustling, and surviving without pausing long enough to notice one more woman disappear indoors.
 -> DONE

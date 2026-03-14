@@ -13,4 +13,6 @@ public sealed record WorkMenuStatus(
     string? NextUnlockHint,
     IReadOnlyList<string> ActiveModifiers,
     string? RiskWarning,
-    IReadOnlyList<string> NarrativeSignals);
+    IReadOnlyList<string> NarrativeSignals,
+    IReadOnlyList<string> AvailabilitySignals,
+    string ReliabilitySummary);

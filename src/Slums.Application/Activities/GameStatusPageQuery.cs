@@ -18,8 +18,10 @@ public sealed class GameStatusPageQuery
         return
         [
             BuildSurvivalPage(context),
+            BuildDebtPage(context),
             BuildSkillsPage(context),
             BuildNetworkPage(context),
+            BuildHeatPage(context),
             BuildInvestmentsPage(context),
             BuildSignalsPage(context),
             BuildProgressPage(context)
@@ -39,6 +41,9 @@ public sealed class GameStatusPageQuery
                 $"District: {DistrictInfo.GetName(context.World.CurrentDistrict)}",
                 $"Money: {context.Player.Stats.Money} LE",
                 $"Police pressure: {context.PolicePressure}",
+                context.UnpaidRentDays > 0
+                    ? $"Rent debt: {context.AccumulatedRentDebt} LE across {context.UnpaidRentDays} unpaid day(s)"
+                    : "Rent debt: clear",
                 $"Food: {household.FoodStockpile} | Medicine: {household.MedicineStock}",
                 $"Local prices: food {context.FoodCost} LE | street {context.StreetFoodCost} LE | medicine {context.MedicineCost} LE",
                 context.HasClinicServices
@@ -47,6 +52,32 @@ public sealed class GameStatusPageQuery
                 $"Mother: {household.MotherHealth}% {household.MotherCondition}",
                 $"Mother fed today: {ToYesNo(household.FedMotherToday)}"
             ]);
+    }
+
+    private static GameStatusPage BuildDebtPage(GameStatusContext context)
+    {
+        var lines = new List<string>
+        {
+            $"Daily rent: {context.RentCost} LE",
+            $"Unpaid rent days: {context.UnpaidRentDays}/{Slums.Core.Expenses.RentState.EvictionThreshold}",
+            $"Accumulated rent debt: {context.AccumulatedRentDebt} LE",
+            GetRentWarningStatus(context)
+        };
+
+        var owedContacts = context.Relationships.NpcRelationships.Values
+            .Where(static relationship => relationship.HasUnpaidDebt)
+            .Select(relationship => NpcRegistry.GetName(relationship.NpcId))
+            .ToArray();
+
+        lines.Add(owedContacts.Length == 0
+            ? "Outstanding favors: none"
+            : $"Outstanding favors: {string.Join(", ", owedContacts)}");
+
+        lines.Add(context.UnpaidRentDays == 0
+            ? "Rent pressure is quiet right now."
+            : "Unpaid rent keeps landlord pressure active and increases the risk of eviction.");
+
+        return new GameStatusPage("Debt", lines);
     }
 
     private static GameStatusPage BuildSkillsPage(GameStatusContext context)
@@ -73,10 +104,37 @@ public sealed class GameStatusPageQuery
         foreach (var npcId in GetKeyNpcOrder())
         {
             var relationship = context.Relationships.GetNpcRelationship(npcId);
-            lines.Add($"{NpcRegistry.GetName(npcId)}: trust {relationship.Trust}");
+            lines.Add($"{NpcRegistry.GetName(npcId)}: trust {relationship.Trust}{FormatRelationshipMemory(relationship)}");
         }
 
         return new GameStatusPage("Network", lines);
+    }
+
+    private static GameStatusPage BuildHeatPage(GameStatusContext context)
+    {
+        var currentDistrictFaction = GetFactionForDistrict(context.World.CurrentDistrict);
+        var currentStanding = context.Relationships.GetFactionStanding(currentDistrictFaction).Reputation;
+
+        var lines = new List<string>
+        {
+            $"Police pressure: {context.PolicePressure}/100",
+            GetPressureStatus(context.PolicePressure),
+            $"Current district standing: {DistrictInfo.GetName(context.World.CurrentDistrict)} -> {GetFactionName(currentDistrictFaction)} {currentStanding}",
+            $"Imbaba Crew {context.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation} | Dokki Thugs {context.Relationships.GetFactionStanding(FactionId.DokkiThugs).Reputation} | Ex-Prisoner Net {context.Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation}"
+        };
+
+        if (context.LastCrimeDay > 0)
+        {
+            lines.Add($"Last crime day: {context.LastCrimeDay}");
+        }
+
+        lines.Add(NarrativeSignalRules.HasPendingPublicWorkHeat(context.Clock.Day, context.LastCrimeDay, context.PolicePressure)
+            ? "Public-facing work is currently carrying extra suspicion."
+            : "Public-facing work is not carrying the extra heat signal right now.");
+
+        lines.Add("District standing gates route access and changes who will vouch for you.");
+
+        return new GameStatusPage("Heat", lines);
     }
 
     private static GameStatusPage BuildProgressPage(GameStatusContext context)
@@ -116,7 +174,12 @@ public sealed class GameStatusPageQuery
             var definition = InvestmentRegistry.GetByType(investment.Type);
             var name = definition?.Name ?? investment.Type.ToString();
             var state = investment.IsSuspended ? "Suspended this week" : $"Week {investment.WeeksActive}";
+            var risk = definition?.RiskProfile;
+            var riskSummary = risk is null
+                ? "risk unknown"
+                : $"fail {ToPercent(risk.WeeklyFailureChance)}% | extort {ToPercent(risk.ExtortionChance)}% | police {ToPercent(risk.PoliceHeatChance)}% | betray {ToPercent(risk.BetrayalChance)}%";
             lines.Add($"{name}: {investment.WeeklyIncomeMin}-{investment.WeeklyIncomeMax} LE/week | {state}");
+            lines.Add($"  {riskSummary}");
         }
 
         return new GameStatusPage("Investments", lines);
@@ -195,6 +258,100 @@ public sealed class GameStatusPageQuery
         {
             yield return "Honest-stability conditions are already met.";
         }
+    }
+
+    private static string GetRentWarningStatus(GameStatusContext context)
+    {
+        if (context.UnpaidRentDays >= Slums.Core.Expenses.RentState.EvictionThreshold)
+        {
+            return "Warning stage: eviction threshold reached.";
+        }
+
+        if (context.UnpaidRentDays >= Slums.Core.Expenses.RentState.FinalWarningDay)
+        {
+            return "Warning stage: final warning.";
+        }
+
+        if (context.UnpaidRentDays >= Slums.Core.Expenses.RentState.FirstWarningDay)
+        {
+            return "Warning stage: first landlord warning.";
+        }
+
+        return "Warning stage: clear.";
+    }
+
+    private static string FormatRelationshipMemory(NpcRelationship relationship)
+    {
+        var signals = new List<string>();
+
+        if (relationship.HasUnpaidDebt)
+        {
+            signals.Add("you owe them");
+        }
+
+        if (relationship.WasHelped)
+        {
+            signals.Add("helped you");
+        }
+
+        if (relationship.WasEmbarrassed)
+        {
+            signals.Add("remembers embarrassment");
+        }
+
+        if (relationship.LastFavorDay > 0)
+        {
+            signals.Add($"favor on day {relationship.LastFavorDay}");
+        }
+
+        if (relationship.LastRefusalDay > 0)
+        {
+            signals.Add($"refused on day {relationship.LastRefusalDay}");
+        }
+
+        if (relationship.RecentContactCount > 0)
+        {
+            signals.Add($"recent contact {relationship.RecentContactCount}");
+        }
+
+        return signals.Count == 0 ? string.Empty : $" | {string.Join(" | ", signals.Take(2))}";
+    }
+
+    private static string GetPressureStatus(int policePressure)
+    {
+        return policePressure switch
+        {
+            >= 85 => "Heat is near arrest level and threatens the long-run endings.",
+            >= 60 => "Heat is materially raising crime risk and can spill into public-facing work.",
+            >= 30 => "Heat is noticeable, but not yet at a crisis point.",
+            _ => "Heat is manageable for now."
+        };
+    }
+
+    private static FactionId GetFactionForDistrict(DistrictId districtId)
+    {
+        return districtId switch
+        {
+            DistrictId.Dokki => FactionId.DokkiThugs,
+            DistrictId.ArdAlLiwa => FactionId.ExPrisonerNetwork,
+            _ => FactionId.ImbabaCrew
+        };
+    }
+
+    private static string GetFactionName(FactionId factionId)
+    {
+        return factionId switch
+        {
+            FactionId.ImbabaCrew => "Imbaba Crew",
+            FactionId.DokkiThugs => "Dokki Thugs",
+            FactionId.ExPrisonerNetwork => "Ex-Prisoner Net",
+            _ => factionId.ToString()
+        };
+    }
+
+    private static int ToPercent(double chance)
+    {
+        return (int)Math.Round(chance * 100, MidpointRounding.AwayFromZero);
     }
 
     private static IEnumerable<NpcId> GetKeyNpcOrder()

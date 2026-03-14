@@ -20,7 +20,7 @@ internal sealed class GameStatusPageQueryTests
 
         var pages = query.GetPages(GameStatusContext.Create(gameState));
 
-        pages.Select(static page => page.Title).Should().ContainInOrder("Survival", "Skills", "Network", "Investments", "Signals", "Progress");
+        pages.Select(static page => page.Title).Should().ContainInOrder("Survival", "Debt", "Skills", "Network", "Heat", "Investments", "Signals", "Progress");
     }
 
     [Test]
@@ -42,6 +42,34 @@ internal sealed class GameStatusPageQueryTests
         skills.Lines.Should().Contain(static line => line.Contains("Persuasion: 4", StringComparison.Ordinal));
         network.Lines.Should().Contain(static line => line.Contains("Imbaba Crew: 22", StringComparison.Ordinal));
         network.Lines.Should().Contain(static line => line.Contains("Umm Karim: trust 14", StringComparison.Ordinal));
+    }
+
+    [Test]
+    public void GetPages_ShouldExposeDebtAndRelationshipMemorySignals()
+    {
+        var query = new GameStatusPageQuery();
+        using var gameState = new GameSession();
+        gameState.RestoreRentState(unpaidRentDays: 5, accumulatedRentDebt: 100, firstWarningGiven: true, finalWarningGiven: true);
+        gameState.Relationships.SetNpcRelationship(NpcId.NurseSalma, 12, 2);
+        gameState.Relationships.SetNpcRelationshipMemory(
+            NpcId.NurseSalma,
+            lastFavorDay: 2,
+            lastRefusalDay: 0,
+            hasUnpaidDebt: true,
+            wasEmbarrassed: false,
+            wasHelped: true,
+            recentContactCount: 2);
+
+        var pages = query.GetPages(GameStatusContext.Create(gameState));
+
+        var debt = pages.Single(static page => page.Title == "Debt");
+        var network = pages.Single(static page => page.Title == "Network");
+
+        debt.Lines.Should().Contain(static line => line.Contains("Accumulated rent debt: 100 LE", StringComparison.Ordinal));
+        debt.Lines.Should().Contain(static line => line.Contains("final warning", StringComparison.OrdinalIgnoreCase));
+        debt.Lines.Should().Contain(static line => line.Contains("Nurse Salma", StringComparison.Ordinal));
+        network.Lines.Should().Contain(static line => line.Contains("you owe them", StringComparison.Ordinal));
+        network.Lines.Should().Contain(static line => line.Contains("helped you", StringComparison.Ordinal));
     }
 
     [Test]
@@ -101,6 +129,25 @@ internal sealed class GameStatusPageQueryTests
     }
 
     [Test]
+    public void GetPages_ShouldExposeHeatPagePressureAndDistrictSignals()
+    {
+        var query = new GameStatusPageQuery();
+        using var gameState = new GameSession();
+        gameState.World.TravelTo(LocationId.Square);
+        gameState.SetPolicePressure(65);
+        gameState.SetCrimeCounters(totalCrimeEarnings: 120, crimesCommitted: 2, lastCrimeDay: 1);
+        gameState.Relationships.SetFactionStanding(FactionId.DokkiThugs, 14);
+        gameState.SetWorkCounters(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
+
+        var pages = query.GetPages(GameStatusContext.Create(gameState));
+
+        var heat = pages.Single(static page => page.Title == "Heat");
+        heat.Lines.Should().Contain(static line => line.Contains("Police pressure: 65/100", StringComparison.Ordinal));
+        heat.Lines.Should().Contain(static line => line.Contains("Dokki Thugs 14", StringComparison.Ordinal));
+        heat.Lines.Should().Contain(static line => line.Contains("extra suspicion", StringComparison.Ordinal));
+    }
+
+    [Test]
     public void GetPages_ShouldExposeInvestmentProgress_OnInvestmentPage()
     {
         var query = new GameStatusPageQuery();
@@ -117,5 +164,6 @@ internal sealed class GameStatusPageQueryTests
         investments.Lines.Should().Contain(static line => line.Contains("Active investments: 1", StringComparison.Ordinal));
         investments.Lines.Should().Contain(static line => line.Contains("Total investment earnings: 19 LE", StringComparison.Ordinal));
         investments.Lines.Should().Contain(static line => line.Contains("Foul Cart Partnership", StringComparison.Ordinal));
+        investments.Lines.Should().Contain(static line => line.Contains("fail 1%", StringComparison.Ordinal));
     }
 }

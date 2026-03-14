@@ -13,8 +13,20 @@ The clinic walls are peeling, but the doctor's hands are clean. Your mother sits
 A neighbour lowers her voice and says plainclothes men were asking for names two alleys over, pretending not to be police badly enough to insult everyone.
 -> DONE
 
+=== event_home_water_cut_collection ===
+The water cuts out before noon and the whole building turns into a chain of borrowed buckets, muttered apologies, and stair-climbing labor. Every household is short on something, so help arrives mixed with irritation and the shame of needing it.
+-> DONE
+
+=== event_bakery_flour_shortage ===
+At the forn, the missing sacks become everyone's problem at once. Men argue over deliveries, trays move half-full, and the owner starts counting losses before the bread has even cooled.
+-> DONE
+
 === event_clinic_overflow ===
 By noon the plastic chairs have filled, then the hallway, then the patch of shade by the clinic door. Nobody here has enough money or enough time, so everyone spends both badly.
+-> DONE
+
+=== event_call_center_script_change ===
+The supervisor tapes a revised script to the wall as if that makes it reasonable. By the third angry caller, you can feel the room learning how quickly management mistakes confusion for disobedience.
 -> DONE
 
 === event_workshop_rush_order ===
@@ -71,4 +83,12 @@ That night your mother looks at the money longer than she looks at you. She does
 
 === event_neighbor_watch ===
 Later, Mona leaves the warning in the shape of ordinary kindness: a delayed knock, a casual question, a reason for you not to be in the stairwell when strangers come asking who lives where. In Cairo, protection often arrives disguised as routine.
+-> DONE
+
+=== event_rent_final_warning ===
+When Hajj Mahmoud finally speaks plainly, humiliation becomes logistical. Two days. Two days before your things are exposed to the stairwell and everyone pretends not to watch. Cairo can make a woman desperate without ever raising its voice.
+-> DONE
+
+=== event_investment_suspension ===
+The message reaches you through three mouths before it reaches you as fact: the venture is not dead, only stalled, squeezed, and waiting for the city to look elsewhere for a week. In Cairo, that kind of pause can still feel like panic.
 -> DONE

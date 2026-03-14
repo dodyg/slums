@@ -170,4 +170,36 @@ internal sealed class JobServiceTests
         progress.GetTrack(JobType.CallCenterWork).LockoutUntilDay.Should().Be(3);
         progress.GetTrack(JobType.CallCenterWork).Reliability.Should().BeLessThan(50);
     }
+
+    [Test]
+    public void PerformJob_ShouldAvoidMistakePenalty_WhenCallCenterStressStaysBelowThreshold()
+    {
+        var service = new JobService();
+        var player = new PlayerCharacter();
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.CallCenter);
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+        player.Stats.SetStress(59);
+
+        var result = service.PerformJob(JobRegistry.CallCenterWork, player, location, relationships, progress, currentDay: 1, new Random(7));
+
+        result.MistakeMade.Should().BeFalse();
+        progress.GetTrack(JobType.CallCenterWork).LockoutUntilDay.Should().Be(0);
+        progress.GetTrack(JobType.CallCenterWork).Reliability.Should().BeGreaterThan(50);
+    }
+
+    [Test]
+    public void PreviewJob_ShouldSurfaceBakeryUnlockThresholds()
+    {
+        var service = new JobService();
+        var player = new PlayerCharacter();
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+        progress.RestoreTrack(JobType.BakeryWork, reliability: 55, shiftsCompleted: 2, lockoutUntilDay: 0);
+
+        var preview = service.PreviewJob(JobType.BakeryWork, player, relationships, progress);
+
+        preview.Job.Name.Should().Be("Bakery Oven Shift");
+        preview.NextUnlockHint.Should().Contain("reliability 75");
+    }
 }

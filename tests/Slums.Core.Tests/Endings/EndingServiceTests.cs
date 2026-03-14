@@ -113,6 +113,15 @@ internal sealed class EndingServiceTests
     }
 
     [Test]
+    public async Task GetInkKnot_ShouldUseBackgroundSpecificVariant_ForLuxorEnding()
+    {
+        using var state = new GameSession();
+        state.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+
+        await Assert.That(EndingService.GetInkKnot(state, EndingId.QuitTheLuxorDream)).IsEqualTo("ending_luxor_medical");
+    }
+
+    [Test]
     public async Task GetInkKnot_ShouldUseStrongestSupportContact_ForNetworkShelter()
     {
         using var state = new GameSession();

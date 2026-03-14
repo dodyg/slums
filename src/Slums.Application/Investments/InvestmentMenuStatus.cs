@@ -8,4 +8,7 @@ public sealed record InvestmentMenuStatus(
     IReadOnlyList<string> BlockingReasons,
     string OpportunitySource,
     string WeeklyReturnSummary,
-    string UnlockSummary);
+    string UnlockSummary,
+    IReadOnlyList<string> RiskBreakdown,
+    string? OwnedStateSummary,
+    IReadOnlyList<string> CurrentStateNotes);

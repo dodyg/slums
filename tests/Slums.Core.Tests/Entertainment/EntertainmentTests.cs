@@ -15,6 +15,16 @@ internal sealed class EntertainmentTests
     }
 
     [Test]
+    public async Task EntertainmentRegistry_ShouldKeepLowCostReliefOptionsAffordable()
+    {
+        var coffee = EntertainmentRegistry.AllActivities.Single(a => a.Type == EntertainmentActivityType.Coffee);
+        var socialHangout = EntertainmentRegistry.AllActivities.Single(a => a.Type == EntertainmentActivityType.SocialHangout);
+
+        await Assert.That(coffee.BaseCost).IsEqualTo(8);
+        await Assert.That(socialHangout.StressReduction).IsEqualTo(12);
+    }
+
+    [Test]
     public async Task EntertainmentRegistry_ShouldFilterByCafe()
     {
         var activities = EntertainmentRegistry.GetActivitiesForLocation(hasCafe: true, hasBar: false, hasBilliards: false).ToList();

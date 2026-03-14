@@ -126,6 +126,7 @@ public static class EndingService
             EndingId.StabilityHonestWork => GetStabilityKnot(gameState.Player.BackgroundType),
             EndingId.NetworkShelter => GetNetworkShelterKnot(gameState),
             EndingId.LeavingCrime => GetLeavingCrimeKnot(gameState.Player.BackgroundType),
+            EndingId.QuitTheLuxorDream => EndingKnotCatalog.GetLuxorKnot(gameState.Player.BackgroundType),
             _ => GetInkKnot(endingId)
         };
     }

@@ -30,6 +30,9 @@ internal sealed class WorkMenuStatusQueryTests
         statuses[0].CanPerform.Should().BeTrue();
         statuses[0].VariantReason.Should().Contain("Nurse Salma trust 10");
         statuses[0].NextUnlockHint.Should().Contain("Clinic Triage Support");
+        statuses[0].AvailabilitySignals.Should().Contain(static text => text.Contains("Open now", StringComparison.Ordinal));
+        statuses[0].AvailabilitySignals.Should().Contain(static text => text.Contains("Improvement target", StringComparison.Ordinal));
+        statuses[0].ReliabilitySummary.Should().Contain("Current track: 58/100");
     }
 
     [Test]
@@ -46,6 +49,7 @@ internal sealed class WorkMenuStatusQueryTests
         statuses[0].CanPerform.Should().BeFalse();
         statuses[0].LockoutUntilDay.Should().Be(3);
         statuses[0].AvailabilityReason.Should().Contain("shut out");
+        statuses[0].AvailabilitySignals.Should().Contain(static text => text.Contains("employer shutout", StringComparison.Ordinal));
     }
 
     [Test]
@@ -62,6 +66,7 @@ internal sealed class WorkMenuStatusQueryTests
         statuses.Should().ContainSingle();
         statuses[0].ActiveModifiers.Should().ContainSingle(static text => text.Contains("reduces energy cost by 5", StringComparison.Ordinal));
         statuses[0].RiskWarning.Should().Contain("low energy");
+        statuses[0].AvailabilitySignals.Should().Contain(static text => text.Contains("Mistakes cut pay", StringComparison.Ordinal));
     }
 
     [Test]

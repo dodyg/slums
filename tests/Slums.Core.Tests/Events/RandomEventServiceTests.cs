@@ -46,7 +46,10 @@ internal sealed class RandomEventServiceTests
     {
         var eventIds = RandomEventRegistry.AllEvents.Select(static randomEvent => randomEvent.Id);
 
+        eventIds.Should().Contain("HomeWaterCutCollection");
+        eventIds.Should().Contain("BakeryFlourShortage");
         eventIds.Should().Contain("ClinicOverflow");
+        eventIds.Should().Contain("CallCenterScriptChange");
         eventIds.Should().Contain("WorkshopRushOrder");
         eventIds.Should().Contain("CafeSpill");
         eventIds.Should().Contain("NeighborhoodSolidarity");
@@ -86,6 +89,38 @@ internal sealed class RandomEventServiceTests
         var events = service.RollDailyEvents(state, new Random(4));
 
         RandomEventRegistry.AllEvents.Single(static current => current.Id == "BulaqMedicineQueue").Condition!(state).Should().BeTrue();
+        events.Should().NotBeNull();
+    }
+
+    [Test]
+    public void Registry_ShouldKeepBroaderDistrictEventsBalanced()
+    {
+        var checkpoint = RandomEventRegistry.AllEvents.Single(static current => current.Id == "DokkiCheckpointSweep");
+        var solidarity = RandomEventRegistry.AllEvents.Single(static current => current.Id == "NeighborhoodSolidarity");
+        var unexpectedWork = RandomEventRegistry.AllEvents.Single(static current => current.Id == "UnexpectedWork");
+        var homeWaterCut = RandomEventRegistry.AllEvents.Single(static current => current.Id == "HomeWaterCutCollection");
+        var bakeryFlourShortage = RandomEventRegistry.AllEvents.Single(static current => current.Id == "BakeryFlourShortage");
+        var callCenterScriptChange = RandomEventRegistry.AllEvents.Single(static current => current.Id == "CallCenterScriptChange");
+
+        checkpoint.Weight.Should().Be(8);
+        solidarity.Weight.Should().Be(9);
+        unexpectedWork.Effect.MoneyChange.Should().Be(22);
+        homeWaterCut.Effect.EnergyChange.Should().Be(-4);
+        bakeryFlourShortage.Effect.MoneyChange.Should().Be(8);
+        callCenterScriptChange.Effect.StressChange.Should().Be(6);
+    }
+
+    [Test]
+    public void RollDailyEvents_ShouldAllowBakeryFlourShortage_WhenAtBakery()
+    {
+        var service = new RandomEventService();
+        using var state = new GameSession();
+        state.Clock.SetTime(5, 6, 0);
+        state.World.TravelTo(Slums.Core.World.LocationId.Bakery);
+
+        var events = service.RollDailyEvents(state, new Random(8));
+
+        RandomEventRegistry.AllEvents.Single(static current => current.Id == "BakeryFlourShortage").Condition!(state).Should().BeTrue();
         events.Should().NotBeNull();
     }
 }

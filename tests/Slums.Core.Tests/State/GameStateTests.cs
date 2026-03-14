@@ -674,6 +674,18 @@ internal sealed class GameStateTests
     }
 
     [Test]
+    public async Task EndDay_ShouldQueueRentFinalWarningScene_WhenFinalWarningHits()
+    {
+        using var state = new GameSession();
+        state.RestoreRentState(unpaidRentDays: 4, accumulatedRentDebt: 80, firstWarningGiven: true, finalWarningGiven: false);
+        state.Player.Stats.SetMoney(0);
+
+        state.EndDay(new Random(1));
+
+        await Assert.That(HasPendingNarrativeScene(state, "event_rent_final_warning")).IsTrue();
+    }
+
+    [Test]
     public async Task IsGameOver_ShouldBeTrueWhenHealthIsZero()
     {
         using var state = new GameSession();
@@ -1134,6 +1146,22 @@ internal sealed class GameStateTests
 
         await Assert.That(result.Success).IsTrue();
         await Assert.That(state.Player.Stats.Energy).IsLessThan(initialEnergy);
+    }
+
+    [Test]
+    public async Task ResolveWeeklyInvestments_ShouldQueueSuspensionScene_WhenExtortionCannotBePaid()
+    {
+        using var state = new GameSession();
+        state.Player.Stats.SetMoney(0);
+        state.RestoreInvestmentState(
+        [
+            new Slums.Core.Investments.InvestmentSnapshot(Slums.Core.Investments.InvestmentType.Kiosk, 250, 10, 15, 1, false)
+        ],
+        totalInvestmentEarnings: 0);
+
+        state.ResolveWeeklyInvestments(new Slums.Core.Tests.Investments.SequenceRandom(doubleValues: [0.99, 0.0], intValues: [12]));
+
+        await Assert.That(HasPendingNarrativeScene(state, "event_investment_suspension")).IsTrue();
     }
 
     private static GameSession CreateCrimeState(LocationId locationId)

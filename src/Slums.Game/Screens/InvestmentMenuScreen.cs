@@ -161,6 +161,14 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
         Surface.Print(DetailX, y++, $"Weekly return: {selected.WeeklyReturnSummary}", Color.Green);
         Surface.Print(DetailX, y++, $"Risk: {selected.Definition.RiskLabel}", GetRiskColor(selected.Definition.RiskLabel));
 
+        foreach (var entry in selected.RiskBreakdown)
+        {
+            foreach (var line in WrapText(entry, detailWidth))
+            {
+                Surface.Print(DetailX, y++, line, Color.Gray);
+            }
+        }
+
         y++;
         foreach (var line in WrapText(selected.OpportunitySource, detailWidth))
         {
@@ -172,6 +180,33 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
         foreach (var line in WrapText(selected.UnlockSummary, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.Gray);
+        }
+
+        if (!string.IsNullOrWhiteSpace(selected.OwnedStateSummary))
+        {
+            y++;
+            Surface.Print(DetailX, y++, "Current stake:", Color.Cyan);
+            foreach (var line in WrapText(selected.OwnedStateSummary, detailWidth))
+            {
+                Surface.Print(DetailX, y++, line, selected.CanInvest ? Color.LightGray : Color.Orange);
+            }
+        }
+
+        if (selected.CurrentStateNotes.Count > 0)
+        {
+            y++;
+            Surface.Print(DetailX, y++, "Risk behavior:", Color.Cyan);
+            foreach (var note in selected.CurrentStateNotes)
+            {
+                foreach (var line in WrapText($"- {note}", detailWidth))
+                {
+                    Surface.Print(DetailX, y++, line, Color.LightGray);
+                    if (y >= Surface.Height - 3)
+                    {
+                        return;
+                    }
+                }
+            }
         }
 
         if (!selected.CanInvest)

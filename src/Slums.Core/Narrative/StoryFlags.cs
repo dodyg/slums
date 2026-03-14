@@ -11,6 +11,8 @@ public static class StoryFlags
     public const string BackgroundMedicalClinicSeen = "background_medical_clinic_seen";
     public const string EventMotherWrongMoneySeen = "event_mother_wrong_money_seen";
     public const string EventNeighborWatchSeen = "event_neighbor_watch_seen";
+    public const string EventRentFinalWarningSeen = "event_rent_final_warning_seen";
+    public const string EventInvestmentSuspensionSeen = "event_investment_suspension_seen";
     public const string BackgroundPrisonerHeatSeen = "background_prisoner_heat_seen";
     public const string BackgroundSudaneseSolidaritySeen = "background_sudanese_solidarity_seen";
 

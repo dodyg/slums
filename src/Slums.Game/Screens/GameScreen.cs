@@ -106,8 +106,15 @@ internal sealed class GameScreen : ScreenSurface
         Surface.Print(0, 4, $"Police Pressure: {statusContext.PolicePressure}", statusContext.PolicePressure >= 80 ? Color.Red : Color.Orange);
 
         // Money is displayed as a plain figure; the bar is only meaningful for 0-100 bounded stats
-        var rentColor = statusContext.Player.Stats.Money < statusContext.RentCost ? Color.Red : Color.Gray;
-        Surface.Print(0, Surface.Height - 20 + GetStatLine("Rent"), $"Rent: {statusContext.RentCost} LE (due end of day)", rentColor);
+        var rentColor = statusContext.UnpaidRentDays >= 5
+            ? Color.Red
+            : statusContext.UnpaidRentDays > 0 || statusContext.Player.Stats.Money < statusContext.RentCost
+                ? Color.Orange
+                : Color.Gray;
+        var rentText = statusContext.UnpaidRentDays > 0
+            ? $"Rent: {statusContext.RentCost} LE/day | Debt {statusContext.AccumulatedRentDebt} LE | {statusContext.UnpaidRentDays} unpaid"
+            : $"Rent: {statusContext.RentCost} LE (due end of day)";
+        Surface.Print(0, Surface.Height - 20 + GetStatLine("Rent"), rentText, rentColor);
         Surface.Print(0, Surface.Height - 20 + GetStatLine("Money"), $"Money: {statusContext.Player.Stats.Money} LE", Color.Gold);
         RenderStat("Hunger", statusContext.Player.Stats.Hunger, 100, GetStatColor(statusContext.Player.Stats.Hunger));
         RenderStat("Energy", statusContext.Player.Stats.Energy, 100, GetStatColor(statusContext.Player.Stats.Energy));

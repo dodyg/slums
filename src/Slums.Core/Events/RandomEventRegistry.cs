@@ -16,14 +16,14 @@ public static class RandomEventRegistry
         new(
             "NeighborhoodRumor",
             "Rumors spread that the police are asking questions in the neighborhood.",
-            new RandomEventEffect { StressChange = 10, InkKnot = "event_neighborhood_rumor" },
+            new RandomEventEffect { StressChange = 8, InkKnot = "event_neighborhood_rumor" },
             3,
             12,
             static state => state.PolicePressure >= 60),
         new(
             "UnexpectedWork",
             "A neighbor offers a quick errand for cash.",
-            new RandomEventEffect { MoneyChange = 20 },
+            new RandomEventEffect { MoneyChange = 22 },
             4,
             6,
             static state => state.World.CurrentLocationId == LocationId.Home),
@@ -42,12 +42,33 @@ public static class RandomEventRegistry
             7,
             static state => state.World.CurrentLocationId == LocationId.Market),
         new(
+            "HomeWaterCutCollection",
+            "The building's water cuts out and everyone starts bargaining over buckets, stairs, and borrowed patience.",
+            new RandomEventEffect { EnergyChange = -4, StressChange = 3, InkKnot = "event_home_water_cut_collection" },
+            4,
+            7,
+            static state => state.World.CurrentLocationId == LocationId.Home && state.Player.Stats.Money < 60),
+        new(
+            "BakeryFlourShortage",
+            "The forn runs short on flour and every tray becomes an argument about whose shift is supposed to absorb the shortage.",
+            new RandomEventEffect { MoneyChange = 8, StressChange = 4, InkKnot = "event_bakery_flour_shortage" },
+            4,
+            6,
+            static state => state.World.CurrentLocationId == LocationId.Bakery),
+        new(
             "ClinicOverflow",
             "Rahma Clinic is overflowing and someone slips you a little cash to stay late.",
             new RandomEventEffect { MoneyChange = 18, StressChange = 4, InkKnot = "event_clinic_overflow" },
             4,
             7,
             static state => state.World.CurrentLocationId == LocationId.Clinic),
+        new(
+            "CallCenterScriptChange",
+            "A script change hits the call floor without warning and every caller pretends your confusion is a personal insult.",
+            new RandomEventEffect { MoneyChange = 6, StressChange = 6, InkKnot = "event_call_center_script_change" },
+            5,
+            6,
+            static state => state.World.CurrentLocationId == LocationId.CallCenter),
         new(
             "WorkshopRushOrder",
             "A rush garment order leaves the workshop stifling and relentless.",
@@ -67,14 +88,14 @@ public static class RandomEventRegistry
             "Women in the stairwell quietly route food, warnings, and spare change where they are needed most.",
             new RandomEventEffect { FoodChange = 1, StressChange = -4, InkKnot = "event_neighborhood_solidarity" },
             5,
-            8,
+            9,
             static state => state.World.CurrentDistrict == DistrictId.Imbaba && state.Player.Stats.Stress >= 35),
         new(
             "DokkiCheckpointSweep",
             "A checkpoint sweep in Dokki turns every crossing into a test of tone, paperwork, and luck.",
             new RandomEventEffect { StressChange = 7, PolicePressureChange = 6, InkKnot = "event_dokki_checkpoint_sweep" },
             5,
-            9,
+            8,
             static state => state.World.CurrentDistrict == DistrictId.Dokki && state.PolicePressure >= 35),
         new(
             "DokkiTransportFriction",
@@ -95,7 +116,7 @@ public static class RandomEventRegistry
             "Someone in Ard al-Liwa passes work down the line instead of hoarding it for herself.",
             new RandomEventEffect { MoneyChange = 16, StressChange = -3, InkKnot = "event_ardalliwa_solidarity" },
             5,
-            8,
+            9,
             static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa && state.Player.Stats.Money < 120),
         new(
             "BulaqMedicineQueue",
@@ -123,7 +144,7 @@ public static class RandomEventRegistry
             "In Shubra, a building committee quietly routes leftovers, repair tips, and warnings to the women carrying too much.",
             new RandomEventEffect { FoodChange = 1, StressChange = -3, InkKnot = "event_shubra_block_solidarity" },
             5,
-            7,
+            8,
             static state => state.World.CurrentDistrict == DistrictId.Shubra && state.Player.Stats.Money < 120)
     ];
 

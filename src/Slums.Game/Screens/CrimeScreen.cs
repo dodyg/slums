@@ -199,6 +199,40 @@ internal sealed class CrimeScreen : ScreenSurface
             Surface.Print(DetailX, y++, line, selected.IsAvailable ? Color.Green : Color.Orange);
         }
 
+        if (selected.AccessSignals.Count > 0 && y < Surface.Height - 4)
+        {
+            y++;
+            Surface.Print(DetailX, y++, "Access signals:", Color.Cyan);
+            foreach (var signal in selected.AccessSignals)
+            {
+                foreach (var line in WrapText($"- {signal}", detailWidth))
+                {
+                    Surface.Print(DetailX, y++, line, Color.LightGray);
+                    if (y >= Surface.Height - 3)
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+
+        if (selected.RiskNotes.Count > 0 && y < Surface.Height - 4)
+        {
+            y++;
+            Surface.Print(DetailX, y++, "Risk notes:", Color.Cyan);
+            foreach (var note in selected.RiskNotes)
+            {
+                foreach (var line in WrapText($"- {note}", detailWidth))
+                {
+                    Surface.Print(DetailX, y++, line, Color.Gray);
+                    if (y >= Surface.Height - 3)
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+
         if (selected.ActiveModifiers.Count > 0)
         {
             y++;

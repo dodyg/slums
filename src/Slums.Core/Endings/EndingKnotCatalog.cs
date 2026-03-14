@@ -21,6 +21,10 @@ public static class EndingKnotCatalog
     public const string StabilityPrisoner = "ending_stability_prisoner";
     public const string StabilitySudanese = "ending_stability_sudanese";
 
+    public const string LuxorMedical = "ending_luxor_medical";
+    public const string LuxorPrisoner = "ending_luxor_prisoner";
+    public const string LuxorSudanese = "ending_luxor_sudanese";
+
     public const string LeavingCrimeMedical = "ending_leaving_crime_medical";
     public const string LeavingCrimePrisoner = "ending_leaving_crime_prisoner";
     public const string LeavingCrimeSudanese = "ending_leaving_crime_sudanese";
@@ -68,6 +72,17 @@ public static class EndingKnotCatalog
             BackgroundType.ReleasedPoliticalPrisoner => LeavingCrimePrisoner,
             BackgroundType.SudaneseRefugee => LeavingCrimeSudanese,
             _ => LeavingCrime
+        };
+    }
+
+    public static string GetLuxorKnot(BackgroundType backgroundType)
+    {
+        return backgroundType switch
+        {
+            BackgroundType.MedicalSchoolDropout => LuxorMedical,
+            BackgroundType.ReleasedPoliticalPrisoner => LuxorPrisoner,
+            BackgroundType.SudaneseRefugee => LuxorSudanese,
+            _ => QuitTheLuxorDream
         };
     }
 

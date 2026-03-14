@@ -14,7 +14,7 @@
     "MinDay": 3,
     "Weight": 12,
     "ConditionId": "high_police_pressure",
-    "StressChange": 10,
+    "StressChange": 8,
     "InkKnot": "event_neighborhood_rumor"
   },
   {
@@ -23,13 +23,13 @@
     "MinDay": 4,
     "Weight": 6,
     "ConditionId": "at_home",
-    "MoneyChange": 20
+    "MoneyChange": 22
   },
   {
     "Id": "PowerCut",
     "Description": "The power cuts out again, leaving everyone tired and irritable.",
     "MinDay": 3,
-    "Weight": 8,
+    "Weight": 9,
     "ConditionId": "in_imbaba",
     "EnergyChange": -10
   },
@@ -42,6 +42,26 @@
     "FoodChange": 1
   },
   {
+    "Id": "HomeWaterCutCollection",
+    "Description": "The building's water cuts out and everyone starts bargaining over buckets, stairs, and borrowed patience.",
+    "MinDay": 4,
+    "Weight": 7,
+    "ConditionId": "home_low_money",
+    "EnergyChange": -4,
+    "StressChange": 3,
+    "InkKnot": "event_home_water_cut_collection"
+  },
+  {
+    "Id": "BakeryFlourShortage",
+    "Description": "The forn runs short on flour and every tray becomes an argument about whose shift is supposed to absorb the shortage.",
+    "MinDay": 4,
+    "Weight": 6,
+    "ConditionId": "at_bakery",
+    "MoneyChange": 8,
+    "StressChange": 4,
+    "InkKnot": "event_bakery_flour_shortage"
+  },
+  {
     "Id": "ClinicOverflow",
     "Description": "Rahma Clinic is overflowing and someone slips you a little cash to stay late.",
     "MinDay": 4,
@@ -50,6 +70,16 @@
     "MoneyChange": 18,
     "StressChange": 4,
     "InkKnot": "event_clinic_overflow"
+  },
+  {
+    "Id": "CallCenterScriptChange",
+    "Description": "A script change hits the call floor without warning and every caller pretends your confusion is a personal insult.",
+    "MinDay": 5,
+    "Weight": 6,
+    "ConditionId": "at_call_center",
+    "MoneyChange": 6,
+    "StressChange": 6,
+    "InkKnot": "event_call_center_script_change"
   },
   {
     "Id": "WorkshopRushOrder",
@@ -86,7 +116,7 @@
     "Id": "DokkiCheckpointSweep",
     "Description": "A checkpoint sweep in Dokki turns every crossing into a test of tone, paperwork, and luck.",
     "MinDay": 5,
-    "Weight": 9,
+    "Weight": 8,
     "ConditionId": "in_dokki",
     "StressChange": 7,
     "PolicePressureChange": 6,
@@ -116,7 +146,7 @@
     "Id": "ArdAlLiwaWorkshopSolidarity",
     "Description": "Someone in Ard al-Liwa passes work down the line instead of hoarding it for herself.",
     "MinDay": 5,
-    "Weight": 8,
+    "Weight": 9,
     "ConditionId": "ard_al_liwa_low_money",
     "MoneyChange": 16,
     "StressChange": -3,
@@ -136,7 +166,7 @@
     "Id": "DepotFareShakeup",
     "Description": "At the microbus depot, fares change mid-argument and nobody agrees on who is supposed to absorb the loss.",
     "MinDay": 5,
-    "Weight": 7,
+    "Weight": 8,
     "ConditionId": "at_depot",
     "MoneyChange": 10,
     "StressChange": 5,

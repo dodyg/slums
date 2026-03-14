@@ -43,4 +43,19 @@ internal sealed class InvestmentResolutionCalculatorTests
         calculation.Resolution.PolicePressureIncrease.Should().Be(2);
         calculation.Resolution.Message.Contains("Operation suspended", StringComparison.OrdinalIgnoreCase).Should().BeTrue();
     }
+
+    [Test]
+    public void RegistryRiskProfiles_ShouldMatchBalanceTargets()
+    {
+        var foulCart = InvestmentRegistry.GetByType(InvestmentType.FoulCart)!.RiskProfile;
+        var kiosk = InvestmentRegistry.GetByType(InvestmentType.Kiosk)!.RiskProfile;
+        var courier = InvestmentRegistry.GetByType(InvestmentType.HashishCourier)!.RiskProfile;
+
+        foulCart.WeeklyFailureChance.Should().Be(0.01);
+        foulCart.BetrayalChance.Should().Be(0.02);
+        kiosk.ExtortionChance.Should().Be(0.04);
+        kiosk.PoliceHeatChance.Should().Be(0.03);
+        courier.WeeklyFailureChance.Should().Be(0.08);
+        courier.PoliceHeatChance.Should().Be(0.12);
+    }
 }

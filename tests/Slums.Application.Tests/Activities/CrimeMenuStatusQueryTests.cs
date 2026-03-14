@@ -27,6 +27,8 @@ internal sealed class CrimeMenuStatusQueryTests
         fencing.BlockReason.Should().Contain("Hanan trust 10");
         fencing.EffectiveDetectionRisk.Should().BeGreaterThan(0);
         fencing.EffectivePressureIfDetected.Should().BeGreaterThan(fencing.EffectivePressureIfUndetected);
+        fencing.AccessSignals.Should().Contain(static text => text.Contains("Hanan trust: 0/10", StringComparison.Ordinal));
+        fencing.RiskNotes.Should().Contain(static text => text.Contains("Base route profile", StringComparison.Ordinal));
     }
 
     [Test]
@@ -42,6 +44,7 @@ internal sealed class CrimeMenuStatusQueryTests
         var dokkiDrop = statuses.Single(static status => status.Attempt.Type == CrimeType.DokkiDrop);
         dokkiDrop.IsAvailable.Should().BeTrue();
         dokkiDrop.StatusText.Should().Contain("reliable day work");
+        dokkiDrop.AccessSignals.Should().Contain(static text => text.Contains("call center 60/60", StringComparison.Ordinal));
     }
 
     [Test]
@@ -109,6 +112,8 @@ internal sealed class CrimeMenuStatusQueryTests
         pettyTheft.ActiveModifiers.Should().Contain(static text => text.Contains("political prisoner", StringComparison.OrdinalIgnoreCase));
         pettyTheft.EffectiveDetectionRisk.Should().BeGreaterThanOrEqualTo(5);
         pettyTheft.EffectiveSuccessChance.Should().BeGreaterThanOrEqualTo(10);
+        pettyTheft.RiskNotes.Should().Contain(static text => text.Contains("Current police pressure (70)", StringComparison.Ordinal));
+        pettyTheft.RiskNotes.Should().Contain(static text => text.Contains("Modifier sources", StringComparison.Ordinal));
     }
 
     [Test]

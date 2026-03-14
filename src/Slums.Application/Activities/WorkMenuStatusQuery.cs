@@ -32,9 +32,54 @@ public sealed class WorkMenuStatusQuery
                     option.Preview.NextUnlockHint,
                     option.Preview.ActiveModifiers,
                     option.Preview.RiskWarning,
-                    GetNarrativeSignals(context, option.Preview.Job));
+                    GetNarrativeSignals(context, option.Preview.Job),
+                    GetAvailabilitySignals(option, lockoutUntilDay),
+                    GetReliabilitySummary(option));
             })
             .ToArray();
+    }
+
+    private static List<string> GetAvailabilitySignals(WorkMenuOptionContext option, int? lockoutUntilDay)
+    {
+        var signals = new List<string>();
+
+        if (lockoutUntilDay is not null)
+        {
+            signals.Add($"A recent mistake triggered an employer shutout until day {lockoutUntilDay + 1}.");
+        }
+        else if (option.CanPerform)
+        {
+            signals.Add("Open now. A clean shift raises reliability and keeps better variants within reach.");
+        }
+        else if (!string.IsNullOrWhiteSpace(option.AvailabilityReason))
+        {
+            signals.Add(option.AvailabilityReason);
+        }
+
+        if (!string.IsNullOrWhiteSpace(option.Preview.NextUnlockHint))
+        {
+            signals.Add($"Improvement target: {option.Preview.NextUnlockHint}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(option.Preview.RiskWarning))
+        {
+            signals.Add("Mistakes cut pay, damage reliability, and can trigger a temporary shutout.");
+        }
+
+        return signals;
+    }
+
+    private static string GetReliabilitySummary(WorkMenuOptionContext option)
+    {
+        var baseSummary = option.Track.Reliability switch
+        {
+            < 45 => "Reliability is shaky. Employers are quick to blame you and better variants stay out of reach.",
+            < 60 => "Reliability is recovering. Steady shifts will start opening stronger variants.",
+            < 75 => "Reliability is solid. You are close to the better-trusted versions of this job.",
+            _ => "Reliability is strong. This track is already trusted enough for the higher-end variants."
+        };
+
+        return $"{baseSummary} Current track: {option.Track.Reliability}/100 after {option.Track.ShiftsCompleted} shifts.";
     }
 
     private static List<string> GetNarrativeSignals(WorkMenuContext context, JobShift job)

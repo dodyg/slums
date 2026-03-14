@@ -193,6 +193,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             else if (rentResult.WarningType == RentWarningType.Final)
             {
                 RaiseEvent("The landlord himself appears. \"Five days. Two more and we put your things on the street.\"");
+                TryQueueNarrativeTrigger(new NarrativeSceneTrigger(NarrativeStoryFlags.EventRentFinalWarningSeen, NarrativeKnots.EventRentFinalWarning));
             }
         }
 
@@ -1572,6 +1573,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             if (calculation.ShouldSuspend)
             {
                 investment.Suspend();
+                TryQueueNarrativeTrigger(new NarrativeSceneTrigger(NarrativeStoryFlags.EventInvestmentSuspensionSeen, NarrativeKnots.EventInvestmentSuspension));
             }
 
             var result = calculation.Resolution;

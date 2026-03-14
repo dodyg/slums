@@ -46,4 +46,18 @@ internal sealed class CrimeServiceTests
 
         detections.Should().BeGreaterThan(140);
     }
+
+    [Test]
+    public void PreviewCrime_ShouldReflectStreetSmartsAndPressureThresholds()
+    {
+        var service = new CrimeService();
+        var player = new PlayerCharacter();
+        player.Skills.SetLevel(Slums.Core.Skills.SkillId.StreetSmarts, 3);
+        var attempt = new CrimeAttempt(CrimeType.PettyTheft, 25, 20, 10, 0, 10);
+
+        var preview = service.PreviewCrime(attempt, player, policePressure: 60);
+
+        preview.DetectionChance.Should().Be(40);
+        preview.SuccessChance.Should().Be(60);
+    }
 }

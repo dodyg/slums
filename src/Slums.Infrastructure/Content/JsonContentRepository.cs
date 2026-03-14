@@ -99,9 +99,11 @@ public sealed class JsonContentRepository : IContentRepository
             "at_home" => static state => state.World.CurrentLocationId == LocationId.Home,
             "in_imbaba" => static state => state.World.CurrentDistrict == DistrictId.Imbaba,
             "at_market" => static state => state.World.CurrentLocationId == LocationId.Market,
+            "at_bakery" => static state => state.World.CurrentLocationId == LocationId.Bakery,
             "at_clinic" => static state => state.World.CurrentLocationId == LocationId.Clinic,
             "at_workshop" => static state => state.World.CurrentLocationId == LocationId.Workshop,
             "at_cafe" => static state => state.World.CurrentLocationId == LocationId.Cafe,
+            "at_call_center" => static state => state.World.CurrentLocationId == LocationId.CallCenter,
             "at_pharmacy" => static state => state.World.CurrentLocationId == LocationId.Pharmacy,
             "at_depot" => static state => state.World.CurrentLocationId == LocationId.Depot,
             "at_laundry" => static state => state.World.CurrentLocationId == LocationId.Laundry,
@@ -113,6 +115,7 @@ public sealed class JsonContentRepository : IContentRepository
             "imbaba_stressed" => static state => state.World.CurrentDistrict == DistrictId.Imbaba && state.Player.Stats.Stress >= 35,
             "ard_al_liwa_low_money" => static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa && state.Player.Stats.Money < 120,
             "shubra_low_money" => static state => state.World.CurrentDistrict == DistrictId.Shubra && state.Player.Stats.Money < 120,
+            "home_low_money" => static state => state.World.CurrentLocationId == LocationId.Home && state.Player.Stats.Money < 60,
             "sudanese_refugee_home" => static state => state.Player.BackgroundType == BackgroundType.SudaneseRefugee && state.World.CurrentDistrict == DistrictId.Imbaba,
             _ => throw new ContentLoadException($"Unknown random event condition id '{conditionId}'.")
         };
