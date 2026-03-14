@@ -32,13 +32,15 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - conversation pool system with 100+ unique dialogues per NPC context to prevent repeats for 100 days
 - district-specific random events with event-history-aware gating
 - save/load built around `GameSession` snapshots plus `LoadedGameSession` handoff
+- player-facing screen actions routed through application commands and menu/action queries
+- fail-fast bootstrap for repository-owned JSON content instead of silent fallback to default registries
 - multiple ending paths based on long-term behavior, pressure, and survival trajectory
 
 ## Architecture Guardrails
 
 - `Slums.Core` owns simulation rules and the EntitiesDb-backed `GameSession` runtime boundary. It must not depend on SadConsole, Ink, or file IO.
-- `Slums.Application` owns contracts and orchestration, including the `LoadedGameSession` persistence handoff. It must not depend on SadConsole.
-- `Slums.Infrastructure` owns `GameSession` snapshot persistence, static content loading, and environment-specific adapters.
+- `Slums.Application` owns contracts and orchestration, including the `LoadedGameSession` persistence handoff plus player-facing action commands and menu/action queries. It must not depend on SadConsole.
+- `Slums.Infrastructure` owns `GameSession` snapshot persistence, static content loading, and environment-specific adapters. Repo-owned JSON content should fail fast when it is missing or invalid.
 - `Slums.Narrative.Ink` owns Ink loading, variable sync, and narrative outcome mapping. Missing or invalid story content should fail fast rather than falling back.
 - `Slums.Game` owns screen flow, HUDs, menus, and input. It must not become the home of business rules.
 
@@ -196,8 +198,9 @@ When relevant to the change:
 2. Run `dotnet build Slums.slnx` from the repo root.
 3. Run `dotnet run --project tests/Slums.Core.Tests` from the repo root.
 4. Run `dotnet run --project tests/Slums.Application.Tests` from the repo root.
-5. Run `dotnet run --project tests/Slums.Infrastructure.Tests` from the repo root.
-6. Run `dotnet run --project tests/Slums.Narrative.Ink.Tests` from the repo root.
+5. Run `dotnet run --project tests/Slums.Game.Tests` from the repo root.
+6. Run `dotnet run --project tests/Slums.Infrastructure.Tests` from the repo root.
+7. Run `dotnet run --project tests/Slums.Narrative.Ink.Tests` from the repo root.
 
 Every rules change requires tests.
 

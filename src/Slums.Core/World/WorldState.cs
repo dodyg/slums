@@ -157,10 +157,12 @@ public sealed class WorldState
         ArgumentNullException.ThrowIfNull(locations);
 
         var configuredLocations = locations.Where(static location => location is not null).ToArray();
-        if (configuredLocations.Length > 0)
+        if (configuredLocations.Length == 0)
         {
-            _locations = configuredLocations;
+            throw new InvalidOperationException("At least one location must be configured.");
         }
+
+        _locations = configuredLocations;
     }
 
     public Location? GetCurrentLocation()

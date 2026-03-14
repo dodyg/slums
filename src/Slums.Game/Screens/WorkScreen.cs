@@ -17,6 +17,7 @@ internal sealed class WorkScreen : ScreenSurface
     private readonly GameSession _gameState;
     private readonly List<WorkMenuStatus> _jobs;
     private readonly GameScreen _parentScreen;
+    private readonly WorkCommand _workCommand = new();
     private int _selectedIndex;
 
     public WorkScreen(int width, int height, GameSession gameState, WorkMenuContext context, List<WorkMenuStatus> jobs, GameScreen parentScreen)
@@ -124,7 +125,7 @@ internal sealed class WorkScreen : ScreenSurface
         }
 
         var job = _jobs[_selectedIndex];
-        _gameState.WorkJob(job.Job);
+        _workCommand.Execute(_gameState, job.Job);
         ReturnToParentScreen();
     }
 

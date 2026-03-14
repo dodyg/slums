@@ -18,6 +18,7 @@ src/
 tests/
   Slums.Core.Tests/
   Slums.Application.Tests/
+  Slums.Game.Tests/
   Slums.Infrastructure.Tests/
   Slums.Narrative.Ink.Tests/
 content/
@@ -26,7 +27,9 @@ content/
 ```
 
 **Dependency Direction**: Always inward. `Slums.Core` references nothing. UI never contains business logic.
+`Slums.Application` owns player-facing action commands and menu/action queries; `Slums.Game` should render and delegate rather than mutate `GameSession` directly for player actions.
 `GameSession` is the canonical runtime boundary, and persistence crosses that boundary through snapshots plus `LoadedGameSession`.
+Repo-owned JSON content in `content/data/` is authoritative during app bootstrap; missing or invalid files fail fast instead of silently falling back.
 
 ## Core Simulation Loop
 
@@ -260,18 +263,19 @@ GameSession maintains `_pendingNarrativeScenes` queue. Scenes are dequeued by th
 
 ## Ending Conditions (EndingService)
 
-9 endings checked in priority order:
+11 endings checked in priority order:
 
 1. **MotherDied**: Mother health reaches 0
 2. **CollapseFromExhaustion**: Player health reaches 0
 3. **Destitution**: Starving + Exhausted + No money
 4. **Arrested**: Police pressure reaches 100
-5. **BuriedByHeat**: 30+ days, 6+ crimes, pressure 85+, stress 70+
-6. **LeavingCrime**: 30+ days, crimes committed, 5+ days clean, some honest earnings
-7. **NetworkShelter**: 30+ days, high trust with support NPCs
-8. **QuitTheLuxorDream**: 30+ days, 500+ money, 3 or fewer crimes, mother healthy
-9. **StabilityHonestWork**: 30+ days, no crimes, 200+ money, low pressure
-10. **CrimeKingpin**: 1000+ crime earnings, Imbaba crew rep 50+
+5. **Eviction**: 7 days of unpaid rent
+6. **BuriedByHeat**: 30+ days, 6+ crimes, pressure 85+, stress 70+
+7. **LeavingCrime**: 30+ days, crimes committed, 5+ days clean, some honest earnings
+8. **NetworkShelter**: 30+ days, high trust with support NPCs
+9. **QuitTheLuxorDream**: 30+ days, 500+ money, 3 or fewer crimes, mother healthy
+10. **StabilityHonestWork**: 30+ days, no crimes, 200+ money, low pressure
+11. **CrimeKingpin**: 1000+ crime earnings, Imbaba crew rep 50+
 
 Ending Ink knots have variants by background (e.g., `ending_stability_medical`) and strongest support contact.
 
@@ -312,8 +316,9 @@ When making changes:
   1. `dotnet build ./Slums.slnx`
   2. `dotnet run --project tests/Slums.Core.Tests`
   3. `dotnet run --project tests/Slums.Application.Tests`
-  4. `dotnet run --project tests/Slums.Infrastructure.Tests`
-  5. `dotnet run --project tests/Slums.Narrative.Ink.Tests`
+  4. `dotnet run --project tests/Slums.Game.Tests`
+  5. `dotnet run --project tests/Slums.Infrastructure.Tests`
+  6. `dotnet run --project tests/Slums.Narrative.Ink.Tests`
 
 ## Building and Running
 

@@ -15,6 +15,7 @@ internal sealed class ShopScreen : ScreenSurface
     private readonly ShopMenuContext _context;
     private readonly GameSession _gameState;
     private readonly GameScreen _parentScreen;
+    private readonly ShopCommand _shopCommand = new();
     private readonly ShopMenuStatusQuery _shopMenuStatusQuery = new();
     private int _selectedIndex;
 
@@ -158,19 +159,7 @@ internal sealed class ShopScreen : ScreenSurface
         }
 
         var selectedOption = purchaseOptions[_selectedIndex];
-        switch (selectedOption.Name)
-        {
-            case "Buy Food":
-                _gameState.BuyFood();
-                break;
-            case "Buy Medicine":
-                _gameState.BuyMedicine();
-                break;
-            case "Take Mother to Clinic":
-                _gameState.TakeMotherToClinic();
-                break;
-        }
-
+        _shopCommand.Execute(_gameState, selectedOption.OptionId);
         ReturnToParentScreen();
     }
 

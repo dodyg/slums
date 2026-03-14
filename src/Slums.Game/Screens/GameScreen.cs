@@ -28,6 +28,9 @@ internal sealed class GameScreen : ScreenSurface
     private readonly ClinicTravelMenuQuery _clinicTravelMenuQuery = new();
     private readonly EntertainmentMenuQuery _entertainmentMenuQuery = new();
     private readonly InvestmentMenuQuery _investmentMenuQuery = new();
+    private readonly GameActionMenuQuery _gameActionMenuQuery = new();
+    private readonly GameActionCommand _gameActionCommand = new();
+    private readonly AdvanceTimeCommand _advanceTimeCommand = new();
     private readonly AutomaticTimeAdvancer _automaticTimeAdvancer;
     private readonly ScreenActionKeyGate _actionKeyGate = new();
     private readonly List<string> _eventLog = new(10);
@@ -73,7 +76,7 @@ internal sealed class GameScreen : ScreenSurface
             return;
         }
 
-        _gameState.AdvanceTime(elapsedMinutes);
+        _advanceTimeCommand.Execute(_gameState, elapsedMinutes);
         if (TryShowPendingNarrativeScene())
         {
             return;
@@ -154,7 +157,7 @@ internal sealed class GameScreen : ScreenSurface
         {
             var prefix = i == _selectedAction ? "> " : "  ";
             var color = i == _selectedAction ? Color.Cyan : Color.White;
-            Surface.Print(ActionListX, ActionListStartY + i, prefix + actions[i], color);
+            Surface.Print(ActionListX, ActionListStartY + i, prefix + actions[i].Label, color);
         }
     }
 
@@ -284,7 +287,7 @@ internal sealed class GameScreen : ScreenSurface
         var actions = GetActions();
         for (var i = 0; i < actions.Count; i++)
         {
-            var endX = ActionListX + actions[i].Length + 2;
+            var endX = ActionListX + actions[i].Label.Length + 2;
             if (cellPosition.Y == ActionListStartY + i && cellPosition.X >= ActionListX && cellPosition.X < endX)
             {
                 _selectedAction = i;
@@ -299,53 +302,45 @@ internal sealed class GameScreen : ScreenSurface
     private void ExecuteAction()
     {
         var action = GetActions()[_selectedAction];
-        switch (action)
+        switch (action.Id)
         {
-            case "Rest":
-                _gameState.RestAtHome();
+            case GameActionId.Rest:
+            case GameActionId.EatAtHome:
+            case GameActionId.EatStreetFood:
+            case GameActionId.CheckOnMother:
+            case GameActionId.GiveMotherMedicine:
+            case GameActionId.EndDay:
+                _gameActionCommand.Execute(_gameState, action.Id, _runtime.RandomSource.SharedRandom);
                 break;
-            case "Eat at Home":
-                _gameState.EatAtHome();
-                break;
-            case "Eat Street Food":
-                _gameState.EatStreetFood();
-                break;
-            case "Work":
+            case GameActionId.Work:
                 ShowWorkMenu();
                 break;
-            case "Crime":
+            case GameActionId.Crime:
                 ShowCrimeMenu();
                 break;
-            case "Talk":
+            case GameActionId.Talk:
                 ShowTalkMenu();
                 break;
-            case "Entertainment":
+            case GameActionId.Entertainment:
                 ShowEntertainmentMenu();
                 break;
-            case "Invest":
+            case GameActionId.Invest:
                 ShowInvestmentMenu();
                 break;
-            case "Shop":
+            case GameActionId.Shop:
                 ShowShopMenu();
                 break;
-            case "Check on Mother":
-                _gameState.CheckOnMother();
-                break;
-            case "Give Mother Medicine":
-                _gameState.GiveMotherMedicine();
-                break;
-            case "Take Mother to Clinic":
+            case GameActionId.TakeMotherToClinic:
                 ShowClinicTravelMenu();
                 break;
-            case "Travel":
+            case GameActionId.Travel:
                 ShowTravelMenu();
                 break;
-            case "Save Game":
+            case GameActionId.SaveGame:
                 ShowSaveMenu();
                 break;
-            case "End Day":
-                _gameState.EndDay(_runtime.RandomSource.SharedRandom);
-                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(action));
         }
 
         TryShowPendingNarrativeScene();
@@ -483,53 +478,9 @@ internal sealed class GameScreen : ScreenSurface
         AddEventLogEntry(_gameState.GameOverReason ?? "Unknown cause");
     }
 
-    private List<string> GetActions()
+    private List<GameAction> GetActions()
     {
-        var actions = new List<string> { "Rest" };
-        var isAtHome = _gameState.World.CurrentLocationId == LocationId.Home;
-        var location = _gameState.World.GetCurrentLocation();
-        if (location?.HasJobOpportunities == true)
-        {
-            actions.Add("Work");
-        }
-        if (location?.HasCrimeOpportunities == true)
-        {
-            actions.Add("Crime");
-        }
-
-        if (_gameState.GetReachableNpcs().Count > 0)
-        {
-            actions.Add("Talk");
-        }
-
-        if (_gameState.GetCurrentInvestmentOpportunities().Count > 0)
-        {
-            actions.Add("Invest");
-        }
-
-        if (location is { HasCafe: true } or { HasBar: true } or { HasBilliards: true })
-        {
-            actions.Add("Entertainment");
-        }
-
-        actions.Add("Shop");
-
-        if (isAtHome)
-        {
-            actions.Add("Eat at Home");
-            actions.Add("Check on Mother");
-            actions.Add("Give Mother Medicine");
-            actions.Add("Take Mother to Clinic");
-        }
-        else
-        {
-            actions.Add("Eat Street Food");
-        }
-
-        actions.Add("Travel");
-        actions.Add("Save Game");
-        actions.Add("End Day");
-
+        var actions = _gameActionMenuQuery.GetActions(GameActionMenuContext.Create(_gameState)).ToList();
         if (_selectedAction >= actions.Count)
         {
             _selectedAction = actions.Count - 1;

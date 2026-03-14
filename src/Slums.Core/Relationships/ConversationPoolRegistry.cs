@@ -27,150 +27,150 @@ public static class ConversationPoolRegistry
 
         return npcId switch
         {
-            NpcId.LandlordHajjMahmoud when currentMoney < 40 && relationship.Trust >= 15 => "broke_soft",
-            NpcId.LandlordHajjMahmoud when currentMoney < 40 => "broke",
-            NpcId.LandlordHajjMahmoud when relationship.Trust <= -15 => "hostile",
-            NpcId.LandlordHajjMahmoud when relationship.Trust >= 15 => "warm",
-            NpcId.LandlordHajjMahmoud => "default",
-            NpcId.FixerUmmKarim when maintainingDoubleLife && relationship.Trust >= 10 => "double_life",
-            NpcId.FixerUmmKarim when relationship.Trust >= 25 => "trusted",
-            NpcId.FixerUmmKarim when relationship.LastRefusalDay > 0 && currentDay - relationship.LastRefusalDay <= 3 => "recent_refusal",
-            NpcId.FixerUmmKarim when relationship.RecentContactCount >= 2 => "repeat",
-            NpcId.FixerUmmKarim => "first",
-            NpcId.OfficerKhalid when policePressure >= 70 => "hot",
-            NpcId.OfficerKhalid when relationship.Trust <= -10 => "marked",
-            NpcId.OfficerKhalid => "default",
-            NpcId.NeighborMona when policePressure >= 70 && crimesCommitted > 0 => "heat",
-            NpcId.NeighborMona when currentMoney < 40 => "lean",
-            NpcId.NeighborMona when relationship.WasHelped => "helped",
-            NpcId.NeighborMona when relationship.Trust >= 15 => "warm",
-            NpcId.NeighborMona => "default",
-            NpcId.NurseSalma when relationship.HasUnpaidDebt && relationship.Trust >= 15 => "debt_warm",
-            NpcId.NurseSalma when relationship.HasUnpaidDebt => "debt",
-            NpcId.NurseSalma when motherHealth < 40 => "urgent",
-            NpcId.NurseSalma when maintainingDoubleLife => "suspicious",
-            NpcId.NurseSalma when relationship.Trust >= 15 => "warm",
-            NpcId.NurseSalma => "default",
-            NpcId.WorkshopBossAbuSamir when relationship.WasEmbarrassed => "embarrassed",
-            NpcId.WorkshopBossAbuSamir when relationship.Trust <= -10 => "cold",
-            NpcId.WorkshopBossAbuSamir when relationship.Trust >= 15 => "warm",
-            NpcId.WorkshopBossAbuSamir => "default",
-            NpcId.CafeOwnerNadia when maintainingDoubleLife => "double_life",
-            NpcId.CafeOwnerNadia when relationship.Trust <= -10 => "cold",
-            NpcId.CafeOwnerNadia when relationship.Trust >= 15 => "warm",
-            NpcId.CafeOwnerNadia => "default",
-            NpcId.FenceHanan when relationship.Trust <= -10 => "cold",
-            NpcId.FenceHanan when relationship.Trust >= 15 => "warm",
-            NpcId.FenceHanan => "default",
-            NpcId.RunnerYoussef when policePressure >= 70 => "hot",
-            NpcId.RunnerYoussef when relationship.Trust >= 15 && crimesCommitted >= 2 => "embedded",
-            NpcId.RunnerYoussef => "default",
-            NpcId.PharmacistMariam when motherHealth < 40 => "urgent",
-            NpcId.PharmacistMariam when relationship.Trust >= 15 => "warm",
-            NpcId.PharmacistMariam => "default",
-            NpcId.DispatcherSafaa when relationship.RecentContactCount >= 3 => "regular",
-            NpcId.DispatcherSafaa when relationship.Trust >= 15 => "warm",
-            NpcId.DispatcherSafaa => "default",
-            NpcId.LaundryOwnerIman when currentMoney < 50 => "lean",
-            NpcId.LaundryOwnerIman when relationship.Trust >= 15 => "warm",
-            NpcId.LaundryOwnerIman => "default",
-            _ => "default"
+            NpcId.LandlordHajjMahmoud when currentMoney < 40 && relationship.Trust >= 15 => ConversationContexts.BrokeSoft,
+            NpcId.LandlordHajjMahmoud when currentMoney < 40 => ConversationContexts.Broke,
+            NpcId.LandlordHajjMahmoud when relationship.Trust <= -15 => ConversationContexts.Hostile,
+            NpcId.LandlordHajjMahmoud when relationship.Trust >= 15 => ConversationContexts.Warm,
+            NpcId.LandlordHajjMahmoud => ConversationContexts.Default,
+            NpcId.FixerUmmKarim when maintainingDoubleLife && relationship.Trust >= 10 => ConversationContexts.DoubleLife,
+            NpcId.FixerUmmKarim when relationship.Trust >= 25 => ConversationContexts.Trusted,
+            NpcId.FixerUmmKarim when relationship.LastRefusalDay > 0 && currentDay - relationship.LastRefusalDay <= 3 => ConversationContexts.RecentRefusal,
+            NpcId.FixerUmmKarim when relationship.RecentContactCount >= 2 => ConversationContexts.Repeat,
+            NpcId.FixerUmmKarim => ConversationContexts.First,
+            NpcId.OfficerKhalid when policePressure >= 70 => ConversationContexts.Hot,
+            NpcId.OfficerKhalid when relationship.Trust <= -10 => ConversationContexts.Marked,
+            NpcId.OfficerKhalid => ConversationContexts.Default,
+            NpcId.NeighborMona when policePressure >= 70 && crimesCommitted > 0 => ConversationContexts.Heat,
+            NpcId.NeighborMona when currentMoney < 40 => ConversationContexts.Lean,
+            NpcId.NeighborMona when relationship.WasHelped => ConversationContexts.Helped,
+            NpcId.NeighborMona when relationship.Trust >= 15 => ConversationContexts.Warm,
+            NpcId.NeighborMona => ConversationContexts.Default,
+            NpcId.NurseSalma when relationship.HasUnpaidDebt && relationship.Trust >= 15 => ConversationContexts.DebtWarm,
+            NpcId.NurseSalma when relationship.HasUnpaidDebt => ConversationContexts.Debt,
+            NpcId.NurseSalma when motherHealth < 40 => ConversationContexts.Urgent,
+            NpcId.NurseSalma when maintainingDoubleLife => ConversationContexts.Suspicious,
+            NpcId.NurseSalma when relationship.Trust >= 15 => ConversationContexts.Warm,
+            NpcId.NurseSalma => ConversationContexts.Default,
+            NpcId.WorkshopBossAbuSamir when relationship.WasEmbarrassed => ConversationContexts.Embarrassed,
+            NpcId.WorkshopBossAbuSamir when relationship.Trust <= -10 => ConversationContexts.Cold,
+            NpcId.WorkshopBossAbuSamir when relationship.Trust >= 15 => ConversationContexts.Warm,
+            NpcId.WorkshopBossAbuSamir => ConversationContexts.Default,
+            NpcId.CafeOwnerNadia when maintainingDoubleLife => ConversationContexts.DoubleLife,
+            NpcId.CafeOwnerNadia when relationship.Trust <= -10 => ConversationContexts.Cold,
+            NpcId.CafeOwnerNadia when relationship.Trust >= 15 => ConversationContexts.Warm,
+            NpcId.CafeOwnerNadia => ConversationContexts.Default,
+            NpcId.FenceHanan when relationship.Trust <= -10 => ConversationContexts.Cold,
+            NpcId.FenceHanan when relationship.Trust >= 15 => ConversationContexts.Warm,
+            NpcId.FenceHanan => ConversationContexts.Default,
+            NpcId.RunnerYoussef when policePressure >= 70 => ConversationContexts.Hot,
+            NpcId.RunnerYoussef when relationship.Trust >= 15 && crimesCommitted >= 2 => ConversationContexts.Embedded,
+            NpcId.RunnerYoussef => ConversationContexts.Default,
+            NpcId.PharmacistMariam when motherHealth < 40 => ConversationContexts.Urgent,
+            NpcId.PharmacistMariam when relationship.Trust >= 15 => ConversationContexts.Warm,
+            NpcId.PharmacistMariam => ConversationContexts.Default,
+            NpcId.DispatcherSafaa when relationship.RecentContactCount >= 3 => ConversationContexts.Regular,
+            NpcId.DispatcherSafaa when relationship.Trust >= 15 => ConversationContexts.Warm,
+            NpcId.DispatcherSafaa => ConversationContexts.Default,
+            NpcId.LaundryOwnerIman when currentMoney < 50 => ConversationContexts.Lean,
+            NpcId.LaundryOwnerIman when relationship.Trust >= 15 => ConversationContexts.Warm,
+            NpcId.LaundryOwnerIman => ConversationContexts.Default,
+            _ => ConversationContexts.Default
         };
     }
 
     private static List<string> GetLandlordPool(string context) => context switch
     {
-        "broke_soft" => GeneratePool("landlord_broke_soft", 100),
-        "broke" => GeneratePool("landlord_broke", 100),
-        "hostile" => GeneratePool("landlord_hostile", 100),
-        "warm" => GeneratePool("landlord_warm", 100),
-        _ => GeneratePool("landlord_default", 100)
+        ConversationContexts.BrokeSoft => GeneratePool(ConversationPoolPrefixes.LandlordBrokeSoft, 100),
+        ConversationContexts.Broke => GeneratePool(ConversationPoolPrefixes.LandlordBroke, 100),
+        ConversationContexts.Hostile => GeneratePool(ConversationPoolPrefixes.LandlordHostile, 100),
+        ConversationContexts.Warm => GeneratePool(ConversationPoolPrefixes.LandlordWarm, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.LandlordDefault, 100)
     };
 
     private static List<string> GetFixerPool(string context) => context switch
     {
-        "double_life" => GeneratePool("fixer_double_life", 100),
-        "trusted" => GeneratePool("fixer_trusted", 100),
-        "recent_refusal" => GeneratePool("fixer_refusal", 100),
-        "repeat" => GeneratePool("fixer_repeat", 100),
-        _ => GeneratePool("fixer_first", 100)
+        ConversationContexts.DoubleLife => GeneratePool(ConversationPoolPrefixes.FixerDoubleLife, 100),
+        ConversationContexts.Trusted => GeneratePool(ConversationPoolPrefixes.FixerTrusted, 100),
+        ConversationContexts.RecentRefusal => GeneratePool(ConversationPoolPrefixes.FixerRefusal, 100),
+        ConversationContexts.Repeat => GeneratePool(ConversationPoolPrefixes.FixerRepeat, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.FixerFirst, 100)
     };
 
     private static List<string> GetOfficerPool(string context) => context switch
     {
-        "hot" => GeneratePool("officer_hot", 100),
-        "marked" => GeneratePool("officer_marked", 100),
-        _ => GeneratePool("officer_default", 100)
+        ConversationContexts.Hot => GeneratePool(ConversationPoolPrefixes.OfficerHot, 100),
+        ConversationContexts.Marked => GeneratePool(ConversationPoolPrefixes.OfficerMarked, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.OfficerDefault, 100)
     };
 
     private static List<string> GetMonaPool(string context) => context switch
     {
-        "heat" => GeneratePool("mona_heat", 100),
-        "lean" => GeneratePool("mona_lean", 100),
-        "helped" => GeneratePool("mona_helped", 100),
-        "warm" => GeneratePool("mona_warm", 100),
-        _ => GeneratePool("mona_default", 100)
+        ConversationContexts.Heat => GeneratePool(ConversationPoolPrefixes.MonaHeat, 100),
+        ConversationContexts.Lean => GeneratePool(ConversationPoolPrefixes.MonaLean, 100),
+        ConversationContexts.Helped => GeneratePool(ConversationPoolPrefixes.MonaHelped, 100),
+        ConversationContexts.Warm => GeneratePool(ConversationPoolPrefixes.MonaWarm, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.MonaDefault, 100)
     };
 
     private static List<string> GetNursePool(string context) => context switch
     {
-        "debt_warm" => GeneratePool("salma_debt_warm", 100),
-        "debt" => GeneratePool("salma_debt", 100),
-        "urgent" => GeneratePool("salma_urgent", 100),
-        "suspicious" => GeneratePool("salma_suspicious", 100),
-        "warm" => GeneratePool("salma_warm", 100),
-        _ => GeneratePool("salma_default", 100)
+        ConversationContexts.DebtWarm => GeneratePool(ConversationPoolPrefixes.SalmaDebtWarm, 100),
+        ConversationContexts.Debt => GeneratePool(ConversationPoolPrefixes.SalmaDebt, 100),
+        ConversationContexts.Urgent => GeneratePool(ConversationPoolPrefixes.SalmaUrgent, 100),
+        ConversationContexts.Suspicious => GeneratePool(ConversationPoolPrefixes.SalmaSuspicious, 100),
+        ConversationContexts.Warm => GeneratePool(ConversationPoolPrefixes.SalmaWarm, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.SalmaDefault, 100)
     };
 
     private static List<string> GetAbuSamirPool(string context) => context switch
     {
-        "embarrassed" => GeneratePool("abu_samir_embarrassed", 100),
-        "cold" => GeneratePool("abu_samir_cold", 100),
-        "warm" => GeneratePool("abu_samir_warm", 100),
-        _ => GeneratePool("abu_samir_default", 100)
+        ConversationContexts.Embarrassed => GeneratePool(ConversationPoolPrefixes.AbuSamirEmbarrassed, 100),
+        ConversationContexts.Cold => GeneratePool(ConversationPoolPrefixes.AbuSamirCold, 100),
+        ConversationContexts.Warm => GeneratePool(ConversationPoolPrefixes.AbuSamirWarm, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.AbuSamirDefault, 100)
     };
 
     private static List<string> GetNadiaPool(string context) => context switch
     {
-        "double_life" => GeneratePool("nadia_double_life", 100),
-        "cold" => GeneratePool("nadia_cold", 100),
-        "warm" => GeneratePool("nadia_warm", 100),
-        _ => GeneratePool("nadia_default", 100)
+        ConversationContexts.DoubleLife => GeneratePool(ConversationPoolPrefixes.NadiaDoubleLife, 100),
+        ConversationContexts.Cold => GeneratePool(ConversationPoolPrefixes.NadiaCold, 100),
+        ConversationContexts.Warm => GeneratePool(ConversationPoolPrefixes.NadiaWarm, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.NadiaDefault, 100)
     };
 
     private static List<string> GetHananPool(string context) => context switch
     {
-        "cold" => GeneratePool("hanan_cold", 100),
-        "warm" => GeneratePool("hanan_warm", 100),
-        _ => GeneratePool("hanan_default", 100)
+        ConversationContexts.Cold => GeneratePool(ConversationPoolPrefixes.HananCold, 100),
+        ConversationContexts.Warm => GeneratePool(ConversationPoolPrefixes.HananWarm, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.HananDefault, 100)
     };
 
     private static List<string> GetYoussefPool(string context) => context switch
     {
-        "hot" => GeneratePool("youssef_hot", 100),
-        "embedded" => GeneratePool("youssef_embedded", 100),
-        _ => GeneratePool("youssef_default", 100)
+        ConversationContexts.Hot => GeneratePool(ConversationPoolPrefixes.YoussefHot, 100),
+        ConversationContexts.Embedded => GeneratePool(ConversationPoolPrefixes.YoussefEmbedded, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.YoussefDefault, 100)
     };
 
     private static List<string> GetMariamPool(string context) => context switch
     {
-        "urgent" => GeneratePool("mariam_urgent", 100),
-        "warm" => GeneratePool("mariam_warm", 100),
-        _ => GeneratePool("mariam_default", 100)
+        ConversationContexts.Urgent => GeneratePool(ConversationPoolPrefixes.MariamUrgent, 100),
+        ConversationContexts.Warm => GeneratePool(ConversationPoolPrefixes.MariamWarm, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.MariamDefault, 100)
     };
 
     private static List<string> GetSafaaPool(string context) => context switch
     {
-        "regular" => GeneratePool("safaa_regular", 100),
-        "warm" => GeneratePool("safaa_warm", 100),
-        _ => GeneratePool("safaa_default", 100)
+        ConversationContexts.Regular => GeneratePool(ConversationPoolPrefixes.SafaaRegular, 100),
+        ConversationContexts.Warm => GeneratePool(ConversationPoolPrefixes.SafaaWarm, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.SafaaDefault, 100)
     };
 
     private static List<string> GetImanPool(string context) => context switch
     {
-        "lean" => GeneratePool("iman_lean", 100),
-        "warm" => GeneratePool("iman_warm", 100),
-        _ => GeneratePool("iman_default", 100)
+        ConversationContexts.Lean => GeneratePool(ConversationPoolPrefixes.ImanLean, 100),
+        ConversationContexts.Warm => GeneratePool(ConversationPoolPrefixes.ImanWarm, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.ImanDefault, 100)
     };
 
     private static List<string> GeneratePool(string prefix, int count)

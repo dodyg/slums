@@ -14,16 +14,17 @@ internal sealed class EndingScenePathTests
     {
         var expectedEndingKnots = new[]
         {
-            "ending_mother_died",
-            "ending_collapse_exhaustion",
-            "ending_destitution",
-            "ending_arrested",
-            "ending_buried_heat",
-            "ending_leaving_crime",
-            "ending_network_shelter",
-            "ending_luxor_dream",
-            "ending_stability_honest_work",
-            "ending_crime_kingpin"
+            EndingKnotCatalog.MotherDied,
+            EndingKnotCatalog.CollapseFromExhaustion,
+            EndingKnotCatalog.Destitution,
+            EndingKnotCatalog.Arrested,
+            EndingKnotCatalog.Eviction,
+            EndingKnotCatalog.BuriedByHeat,
+            EndingKnotCatalog.LeavingCrime,
+            EndingKnotCatalog.NetworkShelter,
+            EndingKnotCatalog.QuitTheLuxorDream,
+            EndingKnotCatalog.StabilityHonestWork,
+            EndingKnotCatalog.CrimeKingpin
         };
 
         var allKnots = StoryTraversalHelper.GetAllKnotNames();
@@ -37,71 +38,78 @@ internal sealed class EndingScenePathTests
     [Test]
     public async Task Ending_MotherDied_ProducesText()
     {
-        var result = StoryTraversalHelper.ExplorePath("ending_mother_died", CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty("ending_mother_died should produce narrative text");
+        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.MotherDied, CreateDefaultSceneState());
+        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.MotherDied} should produce narrative text");
     }
 
     [Test]
     public async Task Ending_CollapseExhaustion_ProducesText()
     {
-        var result = StoryTraversalHelper.ExplorePath("ending_collapse_exhaustion", CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty("ending_collapse_exhaustion should produce narrative text");
+        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.CollapseFromExhaustion, CreateDefaultSceneState());
+        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.CollapseFromExhaustion} should produce narrative text");
     }
 
     [Test]
     public async Task Ending_Destitution_ProducesText()
     {
-        var result = StoryTraversalHelper.ExplorePath("ending_destitution", CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty("ending_destitution should produce narrative text");
+        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.Destitution, CreateDefaultSceneState());
+        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.Destitution} should produce narrative text");
     }
 
     [Test]
     public async Task Ending_Arrested_ProducesText()
     {
-        var result = StoryTraversalHelper.ExplorePath("ending_arrested", CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty("ending_arrested should produce narrative text");
+        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.Arrested, CreateDefaultSceneState());
+        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.Arrested} should produce narrative text");
+    }
+
+    [Test]
+    public async Task Ending_Eviction_ProducesText()
+    {
+        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.Eviction, CreateDefaultSceneState());
+        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.Eviction} should produce narrative text");
     }
 
     [Test]
     public async Task Ending_BuriedHeat_ProducesText()
     {
-        var result = StoryTraversalHelper.ExplorePath("ending_buried_heat", CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty("ending_buried_heat should produce narrative text");
+        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.BuriedByHeat, CreateDefaultSceneState());
+        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.BuriedByHeat} should produce narrative text");
     }
 
     [Test]
     public async Task Ending_LeavingCrime_ProducesText()
     {
-        var result = StoryTraversalHelper.ExplorePath("ending_leaving_crime", CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty("ending_leaving_crime should produce narrative text");
+        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.LeavingCrime, CreateDefaultSceneState());
+        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.LeavingCrime} should produce narrative text");
     }
 
     [Test]
     public async Task Ending_NetworkShelter_ProducesText()
     {
-        var result = StoryTraversalHelper.ExplorePath("ending_network_shelter", CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty("ending_network_shelter should produce narrative text");
+        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.NetworkShelter, CreateDefaultSceneState());
+        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.NetworkShelter} should produce narrative text");
     }
 
     [Test]
     public async Task Ending_LuxorDream_ProducesText()
     {
-        var result = StoryTraversalHelper.ExplorePath("ending_luxor_dream", CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty("ending_luxor_dream should produce narrative text");
+        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.QuitTheLuxorDream, CreateDefaultSceneState());
+        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.QuitTheLuxorDream} should produce narrative text");
     }
 
     [Test]
     public async Task Ending_StabilityHonestWork_ProducesText()
     {
-        var result = StoryTraversalHelper.ExplorePath("ending_stability_honest_work", CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty("ending_stability_honest_work should produce narrative text");
+        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.StabilityHonestWork, CreateDefaultSceneState());
+        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.StabilityHonestWork} should produce narrative text");
     }
 
     [Test]
     public async Task Ending_CrimeKingpin_ProducesText()
     {
-        var result = StoryTraversalHelper.ExplorePath("ending_crime_kingpin", CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty("ending_crime_kingpin should produce narrative text");
+        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.CrimeKingpin, CreateDefaultSceneState());
+        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.CrimeKingpin} should produce narrative text");
     }
 
     [Test]
@@ -136,11 +144,12 @@ internal sealed class EndingScenePathTests
     {
         var badEndingKnots = new[]
         {
-            "ending_mother_died",
-            "ending_collapse_exhaustion",
-            "ending_destitution",
-            "ending_arrested",
-            "ending_buried_heat"
+            EndingKnotCatalog.MotherDied,
+            EndingKnotCatalog.CollapseFromExhaustion,
+            EndingKnotCatalog.Destitution,
+            EndingKnotCatalog.Arrested,
+            EndingKnotCatalog.Eviction,
+            EndingKnotCatalog.BuriedByHeat
         };
 
         foreach (var knot in badEndingKnots)
@@ -158,10 +167,10 @@ internal sealed class EndingScenePathTests
     {
         var goodEndingKnots = new[]
         {
-            "ending_leaving_crime",
-            "ending_network_shelter",
-            "ending_luxor_dream",
-            "ending_stability_honest_work"
+            EndingKnotCatalog.LeavingCrime,
+            EndingKnotCatalog.NetworkShelter,
+            EndingKnotCatalog.QuitTheLuxorDream,
+            EndingKnotCatalog.StabilityHonestWork
         };
 
         foreach (var knot in goodEndingKnots)

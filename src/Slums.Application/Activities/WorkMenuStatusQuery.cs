@@ -1,6 +1,8 @@
 using Slums.Core.Characters;
 using Slums.Core.Jobs;
+using Slums.Core.Narrative;
 using Slums.Core.Relationships;
+using Slums.Application.Narrative;
 
 namespace Slums.Application.Activities;
 
@@ -39,23 +41,21 @@ public sealed class WorkMenuStatusQuery
     private static List<string> GetNarrativeSignals(WorkMenuContext context, JobShift job)
     {
         var signals = new List<string>();
-        var recentCrimeHeat = context.LastCrimeDay > 0 && context.CurrentDay - context.LastCrimeDay <= 1;
+        var recentCrimeHeat = NarrativeSignalRules.HasPendingPublicWorkHeat(context.CurrentDay, context.LastCrimeDay, context.PolicePressure);
 
-        if (recentCrimeHeat && context.PolicePressure >= 60 && IsPublicFacingJob(job.Type))
+        if (recentCrimeHeat && IsPublicFacingJob(job.Type))
         {
             signals.Add("Taking this public-facing shift now can trigger a police-heat suspicion follow-up.");
         }
 
         if (job.Type == JobType.ClinicReception)
         {
-            if (context.Player.BackgroundType == BackgroundType.MedicalSchoolDropout && !context.HasStoryFlag("background_medical_clinic_seen"))
+            if (NarrativeSignalRules.HasPendingMedicalClinicReflection(context.Player, context.StoryFlags))
             {
                 signals.Add("A successful clinic shift can trigger a medical-dropout reflection scene.");
             }
 
-            if (context.Player.BackgroundType == BackgroundType.MedicalSchoolDropout &&
-                context.Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust >= 12 &&
-                context.Player.Household.MotherHealth < 65)
+            if (NarrativeSignalRules.HasPendingSalmaMedicineHelp(context.Player, context.Relationships))
             {
                 signals.Add("A strong clinic day can push Salma to quietly help with medicine.");
             }

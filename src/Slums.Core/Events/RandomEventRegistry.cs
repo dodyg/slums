@@ -136,6 +136,11 @@ public static class RandomEventRegistry
         ArgumentNullException.ThrowIfNull(events);
 
         var configuredEvents = events.Where(static item => item is not null).ToArray();
-        _events = configuredEvents.Length == 0 ? DefaultEvents : configuredEvents;
+        if (configuredEvents.Length == 0)
+        {
+            throw new InvalidOperationException("At least one random event must be configured.");
+        }
+
+        _events = configuredEvents;
     }
 }

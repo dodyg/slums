@@ -14,6 +14,7 @@ internal sealed class EndingServiceTests
         state.Player.Stats.SetMoney(250);
         state.SetDaysSurvived(30);
         state.SetPolicePressure(10);
+        state.SetWorkCounters(totalHonestWorkEarnings: 400, honestShiftsCompleted: 15, lastHonestWorkDay: 30, lastPublicFacingWorkDay: 30);
 
         var ending = EndingService.CheckEndings(state);
 

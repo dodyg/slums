@@ -21,9 +21,11 @@ internal sealed class ShopMenuStatusQueryTests
         var statuses = query.GetStatuses(ShopMenuContext.Create(gameState));
 
         statuses.Should().HaveCount(2);
+        statuses[0].OptionId.Should().Be(ShopOptionId.BuyFood);
         statuses[0].Name.Should().Be("Buy Food");
         statuses[0].Cost.Should().Be(20);
         statuses[0].CanAfford.Should().BeTrue();
+        statuses[1].OptionId.Should().Be(ShopOptionId.BuyMedicine);
         statuses[1].Name.Should().Be("Buy Medicine");
         statuses[1].Cost.Should().Be(58);
         statuses[1].CanAfford.Should().BeTrue();
@@ -43,6 +45,7 @@ internal sealed class ShopMenuStatusQueryTests
 
         marketStatuses.Should().HaveCount(2);
         clinicStatuses.Should().HaveCount(3);
+        clinicStatuses[2].OptionId.Should().Be(ShopOptionId.TakeMotherToClinic);
         clinicStatuses[2].Name.Should().Be("Take Mother to Clinic");
         clinicStatuses[2].Cost.Should().Be(35);
         clinicStatuses[2].CanAfford.Should().BeTrue();

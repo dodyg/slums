@@ -1,8 +1,10 @@
 using Slums.Core.Characters;
 using Slums.Core.Crimes;
+using Slums.Core.Narrative;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
 using Slums.Core.World;
+using Slums.Application.Narrative;
 
 namespace Slums.Application.Activities;
 
@@ -98,7 +100,7 @@ public sealed class CrimeMenuStatusQuery
     {
         var signals = new List<string>();
 
-        if (!context.HasStoryFlag("crime_first_success"))
+        if (NarrativeSignalRules.HasPendingFirstCrimeAftermath(context.StoryFlags))
         {
             signals.Add("Your first successful crime still has a dedicated aftermath scene waiting.");
         }
@@ -110,12 +112,12 @@ public sealed class CrimeMenuStatusQuery
 
         var projectedCrimeEarnings = context.TotalCrimeEarnings + Math.Max(0, attempt.BaseReward);
         var projectedCrimeCount = context.CrimesCommitted + 1;
-        if (projectedCrimeEarnings >= 150 && projectedCrimeCount >= 2 && context.Player.Household.MotherHealth < 65 && !context.HasStoryFlag("event_mother_wrong_money_seen"))
+        if (NarrativeSignalRules.HasPendingMotherWrongMoney(context.Player, projectedCrimeEarnings, projectedCrimeCount, context.StoryFlags))
         {
             signals.Add("Another profitable run could make home money feel suspicious tonight.");
         }
 
-        if (context.PolicePressure >= 60 && context.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust >= 15 && !context.HasStoryFlag("event_neighbor_watch_seen"))
+        if (NarrativeSignalRules.HasPendingNeighborWatch(context.PolicePressure, context.Relationships, context.StoryFlags))
         {
             signals.Add("If tonight gets hotter, Mona is positioned to warn you before the building closes in.");
         }
@@ -125,16 +127,7 @@ public sealed class CrimeMenuStatusQuery
 
     private static bool HasUnseenRouteAftermath(CrimeMenuContext context, CrimeType crimeType)
     {
-        string[] flagNames = crimeType switch
-        {
-            CrimeType.MarketFencing => ["crime_hanan_fence_success_seen", "crime_hanan_fence_detected_seen", "crime_hanan_fence_failure_seen"],
-            CrimeType.DokkiDrop => ["crime_youssef_drop_success_seen", "crime_youssef_drop_detected_seen", "crime_youssef_drop_failure_seen"],
-            CrimeType.NetworkErrand => ["crime_ummkarim_errand_success_seen", "crime_ummkarim_errand_detected_seen", "crime_ummkarim_errand_failure_seen"],
-            CrimeType.DepotFareSkim => ["crime_safaa_skim_success_seen", "crime_safaa_skim_detected_seen", "crime_safaa_skim_failure_seen"],
-            CrimeType.ShubraBundleLift => ["crime_iman_bundle_success_seen", "crime_iman_bundle_detected_seen", "crime_iman_bundle_failure_seen"],
-            _ => []
-        };
-
-        return flagNames.Any(flagName => !context.HasStoryFlag(flagName));
+        return StoryFlags.GetCrimeRouteAftermathFlags(crimeType)
+            .Any(flagName => !context.HasStoryFlag(flagName));
     }
 }

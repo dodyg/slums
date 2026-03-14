@@ -17,6 +17,7 @@ internal sealed class EntertainmentScreen : ScreenSurface
     private readonly GameSession _gameState;
     private readonly List<EntertainmentMenuStatus> _activities;
     private readonly GameScreen _parentScreen;
+    private readonly EntertainmentCommand _entertainmentCommand = new();
     private int _selectedIndex;
 
     public EntertainmentScreen(int width, int height, GameSession gameState, EntertainmentMenuContext context, List<EntertainmentMenuStatus> activities, GameScreen parentScreen)
@@ -129,7 +130,7 @@ internal sealed class EntertainmentScreen : ScreenSurface
             return;
         }
 
-        _gameState.TryPerformEntertainment(status.Activity);
+        _entertainmentCommand.Execute(_gameState, status.Activity);
         ReturnToParentScreen();
     }
 

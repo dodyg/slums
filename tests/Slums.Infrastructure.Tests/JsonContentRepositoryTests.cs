@@ -45,16 +45,16 @@ internal sealed class JsonContentRepositoryTests
     }
 
     [Test]
-    public void LoadBackgrounds_ShouldReturnEmpty_WhenFileIsMissing()
+    public void LoadBackgrounds_ShouldThrow_WhenFileIsMissing()
     {
         var contentDirectory = CreateTempDirectory();
         try
         {
             var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
 
-            var backgrounds = repository.LoadBackgrounds();
+            var act = () => repository.LoadBackgrounds();
 
-            backgrounds.Should().BeEmpty();
+            act.Should().Throw<ContentLoadException>();
         }
         finally
         {
@@ -63,7 +63,7 @@ internal sealed class JsonContentRepositoryTests
     }
 
     [Test]
-    public void LoadBackgrounds_ShouldReturnEmpty_WhenJsonIsInvalid()
+    public void LoadBackgrounds_ShouldThrow_WhenJsonIsInvalid()
     {
         var contentDirectory = CreateTempDirectory();
         try
@@ -71,9 +71,9 @@ internal sealed class JsonContentRepositoryTests
             File.WriteAllText(Path.Combine(contentDirectory, "backgrounds.json"), "not json");
             var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
 
-            var backgrounds = repository.LoadBackgrounds();
+            var act = () => repository.LoadBackgrounds();
 
-            backgrounds.Should().BeEmpty();
+            act.Should().Throw<ContentLoadException>();
         }
         finally
         {
@@ -191,52 +191,82 @@ internal sealed class JsonContentRepositoryTests
         }
     }
 
-        [Test]
-        public void LoadRandomEvents_ShouldMapNewBulaqAndShubraConditions()
+    [Test]
+    public void LoadRandomEvents_ShouldMapNewBulaqAndShubraConditions()
+    {
+        var contentDirectory = CreateTempDirectory();
+        try
         {
-                var contentDirectory = CreateTempDirectory();
-                try
+            File.WriteAllText(Path.Combine(contentDirectory, "random_events.json"), """
+            [
                 {
-                        File.WriteAllText(Path.Combine(contentDirectory, "random_events.json"), """
-                        [
-                            {
-                                "Id": "BulaqMedicineQueue",
-                                "Description": "desc",
-                                "MinDay": 5,
-                                "Weight": 8,
-                                "ConditionId": "at_pharmacy",
-                                "InkKnot": "event_bulaq_medicine_queue"
-                            },
-                            {
-                                "Id": "ShubraBlockSolidarity",
-                                "Description": "desc",
-                                "MinDay": 5,
-                                "Weight": 7,
-                                "ConditionId": "shubra_low_money",
-                                "FoodChange": 1,
-                                "InkKnot": "event_shubra_block_solidarity"
-                            }
-                        ]
-                        """);
-
-                        var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
-                        using var bulaqState = new Slums.Core.State.GameSession();
-                        bulaqState.World.TravelTo(Slums.Core.World.LocationId.Pharmacy);
-                        using var shubraState = new Slums.Core.State.GameSession();
-                        shubraState.World.TravelTo(Slums.Core.World.LocationId.Laundry);
-                        shubraState.Player.Stats.ModifyMoney(-10);
-
-                        var events = repository.LoadRandomEvents();
-
-                        events.Should().HaveCount(2);
-                        events[0].Condition!(bulaqState).Should().BeTrue();
-                        events[1].Condition!(shubraState).Should().BeTrue();
-                }
-                finally
+                    "Id": "BulaqMedicineQueue",
+                    "Description": "desc",
+                    "MinDay": 5,
+                    "Weight": 8,
+                    "ConditionId": "at_pharmacy",
+                    "InkKnot": "event_bulaq_medicine_queue"
+                },
                 {
-                        DeleteDirectory(contentDirectory);
+                    "Id": "ShubraBlockSolidarity",
+                    "Description": "desc",
+                    "MinDay": 5,
+                    "Weight": 7,
+                    "ConditionId": "shubra_low_money",
+                    "FoodChange": 1,
+                    "InkKnot": "event_shubra_block_solidarity"
                 }
+            ]
+            """);
+
+            var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
+            using var bulaqState = new Slums.Core.State.GameSession();
+            bulaqState.World.TravelTo(Slums.Core.World.LocationId.Pharmacy);
+            using var shubraState = new Slums.Core.State.GameSession();
+            shubraState.World.TravelTo(Slums.Core.World.LocationId.Laundry);
+            shubraState.Player.Stats.ModifyMoney(-10);
+
+            var events = repository.LoadRandomEvents();
+
+            events.Should().HaveCount(2);
+            events[0].Condition!(bulaqState).Should().BeTrue();
+            events[1].Condition!(shubraState).Should().BeTrue();
         }
+        finally
+        {
+            DeleteDirectory(contentDirectory);
+        }
+    }
+
+    [Test]
+    public void LoadRandomEvents_ShouldThrow_WhenConditionIdIsUnknown()
+    {
+        var contentDirectory = CreateTempDirectory();
+        try
+        {
+            File.WriteAllText(Path.Combine(contentDirectory, "random_events.json"), """
+            [
+              {
+                "Id": "BadEvent",
+                "Description": "desc",
+                "MinDay": 1,
+                "Weight": 1,
+                "ConditionId": "unknown_condition"
+              }
+            ]
+            """);
+
+            var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
+
+            var act = () => repository.LoadRandomEvents();
+
+            act.Should().Throw<ContentLoadException>();
+        }
+        finally
+        {
+            DeleteDirectory(contentDirectory);
+        }
+    }
 
     private static string CreateTempDirectory()
     {

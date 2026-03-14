@@ -1,6 +1,9 @@
+using Slums.Core.World;
+
 namespace Slums.Application.Activities;
 
 public sealed record ClinicTravelMenuStatus(
+    LocationId LocationId,
     string LocationName,
     string DistrictName,
     int TravelCost,

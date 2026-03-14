@@ -7,10 +7,12 @@ using Slums.Core.Expenses;
 using Slums.Core.Events;
 using Slums.Core.Investments;
 using Slums.Core.Jobs;
+using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.World;
 using EntitiesDb;
+using NarrativeStoryFlags = Slums.Core.Narrative.StoryFlags;
 
 namespace Slums.Core.State;
 
@@ -28,6 +30,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     private readonly GameInvestmentState _investmentState;
     private readonly RentState _rentState;
     private readonly Random _sharedRandom;
+    private readonly LocationPricingService _locationPricingService;
     private readonly Queue<string> _pendingNarrativeScenes;
     private readonly HashSet<string> _storyFlags;
     private readonly Dictionary<string, int> _randomEventHistory;
@@ -48,6 +51,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         _investmentState = new GameInvestmentState();
         _rentState = new RentState();
         _sharedRandom = sharedRandom ?? new Random();
+        _locationPricingService = new LocationPricingService();
         _pendingNarrativeScenes = _narrativeState.PendingNarrativeScenes;
         _storyFlags = _narrativeState.StoryFlags;
         _randomEventHistory = _narrativeState.RandomEventHistory;
@@ -555,10 +559,10 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             {
                 ModifyFactionReputation(FactionId.ExPrisonerNetwork, 5);
             }
-            if (!HasStoryFlag("crime_first_success"))
+            if (!HasStoryFlag(NarrativeStoryFlags.CrimeFirstSuccess))
             {
-                SetStoryFlag("crime_first_success");
-                QueueNarrativeScene("crime_first_success");
+                SetStoryFlag(NarrativeStoryFlags.CrimeFirstSuccess);
+                QueueNarrativeScene(NarrativeKnots.CrimeFirstSuccess);
             }
         }
 
@@ -568,10 +572,10 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         RaiseEvent(result.Message);
         ApplyCrimeContactAftermath(result);
 
-        if (PolicePressure >= 80 && !HasStoryFlag("crime_warning"))
+        if (PolicePressure >= 80 && !HasStoryFlag(NarrativeStoryFlags.CrimeWarning))
         {
-            SetStoryFlag("crime_warning");
-            QueueNarrativeScene("crime_warning");
+            SetStoryFlag(NarrativeStoryFlags.CrimeWarning);
+            QueueNarrativeScene(NarrativeKnots.CrimeWarning);
             RaiseEvent("People are whispering that the police are getting close.");
         }
 
@@ -711,10 +715,10 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         RaiseEvent($"You take your mother into {clinicStatus.LocationName}. The visit costs {clinicStatus.VisitCost} LE. Her health improves by {healthChange}.");
 
-        if (!HasStoryFlag("mother_clinic_first_visit"))
+        if (!HasStoryFlag(NarrativeStoryFlags.MotherClinicFirstVisit))
         {
-            SetStoryFlag("mother_clinic_first_visit");
-            QueueNarrativeScene("mother_clinic_first_visit");
+            SetStoryFlag(NarrativeStoryFlags.MotherClinicFirstVisit);
+            QueueNarrativeScene(NarrativeKnots.MotherClinicFirstVisit);
         }
 
         return new MotherClinicVisitResult(true, clinicStatus.VisitCost, healthChange);
@@ -723,28 +727,12 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 #pragma warning disable CA1024
     public int GetFoodCost()
     {
-        return World.CurrentDistrict switch
-        {
-            DistrictId.Dokki => 20,
-            DistrictId.Imbaba => 15,
-            DistrictId.ArdAlLiwa => 13,
-            DistrictId.BulaqAlDakrour => 14,
-            DistrictId.Shubra => 17,
-            _ => RecurringExpenses.CheapFoodStockpile
-        };
+        return _locationPricingService.GetFoodCost(World.CurrentDistrict);
     }
 
     public int GetStreetFoodCost()
     {
-        return World.CurrentDistrict switch
-        {
-            DistrictId.Dokki => 10,
-            DistrictId.Imbaba => 8,
-            DistrictId.ArdAlLiwa => 7,
-            DistrictId.BulaqAlDakrour => 7,
-            DistrictId.Shubra => 9,
-            _ => 8
-        };
+        return _locationPricingService.GetStreetFoodCost(World.CurrentDistrict);
     }
 
     public CurrentLocationClinicStatus GetCurrentLocationClinicStatus()
@@ -874,83 +862,22 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public int GetMedicineCost()
     {
-        var districtCost = World.CurrentDistrict switch
-        {
-            DistrictId.Dokki => 58,
-            DistrictId.Imbaba => 50,
-            DistrictId.ArdAlLiwa => 42,
-            DistrictId.BulaqAlDakrour => 46,
-            DistrictId.Shubra => 52,
-            _ => RecurringExpenses.MedicineCost
-        };
-
-        if (World.CurrentLocationId == LocationId.Pharmacy && Relationships.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= 12)
-        {
-            districtCost = Math.Max(30, districtCost - 6);
-        }
-
-        return Player.Skills.GetLevel(SkillId.Medical) >= 3
-            ? Math.Max(32, districtCost - 8)
-            : districtCost;
+        return _locationPricingService.GetMedicineCost(World.CurrentDistrict, World.CurrentLocationId, Relationships, Player.Skills);
     }
 
     private int GetTravelCost(Location destination)
     {
-        ArgumentNullException.ThrowIfNull(destination);
-
-        var travelCost = RecurringExpenses.TravelCost;
-        if (destination.District == DistrictId.BulaqAlDakrour && Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= 12)
-        {
-            travelCost = Math.Max(1, travelCost - 1);
-        }
-
-        return travelCost;
+        return _locationPricingService.GetTravelCost(destination, Relationships);
     }
 
     private int GetClinicVisitCost(Location location)
     {
-        ArgumentNullException.ThrowIfNull(location);
-
-        var visitCost = location.ClinicVisitBaseCost;
-        if (visitCost <= 0)
-        {
-            return 0;
-        }
-
-        if (Player.Skills.GetLevel(SkillId.Medical) >= 2)
-        {
-            visitCost = Math.Max(20, visitCost - 5);
-        }
-
-        if (location.Id == LocationId.Clinic && Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust >= 20)
-        {
-            visitCost = Math.Max(18, visitCost - 6);
-        }
-
-        if (location.Id == LocationId.Pharmacy && Relationships.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= 12)
-        {
-            visitCost = Math.Max(20, visitCost - 4);
-        }
-
-        return visitCost;
+        return _locationPricingService.GetClinicVisitCost(location, Relationships, Player.Skills);
     }
 
     private int GetTravelEnergyCost(Location destination)
     {
-        ArgumentNullException.ThrowIfNull(destination);
-
-        var energyCost = 5;
-        if (destination.District == DistrictId.BulaqAlDakrour && Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= 12)
-        {
-            energyCost = 3;
-        }
-
-        if (destination.District == DistrictId.Shubra && Relationships.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust >= 12)
-        {
-            energyCost = Math.Max(2, energyCost - 1);
-        }
-
-        return energyCost;
+        return _locationPricingService.GetTravelEnergyCost(destination, Relationships);
     }
 
     public int CurrentDay => Clock.Day;
@@ -1449,10 +1376,10 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             ModifyEmployerTrust(job.Type, -2);
             RaiseEvent("The street heat follows you into work. People notice how tense you look.");
 
-            if (!HasStoryFlag("event_public_work_heat_seen"))
+            if (!HasStoryFlag(NarrativeStoryFlags.EventPublicWorkHeatSeen))
             {
-                SetStoryFlag("event_public_work_heat_seen");
-                QueueNarrativeScene("event_public_work_heat");
+                SetStoryFlag(NarrativeStoryFlags.EventPublicWorkHeatSeen);
+                QueueNarrativeScene(NarrativeKnots.EventPublicWorkHeat);
             }
         }
 
@@ -1468,10 +1395,10 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout &&
             job.Type == JobType.ClinicReception &&
             result.Success &&
-            !HasStoryFlag("background_medical_clinic_seen"))
+            !HasStoryFlag(NarrativeStoryFlags.BackgroundMedicalClinicSeen))
         {
-            SetStoryFlag("background_medical_clinic_seen");
-            QueueNarrativeScene("background_medical_clinic");
+            SetStoryFlag(NarrativeStoryFlags.BackgroundMedicalClinicSeen);
+            QueueNarrativeScene(NarrativeKnots.BackgroundMedicalClinic);
         }
 
         if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout &&
@@ -1491,19 +1418,19 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             TotalCrimeEarnings >= 150 &&
             CrimesCommitted >= 2 &&
             Player.Household.MotherHealth < 65 &&
-            !HasStoryFlag("event_mother_wrong_money_seen"))
+            !HasStoryFlag(NarrativeStoryFlags.EventMotherWrongMoneySeen))
         {
-            SetStoryFlag("event_mother_wrong_money_seen");
-            QueueNarrativeScene("event_mother_wrong_money");
+            SetStoryFlag(NarrativeStoryFlags.EventMotherWrongMoneySeen);
+            QueueNarrativeScene(NarrativeKnots.EventMotherWrongMoney);
         }
 
         if (CrimeCommittedToday &&
             PolicePressure >= 60 &&
             Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust >= 15 &&
-            !HasStoryFlag("event_neighbor_watch_seen"))
+            !HasStoryFlag(NarrativeStoryFlags.EventNeighborWatchSeen))
         {
-            SetStoryFlag("event_neighbor_watch_seen");
-            QueueNarrativeScene("event_neighbor_watch");
+            SetStoryFlag(NarrativeStoryFlags.EventNeighborWatchSeen);
+            QueueNarrativeScene(NarrativeKnots.EventNeighborWatch);
         }
     }
 
@@ -1554,10 +1481,10 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         if (activeModifiers.Contains("Released political prisoner background increases scrutiny and pressure."))
         {
-            if (!HasStoryFlag("background_prisoner_heat_seen"))
+            if (!HasStoryFlag(NarrativeStoryFlags.BackgroundPrisonerHeatSeen))
             {
-                SetStoryFlag("background_prisoner_heat_seen");
-                QueueNarrativeScene("background_prisoner_heat");
+                SetStoryFlag(NarrativeStoryFlags.BackgroundPrisonerHeatSeen);
+                QueueNarrativeScene(NarrativeKnots.BackgroundPrisonerHeat);
             }
         }
     }
@@ -1621,10 +1548,10 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         if (Player.BackgroundType == BackgroundType.SudaneseRefugee &&
             randomEvent.Id == "NeighborhoodSolidarity" &&
-            !HasStoryFlag("background_sudanese_solidarity_seen"))
+            !HasStoryFlag(NarrativeStoryFlags.BackgroundSudaneseSolidaritySeen))
         {
-            SetStoryFlag("background_sudanese_solidarity_seen");
-            QueueNarrativeScene("background_sudanese_solidarity");
+            SetStoryFlag(NarrativeStoryFlags.BackgroundSudaneseSolidaritySeen);
+            QueueNarrativeScene(NarrativeKnots.BackgroundSudaneseSolidarity);
         }
 
         if (!string.IsNullOrWhiteSpace(effect.InkKnot))

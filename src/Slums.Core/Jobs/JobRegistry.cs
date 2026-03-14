@@ -146,10 +146,12 @@ public static class JobRegistry
         ArgumentNullException.ThrowIfNull(jobs);
 
         var configuredJobs = jobs.Where(static job => job is not null).ToArray();
-        if (configuredJobs.Length > 0)
+        if (configuredJobs.Length == 0)
         {
-            _jobs = configuredJobs;
+            throw new InvalidOperationException("At least one job must be configured.");
         }
+
+        _jobs = configuredJobs;
     }
 
     public static JobShift? GetJobByType(JobType type)

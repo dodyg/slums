@@ -9,6 +9,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/Slums.Application.Tests/Slums.Application.Tests.csproj" />
     <Project Path="tests/Slums.Core.Tests/Slums.Core.Tests.csproj" />
+    <Project Path="tests/Slums.Game.Tests/Slums.Game.Tests.csproj" />
     <Project Path="tests/Slums.Infrastructure.Tests/Slums.Infrastructure.Tests.csproj" />
     <Project Path="tests/Slums.Narrative.Ink.Tests/Slums.Narrative.Ink.Tests.csproj" />
   </Folder>

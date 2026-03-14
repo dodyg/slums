@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using Ink.Runtime;
 using Slums.Application.Narrative;
@@ -149,11 +150,11 @@ internal static class StoryTraversalHelper
             }
             catch (InvalidOperationException)
             {
-                // Skip branches that fail to load due to story state issues
+                Trace.TraceWarning("Skipping story branch '{0}' choice '{1}' due to invalid story state.", knotName, choiceText);
             }
             catch (ArgumentException)
             {
-                // Skip branches with invalid paths
+                Trace.TraceWarning("Skipping story branch '{0}' choice '{1}' due to an invalid story path.", knotName, choiceText);
             }
         }
     }

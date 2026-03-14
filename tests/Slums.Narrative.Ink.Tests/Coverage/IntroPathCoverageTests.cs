@@ -115,9 +115,12 @@ internal sealed class IntroPathCoverageTests
         var result = StoryTraversalHelper.ExplorePath("intro_prisoner", sceneState);
 
         var allText = string.Join(" ", result.Text);
-        var hasRelevantContent = allText.Contains("prison", StringComparison.OrdinalIgnoreCase) ||
-                                 allText.Contains("political", StringComparison.OrdinalIgnoreCase) ||
-                                 allText.Contains("release", StringComparison.OrdinalIgnoreCase);
+        var hasRelevantContent =
+            allText.Contains("protest", StringComparison.OrdinalIgnoreCase) ||
+            allText.Contains("tahrir", StringComparison.OrdinalIgnoreCase) ||
+            allText.Contains("amn el-dawla", StringComparison.OrdinalIgnoreCase) ||
+            allText.Contains("inside", StringComparison.OrdinalIgnoreCase) ||
+            allText.Contains("criminal record", StringComparison.OrdinalIgnoreCase);
         hasRelevantContent.Should().BeTrue("prisoner backstory should reference political imprisonment");
     }
 

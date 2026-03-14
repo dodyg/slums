@@ -10,8 +10,8 @@ public sealed class ShopMenuStatusQuery
 
         var statuses = new List<ShopMenuStatus>
         {
-            new("Buy Food", context.FoodCost, context.Money >= context.FoodCost),
-            new("Buy Medicine", context.MedicineCost, context.Money >= context.MedicineCost)
+            new(ShopOptionId.BuyFood, "Buy Food", context.FoodCost, context.Money >= context.FoodCost),
+            new(ShopOptionId.BuyMedicine, "Buy Medicine", context.MedicineCost, context.Money >= context.MedicineCost)
         };
 
         if (context.HasClinicServices)
@@ -21,6 +21,7 @@ public sealed class ShopMenuStatusQuery
                 : $"Closed on {context.ClinicDayName}. Open: {context.ClinicOpenDaysSummary}.";
 
             statuses.Add(new ShopMenuStatus(
+                ShopOptionId.TakeMotherToClinic,
                 "Take Mother to Clinic",
                 context.ClinicVisitCost,
                 context.ClinicOpenToday && context.Money >= context.ClinicVisitCost,

@@ -128,8 +128,7 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
             return;
         }
 
-        var result = _makeInvestmentCommand.Execute(_gameState, status.Definition.Type);
-        _gameState.AddEventMessage(result.Message);
+        _makeInvestmentCommand.Execute(_gameState, status.Definition.Type);
         ReturnToParentScreen();
     }
 

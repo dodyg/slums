@@ -4,7 +4,7 @@ using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
 
-#pragma warning disable CA1001 // Type owns disposable field but is not disposable - GameSession ownership is transferred on Build()
+#pragma warning disable CA1001 // Type owns disposable field but transfers GameSession ownership via Build()
 
 namespace Slums.Narrative.Ink.Tests.Helpers;
 
@@ -130,7 +130,6 @@ internal sealed class GameStateBuilder
         return _session;
     }
 
-#pragma warning disable CA2000 // Dispose objects before losing scope - ownership transferred to caller
     public static GameSession BuildForEnding(EndingId endingId)
     {
         return endingId switch
@@ -188,6 +187,7 @@ internal sealed class GameStateBuilder
                 .WithDaysSurvived(30)
                 .WithMoney(250)
                 .WithPolicePressure(10)
+                .WithWorkCounters(400, 15, 30, 30)
                 .Build(),
 
             EndingId.CrimeKingpin => new GameStateBuilder()
@@ -205,5 +205,6 @@ internal sealed class GameStateBuilder
             .WithBackground(backgroundType)
             .Build();
     }
-#pragma warning restore CA2000
 }
+
+#pragma warning restore CA1001

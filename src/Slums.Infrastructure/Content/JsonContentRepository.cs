@@ -46,23 +46,24 @@ public sealed class JsonContentRepository : IContentRepository
         if (!File.Exists(path))
         {
             LogMissingContentFile(_logger, path);
-            return [];
+            throw new ContentLoadException($"Content file not found: {path}");
         }
 
         try
         {
             using var stream = File.OpenRead(path);
-            return JsonSerializer.Deserialize(stream, jsonTypeInfo) ?? [];
+            return JsonSerializer.Deserialize(stream, jsonTypeInfo)
+                ?? throw new ContentLoadException($"Content file {path} did not deserialize into a valid payload.");
         }
         catch (JsonException exception)
         {
             LogInvalidContentJson(_logger, path, exception);
-            return [];
+            throw new ContentLoadException($"Invalid JSON in content file {path}.", exception);
         }
         catch (IOException exception)
         {
             LogContentReadFailure(_logger, path, exception);
-            return [];
+            throw new ContentLoadException($"Failed to read content file {path}.", exception);
         }
     }
 
@@ -113,7 +114,7 @@ public sealed class JsonContentRepository : IContentRepository
             "ard_al_liwa_low_money" => static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa && state.Player.Stats.Money < 120,
             "shubra_low_money" => static state => state.World.CurrentDistrict == DistrictId.Shubra && state.Player.Stats.Money < 120,
             "sudanese_refugee_home" => static state => state.Player.BackgroundType == BackgroundType.SudaneseRefugee && state.World.CurrentDistrict == DistrictId.Imbaba,
-            _ => null
+            _ => throw new ContentLoadException($"Unknown random event condition id '{conditionId}'.")
         };
     }
 

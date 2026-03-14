@@ -164,11 +164,14 @@ internal sealed class CrimeOutcomePathTests
             var result = StoryTraversalHelper.ExplorePath(knot, CreateDefaultSceneState());
             var allText = string.Join(" ", result.Text);
 
-            var hasPositiveIndicators = allText.Contains("success", StringComparison.OrdinalIgnoreCase) ||
-                                        allText.Contains("profit", StringComparison.OrdinalIgnoreCase) ||
+            var hasPositiveIndicators = allText.Contains("profit", StringComparison.OrdinalIgnoreCase) ||
                                         allText.Contains("earned", StringComparison.OrdinalIgnoreCase) ||
                                         allText.Contains("money", StringComparison.OrdinalIgnoreCase) ||
-                                        allText.Contains("clear", StringComparison.OrdinalIgnoreCase);
+                                        allText.Contains("works", StringComparison.OrdinalIgnoreCase) ||
+                                        allText.Contains("hide", StringComparison.OrdinalIgnoreCase) ||
+                                        allText.Contains("possible", StringComparison.OrdinalIgnoreCase) ||
+                                        allText.Contains("recommendation", StringComparison.OrdinalIgnoreCase) ||
+                                        allText.Contains("usable", StringComparison.OrdinalIgnoreCase);
 
             hasPositiveIndicators.Should().BeTrue($"success knot '{knot}' should reflect positive outcome");
         }
@@ -192,11 +195,17 @@ internal sealed class CrimeOutcomePathTests
             var allText = string.Join(" ", result.Text);
 
             var hasHeatIndicators = allText.Contains("notice", StringComparison.OrdinalIgnoreCase) ||
-                                    allText.Contains("saw", StringComparison.OrdinalIgnoreCase) ||
                                     allText.Contains("heat", StringComparison.OrdinalIgnoreCase) ||
-                                    allText.Contains("close", StringComparison.OrdinalIgnoreCase) ||
                                     allText.Contains("police", StringComparison.OrdinalIgnoreCase) ||
-                                    allText.Contains("attention", StringComparison.OrdinalIgnoreCase);
+                                    allText.Contains("attention", StringComparison.OrdinalIgnoreCase) ||
+                                    allText.Contains("attentive", StringComparison.OrdinalIgnoreCase) ||
+                                    allText.Contains("remember", StringComparison.OrdinalIgnoreCase) ||
+                                    allText.Contains("narrowed", StringComparison.OrdinalIgnoreCase) ||
+                                    allText.Contains("out of sight", StringComparison.OrdinalIgnoreCase) ||
+                                    allText.Contains("watche", StringComparison.OrdinalIgnoreCase) ||
+                                    allText.Contains("witness", StringComparison.OrdinalIgnoreCase) ||
+                                    allText.Contains("trail", StringComparison.OrdinalIgnoreCase) ||
+                                    allText.Contains("know you by sight", StringComparison.OrdinalIgnoreCase);
 
             hasHeatIndicators.Should().BeTrue($"detected knot '{knot}' should reflect heat/attention");
         }

@@ -37,5 +37,6 @@ internal sealed class InvestmentMenuQueryTests
         result.Success.Should().BeTrue();
         gameState.ActiveInvestments.Should().ContainSingle();
         gameState.ActiveInvestments[0].Type.Should().Be(InvestmentType.FoulCart);
+        result.Message.Should().Contain("Successfully invested");
     }
 }

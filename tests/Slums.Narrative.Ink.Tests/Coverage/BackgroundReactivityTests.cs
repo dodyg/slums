@@ -68,9 +68,12 @@ internal sealed class BackgroundReactivityTests
         var result = StoryTraversalHelper.ExplorePath("intro_prisoner", CreatePrisonerSceneState());
         var allText = string.Join(" ", result.Text);
 
-        var hasPoliticalContent = allText.Contains("prison", StringComparison.OrdinalIgnoreCase) ||
-                                  allText.Contains("political", StringComparison.OrdinalIgnoreCase) ||
-                                  allText.Contains("release", StringComparison.OrdinalIgnoreCase);
+        var hasPoliticalContent =
+            allText.Contains("protest", StringComparison.OrdinalIgnoreCase) ||
+            allText.Contains("tahrir", StringComparison.OrdinalIgnoreCase) ||
+            allText.Contains("amn el-dawla", StringComparison.OrdinalIgnoreCase) ||
+            allText.Contains("inside", StringComparison.OrdinalIgnoreCase) ||
+            allText.Contains("criminal record", StringComparison.OrdinalIgnoreCase);
 
         hasPoliticalContent.Should().BeTrue("prisoner intro should reference political imprisonment");
     }

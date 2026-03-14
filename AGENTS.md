@@ -41,6 +41,7 @@ src/
 tests/
   Slums.Core.Tests/
   Slums.Application.Tests/
+  Slums.Game.Tests/
   Slums.Infrastructure.Tests/
   Slums.Narrative.Ink.Tests/
 content/
@@ -83,6 +84,7 @@ Do not put SadConsole, Ink, or file IO here.
 Put orchestration here:
 
 - contracts that operate on `GameSession`
+- player-facing action commands and menu/action availability queries
 - new game flow
 - background selection
 - travel commands
@@ -97,6 +99,7 @@ Put adapters here:
 - save file storage
 - `GameSession` snapshot capture/restore and JSON serialization
 - content loading
+- fail-fast validation for repo-owned JSON content
 - environment-specific paths
 - seeded randomness implementation
 - `LoadedGameSession` creation at the persistence boundary
@@ -191,6 +194,7 @@ Minimum expectation by layer:
 
 - `Slums.Core.Tests`: unit tests for rules and state transitions
 - `Slums.Application.Tests`: use-case orchestration tests
+- `Slums.Game.Tests`: UI-shell and input-helper tests that do not belong in application/domain test assemblies
 - `Slums.Narrative.Ink.Tests`: scene loading, variable sync, and choice progression
 - `Slums.Infrastructure.Tests`: serialization and content-loading tests
 
@@ -199,8 +203,9 @@ Minimum expectation by layer:
   1. `dotnet build Slums.slnx`
   2. `dotnet run --project tests/Slums.Core.Tests`
   3. `dotnet run --project tests/Slums.Application.Tests`
-  4. `dotnet run --project tests/Slums.Infrastructure.Tests`
-  5. `dotnet run --project tests/Slums.Narrative.Ink.Tests`
+  4. `dotnet run --project tests/Slums.Game.Tests`
+  5. `dotnet run --project tests/Slums.Infrastructure.Tests`
+  6. `dotnet run --project tests/Slums.Narrative.Ink.Tests`
 - Test projects are configured as executables (`OutputType=Exe`) for direct execution
 
 Run existing build and test commands before finishing work.
@@ -242,9 +247,11 @@ If content touches those boundaries, choose implication and consequence over exp
 - Reuse models and services instead of duplicating state.
 - Prefer feature-oriented folders within each project.
 - Keep `GameSession` as the canonical runtime boundary, with EntitiesDb as its backing runtime store.
+- Route player-triggered gameplay mutations through `Slums.Application` commands/queries instead of calling `GameSession` directly from SadConsole screens.
 - Keep persistence centered on `GameSession` snapshots and `LoadedGameSession`; do not reintroduce parallel save-state models.
 - Use Ink for authored branching scenes, not for core economy simulation.
 - Treat missing or invalid Ink content as a hard failure; do not restore fallback narrative behavior.
+- Treat missing or invalid repo-owned JSON content as a hard failure during app bootstrap; do not silently fall back in normal runtime.
 - Add content in `content/` before hardcoding large world datasets.
 - Update `PLAN.MD` and `AGENTS.md` if architectural direction changes.
 

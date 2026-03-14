@@ -10,6 +10,7 @@ public sealed class ClinicTravelMenuQuery
 
         return context.Clinics
             .Select(clinic => new ClinicTravelMenuStatus(
+                clinic.LocationId,
                 clinic.LocationName,
                 clinic.DistrictName,
                 clinic.TravelCost,

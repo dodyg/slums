@@ -77,6 +77,7 @@ public static class EndingService
         if (gameState.DaysSurvived >= 30 &&
             gameState.CrimesCommitted == 0 &&
             gameState.Player.Stats.Money > 200 &&
+            gameState.HonestShiftsCompleted >= 10 &&
             gameState.Player.Household.MotherAlive &&
             gameState.PolicePressure < 20)
         {
@@ -113,21 +114,7 @@ public static class EndingService
 
     public static string GetInkKnot(EndingId endingId)
     {
-        return endingId switch
-        {
-            EndingId.Destitution => "ending_destitution",
-            EndingId.MotherDied => "ending_mother_died",
-            EndingId.CollapseFromExhaustion => "ending_collapse",
-            EndingId.StabilityHonestWork => "ending_stability",
-            EndingId.CrimeKingpin => "ending_crime_kingpin",
-            EndingId.QuitTheLuxorDream => "ending_luxor",
-            EndingId.Arrested => "ending_arrested",
-            EndingId.NetworkShelter => "ending_network_shelter",
-            EndingId.LeavingCrime => "ending_leaving_crime",
-            EndingId.BuriedByHeat => "ending_buried_by_heat",
-            EndingId.Eviction => "ending_eviction",
-            _ => throw new ArgumentOutOfRangeException(nameof(endingId))
-        };
+        return EndingKnotCatalog.GetDefault(endingId);
     }
 
     public static string GetInkKnot(GameSession gameState, EndingId endingId)
@@ -145,24 +132,12 @@ public static class EndingService
 
     private static string GetStabilityKnot(BackgroundType backgroundType)
     {
-        return backgroundType switch
-        {
-            BackgroundType.MedicalSchoolDropout => "ending_stability_medical",
-            BackgroundType.ReleasedPoliticalPrisoner => "ending_stability_prisoner",
-            BackgroundType.SudaneseRefugee => "ending_stability_sudanese",
-            _ => "ending_stability"
-        };
+        return EndingKnotCatalog.GetStabilityKnot(backgroundType);
     }
 
     private static string GetLeavingCrimeKnot(BackgroundType backgroundType)
     {
-        return backgroundType switch
-        {
-            BackgroundType.MedicalSchoolDropout => "ending_leaving_crime_medical",
-            BackgroundType.ReleasedPoliticalPrisoner => "ending_leaving_crime_prisoner",
-            BackgroundType.SudaneseRefugee => "ending_leaving_crime_sudanese",
-            _ => "ending_leaving_crime"
-        };
+        return EndingKnotCatalog.GetLeavingCrimeKnot(backgroundType);
     }
 
     private static string GetNetworkShelterKnot(GameSession gameState)
@@ -179,13 +154,6 @@ public static class EndingService
             .OrderByDescending(npcId => gameState.Relationships.GetNpcRelationship(npcId).Trust)
             .First();
 
-        return strongestSupport switch
-        {
-            NpcId.NeighborMona => "ending_network_shelter_mona",
-            NpcId.NurseSalma => "ending_network_shelter_salma",
-            NpcId.CafeOwnerNadia => "ending_network_shelter_nadia",
-            NpcId.FenceHanan => "ending_network_shelter_hanan",
-            _ => "ending_network_shelter"
-        };
+        return EndingKnotCatalog.GetNetworkShelterKnot(strongestSupport);
     }
 }

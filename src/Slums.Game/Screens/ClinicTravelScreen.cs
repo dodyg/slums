@@ -16,6 +16,7 @@ internal sealed class ClinicTravelScreen : ScreenSurface
     private readonly ClinicTravelMenuContext _context;
     private readonly IReadOnlyList<ClinicTravelMenuStatus> _statuses;
     private readonly GameScreen _parentScreen;
+    private readonly ClinicTravelCommand _clinicTravelCommand = new();
     private int _selectedIndex;
 
     public ClinicTravelScreen(
@@ -148,16 +149,7 @@ internal sealed class ClinicTravelScreen : ScreenSurface
             return;
         }
 
-        var clinicLocations = _gameState.GetClinicLocations();
-        var selectedLocation = clinicLocations.FirstOrDefault(l => l.Name == status.LocationName);
-
-        if (selectedLocation is null)
-        {
-            ReturnToParentScreen();
-            return;
-        }
-
-        _gameState.TravelAndTakeMotherToClinic(selectedLocation.Id);
+        _clinicTravelCommand.Execute(_gameState, status.LocationId);
         ReturnToParentScreen();
     }
 

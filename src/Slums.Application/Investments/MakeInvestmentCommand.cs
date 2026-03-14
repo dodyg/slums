@@ -11,6 +11,8 @@ public sealed class MakeInvestmentCommand
     {
         ArgumentNullException.ThrowIfNull(gameSession);
 
-        return gameSession.MakeInvestment(type);
+        var result = gameSession.MakeInvestment(type);
+        gameSession.AddEventMessage(result.Message);
+        return result;
     }
 }

@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
+using Slums.Application.Activities;
 using Slums.Core.State;
 using Slums.Core.World;
 
@@ -15,6 +16,7 @@ internal sealed class TravelScreen : ScreenSurface
     private readonly GameSession _gameState;
     private readonly IReadOnlyList<Location> _locations;
     private readonly GameScreen _parentScreen;
+    private readonly TravelCommand _travelCommand = new();
     private int _selectedIndex;
 
     public TravelScreen(int width, int height, GameSession gameState, IReadOnlyList<Location> locations, GameScreen parentScreen) 
@@ -124,7 +126,7 @@ internal sealed class TravelScreen : ScreenSurface
     private void TravelToSelected()
     {
         var location = _locations[_selectedIndex];
-        var success = _gameState.TryTravelTo(location.Id);
+        var success = _travelCommand.Execute(_gameState, location.Id, TravelMode.Transport);
         
         if (!success)
         {
@@ -137,7 +139,7 @@ internal sealed class TravelScreen : ScreenSurface
     private void WalkToSelected()
     {
         var location = _locations[_selectedIndex];
-        var success = _gameState.TryWalkTo(location.Id);
+        var success = _travelCommand.Execute(_gameState, location.Id, TravelMode.Walk);
         
         if (!success)
         {

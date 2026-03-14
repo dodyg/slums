@@ -1,8 +1,10 @@
 using Slums.Core.Characters;
 using Slums.Core.Investments;
+using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.World;
+using Slums.Application.Narrative;
 
 namespace Slums.Application.Activities;
 
@@ -125,34 +127,32 @@ public sealed class GameStatusPageQuery
     {
         var lines = new List<string>();
 
-        if (context.LastCrimeDay > 0 && context.Clock.Day - context.LastCrimeDay <= 1 && context.PolicePressure >= 60)
+        if (NarrativeSignalRules.HasPendingPublicWorkHeat(context.Clock.Day, context.LastCrimeDay, context.PolicePressure))
         {
             lines.Add("Public-facing work is likely to trigger suspicion while street heat is this high.");
         }
 
-        if (context.TotalCrimeEarnings >= 150 && context.CrimesCommitted >= 2 && context.Player.Household.MotherHealth < 65 && !context.HasStoryFlag("event_mother_wrong_money_seen"))
+        if (NarrativeSignalRules.HasPendingMotherWrongMoney(context.Player, context.TotalCrimeEarnings, context.CrimesCommitted, context.StoryFlags))
         {
             lines.Add("Home is primed for a tense reaction to sudden money.");
         }
 
-        if (context.PolicePressure >= 60 && context.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust >= 15 && !context.HasStoryFlag("event_neighbor_watch_seen"))
+        if (NarrativeSignalRules.HasPendingNeighborWatch(context.PolicePressure, context.Relationships, context.StoryFlags))
         {
             lines.Add("Mona is currently positioned to warn you if the building gets watched.");
         }
 
-        if (context.Player.BackgroundType == BackgroundType.MedicalSchoolDropout && !context.HasStoryFlag("background_medical_clinic_seen"))
+        if (NarrativeSignalRules.HasPendingMedicalClinicReflection(context.Player, context.StoryFlags))
         {
             lines.Add("A successful clinic shift can still trigger the medical-dropout clinic reflection.");
         }
 
-        if (context.Player.BackgroundType == BackgroundType.MedicalSchoolDropout &&
-            context.Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust >= 12 &&
-            context.Player.Household.MotherHealth < 65)
+        if (NarrativeSignalRules.HasPendingSalmaMedicineHelp(context.Player, context.Relationships))
         {
             lines.Add("Salma is in a position to quietly help with medicine after a good clinic day.");
         }
 
-        if (context.CrimesCommitted == 0 && !context.HasStoryFlag("crime_first_success"))
+        if (context.CrimesCommitted == 0 && NarrativeSignalRules.HasPendingFirstCrimeAftermath(context.StoryFlags))
         {
             lines.Add("Your first successful crime still has a unique aftermath beat waiting.");
         }

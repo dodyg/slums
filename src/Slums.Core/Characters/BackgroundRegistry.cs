@@ -70,10 +70,12 @@ public static class BackgroundRegistry
         ArgumentNullException.ThrowIfNull(backgrounds);
 
         var configuredBackgrounds = backgrounds.Where(static background => background is not null).ToArray();
-        if (configuredBackgrounds.Length > 0)
+        if (configuredBackgrounds.Length == 0)
         {
-            _backgrounds = configuredBackgrounds;
+            throw new InvalidOperationException("At least one background must be configured.");
         }
+
+        _backgrounds = configuredBackgrounds;
     }
 
     public static Background GetByType(BackgroundType type) => type switch

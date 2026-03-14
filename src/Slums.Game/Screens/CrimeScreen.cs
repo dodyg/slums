@@ -20,6 +20,7 @@ internal sealed class CrimeScreen : ScreenSurface
     private readonly GameScreen _parentScreen;
     private readonly GameRuntime _runtime;
     private readonly ScreenActionKeyGate _actionKeyGate = new();
+    private readonly CrimeCommand _crimeCommand = new();
     private int _selectedIndex;
 
     public CrimeScreen(int width, int height, GameRuntime runtime, GameSession gameState, CrimeMenuContext context, IReadOnlyList<CrimeMenuStatus> crimeAttempts, GameScreen parentScreen)
@@ -142,7 +143,7 @@ internal sealed class CrimeScreen : ScreenSurface
             return;
         }
 
-        _gameState.CommitCrime(selected.Attempt, _runtime.RandomSource.SharedRandom);
+        _crimeCommand.Execute(_gameState, selected.Attempt, _runtime.RandomSource.SharedRandom);
         ReturnToParentScreen();
     }
 
