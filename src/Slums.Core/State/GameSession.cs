@@ -559,23 +559,17 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             {
                 ModifyFactionReputation(FactionId.ExPrisonerNetwork, 5);
             }
-            if (!HasStoryFlag(NarrativeStoryFlags.CrimeFirstSuccess))
-            {
-                SetStoryFlag(NarrativeStoryFlags.CrimeFirstSuccess);
-                QueueNarrativeScene(NarrativeKnots.CrimeFirstSuccess);
-            }
+            TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetFirstSuccessTrigger(_storyFlags));
         }
 
-        QueueContactCrimeScene(attempt, result);
+        TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetRouteSceneTrigger(attempt.Type, result));
 
         SetPolicePressure(PolicePressure + result.PolicePressureDelta);
         RaiseEvent(result.Message);
         ApplyCrimeContactAftermath(result);
 
-        if (PolicePressure >= 80 && !HasStoryFlag(NarrativeStoryFlags.CrimeWarning))
+        if (TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetCrimeWarningTrigger(PolicePressure, _storyFlags)))
         {
-            SetStoryFlag(NarrativeStoryFlags.CrimeWarning);
-            QueueNarrativeScene(NarrativeKnots.CrimeWarning);
             RaiseEvent("People are whispering that the police are getting close.");
         }
 
@@ -714,11 +708,9 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         ApplySkillGain(SkillId.Medical);
 
         RaiseEvent($"You take your mother into {clinicStatus.LocationName}. The visit costs {clinicStatus.VisitCost} LE. Her health improves by {healthChange}.");
-
-        if (!HasStoryFlag(NarrativeStoryFlags.MotherClinicFirstVisit))
+        if (NarrativeSignalRules.HasPendingClinicFirstVisit(_storyFlags))
         {
-            SetStoryFlag(NarrativeStoryFlags.MotherClinicFirstVisit);
-            QueueNarrativeScene(NarrativeKnots.MotherClinicFirstVisit);
+            TryQueueNarrativeTrigger(new NarrativeSceneTrigger(NarrativeStoryFlags.MotherClinicFirstVisit, NarrativeKnots.MotherClinicFirstVisit));
         }
 
         return new MotherClinicVisitResult(true, clinicStatus.VisitCost, healthChange);
@@ -1021,6 +1013,18 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
     }
 
+    private bool TryQueueNarrativeTrigger(NarrativeSceneTrigger? trigger)
+    {
+        if (trigger is null || HasStoryFlag(trigger.FlagName))
+        {
+            return false;
+        }
+
+        SetStoryFlag(trigger.FlagName);
+        QueueNarrativeScene(trigger.KnotName);
+        return true;
+    }
+
     public bool TryDequeueNarrativeScene(out string knotName)
     {
         if (_pendingNarrativeScenes.Count > 0)
@@ -1064,115 +1068,25 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     private void ApplyCrimeContactAftermath(CrimeResult result)
     {
-        if (!result.Detected)
+        var aftermath = CrimeNarrativePlanner.GetDetectedContactAftermath(World.CurrentLocationId, Relationships, result);
+        if (aftermath is null)
         {
             return;
         }
 
-        if (World.CurrentLocationId == LocationId.Market && Relationships.GetNpcRelationship(NpcId.FenceHanan).Trust >= 15)
+        ReduceCrimeHeat(aftermath.PolicePressureReduction, aftermath.HeatMessage, aftermath.HeatTrigger);
+
+        if (!result.Success && !string.IsNullOrWhiteSpace(aftermath.FailureMessage))
         {
-            ReduceCrimeHeat(5, "Hanan quietly shifts attention away from your name. The market heat eases a little.", "crime_hanan_cover", "crime_hanan_cover_seen");
-
-            if (!result.Success)
-            {
-                ApplyCrimeFailureMitigation(
-                    moneyGain: 12,
-                    stressRelief: 4,
-                    message: "Hanan still manages to move a sliver of the loss. The night hurts less than it should have.",
-                    knotName: "crime_hanan_salvage",
-                    flagName: "crime_hanan_salvage_seen");
-            }
-        }
-
-        if (World.CurrentLocationId == LocationId.Square && Relationships.GetNpcRelationship(NpcId.RunnerYoussef).Trust >= 15)
-        {
-            ReduceCrimeHeat(7, "Youssef tips you off and sends you moving before the wrong questions settle on you.", "crime_youssef_tipoff", "crime_youssef_tipoff_seen");
-
-            if (!result.Success)
-            {
-                ApplyCrimeFailureMitigation(
-                    moneyGain: 0,
-                    stressRelief: 6,
-                    message: "Youssef gets you clear before panic turns into a worse mistake.",
-                    knotName: "crime_youssef_escape",
-                    flagName: "crime_youssef_escape_seen");
-            }
-        }
-
-        if (World.CurrentLocationId == LocationId.Depot && Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= 15)
-        {
-            ReduceCrimeHeat(5, "Safaa reroutes the gossip faster than the depot can pin it to you. The heat slips sideways.", "crime_safaa_reroute", "crime_safaa_reroute_seen");
-
-            if (!result.Success)
-            {
-                ApplyCrimeFailureMitigation(
-                    moneyGain: 8,
-                    stressRelief: 4,
-                    message: "Safaa turns a blown move into something survivable and keeps one driver's mouth shut.",
-                    knotName: "crime_safaa_salvage",
-                    flagName: "crime_safaa_salvage_seen");
-            }
-        }
-
-        if (World.CurrentLocationId == LocationId.Laundry && Relationships.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust >= 15)
-        {
-            ReduceCrimeHeat(4, "Iman clocks the wrong kind of attention in the lane and sends you out the back before it settles on your face.", "crime_iman_cover", "crime_iman_cover_seen");
-
-            if (!result.Success)
-            {
-                ApplyCrimeFailureMitigation(
-                    moneyGain: 0,
-                    stressRelief: 5,
-                    message: "Iman does not ask questions. She only gets you clear before panic starts showing.",
-                    knotName: "crime_iman_exit",
-                    flagName: "crime_iman_exit_seen");
-            }
+            ApplyCrimeFailureMitigation(
+                aftermath.FailureMoneyGain,
+                aftermath.FailureStressRelief,
+                aftermath.FailureMessage,
+                aftermath.FailureTrigger);
         }
     }
 
-    private void QueueContactCrimeScene(CrimeAttempt attempt, CrimeResult result)
-    {
-        var scene = attempt.Type switch
-        {
-            CrimeType.MarketFencing => GetCrimeScene(result, "crime_hanan_fence_success", "crime_hanan_fence_detected", "crime_hanan_fence_failure"),
-            CrimeType.DokkiDrop => GetCrimeScene(result, "crime_youssef_drop_success", "crime_youssef_drop_detected", "crime_youssef_drop_failure"),
-            CrimeType.NetworkErrand => GetCrimeScene(result, "crime_ummkarim_errand_success", "crime_ummkarim_errand_detected", "crime_ummkarim_errand_failure"),
-            CrimeType.DepotFareSkim => GetCrimeScene(result, "crime_safaa_skim_success", "crime_safaa_skim_detected", "crime_safaa_skim_failure"),
-            CrimeType.ShubraBundleLift => GetCrimeScene(result, "crime_iman_bundle_success", "crime_iman_bundle_detected", "crime_iman_bundle_failure"),
-            _ => null
-        };
-
-        if (string.IsNullOrWhiteSpace(scene))
-        {
-            return;
-        }
-
-        var flagName = $"{scene}_seen";
-        if (HasStoryFlag(flagName))
-        {
-            return;
-        }
-
-        SetStoryFlag(flagName);
-        QueueNarrativeScene(scene);
-    }
-
-    private static string GetCrimeScene(CrimeResult result, string successScene, string detectedSuccessScene, string failureScene)
-    {
-        if (result.Success && result.Detected)
-        {
-            return detectedSuccessScene;
-        }
-
-        if (result.Success)
-        {
-            return successScene;
-        }
-
-        return failureScene;
-    }
-
-    private void ReduceCrimeHeat(int amount, string message, string knotName, string flagName)
+    private void ReduceCrimeHeat(int amount, string message, NarrativeSceneTrigger trigger)
     {
         if (amount <= 0)
         {
@@ -1187,15 +1101,10 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         SetPolicePressure(updatedPressure);
         RaiseEvent(message);
-
-        if (!HasStoryFlag(flagName))
-        {
-            SetStoryFlag(flagName);
-            QueueNarrativeScene(knotName);
-        }
+        TryQueueNarrativeTrigger(trigger);
     }
 
-    private void ApplyCrimeFailureMitigation(int moneyGain, int stressRelief, string message, string knotName, string flagName)
+    private void ApplyCrimeFailureMitigation(int moneyGain, int stressRelief, string message, NarrativeSceneTrigger? trigger)
     {
         if (moneyGain > 0)
         {
@@ -1208,12 +1117,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
 
         RaiseEvent(message);
-
-        if (!HasStoryFlag(flagName))
-        {
-            SetStoryFlag(flagName);
-            QueueNarrativeScene(knotName);
-        }
+        TryQueueNarrativeTrigger(trigger);
     }
 
     public void SetRunId(Guid runId)
@@ -1365,25 +1269,16 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     private void ApplyWorkCrimeSpillover(JobShift job, JobResult result)
     {
-        if (Clock.Day - LastCrimeDay > 1 || LastCrimeDay == 0)
+        var publicWorkHeat = WorkNarrativePlanner.GetPublicWorkHeatPlan(Clock.Day, LastCrimeDay, PolicePressure, _storyFlags, job);
+        if (publicWorkHeat is not null)
         {
-            return;
+            Player.Stats.ModifyStress(publicWorkHeat.StressDelta);
+            ModifyEmployerTrust(job.Type, publicWorkHeat.EmployerTrustDelta);
+            RaiseEvent(publicWorkHeat.Message);
+            TryQueueNarrativeTrigger(publicWorkHeat.NarrativeTrigger);
         }
 
-        if (PolicePressure >= 60 && ActivityLedgerSystem.IsPublicFacingJob(job.Type))
-        {
-            Player.Stats.ModifyStress(4);
-            ModifyEmployerTrust(job.Type, -2);
-            RaiseEvent("The street heat follows you into work. People notice how tense you look.");
-
-            if (!HasStoryFlag(NarrativeStoryFlags.EventPublicWorkHeatSeen))
-            {
-                SetStoryFlag(NarrativeStoryFlags.EventPublicWorkHeatSeen);
-                QueueNarrativeScene(NarrativeKnots.EventPublicWorkHeat);
-            }
-        }
-
-        if (result.MistakeMade && job.Type == JobType.WorkshopSewing)
+        if (WorkNarrativePlanner.ShouldEmbarrassWorkshopBoss(job, result))
         {
             Relationships.SetEmbarrassedState(NpcId.WorkshopBossAbuSamir, true);
             Relationships.RecordRefusal(NpcId.WorkshopBossAbuSamir, Clock.Day);
@@ -1392,20 +1287,9 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     private void ApplyBackgroundWorkFlavor(JobShift job, JobResult result)
     {
-        if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout &&
-            job.Type == JobType.ClinicReception &&
-            result.Success &&
-            !HasStoryFlag(NarrativeStoryFlags.BackgroundMedicalClinicSeen))
-        {
-            SetStoryFlag(NarrativeStoryFlags.BackgroundMedicalClinicSeen);
-            QueueNarrativeScene(NarrativeKnots.BackgroundMedicalClinic);
-        }
+        TryQueueNarrativeTrigger(WorkNarrativePlanner.GetMedicalClinicTrigger(Player, job, result, _storyFlags));
 
-        if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout &&
-            job.Type == JobType.ClinicReception &&
-            result.Success &&
-            Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust >= 12 &&
-            Player.Household.MotherHealth < 65)
+        if (WorkNarrativePlanner.ShouldGrantSalmaMedicineHelp(Player, job, result, Relationships))
         {
             Relationships.RecordFavor(NpcId.NurseSalma, Clock.Day, hasUnpaidDebt: true);
             RaiseEvent("Nurse Salma quietly covers a little medicine for your mother. You owe her now.");
@@ -1414,23 +1298,16 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     private void QueueNarrativeFollowUpScenes()
     {
-        if (CrimeCommittedToday &&
-            TotalCrimeEarnings >= 150 &&
-            CrimesCommitted >= 2 &&
-            Player.Household.MotherHealth < 65 &&
-            !HasStoryFlag(NarrativeStoryFlags.EventMotherWrongMoneySeen))
+        foreach (var trigger in NarrativeFollowUpPlanner.GetEndOfDayTriggers(
+                     CrimeCommittedToday,
+                     Player,
+                     TotalCrimeEarnings,
+                     CrimesCommitted,
+                     PolicePressure,
+                     Relationships,
+                     _storyFlags))
         {
-            SetStoryFlag(NarrativeStoryFlags.EventMotherWrongMoneySeen);
-            QueueNarrativeScene(NarrativeKnots.EventMotherWrongMoney);
-        }
-
-        if (CrimeCommittedToday &&
-            PolicePressure >= 60 &&
-            Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust >= 15 &&
-            !HasStoryFlag(NarrativeStoryFlags.EventNeighborWatchSeen))
-        {
-            SetStoryFlag(NarrativeStoryFlags.EventNeighborWatchSeen);
-            QueueNarrativeScene(NarrativeKnots.EventNeighborWatch);
+            TryQueueNarrativeTrigger(trigger);
         }
     }
 
@@ -1481,11 +1358,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         if (activeModifiers.Contains("Released political prisoner background increases scrutiny and pressure."))
         {
-            if (!HasStoryFlag(NarrativeStoryFlags.BackgroundPrisonerHeatSeen))
-            {
-                SetStoryFlag(NarrativeStoryFlags.BackgroundPrisonerHeatSeen);
-                QueueNarrativeScene(NarrativeKnots.BackgroundPrisonerHeat);
-            }
+            TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetPrisonerHeatTrigger(Player.BackgroundType, _storyFlags));
         }
     }
 
@@ -1546,12 +1419,9 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         RaiseEvent(randomEvent.Description);
 
-        if (Player.BackgroundType == BackgroundType.SudaneseRefugee &&
-            randomEvent.Id == "NeighborhoodSolidarity" &&
-            !HasStoryFlag(NarrativeStoryFlags.BackgroundSudaneseSolidaritySeen))
+        if (NarrativeSignalRules.HasPendingSudaneseSolidarity(Player.BackgroundType, randomEvent.Id, _storyFlags))
         {
-            SetStoryFlag(NarrativeStoryFlags.BackgroundSudaneseSolidaritySeen);
-            QueueNarrativeScene(NarrativeKnots.BackgroundSudaneseSolidarity);
+            TryQueueNarrativeTrigger(new NarrativeSceneTrigger(NarrativeStoryFlags.BackgroundSudaneseSolidaritySeen, NarrativeKnots.BackgroundSudaneseSolidarity));
         }
 
         if (!string.IsNullOrWhiteSpace(effect.InkKnot))
@@ -1634,56 +1504,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public InvestmentEligibility CheckInvestmentEligibility(InvestmentDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(definition);
-
-        var reasons = new List<string>();
-
-        if (Player.Stats.Money < definition.Cost)
-        {
-            reasons.Add($"Not enough money. Cost: {definition.Cost} LE.");
-        }
-
-        if (definition.OpportunityLocationId != World.CurrentLocationId)
-        {
-            reasons.Add($"This opportunity is only discussed at {GetLocationName(definition.OpportunityLocationId)}.");
-        }
-
-        if (definition.OpportunityNpc is NpcId sponsorNpc && !GetReachableNpcs().Contains(sponsorNpc))
-        {
-            reasons.Add($"{NpcRegistry.GetName(sponsorNpc)} is not available to discuss this here right now.");
-        }
-
-        if (_investmentState.ActiveInvestments.Any(i => i.Type == definition.Type))
-        {
-            reasons.Add("You already have this investment.");
-        }
-
-        if (definition.RequiredRelationshipNpc is NpcId npcId &&
-            definition.RequiredRelationshipTrust > 0)
-        {
-            var trust = Relationships.GetNpcRelationship(npcId).Trust;
-            if (trust < definition.RequiredRelationshipTrust)
-            {
-                reasons.Add($"Need {definition.RequiredRelationshipTrust} trust with {NpcRegistry.GetName(npcId)}. Current: {trust}.");
-            }
-        }
-
-        if (definition.RequiresCrimePath && TotalCrimeEarnings < 50)
-        {
-            reasons.Add("Requires active involvement in crime operations.");
-        }
-
-        if (definition.RequiresStreetSmartsOrExPrisoner)
-        {
-            var hasStreetSmarts = Player.Skills.GetLevel(SkillId.StreetSmarts) >= 2;
-            var isExPrisoner = Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner;
-
-            if (!hasStreetSmarts && !isExPrisoner)
-            {
-                reasons.Add("Requires street smarts (level 2+) or ex-prisoner background.");
-            }
-        }
-
-        return new InvestmentEligibility(reasons.Count == 0, reasons);
+        return InvestmentEligibilityEvaluator.Evaluate(definition, CreateInvestmentEligibilityContext());
     }
 
     public MakeInvestmentResult MakeInvestment(InvestmentType type)
@@ -1729,6 +1550,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
             if (investment.IsSuspended)
             {
+                var definition = InvestmentRegistry.GetByType(investment.Type);
                 summary.AddResult(new InvestmentResolution(
                     investment.Type,
                     0,
@@ -1736,12 +1558,23 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
                     ExtortionPaid: 0,
                     PolicePressureIncrease: 0,
                     InvestedAmountLost: 0,
-                    $"{GetInvestmentName(investment.Type)} is recovering after last week's disruption and pays nothing this week."));
+                    $"{definition?.Name ?? investment.Type.ToString()} is recovering after last week's disruption and pays nothing this week."));
                 investment.Unsuspend();
                 continue;
             }
 
-            var result = ResolveSingleInvestment(investment, rng);
+            var calculation = InvestmentResolutionCalculator.Resolve(
+                investment,
+                InvestmentRegistry.GetByType(investment.Type),
+                Player.Stats.Money,
+                rng);
+
+            if (calculation.ShouldSuspend)
+            {
+                investment.Suspend();
+            }
+
+            var result = calculation.Resolution;
             summary.AddResult(result);
 
             if (result.WasLost)
@@ -1785,94 +1618,6 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         return summary;
     }
 
-#pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
-    private InvestmentResolution ResolveSingleInvestment(Investment investment, Random rng)
-    {
-        var definition = InvestmentRegistry.GetByType(investment.Type);
-        if (definition is null)
-        {
-            return new InvestmentResolution(investment.Type, 0, false, 0, 0, 0, "Investment definition not found.");
-        }
-
-        var profile = investment.RiskProfile;
-
-        if (rng.NextDouble() < profile.WeeklyFailureChance)
-        {
-            return new InvestmentResolution(
-                investment.Type,
-                0,
-                WasLost: true,
-                ExtortionPaid: 0,
-                PolicePressureIncrease: 0,
-                InvestedAmountLost: investment.InvestedAmount,
-                $"Your {definition.Name} venture failed. Investment lost.");
-        }
-
-        if (rng.NextDouble() < profile.ExtortionChance)
-        {
-            var extortionAmount = rng.Next(profile.ExtortionAmountMin, profile.ExtortionAmountMax + 1);
-
-            if (Player.Stats.Money >= extortionAmount)
-            {
-                return new InvestmentResolution(
-                    investment.Type,
-                    0,
-                    WasLost: false,
-                    ExtortionPaid: extortionAmount,
-                    PolicePressureIncrease: 0,
-                    InvestedAmountLost: 0,
-                    $"Gangs demanded {extortionAmount} LE from your {definition.Name} operation.");
-            }
-            else
-            {
-                investment.Suspend();
-                return new InvestmentResolution(
-                    investment.Type,
-                    0,
-                    WasLost: false,
-                    ExtortionPaid: 0,
-                    PolicePressureIncrease: 2,
-                    InvestedAmountLost: 0,
-                    $"Could not pay extortion for {definition.Name}. Operation suspended.");
-            }
-        }
-
-        if (rng.NextDouble() < profile.PoliceHeatChance)
-        {
-            return new InvestmentResolution(
-                investment.Type,
-                0,
-                WasLost: false,
-                ExtortionPaid: 0,
-                PolicePressureIncrease: 5,
-                InvestedAmountLost: 0,
-                $"Police interest in your {definition.Name} increases pressure.");
-        }
-
-        if (rng.NextDouble() < profile.BetrayalChance)
-        {
-            return new InvestmentResolution(
-                investment.Type,
-                0,
-                WasLost: true,
-                ExtortionPaid: 0,
-                PolicePressureIncrease: 0,
-                InvestedAmountLost: investment.InvestedAmount,
-                $"Your partner in {definition.Name} disappeared with the funds.");
-        }
-
-        var income = rng.Next(investment.WeeklyIncomeMin, investment.WeeklyIncomeMax + 1);
-        return new InvestmentResolution(
-            investment.Type,
-            income,
-            WasLost: false,
-            ExtortionPaid: 0,
-            PolicePressureIncrease: 0,
-            InvestedAmountLost: 0,
-            $"{definition.Name} earned {income} LE this week.");
-    }
-#pragma warning restore CA5394
-
     public void RestoreInvestmentState(
         IEnumerable<InvestmentSnapshot> investments,
         int totalInvestmentEarnings)
@@ -1894,14 +1639,17 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         TotalInvestmentEarnings = totalInvestmentEarnings;
     }
 
-    private static string GetLocationName(LocationId locationId)
+    private InvestmentEligibilityContext CreateInvestmentEligibilityContext()
     {
-        return WorldState.AllLocations.FirstOrDefault(location => location.Id == locationId)?.Name ?? locationId.Value;
-    }
-
-    private static string GetInvestmentName(InvestmentType type)
-    {
-        return InvestmentRegistry.GetByType(type)?.Name ?? type.ToString();
+        return new InvestmentEligibilityContext(
+            Player.Stats.Money,
+            World.CurrentLocationId,
+            GetReachableNpcs().ToHashSet(),
+            _investmentState.ActiveInvestments.Select(static investment => investment.Type).ToHashSet(),
+            Relationships,
+            TotalCrimeEarnings,
+            Player.Skills.GetLevel(SkillId.StreetSmarts),
+            Player.BackgroundType);
     }
 
     public IReadOnlyList<string> GetStatusSummary()

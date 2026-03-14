@@ -1,6 +1,5 @@
 using Slums.Core.Investments;
 using Slums.Core.Relationships;
-using Slums.Core.State;
 
 namespace Slums.Application.Investments;
 
@@ -13,13 +12,13 @@ public sealed class InvestmentMenuQuery
         ArgumentNullException.ThrowIfNull(context);
 
         return context.Opportunities
-            .Select(definition => BuildStatus(context.GameSession, definition))
+            .Select(definition => BuildStatus(context, definition))
             .ToArray();
     }
 
-    private static InvestmentMenuStatus BuildStatus(GameSession gameSession, InvestmentDefinition definition)
+    private static InvestmentMenuStatus BuildStatus(InvestmentMenuContext context, InvestmentDefinition definition)
     {
-        var eligibility = gameSession.CheckInvestmentEligibility(definition);
+        var eligibility = context.EligibilityByType[definition.Type];
         var opportunitySource = definition.OpportunityNpc is NpcId sponsorNpc
             ? $"Ask {NpcRegistry.GetName(sponsorNpc)} about it here."
             : "Available through local contacts here.";

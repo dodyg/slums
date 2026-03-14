@@ -4,7 +4,6 @@ using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.World;
-using Slums.Application.Narrative;
 
 namespace Slums.Application.Activities;
 

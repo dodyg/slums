@@ -4,8 +4,8 @@ using Slums.Core.State;
 namespace Slums.Application.Investments;
 
 public sealed record InvestmentMenuContext(
-    GameSession GameSession,
     IReadOnlyList<InvestmentDefinition> Opportunities,
+    IReadOnlyDictionary<InvestmentType, InvestmentEligibility> EligibilityByType,
     IReadOnlyList<Investment> ActiveInvestments,
     string? LocationName)
 {
@@ -13,9 +13,13 @@ public sealed record InvestmentMenuContext(
     {
         ArgumentNullException.ThrowIfNull(gameSession);
 
+        var opportunities = gameSession.GetCurrentInvestmentOpportunities();
+
         return new InvestmentMenuContext(
-            gameSession,
-            gameSession.GetCurrentInvestmentOpportunities(),
+            opportunities,
+            opportunities.ToDictionary(
+                static definition => definition.Type,
+                definition => gameSession.CheckInvestmentEligibility(definition)),
             gameSession.ActiveInvestments,
             gameSession.World.GetCurrentLocation()?.Name);
     }

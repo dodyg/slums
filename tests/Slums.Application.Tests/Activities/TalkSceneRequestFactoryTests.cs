@@ -18,7 +18,7 @@ internal sealed class TalkSceneRequestFactoryTests
         var context = TalkNpcContext.Create(gameSession);
         var factory = new TalkSceneRequestFactory();
 
-        var request = factory.Create(gameSession, context, NpcId.LandlordHajjMahmoud);
+        var request = factory.Create(context, NpcId.LandlordHajjMahmoud);
         var relationship = gameSession.Relationships.GetNpcRelationship(NpcId.LandlordHajjMahmoud);
 
         relationship.RecentContactCount.Should().Be(1);

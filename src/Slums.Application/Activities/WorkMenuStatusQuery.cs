@@ -2,7 +2,6 @@ using Slums.Core.Characters;
 using Slums.Core.Jobs;
 using Slums.Core.Narrative;
 using Slums.Core.Relationships;
-using Slums.Application.Narrative;
 
 namespace Slums.Application.Activities;
 

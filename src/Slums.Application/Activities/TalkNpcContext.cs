@@ -1,6 +1,7 @@
 using Slums.Core.Characters;
 using Slums.Core.Relationships;
 using Slums.Core.State;
+using Slums.Application.Narrative;
 
 namespace Slums.Application.Activities;
 
@@ -11,7 +12,8 @@ public sealed record TalkNpcContext(
     int CurrentDay,
     int HonestShiftsCompleted,
     int CrimesCommitted,
-    int PolicePressure)
+    int PolicePressure,
+    NarrativeSceneState SceneState)
 {
     public static TalkNpcContext Create(GameSession gameSession)
     {
@@ -24,6 +26,7 @@ public sealed record TalkNpcContext(
             gameSession.Clock.Day,
             gameSession.HonestShiftsCompleted,
             gameSession.CrimesCommitted,
-            gameSession.PolicePressure);
+            gameSession.PolicePressure,
+            NarrativeSceneState.Create(gameSession));
     }
 }

@@ -3,7 +3,6 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
-using Slums.Application.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 
@@ -77,7 +76,7 @@ internal sealed class TalkScreen : ScreenSurface
         if (keyboard.IsKeyPressed(Keys.Enter))
         {
             var npcId = _npcs[_selectedIndex].NpcId;
-            var talkScene = _talkSceneRequestFactory.Create(_gameState, _context, npcId);
+            var talkScene = _talkSceneRequestFactory.Create(_context, npcId);
             _runtime.NarrativeService.StartScene(talkScene.KnotName, talkScene.SceneState);
             IsFocused = false;
             GameHost.Instance.Screen = new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, _parentScreen);

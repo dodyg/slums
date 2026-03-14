@@ -247,6 +247,8 @@ If content touches those boundaries, choose implication and consequence over exp
 - Reuse models and services instead of duplicating state.
 - Prefer feature-oriented folders within each project.
 - Keep `GameSession` as the canonical runtime boundary, with EntitiesDb as its backing runtime store.
+- When `GameSession` starts collecting orchestration-heavy logic, extract focused core planners/evaluators/calculators and keep the session as the state owner and integration surface.
+- Keep shared narrative signal rules and scene-trigger catalogs in `Slums.Core` when both `GameSession` and application queries need the same logic.
 - Route player-triggered gameplay mutations through `Slums.Application` commands/queries instead of calling `GameSession` directly from SadConsole screens.
 - Keep persistence centered on `GameSession` snapshots and `LoadedGameSession`; do not reintroduce parallel save-state models.
 - Use Ink for authored branching scenes, not for core economy simulation.

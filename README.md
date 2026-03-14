@@ -32,6 +32,7 @@ From the repo root:
 dotnet build .\Slums.slnx
 dotnet run --project .\tests\Slums.Core.Tests
 dotnet run --project .\tests\Slums.Application.Tests
+dotnet run --project .\tests\Slums.Game.Tests
 dotnet run --project .\tests\Slums.Infrastructure.Tests
 dotnet run --project .\tests\Slums.Narrative.Ink.Tests
 ```
@@ -39,7 +40,10 @@ dotnet run --project .\tests\Slums.Narrative.Ink.Tests
 ## Architecture notes
 
 - `GameSession` is the canonical runtime boundary and is backed internally by EntitiesDb.
+- Player-facing screen actions flow through `Slums.Application` commands/queries rather than mutating `GameSession` directly from SadConsole screens.
+- `GameSession` keeps state ownership but delegates orchestration-heavy narrative/work/crime/investment logic to focused core helpers.
 - Save/load works through `GameSession` snapshots and `LoadedGameSession`.
+- Repo-owned JSON content is fail-fast at bootstrap rather than silently falling back.
 - Ink loading is intentionally fail-fast; missing or invalid story content is treated as an error.
 
 ## Ink workflow
@@ -64,6 +68,7 @@ src/
 tests/
 	Slums.Core.Tests/
 	Slums.Application.Tests/
+	Slums.Game.Tests/
 	Slums.Infrastructure.Tests/
 	Slums.Narrative.Ink.Tests/
 content/
@@ -74,6 +79,5 @@ content/
 ## Planning documents
 
 - `PLAN.MD` tracks the current implementation shape and next execution priorities.
-- `MAJOR-PLAN.md` is archived historical context for the completed expansion pass.
-- `GAP-PLAN.MD` is archived historical context for an earlier pre-expansion gap list.
+- `MEMORY.MD` captures the current architecture and simulation notes for future sessions.
 - `AGENTS.md` defines repository execution and architecture rules for future agents.

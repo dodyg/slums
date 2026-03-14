@@ -23,6 +23,7 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - core survival simulation for money, hunger, energy, health, stress, rent, food, and time
 - mother-clinic care at clinic-capable locations with schedule-aware availability and variable pricing
 - clinic travel menu accessible from Home for integrated travel+visit action
+- entertainment activities across cafe, bar, and billiards-capable locations with cost, time, stress, and energy tradeoffs
 - three playable backgrounds with distinct systemic advantages and liabilities
 - travel across Imbaba, Dokki, and Ard al-Liwa
 - honest work progression with reliability, variant unlocks, and temporary lockouts
@@ -33,6 +34,7 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - district-specific random events with event-history-aware gating
 - save/load built around `GameSession` snapshots plus `LoadedGameSession` handoff
 - player-facing screen actions routed through application commands and menu/action queries
+- `GameSession` kept as the runtime boundary while orchestration-heavy narrative, work/crime aftermath, and investment logic is delegated to focused core planners/evaluators/calculators
 - fail-fast bootstrap for repository-owned JSON content instead of silent fallback to default registries
 - multiple ending paths based on long-term behavior, pressure, and survival trajectory
 
@@ -43,6 +45,7 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - `Slums.Infrastructure` owns `GameSession` snapshot persistence, static content loading, and environment-specific adapters. Repo-owned JSON content should fail fast when it is missing or invalid.
 - `Slums.Narrative.Ink` owns Ink loading, variable sync, and narrative outcome mapping. Missing or invalid story content should fail fast rather than falling back.
 - `Slums.Game` owns screen flow, HUDs, menus, and input. It must not become the home of business rules.
+- Shared narrative signal and scene-trigger rules that must be reused by both `GameSession` and application queries belong in `Slums.Core`, not in the UI layer or a duplicate application-only helper.
 
 Dependency flow must remain inward:
 
@@ -79,34 +82,26 @@ Keep static world data in `content/data/` when it does not need hardcoded rules.
 
 ## Current Priorities
 
-### 1. Entertainment Activities
-
-Allow players to visit entertainment venues to reduce stress.
-
-- add entertainment venue flags (HasCafe, HasBar, HasBilliards) to Location class
-- implement 6 activity types: coffee, shisha, billiards, bar drinking, football watching, social hangout
-- costs vary by activity (coffee 5-15 LE, shisha 20-40 LE, bars 50-80 LE)
-- time costs vary by activity (coffee 30min, shisha 90min, billiards 60min, bar 120min)
-- stress reduction varies by activity
-- addiction/withdrawal system deferred to a follow-up pass
-
-### 2. UI Clarity
+### 1. UI Clarity
 
 Make the deeper systems legible to the player.
 
 - explain why work variants improve, worsen, or lock out
 - explain why crime routes are available, blocked, or unusually risky
 - surface debt, suspicion, relationship-memory, and district-pressure signals in menus or logs
+- make investment risk, suspension, and extortion outcomes easier to read from the UI
 
-### 3. Balance Pass
+### 2. Balance Pass
 
 Tune the expanded simulation without flattening background identity.
 
 - review pay, stress, pressure, reliability, and lockout values
+- review entertainment costs and reductions against survival pressure
+- review investment returns and disruption rates against the economy
 - review district event frequency and recurrence
 - add regression tests around balance-sensitive thresholds
 
-### 4. More Authored Reactivity
+### 3. More Authored Reactivity
 
 Expand content that reflects the systems already in place.
 
@@ -114,6 +109,38 @@ Expand content that reflects the systems already in place.
 - add more spillover follow-up scenes
 - add more district-event and background-specific aftermath content
 - expand conversation pools beyond 100 days if needed
+
+### 4. Content Breadth
+
+Broaden the world through additional authored and systemic slices instead of more architecture churn.
+
+- add more location-specific jobs, crime routes, and relationship hooks
+- expand recurring-event variety so long runs feel less cyclical
+- add more endings or epilogue variants only where they reflect existing systems cleanly
+- prefer content and UX improvements over another repo-wide refactor unless a new hotspot clearly appears
+
+## Architecture Hardening Pass
+
+Status: implemented.
+
+Completed steps:
+
+1. Moved player-facing gameplay mutations behind `Slums.Application` commands/queries instead of mutating `GameSession` directly from `Slums.Game`.
+2. Centralized shared narrative signal rules in `Slums.Core.Narrative` so both runtime orchestration and application queries reuse the same logic.
+3. Kept `GameSession` as the canonical runtime boundary while extracting orchestration-heavy work into focused core collaborators such as `NarrativeFollowUpPlanner`, `CrimeNarrativePlanner`, `WorkNarrativePlanner`, `InvestmentEligibilityEvaluator`, and `InvestmentResolutionCalculator`.
+4. Reduced unnecessary application coupling by shifting `InvestmentMenuContext` and talk-scene creation toward narrower snapshots instead of carrying the full `GameSession`.
+5. Validated the supported root build plus all five executable test projects after the refactor.
+
+## Entertainment Activities
+
+Status: implemented.
+
+Completed steps:
+
+1. Added entertainment venue flags (`HasCafe`, `HasBar`, `HasBilliards`) to location data.
+2. Implemented 6 activity types: coffee, shisha, billiards, bar drinking, football watching, and social hangout.
+3. Added entertainment availability, status queries, command flow, and the SadConsole entertainment screen.
+4. Wired entertainment activities into gameplay with money, time, stress, and energy effects plus automated tests.
 
 ## Household Care Enhancement
 
@@ -153,6 +180,7 @@ If only one follow-up slice is implemented next, improve UI clarity around deepe
 
 - explain why work variants improve, worsen, or lock out
 - surface debt, suspicion, relationship-memory, and district-pressure signals
+- explain investment disruption risk and recovery in a more player-readable way
 
 ## Narrative Enhancement Pass
 

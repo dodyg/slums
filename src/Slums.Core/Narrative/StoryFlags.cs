@@ -29,6 +29,14 @@ public static class StoryFlags
     public const string CrimeImanBundleSuccessSeen = "crime_iman_bundle_success_seen";
     public const string CrimeImanBundleDetectedSeen = "crime_iman_bundle_detected_seen";
     public const string CrimeImanBundleFailureSeen = "crime_iman_bundle_failure_seen";
+    public const string CrimeHananCoverSeen = "crime_hanan_cover_seen";
+    public const string CrimeHananSalvageSeen = "crime_hanan_salvage_seen";
+    public const string CrimeYoussefTipoffSeen = "crime_youssef_tipoff_seen";
+    public const string CrimeYoussefEscapeSeen = "crime_youssef_escape_seen";
+    public const string CrimeSafaaRerouteSeen = "crime_safaa_reroute_seen";
+    public const string CrimeSafaaSalvageSeen = "crime_safaa_salvage_seen";
+    public const string CrimeImanCoverSeen = "crime_iman_cover_seen";
+    public const string CrimeImanExitSeen = "crime_iman_exit_seen";
 
     public static IReadOnlyList<string> GetCrimeRouteAftermathFlags(CrimeType crimeType)
     {
