@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Investments;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.World;
@@ -18,6 +19,7 @@ public sealed class GameStatusPageQuery
             BuildSurvivalPage(context),
             BuildSkillsPage(context),
             BuildNetworkPage(context),
+            BuildInvestmentsPage(context),
             BuildSignalsPage(context),
             BuildProgressPage(context)
         ];
@@ -91,6 +93,32 @@ public sealed class GameStatusPageQuery
 
         lines.AddRange(GetTrajectoryHints(context).Select(static hint => $"Hint: {hint}"));
         return new GameStatusPage("Progress", lines);
+    }
+
+    private static GameStatusPage BuildInvestmentsPage(GameStatusContext context)
+    {
+        var lines = new List<string>
+        {
+            $"Active investments: {context.ActiveInvestments.Count}",
+            $"Total investment earnings: {context.TotalInvestmentEarnings} LE"
+        };
+
+        if (context.ActiveInvestments.Count == 0)
+        {
+            lines.Add("No active investments yet.");
+            lines.Add("Talk to trusted contacts in the right places to find opportunities.");
+            return new GameStatusPage("Investments", lines);
+        }
+
+        foreach (var investment in context.ActiveInvestments)
+        {
+            var definition = InvestmentRegistry.GetByType(investment.Type);
+            var name = definition?.Name ?? investment.Type.ToString();
+            var state = investment.IsSuspended ? "Suspended this week" : $"Week {investment.WeeksActive}";
+            lines.Add($"{name}: {investment.WeeklyIncomeMin}-{investment.WeeklyIncomeMax} LE/week | {state}");
+        }
+
+        return new GameStatusPage("Investments", lines);
     }
 
     private static GameStatusPage BuildSignalsPage(GameStatusContext context)

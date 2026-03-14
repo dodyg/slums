@@ -5,6 +5,7 @@ using Slums.Core.Endings;
 using Slums.Core.Entertainment;
 using Slums.Core.Expenses;
 using Slums.Core.Events;
+using Slums.Core.Investments;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
@@ -24,6 +25,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     private readonly GameCrimeState _crimeState;
     private readonly GameWorkState _workState;
     private readonly GameNarrativeState _narrativeState;
+    private readonly GameInvestmentState _investmentState;
     private readonly Random _sharedRandom;
     private readonly Queue<string> _pendingNarrativeScenes;
     private readonly HashSet<string> _storyFlags;
@@ -42,6 +44,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         _crimeState = new GameCrimeState();
         _workState = new GameWorkState();
         _narrativeState = new GameNarrativeState();
+        _investmentState = new GameInvestmentState();
         _sharedRandom = sharedRandom ?? new Random();
         _pendingNarrativeScenes = _narrativeState.PendingNarrativeScenes;
         _storyFlags = _narrativeState.StoryFlags;
@@ -78,9 +81,40 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public IReadOnlyDictionary<string, int> RandomEventHistory => _randomEventHistory;
     public bool HasCrimeCommittedToday => CrimeCommittedToday;
     public string? PendingEndingKnot { get => _runState.PendingEndingKnot; private set => _runState.PendingEndingKnot = value; }
+    public IReadOnlyList<Investment> ActiveInvestments => _investmentState.ActiveInvestments;
+    public int TotalInvestmentEarnings { get => _investmentState.TotalInvestmentEarnings; private set => _investmentState.TotalInvestmentEarnings = value; }
     private bool CrimeCommittedToday { get => _crimeState.CrimeCommittedToday; set => _crimeState.CrimeCommittedToday = value; }
 
     public event EventHandler<GameEventArgs>? GameEvent;
+
+    public IReadOnlyList<InvestmentDefinition> GetCurrentInvestmentOpportunities()
+    {
+        var reachableNpcs = GetReachableNpcs().ToHashSet();
+        var ownedTypes = _investmentState.ActiveInvestments.Select(static investment => investment.Type).ToHashSet();
+        var opportunities = new List<InvestmentDefinition>();
+
+        foreach (var definition in InvestmentRegistry.AllDefinitions)
+        {
+            if (ownedTypes.Contains(definition.Type))
+            {
+                continue;
+            }
+
+            if (definition.OpportunityLocationId != World.CurrentLocationId)
+            {
+                continue;
+            }
+
+            if (definition.OpportunityNpc is NpcId sponsorNpc && !reachableNpcs.Contains(sponsorNpc))
+            {
+                continue;
+            }
+
+            opportunities.Add(definition);
+        }
+
+        return opportunities;
+    }
 
     public void AdvanceTime(int minutes)
     {
@@ -173,6 +207,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         DaysSurvived++;
         World.TravelTo(LocationId.Home);
         RaiseEvent("You return home for the night.");
+
+        if (GetCurrentDayOfWeek() == DayOfWeek.Monday && _investmentState.ActiveInvestments.Count > 0)
+        {
+            ResolveWeeklyInvestments(random ?? _sharedRandom);
+        }
 
         Player.Nutrition.BeginNewDay();
         Player.Household.BeginNewDay();
@@ -1625,6 +1664,296 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     private void RaiseEvent(string message)
     {
         GameEvent?.Invoke(this, new GameEventArgs(message));
+    }
+
+    public IReadOnlyList<InvestmentDefinition> GetAvailableInvestments()
+    {
+        var results = new List<InvestmentDefinition>();
+
+        foreach (var definition in GetCurrentInvestmentOpportunities())
+        {
+            if (!CheckInvestmentEligibility(definition).IsEligible)
+            {
+                continue;
+            }
+
+            results.Add(definition);
+        }
+
+        return results;
+    }
+
+    public InvestmentEligibility CheckInvestmentEligibility(InvestmentDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+
+        var reasons = new List<string>();
+
+        if (Player.Stats.Money < definition.Cost)
+        {
+            reasons.Add($"Not enough money. Cost: {definition.Cost} LE.");
+        }
+
+        if (definition.OpportunityLocationId != World.CurrentLocationId)
+        {
+            reasons.Add($"This opportunity is only discussed at {GetLocationName(definition.OpportunityLocationId)}.");
+        }
+
+        if (definition.OpportunityNpc is NpcId sponsorNpc && !GetReachableNpcs().Contains(sponsorNpc))
+        {
+            reasons.Add($"{NpcRegistry.GetName(sponsorNpc)} is not available to discuss this here right now.");
+        }
+
+        if (_investmentState.ActiveInvestments.Any(i => i.Type == definition.Type))
+        {
+            reasons.Add("You already have this investment.");
+        }
+
+        if (definition.RequiredRelationshipNpc is NpcId npcId &&
+            definition.RequiredRelationshipTrust > 0)
+        {
+            var trust = Relationships.GetNpcRelationship(npcId).Trust;
+            if (trust < definition.RequiredRelationshipTrust)
+            {
+                reasons.Add($"Need {definition.RequiredRelationshipTrust} trust with {NpcRegistry.GetName(npcId)}. Current: {trust}.");
+            }
+        }
+
+        if (definition.RequiresCrimePath && TotalCrimeEarnings < 50)
+        {
+            reasons.Add("Requires active involvement in crime operations.");
+        }
+
+        if (definition.RequiresStreetSmartsOrExPrisoner)
+        {
+            var hasStreetSmarts = Player.Skills.GetLevel(SkillId.StreetSmarts) >= 2;
+            var isExPrisoner = Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner;
+
+            if (!hasStreetSmarts && !isExPrisoner)
+            {
+                reasons.Add("Requires street smarts (level 2+) or ex-prisoner background.");
+            }
+        }
+
+        return new InvestmentEligibility(reasons.Count == 0, reasons);
+    }
+
+    public MakeInvestmentResult MakeInvestment(InvestmentType type)
+    {
+        var definition = InvestmentRegistry.GetByType(type);
+        if (definition is null)
+        {
+            return new MakeInvestmentResult(false, 0, "Unknown investment type.");
+        }
+
+        var eligibility = CheckInvestmentEligibility(definition);
+        if (!eligibility.IsEligible)
+        {
+            return new MakeInvestmentResult(false, 0, string.Join(" ", eligibility.FailureReasons));
+        }
+
+        Player.Stats.ModifyMoney(-definition.Cost);
+
+        var investment = new Investment(
+            type,
+            definition.Cost,
+            definition.WeeklyIncomeMin,
+            definition.WeeklyIncomeMax,
+            definition.RiskProfile);
+
+        _investmentState.ActiveInvestments.Add(investment);
+
+        RaiseEvent($"Invested {definition.Cost} LE in {definition.Name}.");
+
+        return new MakeInvestmentResult(true, definition.Cost, $"Successfully invested in {definition.Name}.");
+    }
+
+    public InvestmentResolutionSummary ResolveWeeklyInvestments(Random? random = null)
+    {
+        var rng = random ?? _sharedRandom;
+        var summary = new InvestmentResolutionSummary();
+
+        var toRemove = new List<Investment>();
+
+        foreach (var investment in _investmentState.ActiveInvestments)
+        {
+            investment.IncrementWeek();
+
+            if (investment.IsSuspended)
+            {
+                summary.AddResult(new InvestmentResolution(
+                    investment.Type,
+                    0,
+                    WasLost: false,
+                    ExtortionPaid: 0,
+                    PolicePressureIncrease: 0,
+                    InvestedAmountLost: 0,
+                    $"{GetInvestmentName(investment.Type)} is recovering after last week's disruption and pays nothing this week."));
+                investment.Unsuspend();
+                continue;
+            }
+
+            var result = ResolveSingleInvestment(investment, rng);
+            summary.AddResult(result);
+
+            if (result.WasLost)
+            {
+                toRemove.Add(investment);
+            }
+
+            if (result.Income > 0)
+            {
+                Player.Stats.ModifyMoney(result.Income);
+                TotalInvestmentEarnings += result.Income;
+            }
+
+            if (result.ExtortionPaid > 0)
+            {
+                Player.Stats.ModifyMoney(-result.ExtortionPaid);
+            }
+
+            if (result.PolicePressureIncrease > 0)
+            {
+                SetPolicePressure(PolicePressure + result.PolicePressureIncrease);
+            }
+
+            if (!string.IsNullOrWhiteSpace(result.Message) &&
+                (result.WasLost || result.ExtortionPaid > 0 || result.PolicePressureIncrease > 0))
+            {
+                RaiseEvent(result.Message);
+            }
+        }
+
+        foreach (var investment in toRemove)
+        {
+            _investmentState.ActiveInvestments.Remove(investment);
+        }
+
+        if (summary.TotalIncome > 0 || summary.TotalLosses > 0 || summary.TotalExtortion > 0)
+        {
+            RaiseEvent($"Weekly investments: +{summary.TotalIncome} LE income, -{summary.TotalExtortion} LE extortion, {summary.LostCount} lost.");
+        }
+
+        return summary;
+    }
+
+#pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
+    private InvestmentResolution ResolveSingleInvestment(Investment investment, Random rng)
+    {
+        var definition = InvestmentRegistry.GetByType(investment.Type);
+        if (definition is null)
+        {
+            return new InvestmentResolution(investment.Type, 0, false, 0, 0, 0, "Investment definition not found.");
+        }
+
+        var profile = investment.RiskProfile;
+
+        if (rng.NextDouble() < profile.WeeklyFailureChance)
+        {
+            return new InvestmentResolution(
+                investment.Type,
+                0,
+                WasLost: true,
+                ExtortionPaid: 0,
+                PolicePressureIncrease: 0,
+                InvestedAmountLost: investment.InvestedAmount,
+                $"Your {definition.Name} venture failed. Investment lost.");
+        }
+
+        if (rng.NextDouble() < profile.ExtortionChance)
+        {
+            var extortionAmount = rng.Next(profile.ExtortionAmountMin, profile.ExtortionAmountMax + 1);
+
+            if (Player.Stats.Money >= extortionAmount)
+            {
+                return new InvestmentResolution(
+                    investment.Type,
+                    0,
+                    WasLost: false,
+                    ExtortionPaid: extortionAmount,
+                    PolicePressureIncrease: 0,
+                    InvestedAmountLost: 0,
+                    $"Gangs demanded {extortionAmount} LE from your {definition.Name} operation.");
+            }
+            else
+            {
+                investment.Suspend();
+                return new InvestmentResolution(
+                    investment.Type,
+                    0,
+                    WasLost: false,
+                    ExtortionPaid: 0,
+                    PolicePressureIncrease: 2,
+                    InvestedAmountLost: 0,
+                    $"Could not pay extortion for {definition.Name}. Operation suspended.");
+            }
+        }
+
+        if (rng.NextDouble() < profile.PoliceHeatChance)
+        {
+            return new InvestmentResolution(
+                investment.Type,
+                0,
+                WasLost: false,
+                ExtortionPaid: 0,
+                PolicePressureIncrease: 5,
+                InvestedAmountLost: 0,
+                $"Police interest in your {definition.Name} increases pressure.");
+        }
+
+        if (rng.NextDouble() < profile.BetrayalChance)
+        {
+            return new InvestmentResolution(
+                investment.Type,
+                0,
+                WasLost: true,
+                ExtortionPaid: 0,
+                PolicePressureIncrease: 0,
+                InvestedAmountLost: investment.InvestedAmount,
+                $"Your partner in {definition.Name} disappeared with the funds.");
+        }
+
+        var income = rng.Next(investment.WeeklyIncomeMin, investment.WeeklyIncomeMax + 1);
+        return new InvestmentResolution(
+            investment.Type,
+            income,
+            WasLost: false,
+            ExtortionPaid: 0,
+            PolicePressureIncrease: 0,
+            InvestedAmountLost: 0,
+            $"{definition.Name} earned {income} LE this week.");
+    }
+#pragma warning restore CA5394
+
+    public void RestoreInvestmentState(
+        IEnumerable<InvestmentSnapshot> investments,
+        int totalInvestmentEarnings)
+    {
+        ArgumentNullException.ThrowIfNull(investments);
+
+        _investmentState.ActiveInvestments.Clear();
+        foreach (var snapshot in investments)
+        {
+            var definition = InvestmentRegistry.GetByType(snapshot.Type);
+            if (definition is null)
+            {
+                continue;
+            }
+
+            _investmentState.ActiveInvestments.Add(Investment.Restore(snapshot, definition.RiskProfile));
+        }
+
+        TotalInvestmentEarnings = totalInvestmentEarnings;
+    }
+
+    private static string GetLocationName(LocationId locationId)
+    {
+        return WorldState.AllLocations.FirstOrDefault(location => location.Id == locationId)?.Name ?? locationId.Value;
+    }
+
+    private static string GetInvestmentName(InvestmentType type)
+    {
+        return InvestmentRegistry.GetByType(type)?.Name ?? type.ToString();
     }
 
     public IReadOnlyList<string> GetStatusSummary()

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Slums.Core.Investments;
 
 namespace Slums.Infrastructure.Persistence;
 
@@ -17,6 +18,8 @@ namespace Slums.Infrastructure.Persistence;
 [JsonSerializable(typeof(GameSessionRunSnapshot))]
 [JsonSerializable(typeof(GameSessionNarrativeSnapshot))]
 [JsonSerializable(typeof(NarrativeProgressSnapshot))]
+[JsonSerializable(typeof(InvestmentSnapshot))]
+[JsonSerializable(typeof(List<InvestmentSnapshot>))]
 internal sealed partial class SaveGameJsonContext : JsonSerializerContext
 {
 }

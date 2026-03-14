@@ -120,3 +120,17 @@ Interview-complete working requirements draft based on the user's answers.
 - The game should offer a few major endings tied to different long-term life outcomes.
 - At minimum, one major ending should allow the protagonist to quit the life of crime and build a family in Luxor.
 - Other endings should still reflect the broader requirement for multiple long-term goals, including survival, stability, respect, or decline depending on the player's choices.
+
+## Small Business Investments
+- Players may invest in small local businesses for weekly passive income.
+- Investment costs should be 100-300 LE, accessible after a few days of saving.
+- Returns should be modest and realistic for a harsh survival economy.
+- Risk types include: business failure, gang extortion, police heat, and partner betrayal.
+- Investment opportunities should unlock through a combination of relationships and path choices.
+- Confirmed business types:
+  - foul cart partnership (low risk, modest returns)
+  - kiosk share / koshk (moderate risk from competition and police)
+  - hashish courier stake (higher risk, higher returns, requires criminal contacts)
+  - micro-laundry service (low risk, stable income)
+  - informal market stall (risk from police raids and competition)
+  - scrap collection crew (moderate risk, requires street smarts)

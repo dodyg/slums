@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Slums.Application.Persistence;
 using Slums.Core.Characters;
+using Slums.Core.Investments;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
 using Slums.Core.World;
@@ -44,6 +45,11 @@ internal sealed class JsonSaveGameStoreTests
             gameSession.Relationships.RecordSeenConversation(NpcId.NurseSalma, "nurse_intro_1");
             gameSession.Relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 11);
             gameSession.RecordEventHistory("DokkiCheckpointSweep", 2);
+            gameSession.RestoreInvestmentState(
+            [
+                new InvestmentSnapshot(InvestmentType.FoulCart, 150, 8, 12, 3, false)
+            ],
+            totalInvestmentEarnings: 27);
 
             await store.SaveAsync(SaveGameRequest.Create(gameSession, "crime_warning"), "slot1").ConfigureAwait(false);
             var loaded = await store.LoadAsync("slot1").ConfigureAwait(false);
@@ -79,6 +85,10 @@ internal sealed class JsonSaveGameStoreTests
                     restoredSession.Relationships.HasSeenConversation(NpcId.NurseSalma, "nurse_intro_1").Should().BeTrue();
                     restoredSession.Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation.Should().Be(11);
                     restoredSession.GetEventCount("DokkiCheckpointSweep").Should().Be(2);
+                    restoredSession.TotalInvestmentEarnings.Should().Be(27);
+                    restoredSession.ActiveInvestments.Should().ContainSingle();
+                    restoredSession.ActiveInvestments[0].Type.Should().Be(InvestmentType.FoulCart);
+                    restoredSession.ActiveInvestments[0].WeeksActive.Should().Be(3);
                 }
                 finally
                 {

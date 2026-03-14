@@ -1,5 +1,6 @@
 using Slums.Core.Characters;
 using Slums.Core.Clock;
+using Slums.Core.Investments;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
@@ -26,6 +27,8 @@ public sealed record GameStatusContext(
     bool ClinicOpenToday,
     int ClinicVisitCost,
     string ClinicOpenDaysSummary,
+    IReadOnlyList<Investment> ActiveInvestments,
+    int TotalInvestmentEarnings,
     IReadOnlySet<string> StoryFlags)
 {
     public static GameStatusContext Create(GameSession gameSession)
@@ -54,6 +57,8 @@ public sealed record GameStatusContext(
             clinicStatus.IsOpenToday,
             clinicStatus.VisitCost,
             clinicStatus.OpenDaysSummary,
+            gameSession.ActiveInvestments,
+            gameSession.TotalInvestmentEarnings,
             gameSession.StoryFlags.ToHashSet(StringComparer.Ordinal));
     }
 

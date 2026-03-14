@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Investments;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
 using Slums.Core.State;
@@ -26,6 +27,10 @@ public sealed record GameSessionSnapshot
 
     public GameSessionNarrativeSnapshot Narrative { get; init; } = new();
 
+    public IReadOnlyList<InvestmentSnapshot> Investments { get; init; } = [];
+
+    public int TotalInvestmentEarnings { get; init; }
+
     public static GameSessionSnapshot Capture(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
@@ -40,7 +45,9 @@ public sealed record GameSessionSnapshot
             Crime = GameSessionCrimeSnapshot.Capture(gameSession),
             Work = GameSessionWorkSnapshot.Capture(gameSession),
             Run = GameSessionRunSnapshot.Capture(gameSession),
-            Narrative = GameSessionNarrativeSnapshot.Capture(gameSession)
+            Narrative = GameSessionNarrativeSnapshot.Capture(gameSession),
+            Investments = gameSession.ActiveInvestments.Select(static investment => investment.CreateSnapshot()).ToArray(),
+            TotalInvestmentEarnings = gameSession.TotalInvestmentEarnings
         };
     }
 
@@ -89,6 +96,8 @@ public sealed record GameSessionSnapshot
                 Narrative.StoryFlags,
                 Narrative.RandomEventHistory,
                 Narrative.PendingNarrativeScenes);
+
+            gameSession.RestoreInvestmentState(Investments, TotalInvestmentEarnings);
 
             foreach (var npcId in Enum.GetValues<NpcId>())
             {

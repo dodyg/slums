@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
+using Slums.Application.Investments;
 using Slums.Application.Narrative;
 using Slums.Core.Clock;
 using Slums.Core.State;
@@ -26,6 +27,7 @@ internal sealed class GameScreen : ScreenSurface
     private readonly TalkNpcStatusQuery _talkNpcStatusQuery = new();
     private readonly ClinicTravelMenuQuery _clinicTravelMenuQuery = new();
     private readonly EntertainmentMenuQuery _entertainmentMenuQuery = new();
+    private readonly InvestmentMenuQuery _investmentMenuQuery = new();
     private readonly AutomaticTimeAdvancer _automaticTimeAdvancer;
     private readonly ScreenActionKeyGate _actionKeyGate = new();
     private readonly List<string> _eventLog = new(10);
@@ -317,6 +319,9 @@ internal sealed class GameScreen : ScreenSurface
             case "Entertainment":
                 ShowEntertainmentMenu();
                 break;
+            case "Invest":
+                ShowInvestmentMenu();
+                break;
             case "Shop":
                 ShowShopMenu();
                 break;
@@ -440,6 +445,20 @@ internal sealed class GameScreen : ScreenSurface
         GameHost.Instance.Screen = new EntertainmentScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, entertainmentContext, activities, this);
     }
 
+    private void ShowInvestmentMenu()
+    {
+        var investmentContext = InvestmentMenuContext.Create(_gameState);
+        var investments = _investmentMenuQuery.GetStatuses(investmentContext).ToList();
+        if (investments.Count == 0)
+        {
+            AddEventLogEntry("No investment opportunities are being offered here.");
+            return;
+        }
+
+        IsFocused = false;
+        GameHost.Instance.Screen = new InvestmentMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, investmentContext, investments, this);
+    }
+
     private void AddEventLogEntry(string message)
     {
         _eventLog.Add(message);
@@ -478,6 +497,11 @@ internal sealed class GameScreen : ScreenSurface
         if (_gameState.GetReachableNpcs().Count > 0)
         {
             actions.Add("Talk");
+        }
+
+        if (_gameState.GetCurrentInvestmentOpportunities().Count > 0)
+        {
+            actions.Add("Invest");
         }
 
         if (location is { HasCafe: true } or { HasBar: true } or { HasBilliards: true })

@@ -27,6 +27,7 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - travel across Imbaba, Dokki, and Ard al-Liwa
 - honest work progression with reliability, variant unlocks, and temporary lockouts
 - crime routes with contact-specific access, risk, aftermath, and police pressure behavior
+- small-business investments with location-based opportunities, weekly passive income, and risk events
 - recurring NPC interactions driven by trust, faction standing, and relationship memory
 - conversation pool system with 100+ unique dialogues per NPC context to prevent repeats for 100 days
 - district-specific random events with event-history-aware gating
@@ -160,6 +161,32 @@ Completed steps:
 1. Expanded recurring NPC reactivity for Hajj Mahmoud, Umm Karim, Mona, and Nurse Salma using trust, debt, police heat, and double-life state.
 2. Added queued spillover narrative scenes for public-facing work under heat, criminal money reaching home, and neighborhood protection when Mona trusts you.
 3. Expanded ending epilogues so stability and leaving-crime endings react to background, and network-shelter endings react to the strongest support contact.
+
+## Small Business Investments
+
+Status: implemented.
+
+Completed steps:
+
+1. Added `InvestmentType`, `InvestmentDefinition`, `Investment`, risk, eligibility, and resolution models in `Slums.Core`.
+2. Added active-investment state plus weekly resolution in `GameSession`, including suspension, extortion, police-pressure, betrayal, and income handling.
+3. Added location/contact-gated investment opportunities so investments are offered through reachable NPCs in the right districts.
+4. Persisted active investments and total investment earnings through `GameSessionSnapshot` and JSON save/load.
+5. Added application-layer investment menu query/command flow.
+6. Added `InvestmentMenuScreen` and wired it into the main gameplay action list.
+7. Added an investments status page so the player can review active ventures and lifetime earnings.
+8. Added core, application, and infrastructure tests covering eligibility, weekly resolution, menu exposure, and save/load round-tripping.
+
+### Risk Balance Targets
+
+| Business | Failure | Extortion | Police | Betrayal |
+|----------|---------|-----------|--------|----------|
+| Foul cart | 1% | 0% | 0% | 2% |
+| Micro-laundry | 2% | 0% | 0% | 3% |
+| Scrap collection | 4% | 3% | 2% | 5% |
+| Kiosk share | 3% | 4% | 3% | 4% |
+| Market stall | 5% | 6% | 5% | 5% |
+| Hashish courier | 8% | 10% | 12% | 8% |
 
 ## Validation
 

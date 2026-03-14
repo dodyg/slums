@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Slums.Application.Activities;
 using Slums.Core.Characters;
+using Slums.Core.Investments;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.State;
@@ -19,7 +20,7 @@ internal sealed class GameStatusPageQueryTests
 
         var pages = query.GetPages(GameStatusContext.Create(gameState));
 
-        pages.Select(static page => page.Title).Should().ContainInOrder("Survival", "Skills", "Network", "Signals", "Progress");
+        pages.Select(static page => page.Title).Should().ContainInOrder("Survival", "Skills", "Network", "Investments", "Signals", "Progress");
     }
 
     [Test]
@@ -97,5 +98,24 @@ internal sealed class GameStatusPageQueryTests
         signalsPage.Lines.Should().Contain(static text => text.Contains("tense reaction to sudden money", StringComparison.Ordinal));
         signalsPage.Lines.Should().Contain(static text => text.Contains("Mona", StringComparison.Ordinal));
         signalsPage.Lines.Should().Contain(static text => text.Contains("clinic reflection", StringComparison.Ordinal));
+    }
+
+    [Test]
+    public void GetPages_ShouldExposeInvestmentProgress_OnInvestmentPage()
+    {
+        var query = new GameStatusPageQuery();
+        using var gameState = new GameSession();
+        gameState.RestoreInvestmentState(
+        [
+            new InvestmentSnapshot(InvestmentType.FoulCart, 150, 8, 12, 2, false)
+        ],
+        totalInvestmentEarnings: 19);
+
+        var pages = query.GetPages(GameStatusContext.Create(gameState));
+
+        var investments = pages.Single(static page => page.Title == "Investments");
+        investments.Lines.Should().Contain(static line => line.Contains("Active investments: 1", StringComparison.Ordinal));
+        investments.Lines.Should().Contain(static line => line.Contains("Total investment earnings: 19 LE", StringComparison.Ordinal));
+        investments.Lines.Should().Contain(static line => line.Contains("Foul Cart Partnership", StringComparison.Ordinal));
     }
 }
