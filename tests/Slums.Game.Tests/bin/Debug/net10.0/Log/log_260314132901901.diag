@@ -1,0 +1,14 @@
+2026-03-14T13:29:01.9050052+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Version: 2.1.0+26fb0d3e539b7900114443db5edf1e0c4e9d4b82
+2026-03-14T13:29:01.9181220+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Logging mode: asynchronous
+2026-03-14T13:29:01.9186711+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Logging level: Information
+2026-03-14T13:29:01.9186746+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION CreateBuilderAsync entry time: 13:29:01.890
+2026-03-14T13:29:01.9187176+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION PID: 45956
+2026-03-14T13:29:01.9187442+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Runtime information: win-arm64 - .NET 10.0.4
+2026-03-14T13:29:01.9187627+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Runtime location: C:\Program Files\dotnet\shared\Microsoft.NETCore.App\10.0.4\System.Private.CoreLib.dll
+2026-03-14T13:29:01.9187714+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION IsDynamicCodeSupported: True
+2026-03-14T13:29:01.9188032+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Test module: D:\GitHub\slums\tests\Slums.Game.Tests\bin\Debug\net10.0\Slums.Game.Tests.dll
+2026-03-14T13:29:01.9188650+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION Command line arguments: '--server --diagnostic --diagnostic-verbosity Information --diagnostic-output-directory D:\GitHub\slums\tests\Slums.Game.Tests\bin\Debug\net10.0\Log --client-port 61527'
+2026-03-14T13:29:01.9192562+00:00 Microsoft.Testing.Platform.Builder.TestApplication INFORMATION TESTINGPLATFORM_DEFAULT_HANG_TIMEOUT: ''
+2026-03-14T13:29:01.9419256+00:00 Microsoft.Testing.Platform.Hosts.TestHostBuilder INFORMATION Setting RegisterEnvironmentVariablesConfigurationSource: 'True'
+2026-03-14T13:29:01.9519252+00:00 Microsoft.Testing.Platform.Hosts.TestHostBuilder INFORMATION Setting PlatformExitProcessOnUnhandledException: 'False', config file: False environment variable: 
+2026-03-14T13:29:02.0718820+00:00 Microsoft.Testing.Platform.Requests.TestHostTestFrameworkInvoker INFORMATION Test framework UID: 'TUnitExtension' Version: '1.19.22.0' DisplayName: 'TUnit' Description: 'TUnit Framework for Microsoft Testing Platform'

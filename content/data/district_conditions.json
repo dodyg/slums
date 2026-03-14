@@ -11,6 +11,7 @@
       "TravelTimeMinutesModifier": 5,
       "FoodCostModifier": 2,
       "StreetFoodCostModifier": 1,
+      "BoostedRandomEventIds": [],
       "SuppressedRandomEventIds": ["NeighborhoodSolidarity"]
     }
   },
