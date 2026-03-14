@@ -134,3 +134,10 @@ Interview-complete working requirements draft based on the user's answers.
   - micro-laundry service (low risk, stable income)
   - informal market stall (risk from police raids and competition)
   - scrap collection crew (moderate risk, requires street smarts)
+
+## Rent and Eviction
+- Unpaid rent accumulates daily.
+- Eviction triggers game over after 7 days of unpaid rent.
+- Landlord warnings occur at specific days:
+  - Day 3: first warning
+  - Day 5: final warning

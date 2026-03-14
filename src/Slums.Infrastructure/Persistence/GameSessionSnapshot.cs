@@ -92,6 +92,13 @@ public sealed record GameSessionSnapshot
                 Run.EndingId,
                 Run.PendingEndingKnot);
 
+            
+            gameSession.RestoreRentState(
+                Run.UnpaidRentDays,
+                Run.AccumulatedRentDebt,
+                Run.FirstWarningGiven,
+                Run.FinalWarningGiven);
+
             gameSession.RestoreNarrativeState(
                 Narrative.StoryFlags,
                 Narrative.RandomEventHistory,

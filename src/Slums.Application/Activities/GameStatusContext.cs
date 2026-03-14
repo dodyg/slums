@@ -1,5 +1,6 @@
 using Slums.Core.Characters;
 using Slums.Core.Clock;
+using Slums.Core.Expenses;
 using Slums.Core.Investments;
 using Slums.Core.Relationships;
 using Slums.Core.State;
@@ -23,6 +24,7 @@ public sealed record GameStatusContext(
     int FoodCost,
     int StreetFoodCost,
     int MedicineCost,
+    int RentCost,
     bool HasClinicServices,
     bool ClinicOpenToday,
     int ClinicVisitCost,
@@ -53,6 +55,7 @@ public sealed record GameStatusContext(
             gameSession.GetFoodCost(),
             gameSession.GetStreetFoodCost(),
             gameSession.GetMedicineCost(),
+            RecurringExpenses.DailyRentCost,
             clinicStatus.HasClinicServices,
             clinicStatus.IsOpenToday,
             clinicStatus.VisitCost,

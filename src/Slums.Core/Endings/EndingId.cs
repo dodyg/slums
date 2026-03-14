@@ -11,5 +11,6 @@ public enum EndingId
     Arrested,
     NetworkShelter,
     LeavingCrime,
-    BuriedByHeat
+    BuriedByHeat,
+    Eviction
 }

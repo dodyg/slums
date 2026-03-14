@@ -26,6 +26,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     private readonly GameWorkState _workState;
     private readonly GameNarrativeState _narrativeState;
     private readonly GameInvestmentState _investmentState;
+    private readonly RentState _rentState;
     private readonly Random _sharedRandom;
     private readonly Queue<string> _pendingNarrativeScenes;
     private readonly HashSet<string> _storyFlags;
@@ -45,6 +46,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         _workState = new GameWorkState();
         _narrativeState = new GameNarrativeState();
         _investmentState = new GameInvestmentState();
+        _rentState = new RentState();
         _sharedRandom = sharedRandom ?? new Random();
         _pendingNarrativeScenes = _narrativeState.PendingNarrativeScenes;
         _storyFlags = _narrativeState.StoryFlags;
@@ -83,6 +85,10 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public string? PendingEndingKnot { get => _runState.PendingEndingKnot; private set => _runState.PendingEndingKnot = value; }
     public IReadOnlyList<Investment> ActiveInvestments => _investmentState.ActiveInvestments;
     public int TotalInvestmentEarnings { get => _investmentState.TotalInvestmentEarnings; private set => _investmentState.TotalInvestmentEarnings = value; }
+    public int UnpaidRentDays => _rentState.UnpaidRentDays;
+    public int AccumulatedRentDebt => _rentState.AccumulatedRentDebt;
+    public bool FirstWarningGiven => _rentState.FirstWarningGiven;
+    public bool FinalWarningGiven => _rentState.FinalWarningGiven;
     private bool CrimeCommittedToday { get => _crimeState.CrimeCommittedToday; set => _crimeState.CrimeCommittedToday = value; }
 
     public event EventHandler<GameEventArgs>? GameEvent;
@@ -166,14 +172,24 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var motherCareResolution = Player.Household.ResolveDay();
         Player.Stats.ModifyStress(motherCareResolution.StressDelta);
 
-        if (Player.Stats.Money >= RecurringExpenses.DailyRentCost)
+        var rentResult = _rentState.ProcessDay(RecurringExpenses.DailyRentCost, Player.Stats.Money);
+        if (rentResult.Paid)
         {
             Player.Stats.ModifyMoney(-RecurringExpenses.DailyRentCost);
             RaiseEvent($"Paid rent: {RecurringExpenses.DailyRentCost} LE");
         }
         else
         {
-            RaiseEvent("Could not pay rent! The landlord is angry.");
+            RaiseEvent($"Could not pay rent! Debt: {rentResult.AccumulatedDebt} LE. Unpaid days: {rentResult.CurrentUnpaidDays}.");
+
+            if (rentResult.WarningType == RentWarningType.First)
+            {
+                RaiseEvent("The landlord's son knocks hard. \"Three days now. My father is patient, but not forever.\"");
+            }
+            else if (rentResult.WarningType == RentWarningType.Final)
+            {
+                RaiseEvent("The landlord himself appears. \"Five days. Two more and we put your things on the street.\"");
+            }
         }
 
         if (!Player.Nutrition.AteToday)
@@ -1332,6 +1348,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         HonestShiftsCompleted = Math.Max(0, honestShiftsCompleted);
         LastHonestWorkDay = Math.Max(0, lastHonestWorkDay);
         LastPublicFacingWorkDay = Math.Max(0, lastPublicFacingWorkDay);
+    }
+
+    public void RestoreRentState(int unpaidRentDays, int accumulatedRentDebt, bool firstWarningGiven, bool finalWarningGiven)
+    {
+        _rentState.Restore(unpaidRentDays, accumulatedRentDebt, firstWarningGiven, finalWarningGiven);
     }
 
     public void RecordEventHistory(string eventId, int count)

@@ -88,6 +88,17 @@ internal sealed class EndingServiceTests
     }
 
     [Test]
+    public async Task CheckEndings_ShouldReturnEviction_WhenUnpaidRentDaysReachesThreshold()
+    {
+        using var state = new GameSession();
+        state.RestoreRentState(unpaidRentDays: 7, accumulatedRentDebt: 140, firstWarningGiven: true, finalWarningGiven: true);
+
+        var ending = EndingService.CheckEndings(state);
+
+        await Assert.That(ending).IsEqualTo(EndingId.Eviction);
+    }
+
+    [Test]
     public async Task GetInkKnot_ShouldUseBackgroundSpecificVariant_ForStabilityAndLeavingCrime()
     {
         using var stabilityState = new GameSession();

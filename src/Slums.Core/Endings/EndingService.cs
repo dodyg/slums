@@ -35,6 +35,11 @@ public static class EndingService
             return EndingId.Arrested;
         }
 
+        if (gameState.UnpaidRentDays >= 7)
+        {
+            return EndingId.Eviction;
+        }
+
         if (gameState.DaysSurvived >= 30 &&
             gameState.CrimesCommitted >= 6 &&
             gameState.PolicePressure >= 85 &&
@@ -101,6 +106,7 @@ public static class EndingService
             EndingId.NetworkShelter => "You never get rich, but people keep you from falling alone. In Cairo that becomes a kind of victory.",
             EndingId.LeavingCrime => "You carry what the crime years made of you, but you still manage to walk away before they take the rest.",
             EndingId.BuriedByHeat => "The money came fast enough to stain everything and slow enough to save nothing.",
+            EndingId.Eviction => "Seven days behind on rent. The landlord throws you and your mother onto the street.",
             _ => throw new ArgumentOutOfRangeException(nameof(endingId))
         };
     }
@@ -119,6 +125,7 @@ public static class EndingService
             EndingId.NetworkShelter => "ending_network_shelter",
             EndingId.LeavingCrime => "ending_leaving_crime",
             EndingId.BuriedByHeat => "ending_buried_by_heat",
+            EndingId.Eviction => "ending_eviction",
             _ => throw new ArgumentOutOfRangeException(nameof(endingId))
         };
     }
