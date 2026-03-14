@@ -26,7 +26,8 @@
     "Effect": {
       "WorkPayModifier": 2,
       "CrimeDetectionRiskModifier": 7,
-      "BoostedRandomEventIds": ["NeighborhoodRumor"]
+      "BoostedRandomEventIds": ["NeighborhoodRumor"],
+      "SuppressedRandomEventIds": []
     }
   },
   {
@@ -42,7 +43,8 @@
       "TravelTimeMinutesModifier": 10,
       "TravelEnergyModifier": 2,
       "CrimeDetectionRiskModifier": 9,
-      "BoostedRandomEventIds": ["DokkiCheckpointSweep", "DokkiTransportFriction"]
+      "BoostedRandomEventIds": ["DokkiCheckpointSweep", "DokkiTransportFriction"],
+      "SuppressedRandomEventIds": []
     }
   },
   {
@@ -55,7 +57,9 @@
     "Weight": 3,
     "Effect": {
       "TravelTimeMinutesModifier": 8,
-      "WorkStressModifier": 3
+      "WorkStressModifier": 3,
+      "BoostedRandomEventIds": [],
+      "SuppressedRandomEventIds": []
     }
   },
   {
@@ -70,7 +74,8 @@
       "ClinicVisitCostModifier": 4,
       "MedicineCostModifier": 2,
       "WorkPayModifier": 3,
-      "BoostedRandomEventIds": ["ClinicOverflow", "ClinicSupplyShortage"]
+      "BoostedRandomEventIds": ["ClinicOverflow", "ClinicSupplyShortage"],
+      "SuppressedRandomEventIds": []
     }
   },
   {
@@ -84,7 +89,8 @@
     "Effect": {
       "WorkPayModifier": 3,
       "WorkStressModifier": 2,
-      "BoostedRandomEventIds": ["WorkshopRushOrder"]
+      "BoostedRandomEventIds": ["WorkshopRushOrder"],
+      "SuppressedRandomEventIds": []
     }
   },
   {
@@ -98,7 +104,8 @@
     "Effect": {
       "TravelEnergyModifier": 2,
       "WorkStressModifier": 2,
-      "BoostedRandomEventIds": ["DepotFareShakeup", "BulaqMedicineQueue"]
+      "BoostedRandomEventIds": ["DepotFareShakeup", "BulaqMedicineQueue"],
+      "SuppressedRandomEventIds": []
     }
   },
   {
@@ -112,7 +119,8 @@
     "Effect": {
       "TravelTimeMinutesModifier": 6,
       "MedicineCostModifier": -3,
-      "BoostedRandomEventIds": ["BulaqMedicineQueue"]
+      "BoostedRandomEventIds": ["BulaqMedicineQueue"],
+      "SuppressedRandomEventIds": []
     }
   },
   {
@@ -126,7 +134,8 @@
     "Effect": {
       "TravelEnergyModifier": 2,
       "WorkStressModifier": 3,
-      "BoostedRandomEventIds": ["ShubraSteamBreak"]
+      "BoostedRandomEventIds": ["ShubraSteamBreak"],
+      "SuppressedRandomEventIds": []
     }
   },
   {
@@ -140,7 +149,8 @@
     "Effect": {
       "FoodCostModifier": -1,
       "StreetFoodCostModifier": -1,
-      "BoostedRandomEventIds": ["ShubraBlockSolidarity"]
+      "BoostedRandomEventIds": ["ShubraBlockSolidarity"],
+      "SuppressedRandomEventIds": []
     }
   }
 ]

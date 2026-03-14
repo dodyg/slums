@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
+using Slums.Core.World;
 using Slums.Infrastructure.Content;
 using TUnit.Core;
 
@@ -288,7 +289,8 @@ internal sealed class JsonContentRepositoryTests
                 "Effect": {
                   "TravelTimeMinutesModifier": 10,
                   "CrimeDetectionRiskModifier": 9,
-                  "BoostedRandomEventIds": ["DokkiCheckpointSweep"]
+                  "BoostedRandomEventIds": ["DokkiCheckpointSweep"],
+                  "SuppressedRandomEventIds": []
                 }
               }
             ]
@@ -302,10 +304,36 @@ internal sealed class JsonContentRepositoryTests
             conditions[0].District.Should().Be(Slums.Core.World.DistrictId.Dokki);
             conditions[0].Effect.TravelTimeMinutesModifier.Should().Be(10);
             conditions[0].Effect.BoostedRandomEventIds.Should().ContainSingle().Which.Should().Be("DokkiCheckpointSweep");
+            conditions[0].Effect.SuppressedRandomEventIds.Should().BeEmpty();
         }
         finally
         {
             DeleteDirectory(contentDirectory);
+        }
+    }
+
+    [Test]
+    public void LoadDistrictConditions_FromRepositoryContent_ShouldConfigureDistrictConditionRegistry()
+    {
+        var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, GetRepositoryContentDirectory());
+        var originalDefinitions = DistrictConditionRegistry.AllDefinitions.ToArray();
+
+        try
+        {
+            var conditions = repository.LoadDistrictConditions();
+
+            conditions.Should().OnlyContain(static condition =>
+                condition.Effect != null
+                && condition.Effect.BoostedRandomEventIds != null
+                && condition.Effect.SuppressedRandomEventIds != null);
+
+            var act = () => DistrictConditionRegistry.Configure(conditions);
+
+            act.Should().NotThrow();
+        }
+        finally
+        {
+            DistrictConditionRegistry.Configure(originalDefinitions);
         }
     }
 
@@ -314,6 +342,23 @@ internal sealed class JsonContentRepositoryTests
         var path = Path.Combine(Path.GetTempPath(), "slums-content-tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(path);
         return path;
+    }
+
+    private static string GetRepositoryContentDirectory()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            var candidate = Path.Combine(directory.FullName, "content", "data", "district_conditions.json");
+            if (File.Exists(candidate))
+            {
+                return Path.GetDirectoryName(candidate)!;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new InvalidOperationException("Could not locate repository content/data directory.");
     }
 
     private static void DeleteDirectory(string path)
