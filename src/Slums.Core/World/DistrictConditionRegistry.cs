@@ -287,6 +287,11 @@ public static class DistrictConditionRegistry
                 throw new InvalidOperationException($"District condition '{definition.Id}' must have a positive weight.");
             }
 
+            if (definition.Effect is null)
+            {
+                throw new InvalidOperationException($"District condition '{definition.Id}' must provide an effect.");
+            }
+
             ValidateEventIds(definition.Id, definition.Effect.BoostedRandomEventIds, "boosted");
             ValidateEventIds(definition.Id, definition.Effect.SuppressedRandomEventIds, "suppressed");
         }
@@ -302,6 +307,11 @@ public static class DistrictConditionRegistry
 
     private static void ValidateEventIds(string definitionId, IEnumerable<string> eventIds, string label)
     {
+        if (eventIds is null)
+        {
+            throw new InvalidOperationException($"District condition '{definitionId}' must provide a {label} random event id list.");
+        }
+
         foreach (var eventId in eventIds)
         {
             if (string.IsNullOrWhiteSpace(eventId))
