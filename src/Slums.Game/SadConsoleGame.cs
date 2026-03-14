@@ -66,11 +66,13 @@ internal sealed class SadConsoleGame : IGame
         var jobs = _contentRepository.LoadJobs();
         var locations = _contentRepository.LoadLocations();
         var randomEvents = _contentRepository.LoadRandomEvents();
+        var districtConditions = _contentRepository.LoadDistrictConditions();
 
         BackgroundRegistry.Configure(backgrounds);
         JobRegistry.Configure(jobs);
         WorldState.ConfigureLocations(locations);
         RandomEventRegistry.Configure(randomEvents);
+        DistrictConditionRegistry.Configure(districtConditions);
         LogContentConfigured(_logger);
     }
 

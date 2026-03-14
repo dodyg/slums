@@ -14,4 +14,6 @@ public interface IContentRepository
     public IReadOnlyList<JobShift> LoadJobs();
 
     public IReadOnlyList<RandomEvent> LoadRandomEvents();
+
+    public IReadOnlyList<DistrictConditionDefinition> LoadDistrictConditions();
 }

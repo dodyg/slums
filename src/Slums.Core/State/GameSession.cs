@@ -1,3 +1,4 @@
+using System.Globalization;
 using Slums.Core.Characters;
 using Slums.Core.Clock;
 using Slums.Core.Crimes;
@@ -34,6 +35,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     private readonly Queue<string> _pendingNarrativeScenes;
     private readonly HashSet<string> _storyFlags;
     private readonly Dictionary<string, int> _randomEventHistory;
+    private readonly bool _useDynamicDistrictConditions;
 
     public GameSession(Random? sharedRandom = null)
     {
@@ -50,6 +52,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         _narrativeState = new GameNarrativeState();
         _investmentState = new GameInvestmentState();
         _rentState = new RentState();
+        _useDynamicDistrictConditions = sharedRandom is not null;
         _sharedRandom = sharedRandom ?? new Random();
         _locationPricingService = new LocationPricingService();
         _pendingNarrativeScenes = _narrativeState.PendingNarrativeScenes;
@@ -62,6 +65,14 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         _database.Create(_crimeState);
         _database.Create(_workState);
         _database.Create(_runState, _narrativeState);
+        if (_useDynamicDistrictConditions)
+        {
+            RollDistrictConditionsForCurrentDay(_sharedRandom);
+        }
+        else
+        {
+            SetBaselineDistrictConditions();
+        }
     }
 
     public Guid RunId { get => _runState.RunId; private set => _runState.RunId = value; }
@@ -227,6 +238,14 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Clock.AdvanceToNextDay();
         DaysSurvived++;
         World.TravelTo(LocationId.Home);
+        if (_useDynamicDistrictConditions)
+        {
+            RollDistrictConditionsForCurrentDay(random ?? _sharedRandom);
+        }
+        else
+        {
+            SetBaselineDistrictConditions();
+        }
         RaiseEvent("You return home for the night.");
 
         if (GetCurrentDayOfWeek() == DayOfWeek.Monday && _investmentState.ActiveInvestments.Count > 0)
@@ -304,7 +323,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             RaiseEvent("Iman's directions keep you off the most exhausting side streets in Shubra.");
         }
 
-        AdvanceTime(location.TravelTimeMinutes);
+        AdvanceTime(GetTravelTimeMinutes(location));
         World.TravelTo(locationId);
 
         RaiseEvent($"Traveled to {location.Name}.");
@@ -368,11 +387,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         return GetTravelEnergyCost(destination) * 3;
     }
 
-    private static int GetWalkTimeMinutes(Location destination)
+    private int GetWalkTimeMinutes(Location destination)
     {
         ArgumentNullException.ThrowIfNull(destination);
 
-        return destination.TravelTimeMinutes * 3;
+        return GetTravelTimeMinutes(destination) * 3;
     }
 
     public IReadOnlyList<EntertainmentActivity> GetAvailableEntertainmentActivities()
@@ -494,7 +513,9 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             return [];
         }
 
-        return Jobs.GetAvailableJobs(location, Player, Relationships, JobProgress).ToArray();
+        return Jobs.GetAvailableJobs(location, Player, Relationships, JobProgress)
+            .Select(ApplyDistrictConditionToJob)
+            .ToArray();
     }
 
     public IReadOnlyList<CrimeAttempt> GetAvailableCrimes()
@@ -720,12 +741,16 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 #pragma warning disable CA1024
     public int GetFoodCost()
     {
-        return _locationPricingService.GetFoodCost(World.CurrentDistrict);
+        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
+        var modifiedCost = _locationPricingService.GetFoodCost(World.CurrentDistrict) + (districtCondition?.Effect.FoodCostModifier ?? 0);
+        return Math.Max(1, modifiedCost);
     }
 
     public int GetStreetFoodCost()
     {
-        return _locationPricingService.GetStreetFoodCost(World.CurrentDistrict);
+        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
+        var modifiedCost = _locationPricingService.GetStreetFoodCost(World.CurrentDistrict) + (districtCondition?.Effect.StreetFoodCostModifier ?? 0);
+        return Math.Max(1, modifiedCost);
     }
 
     public CurrentLocationClinicStatus GetCurrentLocationClinicStatus()
@@ -797,7 +822,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             TotalCost: totalCost,
             IsOpenToday: location.ClinicOpenDays.Contains(currentDay),
             OpenDaysSummary: FormatOpenDays(location.ClinicOpenDays),
-            TravelTimeMinutes: location.TravelTimeMinutes,
+            TravelTimeMinutes: GetTravelTimeMinutes(location),
             CanAfford: Player.Stats.Money >= totalCost,
             IsValidOption: true);
     }
@@ -855,22 +880,99 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public int GetMedicineCost()
     {
-        return _locationPricingService.GetMedicineCost(World.CurrentDistrict, World.CurrentLocationId, Relationships, Player.Skills);
+        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
+        var modifiedCost = _locationPricingService.GetMedicineCost(World.CurrentDistrict, World.CurrentLocationId, Relationships, Player.Skills)
+            + (districtCondition?.Effect.MedicineCostModifier ?? 0);
+        return Math.Max(1, modifiedCost);
+    }
+
+    public JobPreview PreviewJob(JobType jobType)
+    {
+        return ApplyDistrictConditionToJobPreview(Jobs.PreviewJob(jobType, Player, Relationships, JobProgress));
+    }
+
+    public IReadOnlyList<DistrictConditionDefinition> GetDailyDistrictConditions()
+    {
+        return World.ActiveDistrictConditions
+            .Select(static activeCondition => (activeCondition, definition: DistrictConditionRegistry.GetById(activeCondition.ConditionId)))
+            .Where(static item => item.definition is not null)
+            .OrderBy(static item => item.activeCondition.District)
+            .Select(static item => item.definition!)
+            .ToArray();
+    }
+
+    public DistrictConditionDefinition? GetActiveDistrictConditionDefinition(DistrictId districtId)
+    {
+        return DistrictConditionRegistry.GetById(World.GetActiveDistrictCondition(districtId)?.ConditionId);
+    }
+
+    public int GetTravelCost(LocationId locationId)
+    {
+        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
+        return location is null ? 0 : GetTravelCost(location);
+    }
+
+    public int GetTravelTimeMinutes(LocationId locationId)
+    {
+        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
+        return location is null ? 0 : GetTravelTimeMinutes(location);
+    }
+
+    public int GetWalkTimeMinutes(LocationId locationId)
+    {
+        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
+        return location is null ? 0 : GetWalkTimeMinutes(location);
+    }
+
+    public string? GetTravelConditionSummary(LocationId locationId)
+    {
+        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
+        if (location is null)
+        {
+            return null;
+        }
+
+        var districtCondition = GetActiveDistrictConditionDefinition(location.District);
+        if (districtCondition is null)
+        {
+            return null;
+        }
+
+        var effect = districtCondition.Effect;
+        if (effect.TravelCostModifier == 0 && effect.TravelTimeMinutesModifier == 0 && effect.TravelEnergyModifier == 0)
+        {
+            return null;
+        }
+
+        return $"{districtCondition.Title}: {districtCondition.GameplaySummary}";
     }
 
     private int GetTravelCost(Location destination)
     {
-        return _locationPricingService.GetTravelCost(destination, Relationships);
+        var districtCondition = GetActiveDistrictConditionDefinition(destination.District);
+        var modifiedCost = _locationPricingService.GetTravelCost(destination, Relationships) + (districtCondition?.Effect.TravelCostModifier ?? 0);
+        return Math.Max(1, modifiedCost);
     }
 
     private int GetClinicVisitCost(Location location)
     {
-        return _locationPricingService.GetClinicVisitCost(location, Relationships, Player.Skills);
+        var districtCondition = GetActiveDistrictConditionDefinition(location.District);
+        var modifiedCost = _locationPricingService.GetClinicVisitCost(location, Relationships, Player.Skills) + (districtCondition?.Effect.ClinicVisitCostModifier ?? 0);
+        return Math.Max(1, modifiedCost);
     }
 
     private int GetTravelEnergyCost(Location destination)
     {
-        return _locationPricingService.GetTravelEnergyCost(destination, Relationships);
+        var districtCondition = GetActiveDistrictConditionDefinition(destination.District);
+        var modifiedCost = _locationPricingService.GetTravelEnergyCost(destination, Relationships) + (districtCondition?.Effect.TravelEnergyModifier ?? 0);
+        return Math.Max(1, modifiedCost);
+    }
+
+    private int GetTravelTimeMinutes(Location destination)
+    {
+        var districtCondition = GetActiveDistrictConditionDefinition(destination.District);
+        var modifiedMinutes = destination.TravelTimeMinutes + (districtCondition?.Effect.TravelTimeMinutesModifier ?? 0);
+        return Math.Max(1, modifiedMinutes);
     }
 
     public int CurrentDay => Clock.Day;
@@ -1067,6 +1169,30 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         return new CrimeRoutePreview(modifierEvaluation.Attempt, resolution, modifierEvaluation.ActiveModifiers);
     }
 
+    public int GetEffectiveRandomEventWeight(RandomEvent randomEvent)
+    {
+        ArgumentNullException.ThrowIfNull(randomEvent);
+
+        var weight = randomEvent.Weight;
+        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
+        if (districtCondition is null)
+        {
+            return weight;
+        }
+
+        if (districtCondition.Effect.BoostedRandomEventIds.Contains(randomEvent.Id, StringComparer.Ordinal))
+        {
+            weight += 4;
+        }
+
+        if (districtCondition.Effect.SuppressedRandomEventIds.Contains(randomEvent.Id, StringComparer.Ordinal))
+        {
+            weight = Math.Max(1, weight - 3);
+        }
+
+        return weight;
+    }
+
     private void ApplyCrimeContactAftermath(CrimeResult result)
     {
         var aftermath = CrimeNarrativePlanner.GetDetectedContactAftermath(World.CurrentLocationId, Relationships, result);
@@ -1235,6 +1361,167 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         JobProgress.RestoreTrack(jobType, reliability, shiftsCompleted, lockoutUntilDay);
     }
 
+    private void RollDistrictConditionsForCurrentDay(Random random)
+    {
+        ArgumentNullException.ThrowIfNull(random);
+
+        var activeConditions = new List<ActiveDistrictCondition>();
+        foreach (var districtId in Enum.GetValues<DistrictId>())
+        {
+            var candidates = DistrictConditionRegistry.GetDefinitionsForDistrict(districtId)
+                .Where(definition => definition.IsEligible(Clock.Day, PolicePressure))
+                .ToArray();
+            if (candidates.Length == 0)
+            {
+                continue;
+            }
+
+            var selected = SelectWeightedDistrictCondition(candidates, random);
+            activeConditions.Add(new ActiveDistrictCondition
+            {
+                District = districtId,
+                ConditionId = selected.Id
+            });
+        }
+
+        World.SetActiveDistrictConditions(activeConditions);
+    }
+
+    private void SetBaselineDistrictConditions()
+    {
+        World.SetActiveDistrictConditions(
+        [
+            new ActiveDistrictCondition { District = DistrictId.Imbaba, ConditionId = "imbaba_steady_day" },
+            new ActiveDistrictCondition { District = DistrictId.Dokki, ConditionId = "dokki_steady_day" },
+            new ActiveDistrictCondition { District = DistrictId.ArdAlLiwa, ConditionId = "ardalliwa_steady_day" },
+            new ActiveDistrictCondition { District = DistrictId.BulaqAlDakrour, ConditionId = "bulaq_steady_day" },
+            new ActiveDistrictCondition { District = DistrictId.Shubra, ConditionId = "shubra_steady_day" }
+        ]);
+    }
+
+    private static DistrictConditionDefinition SelectWeightedDistrictCondition(
+        IReadOnlyList<DistrictConditionDefinition> candidates,
+        Random random)
+    {
+        var totalWeight = candidates.Sum(static definition => definition.Weight);
+#pragma warning disable CA5394
+        var roll = random.Next(1, totalWeight + 1);
+#pragma warning restore CA5394
+        var cumulativeWeight = 0;
+        foreach (var candidate in candidates)
+        {
+            cumulativeWeight += candidate.Weight;
+            if (roll <= cumulativeWeight)
+            {
+                return candidate;
+            }
+        }
+
+        return candidates[^1];
+    }
+
+    private JobPreview ApplyDistrictConditionToJobPreview(JobPreview preview)
+    {
+        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
+        if (districtCondition is null)
+        {
+            return preview;
+        }
+
+        var effect = districtCondition.Effect;
+        if (effect.WorkPayModifier == 0 && effect.WorkStressModifier == 0)
+        {
+            return preview;
+        }
+
+        var activeModifiers = preview.ActiveModifiers.ToList();
+        activeModifiers.Add(BuildWorkDistrictModifierText(districtCondition));
+
+        return new JobPreview(
+            ApplyDistrictConditionToJob(preview.Job),
+            preview.VariantReason,
+            preview.NextUnlockHint,
+            activeModifiers,
+            preview.RiskWarning);
+    }
+
+    private JobShift ApplyDistrictConditionToJob(JobShift job)
+    {
+        ArgumentNullException.ThrowIfNull(job);
+
+        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
+        if (districtCondition is null)
+        {
+            return job;
+        }
+
+        var effect = districtCondition.Effect;
+        if (effect.WorkPayModifier == 0 && effect.WorkStressModifier == 0)
+        {
+            return job;
+        }
+
+        return CloneJobShift(
+            job,
+            Math.Max(0, job.BasePay + effect.WorkPayModifier),
+            Math.Max(0, job.StressCost + effect.WorkStressModifier));
+    }
+
+    private static JobShift CloneJobShift(JobShift source, int basePay, int stressCost)
+    {
+        return new JobShift
+        {
+            Type = source.Type,
+            Name = source.Name,
+            Description = source.Description,
+            BasePay = basePay,
+            EnergyCost = source.EnergyCost,
+            StressCost = stressCost,
+            DurationMinutes = source.DurationMinutes,
+            MinEnergyRequired = source.MinEnergyRequired,
+            PayVariance = source.PayVariance
+        };
+    }
+
+    private static string BuildWorkDistrictModifierText(DistrictConditionDefinition districtCondition)
+    {
+        var parts = new List<string>();
+        if (districtCondition.Effect.WorkPayModifier != 0)
+        {
+            parts.Add($"pay {FormatSignedValue(districtCondition.Effect.WorkPayModifier)} LE");
+        }
+
+        if (districtCondition.Effect.WorkStressModifier != 0)
+        {
+            parts.Add($"stress {FormatSignedValue(districtCondition.Effect.WorkStressModifier)}");
+        }
+
+        return $"{districtCondition.Title} affects shifts today: {string.Join(", ", parts)}.";
+    }
+
+    private static string BuildCrimeDistrictModifierText(DistrictConditionDefinition districtCondition)
+    {
+        var parts = new List<string>();
+        if (districtCondition.Effect.CrimeDetectionRiskModifier != 0)
+        {
+            parts.Add($"detection {FormatSignedValue(districtCondition.Effect.CrimeDetectionRiskModifier)}");
+        }
+
+        if (districtCondition.Effect.CrimeRewardModifier != 0)
+        {
+            parts.Add($"reward {FormatSignedValue(districtCondition.Effect.CrimeRewardModifier)} LE");
+        }
+
+        return $"{districtCondition.Title} affects street work today: {string.Join(", ", parts)}.";
+    }
+
+    private static string FormatSignedValue(int value)
+    {
+        return value >= 0
+            ? $"+{value.ToString(CultureInfo.InvariantCulture)}"
+            : value.ToString(CultureInfo.InvariantCulture);
+    }
+
     private void CheckGameOverConditions()
     {
         var ending = EndingService.CheckEndings(this);
@@ -1345,6 +1632,22 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         if (PolicePressure >= 60)
         {
             activeModifiers.Add("Current police pressure is materially increasing detection risk.");
+        }
+
+        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
+        if (districtCondition is not null)
+        {
+            var effect = districtCondition.Effect;
+            if (effect.CrimeDetectionRiskModifier != 0 || effect.CrimeRewardModifier != 0)
+            {
+                modifiedAttempt = modifiedAttempt with
+                {
+                    DetectionRisk = Math.Clamp(modifiedAttempt.DetectionRisk + effect.CrimeDetectionRiskModifier, 1, 95),
+                    BaseReward = Math.Max(0, modifiedAttempt.BaseReward + effect.CrimeRewardModifier)
+                };
+
+                activeModifiers.Add(BuildCrimeDistrictModifierText(districtCondition));
+            }
         }
 
         return new CrimeModifierEvaluation(modifiedAttempt, activeModifiers);

@@ -100,6 +100,10 @@ internal sealed class GameScreen : ScreenSurface
         Surface.Print(0, 2, $"Day {statusContext.Clock.Day} - {statusContext.Clock.TimeOfDay}", Color.White);
         Surface.Print(0, 3, $"Time: {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2}", Color.Gray);
         Surface.Print(0, 4, $"Police Pressure: {statusContext.PolicePressure}", statusContext.PolicePressure >= 80 ? Color.Red : Color.Orange);
+        var districtBulletin = statusContext.CurrentDistrictCondition is null
+            ? "Today here: no major district pressure."
+            : $"Today here: {statusContext.CurrentDistrictCondition.Title} - {statusContext.CurrentDistrictCondition.GameplaySummary}";
+        Surface.Print(0, 5, TrimHudLine(districtBulletin), Color.LightGray);
 
         // Money is displayed as a plain figure; the bar is only meaningful for 0-100 bounded stats
         var rentColor = statusContext.UnpaidRentDays >= 5
@@ -150,6 +154,12 @@ internal sealed class GameScreen : ScreenSurface
         > 50 => Color.Orange,
         _ => Color.Green
     };
+
+    private static string TrimHudLine(string text)
+    {
+        const int maxLength = 43;
+        return text.Length <= maxLength ? text : $"{text[..(maxLength - 3)]}...";
+    }
 
     private void RenderActions()
     {

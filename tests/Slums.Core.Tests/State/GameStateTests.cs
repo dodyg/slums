@@ -20,6 +20,7 @@ internal sealed class GameStateTests
         await Assert.That(state.Player).IsNotNull();
         await Assert.That(state.World).IsNotNull();
         await Assert.That(state.IsGameOver).IsFalse();
+        await Assert.That(state.GetDailyDistrictConditions().Count).IsEqualTo(Enum.GetValues<DistrictId>().Length);
     }
 
     [Test]
@@ -140,6 +141,30 @@ internal sealed class GameStateTests
         state.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 12, 1);
 
         await Assert.That(state.GetMedicineCost()).IsEqualTo(40);
+    }
+
+    [Test]
+    public async Task GetFoodCost_ShouldReflectCurrentDistrictCondition()
+    {
+        using var state = new GameSession();
+        state.World.SetActiveDistrictConditions(
+        [
+            new ActiveDistrictCondition { District = DistrictId.Imbaba, ConditionId = "imbaba_utility_cut" }
+        ]);
+
+        await Assert.That(state.GetFoodCost()).IsEqualTo(17);
+    }
+
+    [Test]
+    public async Task GetTravelTimeMinutes_ShouldReflectDestinationDistrictCondition()
+    {
+        using var state = new GameSession();
+        state.World.SetActiveDistrictConditions(
+        [
+            new ActiveDistrictCondition { District = DistrictId.Dokki, ConditionId = "dokki_checkpoint_sweep" }
+        ]);
+
+        await Assert.That(state.GetTravelTimeMinutes(LocationId.CallCenter)).IsEqualTo(55);
     }
 
     [Test]

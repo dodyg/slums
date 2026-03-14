@@ -9,6 +9,8 @@ namespace Slums.Infrastructure.Persistence;
 [JsonSerializable(typeof(GameSessionClockSnapshot))]
 [JsonSerializable(typeof(GameSessionPlayerSnapshot))]
 [JsonSerializable(typeof(GameSessionWorldSnapshot))]
+[JsonSerializable(typeof(ActiveDistrictConditionSnapshot))]
+[JsonSerializable(typeof(List<ActiveDistrictConditionSnapshot>))]
 [JsonSerializable(typeof(GameSessionRelationshipSnapshot))]
 [JsonSerializable(typeof(GameSessionNpcRelationshipSnapshot))]
 [JsonSerializable(typeof(GameSessionJobProgressSnapshot))]

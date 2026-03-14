@@ -268,6 +268,47 @@ internal sealed class JsonContentRepositoryTests
         }
     }
 
+    [Test]
+    public void LoadDistrictConditions_ShouldDeserializeEffectsAndBulletins()
+    {
+        var contentDirectory = CreateTempDirectory();
+        try
+        {
+            File.WriteAllText(Path.Combine(contentDirectory, "district_conditions.json"), """
+            [
+              {
+                "Id": "dokki_checkpoint_sweep",
+                "District": "Dokki",
+                "Title": "Checkpoint Sweep",
+                "BulletinText": "desc",
+                "GameplaySummary": "Travel is slower and crime runs hotter.",
+                "MinDay": 2,
+                "Weight": 4,
+                "MinPolicePressure": 20,
+                "Effect": {
+                  "TravelTimeMinutesModifier": 10,
+                  "CrimeDetectionRiskModifier": 9,
+                  "BoostedRandomEventIds": ["DokkiCheckpointSweep"]
+                }
+              }
+            ]
+            """);
+
+            var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
+
+            var conditions = repository.LoadDistrictConditions();
+
+            conditions.Should().ContainSingle();
+            conditions[0].District.Should().Be(Slums.Core.World.DistrictId.Dokki);
+            conditions[0].Effect.TravelTimeMinutesModifier.Should().Be(10);
+            conditions[0].Effect.BoostedRandomEventIds.Should().ContainSingle().Which.Should().Be("DokkiCheckpointSweep");
+        }
+        finally
+        {
+            DeleteDirectory(contentDirectory);
+        }
+    }
+
     private static string CreateTempDirectory()
     {
         var path = Path.Combine(Path.GetTempPath(), "slums-content-tests", Guid.NewGuid().ToString("N"));

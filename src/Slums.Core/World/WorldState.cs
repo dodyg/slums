@@ -19,8 +19,11 @@ public sealed class Location
 
 public sealed class WorldState
 {
+    private readonly List<ActiveDistrictCondition> _activeDistrictConditions = [];
+
     public DistrictId CurrentDistrict { get; private set; } = DistrictId.Imbaba;
     public LocationId CurrentLocationId { get; private set; } = LocationId.Home;
+    public IReadOnlyList<ActiveDistrictCondition> ActiveDistrictConditions => _activeDistrictConditions;
 
     private static readonly Location[] DefaultLocations =
     [
@@ -188,5 +191,24 @@ public sealed class WorldState
             CurrentLocationId = locationId;
             CurrentDistrict = location.District;
         }
+    }
+
+    public ActiveDistrictCondition? GetActiveDistrictCondition(DistrictId districtId)
+    {
+        return _activeDistrictConditions.FirstOrDefault(condition => condition.District == districtId);
+    }
+
+    public void SetActiveDistrictConditions(IEnumerable<ActiveDistrictCondition> activeDistrictConditions)
+    {
+        ArgumentNullException.ThrowIfNull(activeDistrictConditions);
+
+        var configuredConditions = activeDistrictConditions
+            .Where(static condition => condition is not null && !string.IsNullOrWhiteSpace(condition.ConditionId))
+            .GroupBy(static condition => condition.District)
+            .Select(static group => group.Last())
+            .ToArray();
+
+        _activeDistrictConditions.Clear();
+        _activeDistrictConditions.AddRange(configuredConditions);
     }
 }

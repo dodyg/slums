@@ -18,6 +18,7 @@ public sealed class GameStatusPageQuery
         return
         [
             BuildSurvivalPage(context),
+            BuildCityPage(context),
             BuildDebtPage(context),
             BuildSkillsPage(context),
             BuildNetworkPage(context),
@@ -46,12 +47,26 @@ public sealed class GameStatusPageQuery
                     : "Rent debt: clear",
                 $"Food: {household.FoodStockpile} | Medicine: {household.MedicineStock}",
                 $"Local prices: food {context.FoodCost} LE | street {context.StreetFoodCost} LE | medicine {context.MedicineCost} LE",
+                context.CurrentDistrictCondition is null
+                    ? "Today here: no special district pressure."
+                    : $"Today here: {context.CurrentDistrictCondition.Title} - {context.CurrentDistrictCondition.GameplaySummary}",
                 context.HasClinicServices
                     ? $"Clinic here: {(context.ClinicOpenToday ? "open" : "closed")} today | visit {context.ClinicVisitCost} LE | days {context.ClinicOpenDaysSummary}"
                     : "Clinic here: none",
                 $"Mother: {household.MotherHealth}% {household.MotherCondition}",
                 $"Mother fed today: {ToYesNo(household.FedMotherToday)}"
             ]);
+    }
+
+    private static GameStatusPage BuildCityPage(GameStatusContext context)
+    {
+        var lines = context.DailyDistrictConditions.Count == 0
+            ? ["No district bulletins are active right now."]
+            : context.DailyDistrictConditions
+                .Select(definition => $"{DistrictInfo.GetName(definition.District)}: {definition.Title} - {definition.GameplaySummary}")
+                .ToList();
+
+        return new GameStatusPage("City", lines);
     }
 
     private static GameStatusPage BuildDebtPage(GameStatusContext context)

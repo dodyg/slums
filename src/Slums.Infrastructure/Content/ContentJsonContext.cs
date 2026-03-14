@@ -10,6 +10,7 @@ namespace Slums.Infrastructure.Content;
 [JsonSerializable(typeof(List<Location>))]
 [JsonSerializable(typeof(List<JobShift>))]
 [JsonSerializable(typeof(List<RandomEventDefinition>))]
+[JsonSerializable(typeof(List<DistrictConditionDefinition>))]
 internal sealed partial class ContentJsonContext : JsonSerializerContext
 {
 }

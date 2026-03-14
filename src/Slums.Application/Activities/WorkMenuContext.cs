@@ -42,7 +42,7 @@ public sealed record WorkMenuContext(
 
     private static WorkMenuOptionContext CreateOption(GameSession gameSession, Slums.Core.World.Location? location, JobShift job)
     {
-        var preview = gameSession.Jobs.PreviewJob(job.Type, gameSession.Player, gameSession.Relationships, gameSession.JobProgress);
+        var preview = gameSession.PreviewJob(job.Type);
         var track = gameSession.JobProgress.GetTrack(job.Type);
         string? reason = null;
         var canPerform = false;

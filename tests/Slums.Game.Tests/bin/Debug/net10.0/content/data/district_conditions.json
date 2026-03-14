@@ -1,0 +1,145 @@
+[
+  {
+    "Id": "imbaba_utility_cut",
+    "District": "Imbaba",
+    "Title": "Utility Cut",
+    "BulletinText": "Imbaba is limping through another utility cut.",
+    "GameplaySummary": "Food runs cost more and moving in or out takes longer.",
+    "MinDay": 1,
+    "Weight": 4,
+    "Effect": {
+      "TravelTimeMinutesModifier": 5,
+      "FoodCostModifier": 2,
+      "StreetFoodCostModifier": 1,
+      "SuppressedRandomEventIds": ["NeighborhoodSolidarity"]
+    }
+  },
+  {
+    "Id": "imbaba_market_crackdown",
+    "District": "Imbaba",
+    "Title": "Market Crackdown",
+    "BulletinText": "Uniforms and informants are pressing the market harder than usual.",
+    "GameplaySummary": "Crime runs hotter and petty work pays a little better if you keep your head down.",
+    "MinDay": 2,
+    "Weight": 3,
+    "Effect": {
+      "WorkPayModifier": 2,
+      "CrimeDetectionRiskModifier": 7,
+      "BoostedRandomEventIds": ["NeighborhoodRumor"]
+    }
+  },
+  {
+    "Id": "dokki_checkpoint_sweep",
+    "District": "Dokki",
+    "Title": "Checkpoint Sweep",
+    "BulletinText": "Dokki crossings are full of checkpoint stops and slow questions today.",
+    "GameplaySummary": "Travel into Dokki is slower and crime carries extra detection risk.",
+    "MinDay": 2,
+    "Weight": 4,
+    "MinPolicePressure": 20,
+    "Effect": {
+      "TravelTimeMinutesModifier": 10,
+      "TravelEnergyModifier": 2,
+      "CrimeDetectionRiskModifier": 9,
+      "BoostedRandomEventIds": ["DokkiCheckpointSweep", "DokkiTransportFriction"]
+    }
+  },
+  {
+    "Id": "dokki_traffic_surge",
+    "District": "Dokki",
+    "Title": "Traffic Surge",
+    "BulletinText": "Dokki is jammed with traffic, delays, and people arriving already angry.",
+    "GameplaySummary": "Travel is slower and Dokki shifts add a little more stress than usual.",
+    "MinDay": 1,
+    "Weight": 3,
+    "Effect": {
+      "TravelTimeMinutesModifier": 8,
+      "WorkStressModifier": 3
+    }
+  },
+  {
+    "Id": "ardalliwa_clinic_overflow",
+    "District": "ArdAlLiwa",
+    "Title": "Clinic Overflow",
+    "BulletinText": "Ard al-Liwa clinics are overflowing and every errand there is running long.",
+    "GameplaySummary": "Clinic visits cost more, clinic work pays better, and medicine queues spill over.",
+    "MinDay": 1,
+    "Weight": 4,
+    "Effect": {
+      "ClinicVisitCostModifier": 4,
+      "MedicineCostModifier": 2,
+      "WorkPayModifier": 3,
+      "BoostedRandomEventIds": ["ClinicOverflow", "ClinicSupplyShortage"]
+    }
+  },
+  {
+    "Id": "ardalliwa_workshop_rush",
+    "District": "ArdAlLiwa",
+    "Title": "Workshop Rush",
+    "BulletinText": "Ard al-Liwa workshops are pushing rush orders through every back room today.",
+    "GameplaySummary": "Workshop-side work pays slightly more but costs more stress.",
+    "MinDay": 2,
+    "Weight": 3,
+    "Effect": {
+      "WorkPayModifier": 3,
+      "WorkStressModifier": 2,
+      "BoostedRandomEventIds": ["WorkshopRushOrder"]
+    }
+  },
+  {
+    "Id": "bulaq_route_dispute",
+    "District": "BulaqAlDakrour",
+    "Title": "Route Dispute",
+    "BulletinText": "Bulaq route disputes are dragging fares, queues, and tempers all over the district.",
+    "GameplaySummary": "Travel is rougher, depot work is tenser, and transport events are more likely.",
+    "MinDay": 1,
+    "Weight": 4,
+    "Effect": {
+      "TravelEnergyModifier": 2,
+      "WorkStressModifier": 2,
+      "BoostedRandomEventIds": ["DepotFareShakeup", "BulaqMedicineQueue"]
+    }
+  },
+  {
+    "Id": "bulaq_discount_queue",
+    "District": "BulaqAlDakrour",
+    "Title": "Discount Queue Day",
+    "BulletinText": "Bulaq's discount counters are jammed and every queue is eating half a day.",
+    "GameplaySummary": "Medicine is cheaper, but travel and service waits are slower.",
+    "MinDay": 1,
+    "Weight": 3,
+    "Effect": {
+      "TravelTimeMinutesModifier": 6,
+      "MedicineCostModifier": -3,
+      "BoostedRandomEventIds": ["BulaqMedicineQueue"]
+    }
+  },
+  {
+    "Id": "shubra_steam_break",
+    "District": "Shubra",
+    "Title": "Steam Break",
+    "BulletinText": "Shubra laundries are losing time to a steam break and the whole block feels it.",
+    "GameplaySummary": "Shubra work is more stressful and moving through the district costs extra energy.",
+    "MinDay": 1,
+    "Weight": 4,
+    "Effect": {
+      "TravelEnergyModifier": 2,
+      "WorkStressModifier": 3,
+      "BoostedRandomEventIds": ["ShubraSteamBreak"]
+    }
+  },
+  {
+    "Id": "shubra_committee_collection",
+    "District": "Shubra",
+    "Title": "Committee Collection",
+    "BulletinText": "A Shubra building committee is collecting for repairs and quietly moving favors around.",
+    "GameplaySummary": "Food pressure eases a little, but money runs go further toward obligations than comfort.",
+    "MinDay": 2,
+    "Weight": 3,
+    "Effect": {
+      "FoodCostModifier": -1,
+      "StreetFoodCostModifier": -1,
+      "BoostedRandomEventIds": ["ShubraBlockSolidarity"]
+    }
+  }
+]

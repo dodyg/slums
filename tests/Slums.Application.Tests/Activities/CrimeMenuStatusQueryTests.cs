@@ -134,4 +134,22 @@ internal sealed class CrimeMenuStatusQueryTests
         pettyTheft.NarrativeSignals.Should().Contain(static text => text.Contains("suspicious tonight", StringComparison.Ordinal));
         pettyTheft.NarrativeSignals.Should().Contain(static text => text.Contains("Mona", StringComparison.Ordinal));
     }
+
+    [Test]
+    public void GetStatuses_ShouldExposeDistrictCrimePressure()
+    {
+        var query = new CrimeMenuStatusQuery();
+        using var gameState = new GameSession();
+        gameState.World.TravelTo(LocationId.Square);
+        gameState.World.SetActiveDistrictConditions(
+        [
+            new ActiveDistrictCondition { District = DistrictId.Dokki, ConditionId = "dokki_checkpoint_sweep" }
+        ]);
+
+        var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
+
+        var pettyTheft = statuses.Single(static status => status.Attempt.Type == CrimeType.PettyTheft);
+        pettyTheft.ActiveModifiers.Should().Contain(static text => text.Contains("Checkpoint Sweep", StringComparison.Ordinal));
+        pettyTheft.EffectiveDetectionRisk.Should().BeGreaterThan(25);
+    }
 }

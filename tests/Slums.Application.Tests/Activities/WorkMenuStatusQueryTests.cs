@@ -89,4 +89,22 @@ internal sealed class WorkMenuStatusQueryTests
         statuses[0].NarrativeSignals.Should().Contain(static text => text.Contains("medical-dropout reflection", StringComparison.Ordinal));
         statuses[0].NarrativeSignals.Should().Contain(static text => text.Contains("quietly help with medicine", StringComparison.Ordinal));
     }
+
+    [Test]
+    public void GetStatuses_ShouldExposeDistrictConditionModifiers()
+    {
+        var query = new WorkMenuStatusQuery();
+        using var gameState = new GameSession();
+        gameState.World.TravelTo(LocationId.Clinic);
+        gameState.World.SetActiveDistrictConditions(
+        [
+            new ActiveDistrictCondition { District = DistrictId.ArdAlLiwa, ConditionId = "ardalliwa_clinic_overflow" }
+        ]);
+
+        var statuses = query.GetStatuses(WorkMenuContext.Create(gameState));
+
+        statuses.Should().ContainSingle();
+        statuses[0].Job.BasePay.Should().Be(33);
+        statuses[0].ActiveModifiers.Should().Contain(static text => text.Contains("Clinic Overflow", StringComparison.Ordinal));
+    }
 }

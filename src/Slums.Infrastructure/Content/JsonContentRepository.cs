@@ -41,6 +41,11 @@ public sealed class JsonContentRepository : IContentRepository
         return definitions.Select(MapRandomEvent).ToArray();
     }
 
+    public IReadOnlyList<DistrictConditionDefinition> LoadDistrictConditions()
+    {
+        return Load(Path.Combine(_contentDirectory, "district_conditions.json"), ContentJsonContext.Default.ListDistrictConditionDefinition);
+    }
+
     private List<T> Load<T>(string path, System.Text.Json.Serialization.Metadata.JsonTypeInfo<List<T>> jsonTypeInfo)
     {
         if (!File.Exists(path))

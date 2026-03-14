@@ -53,7 +53,7 @@ public sealed record GameSessionSnapshot
 
     public GameSession Restore()
     {
-        var gameSession = new GameSession();
+        var gameSession = new GameSession(new Random());
         try
         {
             gameSession.Player.ApplyBackground(BackgroundRegistry.GetByType(Player.BackgroundType));
@@ -70,6 +70,7 @@ public sealed record GameSessionSnapshot
             gameSession.Player.Skills.Restore(Player.EnumerateSkillLevels());
             gameSession.Clock.SetTime(Clock.Day, Clock.Hour, Clock.Minute);
             gameSession.World.TravelTo(new LocationId(World.CurrentLocationId));
+            gameSession.World.SetActiveDistrictConditions(World.ActiveDistrictConditions.Select(static snapshot => snapshot.Restore()));
 
             gameSession.RestoreCrimeState(
                 Crime.PolicePressure,

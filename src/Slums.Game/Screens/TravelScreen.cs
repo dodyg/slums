@@ -44,21 +44,24 @@ internal sealed class TravelScreen : ScreenSurface
         {
             var loc = _locations[i];
             var isCurrentLocation = loc.Id == _gameState.World.CurrentLocationId;
-            var canAffordTravel = _gameState.CanAffordTravel(loc.Id);
+            var travelCost = _gameState.GetTravelCost(loc.Id);
+            var travelMinutes = _gameState.GetTravelTimeMinutes(loc.Id);
+            var walkMinutes = _gameState.GetWalkTimeMinutes(loc.Id);
+            var canAffordTravel = _gameState.Player.Stats.Money >= travelCost;
             var prefix = i == _selectedIndex ? "> " : "  ";
             var nameColor = i == _selectedIndex ? Color.Cyan : isCurrentLocation ? Color.DarkGray : canAffordTravel ? Color.White : Color.Orange;
 
             var currentLocationSuffix = isCurrentLocation ? " [Current]" : string.Empty;
             var displayName = $"{loc.Name} ({DistrictInfo.GetName(loc.District)}){currentLocationSuffix}";
-            var walkTime = loc.TravelTimeMinutes * 3;
             var travelInfo = canAffordTravel 
-                ? $"[{loc.TravelTimeMinutes} min]" 
-                : $"[Walk: {walkTime} min]";
+                ? $"[{travelCost} LE | {travelMinutes} min]" 
+                : $"[Walk: {walkMinutes} min]";
             
             var rowY = DestinationStartY + i * ListRowHeight;
             Surface.Print(DestinationStartX, rowY, $"{prefix}{displayName}", nameColor);
             Surface.Print(Surface.Width - travelInfo.Length - 2, rowY, travelInfo, canAffordTravel ? Color.Yellow : Color.Orange);
-            Surface.Print(6, rowY + 1, $"{loc.Description[..Math.Min(50, loc.Description.Length)]}", Color.DarkGray);
+            var travelSummary = _gameState.GetTravelConditionSummary(loc.Id) ?? loc.Description;
+            Surface.Print(6, rowY + 1, $"{travelSummary[..Math.Min(50, travelSummary.Length)]}", Color.DarkGray);
         }
     }
 

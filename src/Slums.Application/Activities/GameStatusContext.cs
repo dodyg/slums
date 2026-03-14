@@ -31,6 +31,8 @@ public sealed record GameStatusContext(
     bool ClinicOpenToday,
     int ClinicVisitCost,
     string ClinicOpenDaysSummary,
+    DistrictConditionDefinition? CurrentDistrictCondition,
+    IReadOnlyList<DistrictConditionDefinition> DailyDistrictConditions,
     IReadOnlyList<Investment> ActiveInvestments,
     int TotalInvestmentEarnings,
     IReadOnlySet<string> StoryFlags)
@@ -64,6 +66,8 @@ public sealed record GameStatusContext(
             clinicStatus.IsOpenToday,
             clinicStatus.VisitCost,
             clinicStatus.OpenDaysSummary,
+            gameSession.GetActiveDistrictConditionDefinition(gameSession.World.CurrentDistrict),
+            gameSession.GetDailyDistrictConditions(),
             gameSession.ActiveInvestments,
             gameSession.TotalInvestmentEarnings,
             gameSession.StoryFlags.ToHashSet(StringComparer.Ordinal));

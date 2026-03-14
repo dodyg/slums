@@ -33,7 +33,7 @@ public sealed class RandomEventService
                 continue;
             }
 
-            var selected = SelectWeightedEvent(eligibleEvents, random);
+            var selected = SelectWeightedEvent(eligibleEvents, gameState, random);
             rolledEvents.Add(selected);
             eligibleEvents.Remove(selected);
         }
@@ -41,9 +41,9 @@ public sealed class RandomEventService
         return rolledEvents;
     }
 
-    private static RandomEvent SelectWeightedEvent(IReadOnlyList<RandomEvent> events, Random random)
+    private static RandomEvent SelectWeightedEvent(IReadOnlyList<RandomEvent> events, GameSession gameState, Random random)
     {
-        var totalWeight = events.Sum(static item => item.Weight);
+        var totalWeight = events.Sum(gameState.GetEffectiveRandomEventWeight);
 #pragma warning disable CA5394
         var roll = random.Next(1, totalWeight + 1);
 #pragma warning restore CA5394
@@ -51,7 +51,7 @@ public sealed class RandomEventService
 
         foreach (var randomEvent in events)
         {
-            cumulativeWeight += randomEvent.Weight;
+            cumulativeWeight += gameState.GetEffectiveRandomEventWeight(randomEvent);
             if (roll <= cumulativeWeight)
             {
                 return randomEvent;

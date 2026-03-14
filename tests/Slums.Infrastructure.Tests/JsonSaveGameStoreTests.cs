@@ -35,6 +35,11 @@ internal sealed class JsonSaveGameStoreTests
             gameSession.Player.Household.SetFoodStockpile(5);
             gameSession.Player.Household.SetMedicineStock(2);
             gameSession.World.TravelTo(LocationId.Market);
+            gameSession.World.SetActiveDistrictConditions(
+            [
+                new ActiveDistrictCondition { District = DistrictId.Imbaba, ConditionId = "imbaba_market_crackdown" },
+                new ActiveDistrictCondition { District = DistrictId.Dokki, ConditionId = "dokki_checkpoint_sweep" }
+            ]);
             gameSession.RestoreCrimeState(30, 120, 2, 5, hasCrimeCommittedToday: true);
             gameSession.RestoreWorkState(140, 4, 7, 7);
             gameSession.RestoreRunState(runId, 7, isGameOver: false, gameOverReason: null, endingId: null, pendingEndingKnot: null);
@@ -69,6 +74,8 @@ internal sealed class JsonSaveGameStoreTests
                     restoredSession.Player.Nutrition.DaysUndereating.Should().Be(2);
                     restoredSession.Player.Stats.Health.Should().Be(77);
                     restoredSession.World.CurrentLocationId.Should().Be(LocationId.Market);
+                    restoredSession.GetDailyDistrictConditions().Should().ContainSingle(static definition => definition.Id == "imbaba_market_crackdown");
+                    restoredSession.GetDailyDistrictConditions().Should().ContainSingle(static definition => definition.Id == "dokki_checkpoint_sweep");
                     restoredSession.PolicePressure.Should().Be(30);
                     restoredSession.CrimesCommitted.Should().Be(2);
                     restoredSession.TotalHonestWorkEarnings.Should().Be(140);

@@ -44,7 +44,7 @@ public sealed class JobService
             return JobResult.Failed(reason);
         }
 
-        var resolvedJob = ResolveShift(job.Type, player, relationshipState, jobProgressState);
+        var resolvedJob = job;
 
         if (ShouldApplyMistake(resolvedJob, player))
         {

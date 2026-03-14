@@ -20,7 +20,7 @@ internal sealed class GameStatusPageQueryTests
 
         var pages = query.GetPages(GameStatusContext.Create(gameState));
 
-        pages.Select(static page => page.Title).Should().ContainInOrder("Survival", "Debt", "Skills", "Network", "Heat", "Investments", "Signals", "Progress");
+        pages.Select(static page => page.Title).Should().ContainInOrder("Survival", "City", "Debt", "Skills", "Network", "Heat", "Investments", "Signals", "Progress");
     }
 
     [Test]
@@ -83,6 +83,27 @@ internal sealed class GameStatusPageQueryTests
 
         var survival = pages.Single(static page => page.Title == "Survival");
         survival.Lines.Should().Contain(static line => line.Contains("Clinic here: open today | visit 35 LE", StringComparison.Ordinal));
+    }
+
+    [Test]
+    public void GetPages_ShouldExposeDailyCityBulletins()
+    {
+        var query = new GameStatusPageQuery();
+        using var gameState = new GameSession();
+        gameState.World.SetActiveDistrictConditions(
+        [
+            new ActiveDistrictCondition { District = DistrictId.Imbaba, ConditionId = "imbaba_market_crackdown" },
+            new ActiveDistrictCondition { District = DistrictId.Dokki, ConditionId = "dokki_checkpoint_sweep" }
+        ]);
+
+        var pages = query.GetPages(GameStatusContext.Create(gameState));
+
+        var survival = pages.Single(static page => page.Title == "Survival");
+        var city = pages.Single(static page => page.Title == "City");
+
+        survival.Lines.Should().Contain(static line => line.Contains("Market Crackdown", StringComparison.Ordinal));
+        city.Lines.Should().Contain(static line => line.Contains("Imbaba: Market Crackdown", StringComparison.Ordinal));
+        city.Lines.Should().Contain(static line => line.Contains("Dokki: Checkpoint Sweep", StringComparison.Ordinal));
     }
 
     [Test]

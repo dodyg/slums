@@ -508,3 +508,4 @@ D:/GitHub/slums/src/Slums.Game/bin/Debug/net10.0/content/ink/events.ink
 /mnt/d/Github/Slums/src/Slums.Game/bin/Debug/net10.0/content/ink/events.ink
 /mnt/d/GitHub/Slums/src/Slums.Game/bin/Debug/net10.0/content/ink/npcs.ink.head
 /mnt/d/GitHub/Slums/src/Slums.Game/bin/Debug/net10.0/EntitiesDb.dll
+/mnt/d/GitHub/Slums/src/Slums.Game/bin/Debug/net10.0/content/data/district_conditions.json
