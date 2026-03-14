@@ -14,10 +14,6 @@ namespace Slums.Game.Screens;
 
 internal sealed class GameScreen : ScreenSurface
 {
-    private const int ActionListX = 2;
-    private const int ActionHeaderY = 10;
-    private const int ActionListStartY = 12;
-    private const int MaxEventLogEntries = 8;
     private static readonly TimeSpan RealTimePerGameMinute = TimeSpan.FromSeconds(1);
     private readonly GameRuntime _runtime;
     private readonly GameSession _gameState;
@@ -114,8 +110,8 @@ internal sealed class GameScreen : ScreenSurface
         var rentText = statusContext.UnpaidRentDays > 0
             ? $"Rent: {statusContext.RentCost} LE/day | Debt {statusContext.AccumulatedRentDebt} LE | {statusContext.UnpaidRentDays} unpaid"
             : $"Rent: {statusContext.RentCost} LE (due end of day)";
-        Surface.Print(0, Surface.Height - 20 + GetStatLine("Rent"), rentText, rentColor);
-        Surface.Print(0, Surface.Height - 20 + GetStatLine("Money"), $"Money: {statusContext.Player.Stats.Money} LE", Color.Gold);
+        Surface.Print(0, GameScreenLayout.GetStatRowY(Surface.Height, GetStatLineOffset("Rent")), rentText, rentColor);
+        Surface.Print(0, GameScreenLayout.GetStatRowY(Surface.Height, GetStatLineOffset("Money")), $"Money: {statusContext.Player.Stats.Money} LE", Color.Gold);
         RenderStat("Hunger", statusContext.Player.Stats.Hunger, 100, GetStatColor(statusContext.Player.Stats.Hunger));
         RenderStat("Energy", statusContext.Player.Stats.Energy, 100, GetStatColor(statusContext.Player.Stats.Energy));
         RenderStat("Health", statusContext.Player.Stats.Health, 100, GetStatColor(statusContext.Player.Stats.Health));
@@ -127,10 +123,10 @@ internal sealed class GameScreen : ScreenSurface
         var barWidth = 10;
         var filled = (int)((double)value / max * barWidth);
         var bar = new string('#', filled) + new string('-', barWidth - filled);
-        Surface.Print(0, Surface.Height - 20 + GetStatLine(name), $"{name}: [{bar}] {value}", color);
+        Surface.Print(0, GameScreenLayout.GetStatRowY(Surface.Height, GetStatLineOffset(name)), $"{name}: [{bar}] {value}", color);
     }
 
-    private static int GetStatLine(string name) => name switch
+    private static int GetStatLineOffset(string name) => name switch
     {
         "Rent" => 0,
         "Money" => 1,
@@ -158,20 +154,21 @@ internal sealed class GameScreen : ScreenSurface
     private void RenderActions()
     {
         var actions = GetActions();
-        Surface.Print(0, ActionHeaderY, "--- Actions ---", Color.Cyan);
+        Surface.Print(0, GameScreenLayout.GetActionHeaderY(Surface.Height), "--- Actions ---", Color.Cyan);
+        var actionListStartY = GameScreenLayout.GetActionListStartY(Surface.Height);
 
         for (var i = 0; i < actions.Count; i++)
         {
             var prefix = i == _selectedAction ? "> " : "  ";
             var color = i == _selectedAction ? Color.Cyan : Color.White;
-            Surface.Print(ActionListX, ActionListStartY + i, prefix + actions[i].Label, color);
+            Surface.Print(GameScreenLayout.ActionListX, actionListStartY + i, prefix + actions[i].Label, color);
         }
     }
 
     private void RenderEventLog()
     {
-        var y = 18;
-        Surface.Print(45, y++, "--- Event Log ---", Color.Cyan);
+        var y = GameScreenLayout.EventLogY;
+        Surface.Print(GameScreenLayout.EventLogX, y++, "--- Event Log ---", Color.Cyan);
 
         for (var i = _eventLog.Count - 1; i >= 0; i--)
         {
@@ -180,14 +177,14 @@ internal sealed class GameScreen : ScreenSurface
             {
                 text = text[..32] + "...";
             }
-            Surface.Print(45, y + (_eventLog.Count - 1 - i), text, Color.Gray);
+            Surface.Print(GameScreenLayout.EventLogX, y + (_eventLog.Count - 1 - i), text, Color.Gray);
         }
     }
 
     private void RenderStatusPage()
     {
-        var x = 45;
-        var y = 0;
+        var x = GameScreenLayout.StatusPageX;
+        var y = GameScreenLayout.StatusPageY;
         var pages = _statusPageQuery.GetPages(GameStatusContext.Create(_gameState));
         if (pages.Count == 0)
         {
@@ -292,10 +289,13 @@ internal sealed class GameScreen : ScreenSurface
 
         var cellPosition = state.SurfaceCellPosition;
         var actions = GetActions();
+        var actionListStartY = GameScreenLayout.GetActionListStartY(Surface.Height);
         for (var i = 0; i < actions.Count; i++)
         {
-            var endX = ActionListX + actions[i].Label.Length + 2;
-            if (cellPosition.Y == ActionListStartY + i && cellPosition.X >= ActionListX && cellPosition.X < endX)
+            var endX = GameScreenLayout.ActionListX + actions[i].Label.Length + 2;
+            if (cellPosition.Y == actionListStartY + i
+                && cellPosition.X >= GameScreenLayout.ActionListX
+                && cellPosition.X < endX)
             {
                 _selectedAction = i;
                 ExecuteAction();
@@ -467,7 +467,7 @@ internal sealed class GameScreen : ScreenSurface
     private void AddEventLogEntry(string message)
     {
         _eventLog.Add(message);
-        while (_eventLog.Count > MaxEventLogEntries)
+        while (_eventLog.Count > GameScreenLayout.MaxEventLogEntries)
         {
             _eventLog.RemoveAt(0);
         }
