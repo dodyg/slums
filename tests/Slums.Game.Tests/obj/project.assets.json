@@ -4645,41 +4645,34 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\dodyg\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "/home/dodyg/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\GitHub\\slums\\tests\\Slums.Game.Tests\\Slums.Game.Tests.csproj",
+      "projectUniqueName": "/mnt/d/GitHub/Slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj",
       "projectName": "Slums.Game.Tests",
-      "projectPath": "D:\\GitHub\\slums\\tests\\Slums.Game.Tests\\Slums.Game.Tests.csproj",
-      "packagesPath": "C:\\Users\\dodyg\\.nuget\\packages\\",
-      "outputPath": "D:\\GitHub\\slums\\tests\\Slums.Game.Tests\\obj\\",
+      "projectPath": "/mnt/d/GitHub/Slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj",
+      "packagesPath": "/home/dodyg/.nuget/packages/",
+      "outputPath": "/mnt/d/GitHub/Slums/tests/Slums.Game.Tests/obj/",
       "projectStyle": "PackageReference",
       "centralPackageVersionsManagementEnabled": true,
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\dodyg\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/home/dodyg/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
+        "/usr/lib/dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "D:\\GitHub\\slums\\src\\Slums.Game\\Slums.Game.csproj": {
-              "projectPath": "D:\\GitHub\\slums\\src\\Slums.Game\\Slums.Game.csproj"
+            "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj": {
+              "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj"
             }
           }
         }
@@ -4695,7 +4688,7 @@
         "auditLevel": "low",
         "auditMode": "all"
       },
-      "SdkAnalysisLevel": "10.0.200"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net10.0": {
@@ -4751,7 +4744,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.200/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.104/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",

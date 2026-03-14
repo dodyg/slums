@@ -116,6 +116,7 @@ public sealed class JsonContentRepository : IContentRepository
             "in_ard_al_liwa" => static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa,
             "in_bulaq_al_dakrour" => static state => state.World.CurrentDistrict == DistrictId.BulaqAlDakrour,
             "in_shubra" => static state => state.World.CurrentDistrict == DistrictId.Shubra,
+            "in_downtown_cairo" => static state => state.World.CurrentDistrict == DistrictId.DowntownCairo,
             "dokki_checkpoint_seen" => static state => state.GetEventCount("DokkiCheckpointSweep") > 0,
             "imbaba_stressed" => static state => state.World.CurrentDistrict == DistrictId.Imbaba && state.Player.Stats.Stress >= 35,
             "ard_al_liwa_low_money" => static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa && state.Player.Stats.Money < 120,

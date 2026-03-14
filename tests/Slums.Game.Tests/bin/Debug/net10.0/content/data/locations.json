@@ -50,7 +50,7 @@
     },
     "Name": "Midan Al-Tahrir",
     "Description": "The busy central square connecting districts.",
-    "District": "Dokki",
+    "District": "DowntownCairo",
     "HasJobOpportunities": false,
     "HasCrimeOpportunities": true,
     "TravelTimeMinutes": 40,

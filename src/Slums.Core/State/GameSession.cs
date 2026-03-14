@@ -1395,7 +1395,8 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             new ActiveDistrictCondition { District = DistrictId.Dokki, ConditionId = "dokki_steady_day" },
             new ActiveDistrictCondition { District = DistrictId.ArdAlLiwa, ConditionId = "ardalliwa_steady_day" },
             new ActiveDistrictCondition { District = DistrictId.BulaqAlDakrour, ConditionId = "bulaq_steady_day" },
-            new ActiveDistrictCondition { District = DistrictId.Shubra, ConditionId = "shubra_steady_day" }
+            new ActiveDistrictCondition { District = DistrictId.Shubra, ConditionId = "shubra_steady_day" },
+            new ActiveDistrictCondition { District = DistrictId.DowntownCairo, ConditionId = "downtown_cairo_steady_day" }
         ]);
     }
 

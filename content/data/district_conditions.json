@@ -152,5 +152,18 @@
       "BoostedRandomEventIds": ["ShubraBlockSolidarity"],
       "SuppressedRandomEventIds": []
     }
+  },
+  {
+    "Id": "downtown_cairo_steady_day",
+    "District": "DowntownCairo",
+    "Title": "Steady Day",
+    "BulletinText": "Downtown hums with its usual rhythm.",
+    "GameplaySummary": "No special conditions.",
+    "MinDay": 1,
+    "Weight": 1,
+    "Effect": {
+      "BoostedRandomEventIds": [],
+      "SuppressedRandomEventIds": []
+    }
   }
 ]
