@@ -27,6 +27,8 @@ public sealed record GameSessionSnapshot
 
     public GameSessionNarrativeSnapshot Narrative { get; init; } = new();
 
+    public GameSessionHouseholdAssetsSnapshot HouseholdAssets { get; init; } = new();
+
     public IReadOnlyList<InvestmentSnapshot> Investments { get; init; } = [];
 
     public int TotalInvestmentEarnings { get; init; }
@@ -46,6 +48,7 @@ public sealed record GameSessionSnapshot
             Work = GameSessionWorkSnapshot.Capture(gameSession),
             Run = GameSessionRunSnapshot.Capture(gameSession),
             Narrative = GameSessionNarrativeSnapshot.Capture(gameSession),
+            HouseholdAssets = GameSessionHouseholdAssetsSnapshot.Capture(gameSession),
             Investments = gameSession.ActiveInvestments.Select(static investment => investment.CreateSnapshot()).ToArray(),
             TotalInvestmentEarnings = gameSession.TotalInvestmentEarnings
         };
@@ -104,6 +107,13 @@ public sealed record GameSessionSnapshot
                 Narrative.StoryFlags,
                 Narrative.RandomEventHistory,
                 Narrative.PendingNarrativeScenes);
+
+            gameSession.RestoreHouseholdAssetsState(
+                HouseholdAssets.Pets.Select(static snapshot => snapshot.Restore()),
+                HouseholdAssets.Plants.Select(static snapshot => snapshot.Restore()),
+                HouseholdAssets.HasStreetCatEncounter,
+                HouseholdAssets.LastStreetCatEncounterDay,
+                HouseholdAssets.TotalHerbEarnings);
 
             gameSession.RestoreInvestmentState(Investments, TotalInvestmentEarnings);
 

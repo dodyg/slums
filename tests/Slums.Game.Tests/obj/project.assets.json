@@ -4650,11 +4650,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/mnt/d/GitHub/Slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj",
+      "projectUniqueName": "/mnt/d/github/slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj",
       "projectName": "Slums.Game.Tests",
-      "projectPath": "/mnt/d/GitHub/Slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj",
+      "projectPath": "/mnt/d/github/slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj",
       "packagesPath": "/home/dodyg/.nuget/packages/",
-      "outputPath": "/mnt/d/GitHub/Slums/tests/Slums.Game.Tests/obj/",
+      "outputPath": "/mnt/d/github/slums/tests/Slums.Game.Tests/obj/",
       "projectStyle": "PackageReference",
       "centralPackageVersionsManagementEnabled": true,
       "configFilePaths": [
@@ -4671,8 +4671,8 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj": {
-              "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj"
+            "/mnt/d/github/slums/src/Slums.Game/Slums.Game.csproj": {
+              "projectPath": "/mnt/d/github/slums/src/Slums.Game/Slums.Game.csproj"
             }
           }
         }

@@ -46,6 +46,16 @@ public sealed class JsonContentRepository : IContentRepository
         return Load(Path.Combine(_contentDirectory, "district_conditions.json"), ContentJsonContext.Default.ListDistrictConditionDefinition);
     }
 
+    public IReadOnlyList<PetDefinition> LoadPets()
+    {
+        return Load(Path.Combine(_contentDirectory, "pets.json"), ContentJsonContext.Default.ListPetDefinition);
+    }
+
+    public IReadOnlyList<PlantDefinition> LoadPlants()
+    {
+        return Load(Path.Combine(_contentDirectory, "plants.json"), ContentJsonContext.Default.ListPlantDefinition);
+    }
+
     private List<T> Load<T>(string path, System.Text.Json.Serialization.Metadata.JsonTypeInfo<List<T>> jsonTypeInfo)
     {
         if (!File.Exists(path))

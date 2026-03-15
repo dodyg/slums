@@ -1,0 +1,27 @@
+[
+  {
+    "Type": "Cat",
+    "Name": "Street Cat",
+    "Description": "A stray cat that curls up near your mother and makes the flat feel less empty.",
+    "MaxOwned": 3,
+    "OneTimeCost": 0,
+    "WeeklyCareCost": 6,
+    "PassiveMotherHealthBonus": 1,
+    "ActiveCareMotherHealthBonus": 1,
+    "RequiresStreetEncounter": true
+  },
+  {
+    "Type": "Fish",
+    "Name": "Fish Tank",
+    "Description": "A small tank from the fish market. It brightens the room, but the food still costs money every week.",
+    "MaxOwned": 1,
+    "OneTimeCost": 35,
+    "WeeklyCareCost": 8,
+    "PassiveMotherHealthBonus": 1,
+    "ActiveCareMotherHealthBonus": 1,
+    "PurchaseLocationId": {
+      "Value": "fish_market"
+    },
+    "RequiresStreetEncounter": false
+  }
+]

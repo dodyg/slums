@@ -13,4 +13,6 @@ public readonly record struct LocationId(string Value)
     public static readonly LocationId Pharmacy = new("pharmacy");
     public static readonly LocationId Depot = new("depot");
     public static readonly LocationId Laundry = new("laundry");
+    public static readonly LocationId FishMarket = new("fish_market");
+    public static readonly LocationId PlantShop = new("plant_shop");
 }

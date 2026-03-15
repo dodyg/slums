@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
+using Slums.Core.Characters;
 using Slums.Core.World;
 using Slums.Infrastructure.Content;
 using TUnit.Core;
@@ -113,6 +114,68 @@ internal sealed class JsonContentRepositoryTests
             locations[0].HasClinicServices.Should().BeTrue();
             locations[0].ClinicVisitBaseCost.Should().Be(35);
             locations[0].ClinicOpenDays.Should().Contain(DayOfWeek.Thursday);
+        }
+        finally
+        {
+            DeleteDirectory(contentDirectory);
+        }
+    }
+
+    [Test]
+    public void LoadPetsAndPlants_ShouldDeserializeConfiguredCatalogs()
+    {
+        var contentDirectory = CreateTempDirectory();
+        try
+        {
+            File.WriteAllText(Path.Combine(contentDirectory, "pets.json"), """
+            [
+              {
+                "Type": "Cat",
+                "Name": "Street Cat",
+                "Description": "desc",
+                "MaxOwned": 3,
+                "OneTimeCost": 0,
+                "WeeklyCareCost": 6,
+                "PassiveMotherHealthBonus": 1,
+                "ActiveCareMotherHealthBonus": 1,
+                "RequiresStreetEncounter": true
+              }
+            ]
+            """);
+            File.WriteAllText(Path.Combine(contentDirectory, "plants.json"), """
+            [
+              {
+                "Type": "Chamomile",
+                "Name": "Chamomile",
+                "ArabicName": "babounig",
+                "Category": "SellableHerb",
+                "Description": "desc",
+                "OneTimeCost": 12,
+                "WeeklyCareCost": 3,
+                "PassiveMotherHealthBonus": 0,
+                "ActiveCareMotherHealthBonus": 0,
+                "MotherHealthBonusPerUpgrade": 0,
+                "CookingBonus": 1,
+                "CookingBonusPerUpgrade": 1,
+                "IsSellable": true,
+                "HarvestCycleDays": 5,
+                "HarvestSalePrice": 10,
+                "HarvestPriceBonusPerUpgrade": 5,
+                "PurchaseLocationId": { "Value": "plant_shop" }
+              }
+            ]
+            """);
+
+            var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
+
+            var pets = repository.LoadPets();
+            var plants = repository.LoadPlants();
+
+            pets.Should().ContainSingle();
+            pets[0].Type.Should().Be(PetType.Cat);
+            plants.Should().ContainSingle();
+            plants[0].Type.Should().Be(PlantType.Chamomile);
+            plants[0].PurchaseLocationId.Should().Be(LocationId.PlantShop);
         }
         finally
         {

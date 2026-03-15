@@ -20,7 +20,7 @@ internal sealed class GameStatusPageQueryTests
 
         var pages = query.GetPages(GameStatusContext.Create(gameState));
 
-        pages.Select(static page => page.Title).Should().ContainInOrder("Survival", "City", "Debt", "Skills", "Network", "Heat", "Investments", "Signals", "Progress");
+        pages.Select(static page => page.Title).Should().ContainInOrder("Survival", "Household", "City", "Debt", "Skills", "Network", "Heat", "Investments", "Signals", "Progress");
     }
 
     [Test]
@@ -104,6 +104,24 @@ internal sealed class GameStatusPageQueryTests
         survival.Lines.Should().Contain(static line => line.Contains("Market Crackdown", StringComparison.Ordinal));
         city.Lines.Should().Contain(static line => line.Contains("Imbaba: Market Crackdown", StringComparison.Ordinal));
         city.Lines.Should().Contain(static line => line.Contains("Dokki: Checkpoint Sweep", StringComparison.Ordinal));
+    }
+
+    [Test]
+    public void GetPages_ShouldExposeHouseholdAssets_OnHouseholdPage()
+    {
+        var query = new GameStatusPageQuery();
+        using var gameState = new GameSession();
+        gameState.Player.HouseholdAssets.TryTriggerStreetCatEncounter(1);
+        gameState.Player.HouseholdAssets.BuyFishTank(1, 1);
+        gameState.Player.HouseholdAssets.BuyPlant(PlantType.Chamomile, 1, 1);
+
+        var pages = query.GetPages(GameStatusContext.Create(gameState));
+
+        var household = pages.Single(static page => page.Title == "Household");
+        household.Lines.Should().Contain(static line => line.Contains("Cats: 0/3", StringComparison.Ordinal));
+        household.Lines.Should().Contain(static line => line.Contains("Fish tank: yes", StringComparison.Ordinal));
+        household.Lines.Should().Contain(static line => line.Contains("Plants: 1/10", StringComparison.Ordinal));
+        household.Lines.Should().Contain(static line => line.Contains("Street cat encounter: available", StringComparison.Ordinal));
     }
 
     [Test]

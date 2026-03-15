@@ -40,6 +40,11 @@ public sealed class GameActionMenuQuery
 
         actions.Add(new GameAction(GameActionId.Shop, "Shop"));
 
+        if (context.HasHouseholdAssetsAccess)
+        {
+            actions.Add(new GameAction(GameActionId.HouseholdAssets, "Household"));
+        }
+
         if (context.IsAtHome)
         {
             actions.Add(new GameAction(GameActionId.EatAtHome, "Eat at Home"));

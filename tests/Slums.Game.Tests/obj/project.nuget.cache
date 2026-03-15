@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "+8/q4zti1ow=",
+  "dgSpecHash": "26nszB8Onwk=",
   "success": true,
-  "projectFilePath": "/mnt/d/GitHub/Slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj",
+  "projectFilePath": "/mnt/d/github/slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj",
   "expectedPackageFiles": [
     "/home/dodyg/.nuget/packages/castle.core/5.1.1/castle.core.5.1.1.nupkg.sha512",
     "/home/dodyg/.nuget/packages/coroutine/2.1.5/coroutine.2.1.5.nupkg.sha512",

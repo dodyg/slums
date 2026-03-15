@@ -11,6 +11,8 @@ namespace Slums.Infrastructure.Content;
 [JsonSerializable(typeof(List<JobShift>))]
 [JsonSerializable(typeof(List<RandomEventDefinition>))]
 [JsonSerializable(typeof(List<DistrictConditionDefinition>))]
+[JsonSerializable(typeof(List<PetDefinition>))]
+[JsonSerializable(typeof(List<PlantDefinition>))]
 internal sealed partial class ContentJsonContext : JsonSerializerContext
 {
 }

@@ -41,7 +41,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     {
         Clock = new GameClock();
         _playerIdentity = new PlayerIdentityState();
-        Player = new PlayerCharacter(_playerIdentity, new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new SkillState());
+        Player = new PlayerCharacter(_playerIdentity, new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new HouseholdAssetsState(), new SkillState());
         World = new WorldState();
         Relationships = new RelationshipState();
         JobProgress = new JobProgressState();
@@ -59,7 +59,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         _storyFlags = _narrativeState.StoryFlags;
         _randomEventHistory = _narrativeState.RandomEventHistory;
         _database = new EntityDatabase(new EntityDatabaseOptions(16384, int.MaxValue, -1));
-        _database.Create(_playerIdentity, Player.Stats, Player.Nutrition, Player.Household, Player.Skills);
+        _database.Create(_playerIdentity, Player.Stats, Player.Nutrition, Player.Household, Player.HouseholdAssets, Player.Skills);
         _database.Create(Clock, World);
         _database.Create(Relationships, JobProgress);
         _database.Create(_crimeState);
@@ -100,6 +100,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public string? PendingEndingKnot { get => _runState.PendingEndingKnot; private set => _runState.PendingEndingKnot = value; }
     public IReadOnlyList<Investment> ActiveInvestments => _investmentState.ActiveInvestments;
     public int TotalInvestmentEarnings { get => _investmentState.TotalInvestmentEarnings; private set => _investmentState.TotalInvestmentEarnings = value; }
+    public int TotalHerbEarnings => Player.HouseholdAssets.TotalHerbEarnings;
     public int UnpaidRentDays => _rentState.UnpaidRentDays;
     public int AccumulatedRentDebt => _rentState.AccumulatedRentDebt;
     public bool FirstWarningGiven => _rentState.FirstWarningGiven;
@@ -176,6 +177,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public void EndDay(Random? random = null)
     {
+        var currentWeek = CurrentWeek;
         Player.Stats.ApplyDailyDecay();
 
         var nutritionResolution = Player.Nutrition.ResolveDay();
@@ -186,6 +188,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         var motherCareResolution = Player.Household.ResolveDay();
         Player.Stats.ModifyStress(motherCareResolution.StressDelta);
+        var householdAssetsBonus = Player.HouseholdAssets.GetMotherDailyHealthBonus(currentWeek);
+        if (householdAssetsBonus > 0)
+        {
+            Player.Household.UpdateMotherHealth(householdAssetsBonus);
+        }
 
         var rentResult = _rentState.ProcessDay(RecurringExpenses.DailyRentCost, Player.Stats.Money);
         if (rentResult.Paid)
@@ -235,6 +242,13 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             RaiseEvent("Your training makes it harder to ignore every sign your mother's health is slipping.");
         }
 
+        var herbIncome = Player.HouseholdAssets.ResolveSellablePlantIncome(Clock.Day, currentWeek);
+        if (herbIncome > 0)
+        {
+            Player.Stats.ModifyMoney(herbIncome);
+            RaiseEvent($"The street vendor moves your herbs quietly. +{herbIncome} LE reaches home.");
+        }
+
         Clock.AdvanceToNextDay();
         DaysSurvived++;
         World.TravelTo(LocationId.Home);
@@ -248,9 +262,13 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
         RaiseEvent("You return home for the night.");
 
-        if (GetCurrentDayOfWeek() == DayOfWeek.Monday && _investmentState.ActiveInvestments.Count > 0)
+        if (GetCurrentDayOfWeek() == DayOfWeek.Monday)
         {
-            ResolveWeeklyInvestments(random ?? _sharedRandom);
+            ResolveWeeklyHouseholdAssets();
+            if (_investmentState.ActiveInvestments.Count > 0)
+            {
+                ResolveWeeklyInvestments(random ?? _sharedRandom);
+            }
         }
 
         Player.Nutrition.BeginNewDay();
@@ -261,6 +279,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             ApplyRandomEvent(randomEvent);
         }
 
+        TryRollStreetCatEncounter(random ?? _sharedRandom);
         QueueNarrativeFollowUpScenes();
 
         ActivityLedgerSystem.BeginNewDay(_crimeState);
@@ -646,7 +665,18 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         Player.Nutrition.Eat(MealQuality.Basic);
         SyncLegacyHunger();
+        var cookingBonus = Player.HouseholdAssets.GetHomeCookingBonus(CurrentWeek);
+        if (cookingBonus > 0)
+        {
+            Player.Stats.ModifyStress(-cookingBonus);
+        }
+
         RaiseEvent("You eat a simple meal at home and make sure your mother eats too.");
+        if (cookingBonus > 0)
+        {
+            RaiseEvent($"Fresh herbs soften the meal a little. Stress -{cookingBonus}.");
+        }
+
         return true;
     }
 
@@ -976,6 +1006,176 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     }
 
     public int CurrentDay => Clock.Day;
+
+    public int CurrentWeek => ((Clock.Day - 1) / 7) + 1;
+
+    public bool CanUseHouseholdAssets()
+    {
+        return World.CurrentLocationId == LocationId.FishMarket
+            || World.CurrentLocationId == LocationId.PlantShop
+            || (World.CurrentLocationId == LocationId.Home
+                && (Player.HouseholdAssets.HasAnyAssets || Player.HouseholdAssets.HasStreetCatEncounter));
+    }
+
+    public bool AdoptStreetCat()
+    {
+        if (World.CurrentLocationId != LocationId.Home)
+        {
+            RaiseEvent("You need to be home to bring a street cat inside.");
+            return false;
+        }
+
+        if (!Player.HouseholdAssets.AdoptCat(Clock.Day, CurrentWeek))
+        {
+            RaiseEvent("No stray cat is trusting you enough to come home right now.");
+            return false;
+        }
+
+        RaiseEvent("The cat slips inside, claims a corner, and your mother smiles for the first time all day.");
+        return true;
+    }
+
+    public bool BuyFishTank()
+    {
+        if (World.CurrentLocationId != LocationId.FishMarket)
+        {
+            RaiseEvent("You need to be at the fish market to buy a tank.");
+            return false;
+        }
+
+        if (!Player.HouseholdAssets.CanBuyFishTank)
+        {
+            RaiseEvent("There is already a fish tank at home.");
+            return false;
+        }
+
+        var definition = PetRegistry.GetByType(PetType.Fish);
+        if (Player.Stats.Money < definition.OneTimeCost)
+        {
+            RaiseEvent($"Not enough money. A fish tank costs {definition.OneTimeCost} LE.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-definition.OneTimeCost);
+        Player.HouseholdAssets.BuyFishTank(Clock.Day, CurrentWeek);
+        RaiseEvent($"You carry a modest fish tank home from the market for {definition.OneTimeCost} LE.");
+        return true;
+    }
+
+    public bool BuyPlant(PlantType plantType)
+    {
+        if (World.CurrentLocationId != LocationId.PlantShop)
+        {
+            RaiseEvent("You need to be at the plant shop to buy plants.");
+            return false;
+        }
+
+        if (!Player.HouseholdAssets.CanBuyPlant)
+        {
+            RaiseEvent("There is no room left for more plants at home.");
+            return false;
+        }
+
+        var definition = PlantRegistry.GetByType(plantType);
+        if (Player.Stats.Money < definition.OneTimeCost)
+        {
+            RaiseEvent($"Not enough money. {definition.Name} costs {definition.OneTimeCost} LE.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-definition.OneTimeCost);
+        Player.HouseholdAssets.BuyPlant(plantType, Clock.Day, CurrentWeek);
+        RaiseEvent($"You buy {definition.Name} for {definition.OneTimeCost} LE and carry it back home.");
+        return true;
+    }
+
+    public bool PayPetCare()
+    {
+        if (World.CurrentLocationId != LocationId.Home)
+        {
+            RaiseEvent("You need to be home to sort out pet care.");
+            return false;
+        }
+
+        var cost = Player.HouseholdAssets.GetPetCareCostDue(CurrentWeek);
+        if (cost <= 0)
+        {
+            RaiseEvent("Pet care is already covered for this week.");
+            return false;
+        }
+
+        if (Player.Stats.Money < cost)
+        {
+            RaiseEvent($"Not enough money. Pet food for the week costs {cost} LE.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-cost);
+        Player.HouseholdAssets.PayPetCare(CurrentWeek);
+        RaiseEvent($"You cover this week's pet food and care supplies for {cost} LE.");
+        return true;
+    }
+
+    public bool PayPlantCare()
+    {
+        if (World.CurrentLocationId != LocationId.Home)
+        {
+            RaiseEvent("You need to be home to water and supply the plants.");
+            return false;
+        }
+
+        var cost = Player.HouseholdAssets.GetPlantCareCostDue(CurrentWeek);
+        if (cost <= 0)
+        {
+            RaiseEvent("Plant care is already covered for this week.");
+            return false;
+        }
+
+        if (Player.Stats.Money < cost)
+        {
+            RaiseEvent($"Not enough money. Plant care supplies cost {cost} LE this week.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-cost);
+        Player.HouseholdAssets.PayPlantCare(CurrentWeek);
+        RaiseEvent($"You pay {cost} LE to keep the plants watered and supplied this week.");
+        return true;
+    }
+
+    public bool UpgradePlant(Guid plantId, PlantUpgradeType upgradeType)
+    {
+        if (World.CurrentLocationId != LocationId.Home)
+        {
+            RaiseEvent("You need to be home to work on the plants.");
+            return false;
+        }
+
+        var plant = Player.HouseholdAssets.GetPlant(plantId);
+        if (plant is null)
+        {
+            RaiseEvent("That plant is not in your flat anymore.");
+            return false;
+        }
+
+        var cost = PlantUpgradeCatalog.GetCost(upgradeType);
+        if (Player.Stats.Money < cost)
+        {
+            RaiseEvent($"Not enough money. {PlantUpgradeCatalog.GetName(upgradeType)} costs {cost} LE.");
+            return false;
+        }
+
+        if (!Player.HouseholdAssets.TryUpgradePlant(plantId, upgradeType, CurrentWeek))
+        {
+            RaiseEvent($"{PlantUpgradeCatalog.GetName(upgradeType)} is already active for that plant.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-cost);
+        var definition = PlantRegistry.GetByType(plant.Type);
+        RaiseEvent($"{definition.Name}: {PlantUpgradeCatalog.GetName(upgradeType)} added for {cost} LE.");
+        return true;
+    }
 
     public IReadOnlyList<NpcId> GetReachableNpcs()
     {
@@ -1344,6 +1544,16 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         {
             _pendingNarrativeScenes.Enqueue(scene);
         }
+    }
+
+    public void RestoreHouseholdAssetsState(
+        IEnumerable<OwnedPet> pets,
+        IEnumerable<OwnedPlant> plants,
+        bool hasStreetCatEncounter,
+        int lastStreetCatEncounterDay,
+        int totalHerbEarnings)
+    {
+        Player.HouseholdAssets.Restore(pets, plants, hasStreetCatEncounter, lastStreetCatEncounterDay, totalHerbEarnings);
     }
 
     public int GetEventCount(string eventId)
@@ -1943,6 +2153,40 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
 
         TotalInvestmentEarnings = totalInvestmentEarnings;
+    }
+
+    private void ResolveWeeklyHouseholdAssets()
+    {
+        var resolution = Player.HouseholdAssets.ResolveWeeklyNeglect(CurrentWeek);
+        if (resolution.StressPenalty <= 0)
+        {
+            return;
+        }
+
+        Player.Stats.ModifyStress(resolution.StressPenalty);
+        RaiseEvent($"Skipping household care all week weighs on your mother. Stress +{resolution.StressPenalty}.");
+    }
+
+    private void TryRollStreetCatEncounter(Random random)
+    {
+#pragma warning disable CA5394
+        ArgumentNullException.ThrowIfNull(random);
+
+        if (World.CurrentLocationId != LocationId.Home || Clock.Day < 3)
+        {
+            return;
+        }
+
+        if (random.NextDouble() >= 0.15)
+        {
+            return;
+        }
+
+        if (Player.HouseholdAssets.TryTriggerStreetCatEncounter(Clock.Day))
+        {
+            RaiseEvent("A street cat starts waiting near your building door as if it has already chosen you.");
+        }
+#pragma warning restore CA5394
     }
 
     private InvestmentEligibilityContext CreateInvestmentEligibilityContext()

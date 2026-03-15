@@ -64,9 +64,9 @@ internal sealed class WorldStateTests
     {
         var locations = WorldState.AllLocations;
 
-        locations.Should().HaveCount(11);
+        locations.Should().HaveCount(13);
         locations.Select(l => l.Id).Should().Contain(
-            new[] { LocationId.Home, LocationId.Market, LocationId.Bakery, LocationId.CallCenter, LocationId.Square, LocationId.Clinic, LocationId.Workshop, LocationId.Cafe, LocationId.Pharmacy, LocationId.Depot, LocationId.Laundry });
+            new[] { LocationId.Home, LocationId.Market, LocationId.Bakery, LocationId.CallCenter, LocationId.Square, LocationId.Clinic, LocationId.Workshop, LocationId.Cafe, LocationId.Pharmacy, LocationId.Depot, LocationId.Laundry, LocationId.FishMarket, LocationId.PlantShop });
     }
 
     [Test]
@@ -76,7 +76,7 @@ internal sealed class WorldStateTests
 
         var locations = world.GetLocationsInCurrentDistrict();
 
-        locations.Should().HaveCount(3);
+        locations.Should().HaveCount(4);
         locations.All(l => l.District == DistrictId.Imbaba).Should().BeTrue();
     }
 
@@ -88,7 +88,7 @@ internal sealed class WorldStateTests
 
         var locations = world.GetLocationsInCurrentDistrict();
 
-        locations.Should().HaveCount(3);
+        locations.Should().HaveCount(4);
         locations.All(l => l.District == DistrictId.Dokki).Should().BeTrue();
     }
 
@@ -99,7 +99,7 @@ internal sealed class WorldStateTests
 
         var locations = world.GetTravelableLocations();
 
-        locations.Should().HaveCount(10);
+        locations.Should().HaveCount(12);
         locations.Any(l => l.Id == LocationId.Home).Should().BeFalse();
     }
 

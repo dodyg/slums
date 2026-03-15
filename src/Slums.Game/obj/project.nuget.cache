@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "w8ShCVSerb8=",
+  "dgSpecHash": "Y7im5tBRApc=",
   "success": true,
-  "projectFilePath": "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj",
+  "projectFilePath": "/mnt/d/github/slums/src/Slums.Game/Slums.Game.csproj",
   "expectedPackageFiles": [
     "/home/dodyg/.nuget/packages/coroutine/2.1.5/coroutine.2.1.5.nupkg.sha512",
     "/home/dodyg/.nuget/packages/csfml/2.6.1/csfml.2.6.1.nupkg.sha512",

@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
+using Slums.Application.HouseholdAssets;
 using Slums.Application.Investments;
 using Slums.Application.Narrative;
 using Slums.Core.Clock;
@@ -24,6 +25,7 @@ internal sealed class GameScreen : ScreenSurface
     private readonly ClinicTravelMenuQuery _clinicTravelMenuQuery = new();
     private readonly EntertainmentMenuQuery _entertainmentMenuQuery = new();
     private readonly InvestmentMenuQuery _investmentMenuQuery = new();
+    private readonly HouseholdAssetsMenuQuery _householdAssetsMenuQuery = new();
     private readonly GameActionMenuQuery _gameActionMenuQuery = new();
     private readonly GameActionCommand _gameActionCommand = new();
     private readonly AdvanceTimeCommand _advanceTimeCommand = new();
@@ -347,6 +349,9 @@ internal sealed class GameScreen : ScreenSurface
             case GameActionId.Shop:
                 ShowShopMenu();
                 break;
+            case GameActionId.HouseholdAssets:
+                ShowHouseholdAssetsMenu();
+                break;
             case GameActionId.TakeMotherToClinic:
                 ShowClinicTravelMenu();
                 break;
@@ -472,6 +477,20 @@ internal sealed class GameScreen : ScreenSurface
 
         IsFocused = false;
         GameHost.Instance.Screen = new InvestmentMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, investmentContext, investments, this);
+    }
+
+    private void ShowHouseholdAssetsMenu()
+    {
+        var householdContext = HouseholdAssetsMenuContext.Create(_gameState);
+        var statuses = _householdAssetsMenuQuery.GetStatuses(householdContext).ToList();
+        if (statuses.Count == 0)
+        {
+            AddEventLogEntry("Nothing in the household-assets flow is available right now.");
+            return;
+        }
+
+        IsFocused = false;
+        GameHost.Instance.Screen = new HouseholdAssetsScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, householdContext, statuses, this);
     }
 
     private void AddEventLogEntry(string message)

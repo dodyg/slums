@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/mnt/d/GitHub/Slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj": {}
+    "/mnt/d/github/slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj": {}
   },
   "projects": {
-    "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj": {
+    "/mnt/d/github/slums/src/Slums.Application/Slums.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj",
+        "projectUniqueName": "/mnt/d/github/slums/src/Slums.Application/Slums.Application.csproj",
         "projectName": "Slums.Application",
-        "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj",
+        "projectPath": "/mnt/d/github/slums/src/Slums.Application/Slums.Application.csproj",
         "packagesPath": "/home/dodyg/.nuget/packages/",
-        "outputPath": "/mnt/d/GitHub/Slums/src/Slums.Application/obj/",
+        "outputPath": "/mnt/d/github/slums/src/Slums.Application/obj/",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "configFilePaths": [
@@ -28,8 +28,8 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj"
+              "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj": {
+                "projectPath": "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj"
               }
             }
           }
@@ -369,14 +369,14 @@
         }
       }
     },
-    "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj": {
+    "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj",
+        "projectUniqueName": "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj",
         "projectName": "Slums.Core",
-        "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj",
+        "projectPath": "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj",
         "packagesPath": "/home/dodyg/.nuget/packages/",
-        "outputPath": "/mnt/d/GitHub/Slums/src/Slums.Core/obj/",
+        "outputPath": "/mnt/d/github/slums/src/Slums.Core/obj/",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "configFilePaths": [
@@ -730,14 +730,14 @@
         }
       }
     },
-    "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj": {
+    "/mnt/d/github/slums/src/Slums.Game/Slums.Game.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj",
+        "projectUniqueName": "/mnt/d/github/slums/src/Slums.Game/Slums.Game.csproj",
         "projectName": "Slums.Game",
-        "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj",
+        "projectPath": "/mnt/d/github/slums/src/Slums.Game/Slums.Game.csproj",
         "packagesPath": "/home/dodyg/.nuget/packages/",
-        "outputPath": "/mnt/d/GitHub/Slums/src/Slums.Game/obj/",
+        "outputPath": "/mnt/d/github/slums/src/Slums.Game/obj/",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "configFilePaths": [
@@ -754,17 +754,17 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj"
+              "/mnt/d/github/slums/src/Slums.Application/Slums.Application.csproj": {
+                "projectPath": "/mnt/d/github/slums/src/Slums.Application/Slums.Application.csproj"
               },
-              "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj"
+              "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj": {
+                "projectPath": "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj"
               },
-              "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj"
+              "/mnt/d/github/slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj": {
+                "projectPath": "/mnt/d/github/slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj"
               },
-              "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj"
+              "/mnt/d/github/slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj": {
+                "projectPath": "/mnt/d/github/slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj"
               }
             }
           }
@@ -1119,14 +1119,14 @@
         }
       }
     },
-    "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj": {
+    "/mnt/d/github/slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj",
+        "projectUniqueName": "/mnt/d/github/slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj",
         "projectName": "Slums.Infrastructure",
-        "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj",
+        "projectPath": "/mnt/d/github/slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj",
         "packagesPath": "/home/dodyg/.nuget/packages/",
-        "outputPath": "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/obj/",
+        "outputPath": "/mnt/d/github/slums/src/Slums.Infrastructure/obj/",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "configFilePaths": [
@@ -1143,11 +1143,11 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj"
+              "/mnt/d/github/slums/src/Slums.Application/Slums.Application.csproj": {
+                "projectPath": "/mnt/d/github/slums/src/Slums.Application/Slums.Application.csproj"
               },
-              "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj"
+              "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj": {
+                "projectPath": "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj"
               }
             }
           }
@@ -1480,14 +1480,14 @@
         }
       }
     },
-    "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj": {
+    "/mnt/d/github/slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj",
+        "projectUniqueName": "/mnt/d/github/slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj",
         "projectName": "Slums.Narrative.Ink",
-        "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj",
+        "projectPath": "/mnt/d/github/slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj",
         "packagesPath": "/home/dodyg/.nuget/packages/",
-        "outputPath": "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/obj/",
+        "outputPath": "/mnt/d/github/slums/src/Slums.Narrative.Ink/obj/",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "configFilePaths": [
@@ -1504,11 +1504,11 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj"
+              "/mnt/d/github/slums/src/Slums.Application/Slums.Application.csproj": {
+                "projectPath": "/mnt/d/github/slums/src/Slums.Application/Slums.Application.csproj"
               },
-              "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj"
+              "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj": {
+                "projectPath": "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj"
               }
             }
           }
@@ -1848,14 +1848,14 @@
         }
       }
     },
-    "/mnt/d/GitHub/Slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj": {
+    "/mnt/d/github/slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/mnt/d/GitHub/Slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj",
+        "projectUniqueName": "/mnt/d/github/slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj",
         "projectName": "Slums.Game.Tests",
-        "projectPath": "/mnt/d/GitHub/Slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj",
+        "projectPath": "/mnt/d/github/slums/tests/Slums.Game.Tests/Slums.Game.Tests.csproj",
         "packagesPath": "/home/dodyg/.nuget/packages/",
-        "outputPath": "/mnt/d/GitHub/Slums/tests/Slums.Game.Tests/obj/",
+        "outputPath": "/mnt/d/github/slums/tests/Slums.Game.Tests/obj/",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "configFilePaths": [
@@ -1872,8 +1872,8 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj": {
-                "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj"
+              "/mnt/d/github/slums/src/Slums.Game/Slums.Game.csproj": {
+                "projectPath": "/mnt/d/github/slums/src/Slums.Game/Slums.Game.csproj"
               }
             }
           }

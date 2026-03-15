@@ -148,6 +148,26 @@ public sealed class WorldState
             HasCrimeOpportunities = true,
             TravelTimeMinutes = 40,
             HasBilliards = true
+        },
+        new Location
+        {
+            Id = LocationId.FishMarket,
+            Name = "Wikalet Al-Samak",
+            Description = "A fish market where wet floors, shouted prices, and cloudy tanks crowd every step.",
+            District = DistrictId.Imbaba,
+            HasJobOpportunities = false,
+            HasCrimeOpportunities = false,
+            TravelTimeMinutes = 20
+        },
+        new Location
+        {
+            Id = LocationId.PlantShop,
+            Name = "Mashrabiya Plant Stall",
+            Description = "A cramped Dokki plant stall packed with herbs, flowers, cheap pots, and improvisation.",
+            District = DistrictId.Dokki,
+            HasJobOpportunities = false,
+            HasCrimeOpportunities = false,
+            TravelTimeMinutes = 38
         }
     ];
 

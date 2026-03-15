@@ -16,4 +16,8 @@ public interface IContentRepository
     public IReadOnlyList<RandomEvent> LoadRandomEvents();
 
     public IReadOnlyList<DistrictConditionDefinition> LoadDistrictConditions();
+
+    public IReadOnlyList<PetDefinition> LoadPets();
+
+    public IReadOnlyList<PlantDefinition> LoadPlants();
 }

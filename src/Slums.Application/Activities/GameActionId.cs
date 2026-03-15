@@ -9,6 +9,7 @@ public enum GameActionId
     Entertainment,
     Invest,
     Shop,
+    HouseholdAssets,
     EatAtHome,
     CheckOnMother,
     GiveMotherMedicine,

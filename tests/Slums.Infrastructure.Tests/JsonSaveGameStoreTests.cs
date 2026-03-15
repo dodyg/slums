@@ -50,6 +50,16 @@ internal sealed class JsonSaveGameStoreTests
             gameSession.Relationships.RecordSeenConversation(NpcId.NurseSalma, "nurse_intro_1");
             gameSession.Relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 11);
             gameSession.RecordEventHistory("DokkiCheckpointSweep", 2);
+            gameSession.RestoreHouseholdAssetsState(
+            [
+                OwnedPet.Restore(PetType.Cat, acquiredOnDay: 3, lastUpkeepPaidWeek: 2)
+            ],
+            [
+                OwnedPlant.Restore(Guid.Parse("11111111-1111-1111-1111-111111111111"), PlantType.Hibiscus, 4, 2, 11, hasBiggerPot: true, hasWindowPlacement: false, fertilizerPaidWeek: 2, irrigationPaidWeek: 0)
+            ],
+            hasStreetCatEncounter: true,
+            lastStreetCatEncounterDay: 7,
+            totalHerbEarnings: 25);
             gameSession.RestoreInvestmentState(
             [
                 new InvestmentSnapshot(InvestmentType.FoulCart, 150, 8, 12, 3, false)
@@ -92,6 +102,13 @@ internal sealed class JsonSaveGameStoreTests
                     restoredSession.Relationships.HasSeenConversation(NpcId.NurseSalma, "nurse_intro_1").Should().BeTrue();
                     restoredSession.Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation.Should().Be(11);
                     restoredSession.GetEventCount("DokkiCheckpointSweep").Should().Be(2);
+                    restoredSession.Player.HouseholdAssets.Pets.Should().ContainSingle();
+                    restoredSession.Player.HouseholdAssets.Pets[0].Type.Should().Be(PetType.Cat);
+                    restoredSession.Player.HouseholdAssets.Plants.Should().ContainSingle();
+                    restoredSession.Player.HouseholdAssets.Plants[0].Type.Should().Be(PlantType.Hibiscus);
+                    restoredSession.Player.HouseholdAssets.Plants[0].HasActiveUpgrade(PlantUpgradeType.BiggerPot, restoredSession.CurrentWeek).Should().BeTrue();
+                    restoredSession.Player.HouseholdAssets.HasStreetCatEncounter.Should().BeTrue();
+                    restoredSession.Player.HouseholdAssets.TotalHerbEarnings.Should().Be(25);
                     restoredSession.TotalInvestmentEarnings.Should().Be(27);
                     restoredSession.ActiveInvestments.Should().ContainSingle();
                     restoredSession.ActiveInvestments[0].Type.Should().Be(InvestmentType.FoulCart);

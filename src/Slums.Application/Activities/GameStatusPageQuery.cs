@@ -18,6 +18,7 @@ public sealed class GameStatusPageQuery
         return
         [
             BuildSurvivalPage(context),
+            BuildHouseholdPage(context),
             BuildCityPage(context),
             BuildDebtPage(context),
             BuildSkillsPage(context),
@@ -27,6 +28,45 @@ public sealed class GameStatusPageQuery
             BuildSignalsPage(context),
             BuildProgressPage(context)
         ];
+    }
+
+    private static GameStatusPage BuildHouseholdPage(GameStatusContext context)
+    {
+        var assets = context.Player.HouseholdAssets;
+        var currentWeek = ((context.Clock.Day - 1) / 7) + 1;
+        var catCount = assets.Pets.Count(static pet => pet.Type == PetType.Cat);
+        var hasFishTank = assets.Pets.Any(static pet => pet.Type == PetType.Fish);
+        var lines = new List<string>
+        {
+            $"Cats: {catCount}/{PetRegistry.GetByType(PetType.Cat).MaxOwned}",
+            $"Fish tank: {(hasFishTank ? "yes" : "no")}",
+            $"Plants: {assets.Plants.Count}/{HouseholdAssetsState.MaxPlants}",
+            $"Weekly pet care due: {assets.GetPetCareCostDue(currentWeek)} LE",
+            $"Weekly plant care due: {assets.GetPlantCareCostDue(currentWeek)} LE",
+            $"Daily mother-health bonus: {assets.GetMotherDailyHealthBonus(currentWeek)}",
+            $"Home cooking bonus: {assets.GetHomeCookingBonus(currentWeek)}",
+            $"Total herb earnings: {assets.TotalHerbEarnings} LE",
+            assets.HasStreetCatEncounter
+                ? "Street cat encounter: available at home."
+                : "Street cat encounter: none waiting right now."
+        };
+
+        if (assets.Plants.Count > 0)
+        {
+            foreach (var grouping in assets.Plants
+                .GroupBy(static plant => plant.Type)
+                .OrderBy(static group => PlantRegistry.GetByType(group.Key).Name, StringComparer.Ordinal))
+            {
+                var definition = PlantRegistry.GetByType(grouping.Key);
+                lines.Add($"{definition.Name}: {grouping.Count()} owned");
+            }
+        }
+        else
+        {
+            lines.Add("Plants owned: none");
+        }
+
+        return new GameStatusPage("Household", lines);
     }
 
     private static GameStatusPage BuildSurvivalPage(GameStatusContext context)

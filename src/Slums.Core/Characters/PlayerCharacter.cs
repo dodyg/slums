@@ -14,7 +14,7 @@ public sealed class PlayerCharacter
     private readonly PlayerIdentityState _identity;
 
     public PlayerCharacter()
-        : this(new PlayerIdentityState(), new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new SkillState())
+        : this(new PlayerIdentityState(), new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new HouseholdAssetsState(), new SkillState())
     {
     }
 
@@ -23,12 +23,14 @@ public sealed class PlayerCharacter
         SurvivalStats stats,
         NutritionState nutrition,
         HouseholdCareState household,
+        HouseholdAssetsState householdAssets,
         SkillState skills)
     {
         _identity = identity ?? throw new ArgumentNullException(nameof(identity));
         Stats = stats ?? throw new ArgumentNullException(nameof(stats));
         Nutrition = nutrition ?? throw new ArgumentNullException(nameof(nutrition));
         Household = household ?? throw new ArgumentNullException(nameof(household));
+        HouseholdAssets = householdAssets ?? throw new ArgumentNullException(nameof(householdAssets));
         Skills = skills ?? throw new ArgumentNullException(nameof(skills));
 
         Stats.SetHunger(Nutrition.Satiety);
@@ -63,6 +65,8 @@ public sealed class PlayerCharacter
     public NutritionState Nutrition { get; }
 
     public HouseholdCareState Household { get; }
+
+    public HouseholdAssetsState HouseholdAssets { get; }
 
     public SkillState Skills { get; }
 

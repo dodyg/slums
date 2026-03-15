@@ -47,4 +47,16 @@ internal sealed class GameActionMenuQueryTests
         actionIds.Should().NotContain(GameActionId.EatAtHome);
         actionIds.Should().NotContain(GameActionId.CheckOnMother);
     }
+
+    [Test]
+    public void GetActions_ShouldExposeHouseholdAction_AtFishMarket()
+    {
+        var query = new GameActionMenuQuery();
+        using var gameState = new GameSession();
+        gameState.World.TravelTo(LocationId.FishMarket);
+
+        var actions = query.GetActions(GameActionMenuContext.Create(gameState));
+
+        actions.Select(static action => action.Id).Should().Contain(GameActionId.HouseholdAssets);
+    }
 }

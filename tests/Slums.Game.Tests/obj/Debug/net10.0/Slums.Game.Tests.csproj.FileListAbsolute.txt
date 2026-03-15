@@ -413,3 +413,5 @@
 /mnt/d/GitHub/Slums/tests/Slums.Game.Tests/obj/Debug/net10.0/Slums.Game.Tests.pdb
 /mnt/d/GitHub/Slums/tests/Slums.Game.Tests/obj/Debug/net10.0/Slums.Game.Tests.genruntimeconfig.cache
 /mnt/d/GitHub/Slums/tests/Slums.Game.Tests/obj/Debug/net10.0/ref/Slums.Game.Tests.dll
+/mnt/d/github/slums/tests/Slums.Game.Tests/bin/Debug/net10.0/content/data/pets.json
+/mnt/d/github/slums/tests/Slums.Game.Tests/bin/Debug/net10.0/content/data/plants.json

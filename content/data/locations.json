@@ -131,5 +131,27 @@
     "HasCrimeOpportunities": true,
     "TravelTimeMinutes": 40,
     "HasBilliards": true
+  },
+  {
+    "Id": {
+      "Value": "fish_market"
+    },
+    "Name": "Wikalet Al-Samak",
+    "Description": "A fish market where wet floors, shouted prices, and cloudy tanks crowd every step.",
+    "District": "Imbaba",
+    "HasJobOpportunities": false,
+    "HasCrimeOpportunities": false,
+    "TravelTimeMinutes": 20
+  },
+  {
+    "Id": {
+      "Value": "plant_shop"
+    },
+    "Name": "Mashrabiya Plant Stall",
+    "Description": "A cramped Dokki plant stall packed with herbs, flowers, cheap pots, and improvisation.",
+    "District": "Dokki",
+    "HasJobOpportunities": false,
+    "HasCrimeOpportunities": false,
+    "TravelTimeMinutes": 38
   }
 ]
