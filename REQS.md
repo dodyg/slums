@@ -141,3 +141,84 @@ Interview-complete working requirements draft based on the user's answers.
 - Landlord warnings occur at specific days:
   - Day 3: first warning
   - Day 5: final warning
+
+## Pets and Plants
+
+- Pets and plants provide health benefits to the mother but require weekly spending.
+- Confirmed pet types:
+  - cats (adopted from streets at no initial cost)
+  - fish (purchased from fish market with one-time cost)
+- Maximum limits:
+  - up to 3 cats
+  - 1 fish tank
+  - up to 10 plants
+- Acquisition locations:
+  - cats: street encounters
+  - fish: fish market
+  - plants: plant shop
+- Initial costs:
+  - cats: free (street adoption)
+  - fish tank: one-time purchase required
+  - plants: one-time purchase per plant
+- Health benefit model:
+  - passive presence provides a small baseline health bonus
+  - active care (feeding, watering) maintains or improves the bonus
+- Weekly costs:
+  - cat food
+  - fish food
+  - plant care supplies
+- Neglect consequences:
+  - missing weekly costs triggers a mother stress penalty
+  - does not result in pet/plant death
+
+### Plant Types (15 total)
+
+Herbs (functional - provide cooking bonus; chamomile and hibiscus are sellable):
+| Plant | Arabic | Bonus Type | Sellable |
+|-------|--------|------------|----------|
+| Basil | raihan | Cooking | No |
+| Mint | na'na' | Cooking, tea | No |
+| Parsley | baqdounis | Cooking | No |
+| Coriander | kozbara | Cooking | No |
+| Dill | shibitt | Cooking | No |
+| Chamomile | babounig | Sellable | Yes (5-day cycle, 10 LE) |
+| Hibiscus | karkade | Sellable | Yes (7-day cycle, 25 LE) |
+
+Flowers (decorative - provide mother health bonus):
+| Plant | Arabic |
+|-------|--------|
+| Jasmine | yasmin |
+| Rose | ward |
+| Geranium | - |
+| Bougainvillea | buganfil |
+| Marigold | tagetes |
+| Zinnia | - |
+| Petunia | - |
+
+Medicinal:
+| Plant | Arabic | Bonus Type |
+|-------|--------|------------|
+| Aloe vera | saber | Health bonus |
+
+### Herb Selling Mechanism
+
+- Sellable herbs (chamomile, hibiscus) automatically generate income when harvest cycle completes.
+- Harvest cycles:
+  - Chamomile: 5 days, 10 LE base price
+  - Hibiscus: 7 days, 25 LE base price
+- Money is added automatically; street vendor in home area handles sales (no travel required).
+
+### Plant Upgrades
+
+- All plants can be upgraded to increase yield (herbs) or health bonus (flowers/aloe).
+- Four upgrade paths:
+  - Bigger pot/container: permanent, one-time purchase
+  - Window placement/sunlamp: permanent, one-time purchase
+  - Fertilizer/soil amendments: recurring weekly cost
+  - Irrigation/drip system: recurring weekly cost
+- Upgrade costs: 15-30 LE per upgrade.
+- Yield/boost calculation:
+  - Herbs: boost proportional to base price (e.g., chamomile +5 LE, hibiscus +12 LE per upgrade)
+  - Flowers: plant-specific health bonus increase
+  - Aloe vera: health bonus increase
+- Multiple upgrades on the same plant stack additively.
