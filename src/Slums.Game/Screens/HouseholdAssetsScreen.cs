@@ -4,13 +4,14 @@ using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.HouseholdAssets;
 using Slums.Core.State;
+using Slums.Core.World;
 
 namespace Slums.Game.Screens;
 
 internal sealed class HouseholdAssetsScreen : ScreenSurface
 {
     private const int ListX = 2;
-    private const int ListY = 5;
+    private const int ListY = 6;
     private const int DetailX = 40;
     private readonly HouseholdAssetsMenuContext _context;
     private readonly HouseholdAssetsCommand _command = new();
@@ -36,8 +37,9 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface
         base.Render(delta);
         Surface.Clear();
 
-        Surface.Print(ListX, 2, "=== Household Assets ===", Color.Cyan);
+        Surface.Print(ListX, 2, GetScreenTitle(), Color.Cyan);
         Surface.Print(ListX, 3, $"Location: {_context.LocationName ?? "Unknown"} | Week {_context.CurrentWeek}", Color.Gray);
+        Surface.Print(ListX, 4, TrimToFit(GetLocationTip(), DetailX - ListX - 2), Color.DarkGray);
         Surface.Print(DetailX, 2, "=== Details ===", Color.Cyan);
 
         for (var i = 0; i < _statuses.Count; i++)
@@ -157,6 +159,26 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface
     private static string TrimToFit(string text, int maxLength)
     {
         return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
+    }
+
+    private string GetScreenTitle()
+    {
+        return _context.CurrentLocationId switch
+        {
+            var locationId when locationId == LocationId.PlantShop => "=== Plant Shop ===",
+            var locationId when locationId == LocationId.FishMarket => "=== Fish Market ===",
+            _ => "=== Pets & Plants ==="
+        };
+    }
+
+    private string GetLocationTip()
+    {
+        return _context.CurrentLocationId switch
+        {
+            var locationId when locationId == LocationId.PlantShop => "Buy plants here. Weekly care and upgrades are handled from home.",
+            var locationId when locationId == LocationId.FishMarket => "Buy a fish tank here. Weekly care is handled from home.",
+            _ => "Adopt cats, cover weekly care, and manage plant upgrades from home."
+        };
     }
 
     private static IEnumerable<string> WrapText(string text, int maxWidth)

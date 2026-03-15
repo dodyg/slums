@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Slums.Application.Activities;
+using Slums.Core.Characters;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
@@ -56,7 +57,34 @@ internal sealed class GameActionMenuQueryTests
         gameState.World.TravelTo(LocationId.FishMarket);
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
+        var householdAction = actions.Single(static action => action.Id == GameActionId.HouseholdAssets);
 
-        actions.Select(static action => action.Id).Should().Contain(GameActionId.HouseholdAssets);
+        householdAction.Label.Should().Be("Buy Fish Tank");
+    }
+
+    [Test]
+    public void GetActions_ShouldExposePlantPurchaseAction_AtPlantShop()
+    {
+        var query = new GameActionMenuQuery();
+        using var gameState = new GameSession();
+        gameState.World.TravelTo(LocationId.PlantShop);
+
+        var actions = query.GetActions(GameActionMenuContext.Create(gameState));
+        var householdAction = actions.Single(static action => action.Id == GameActionId.HouseholdAssets);
+
+        householdAction.Label.Should().Be("Buy Plants");
+    }
+
+    [Test]
+    public void GetActions_ShouldUsePetsAndPlantsLabel_AtHomeWhenManagementIsAvailable()
+    {
+        var query = new GameActionMenuQuery();
+        using var gameState = new GameSession();
+        gameState.Player.HouseholdAssets.BuyPlant(PlantType.Basil, 1, 1);
+
+        var actions = query.GetActions(GameActionMenuContext.Create(gameState));
+        var householdAction = actions.Single(static action => action.Id == GameActionId.HouseholdAssets);
+
+        householdAction.Label.Should().Be("Pets & Plants");
     }
 }

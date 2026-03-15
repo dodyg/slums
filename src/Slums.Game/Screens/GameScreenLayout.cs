@@ -3,7 +3,7 @@ namespace Slums.Game.Screens;
 internal static class GameScreenLayout
 {
     private const int HudTopOffsetFromBottom = 20;
-    private const int StressStatOffset = 5;
+    private const int StressStatOffset = 6;
 
     internal const int ActionListX = 2;
     internal const int EventLogX = 45;
@@ -24,7 +24,7 @@ internal static class GameScreenLayout
 
     internal static int GetActionListStartY(int screenHeight)
     {
-        return GetActionHeaderY(screenHeight) + 2;
+        return GetActionHeaderY(screenHeight) + 1;
     }
 
     internal static int GetStressStatRowY(int screenHeight)

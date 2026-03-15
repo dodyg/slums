@@ -7,13 +7,14 @@ namespace Slums.Game.Tests.Screens;
 internal sealed class GameScreenLayoutTests
 {
     [Test]
-    public void ActionsHeader_ShouldRenderBelowStressStatRow()
+    public void Layout_ShouldReserveRoomForMotherHealth_WithoutPushingActionsOffScreen()
     {
         var stressRowY = GameScreenLayout.GetStressStatRowY(GameRuntime.ScreenHeight);
         var actionHeaderY = GameScreenLayout.GetActionHeaderY(GameRuntime.ScreenHeight);
         var actionListStartY = GameScreenLayout.GetActionListStartY(GameRuntime.ScreenHeight);
 
-        actionHeaderY.Should().Be(stressRowY + 1);
-        actionListStartY.Should().Be(actionHeaderY + 2);
+        stressRowY.Should().Be(11);
+        actionHeaderY.Should().Be(12);
+        actionListStartY.Should().Be(13);
     }
 }

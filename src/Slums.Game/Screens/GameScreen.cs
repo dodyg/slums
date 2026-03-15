@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
+using Slums.Core.Characters;
 using Slums.Application.HouseholdAssets;
 using Slums.Application.Investments;
 using Slums.Application.Narrative;
@@ -99,13 +100,12 @@ internal sealed class GameScreen : ScreenSurface
         var statusContext = GameStatusContext.Create(_gameState);
 
         Surface.Print(0, 0, "=== SLUMS - Cairo Survival ===", Color.Yellow);
-        Surface.Print(0, 2, $"Day {statusContext.Clock.Day} - {statusContext.Clock.TimeOfDay}", Color.White);
-        Surface.Print(0, 3, $"Time: {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2}", Color.Gray);
-        Surface.Print(0, 4, $"Police Pressure: {statusContext.PolicePressure}", statusContext.PolicePressure >= 80 ? Color.Red : Color.Orange);
+        Surface.Print(0, 2, $"Day {statusContext.Clock.Day} - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2}", Color.White);
+        Surface.Print(0, 3, $"Police Pressure: {statusContext.PolicePressure}", statusContext.PolicePressure >= 80 ? Color.Red : Color.Orange);
         var districtBulletin = statusContext.CurrentDistrictCondition is null
             ? "Today here: no major district pressure."
             : $"Today here: {statusContext.CurrentDistrictCondition.Title} - {statusContext.CurrentDistrictCondition.GameplaySummary}";
-        Surface.Print(0, 5, TrimHudLine(districtBulletin), Color.LightGray);
+        Surface.Print(0, 4, TrimHudLine(districtBulletin), Color.LightGray);
 
         // Money is displayed as a plain figure; the bar is only meaningful for 0-100 bounded stats
         var rentColor = statusContext.UnpaidRentDays >= 5
@@ -121,6 +121,7 @@ internal sealed class GameScreen : ScreenSurface
         RenderStat("Hunger", statusContext.Player.Stats.Hunger, 100, GetStatColor(statusContext.Player.Stats.Hunger));
         RenderStat("Energy", statusContext.Player.Stats.Energy, 100, GetStatColor(statusContext.Player.Stats.Energy));
         RenderStat("Health", statusContext.Player.Stats.Health, 100, GetStatColor(statusContext.Player.Stats.Health));
+        RenderStat("Mother Health", statusContext.Player.Household.MotherHealth, 100, GetMotherHealthColor(statusContext.Player.Household.MotherCondition));
         RenderStat("Stress", statusContext.Player.Stats.Stress, 100, GetStressColor(statusContext.Player.Stats.Stress));
     }
 
@@ -139,7 +140,8 @@ internal sealed class GameScreen : ScreenSurface
         "Hunger" => 2,
         "Energy" => 3,
         "Health" => 4,
-        "Stress" => 5,
+        "Mother Health" => 5,
+        "Stress" => 6,
         _ => 0
     };
 
@@ -154,6 +156,13 @@ internal sealed class GameScreen : ScreenSurface
     {
         > 80 => Color.Red,
         > 50 => Color.Orange,
+        _ => Color.Green
+    };
+
+    private static Color GetMotherHealthColor(MotherCondition condition) => condition switch
+    {
+        MotherCondition.Crisis => Color.Red,
+        MotherCondition.Fragile => Color.Orange,
         _ => Color.Green
     };
 

@@ -1,3 +1,5 @@
+using Slums.Core.World;
+
 namespace Slums.Application.Activities;
 
 public sealed class GameActionMenuQuery
@@ -42,7 +44,7 @@ public sealed class GameActionMenuQuery
 
         if (context.HasHouseholdAssetsAccess)
         {
-            actions.Add(new GameAction(GameActionId.HouseholdAssets, "Household"));
+            actions.Add(new GameAction(GameActionId.HouseholdAssets, GetHouseholdActionLabel(context)));
         }
 
         if (context.IsAtHome)
@@ -62,5 +64,27 @@ public sealed class GameActionMenuQuery
         actions.Add(new GameAction(GameActionId.EndDay, "End Day"));
 
         return actions;
+    }
+
+    private static string GetHouseholdActionLabel(GameActionMenuContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (context.CurrentLocation?.Id == LocationId.PlantShop)
+        {
+            return "Buy Plants";
+        }
+
+        if (context.CurrentLocation?.Id == LocationId.FishMarket)
+        {
+            return "Buy Fish Tank";
+        }
+
+        if (context.CurrentLocation?.Id == LocationId.Home)
+        {
+            return "Pets & Plants";
+        }
+
+        return "Household";
     }
 }
