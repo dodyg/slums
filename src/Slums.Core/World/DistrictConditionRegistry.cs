@@ -56,6 +56,16 @@ public static class DistrictConditionRegistry
         },
         new()
         {
+            Id = "downtown_cairo_steady_day",
+            District = DistrictId.DowntownCairo,
+            Title = "Steady Day",
+            BulletinText = "Downtown hums with its usual rhythm.",
+            GameplaySummary = "No extra district modifiers are pressing on the basics right now.",
+            MinDay = 1,
+            Weight = 1
+        },
+        new()
+        {
             Id = "imbaba_utility_cut",
             District = DistrictId.Imbaba,
             Title = "Utility Cut",
