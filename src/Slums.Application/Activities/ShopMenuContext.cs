@@ -1,8 +1,12 @@
 using Slums.Core.State;
+using Slums.Core.World;
 
 namespace Slums.Application.Activities;
 
 public sealed record ShopMenuContext(
+    LocationId CurrentLocationId,
+    string? LocationName,
+    bool HasHouseholdAssetsAccess,
     int Money,
     int FoodCost,
     int MedicineCost,
@@ -20,8 +24,12 @@ public sealed record ShopMenuContext(
         ArgumentNullException.ThrowIfNull(gameSession);
 
         var clinicStatus = gameSession.GetCurrentLocationClinicStatus();
+        var currentLocation = gameSession.World.GetCurrentLocation();
 
         return new ShopMenuContext(
+            gameSession.World.CurrentLocationId,
+            currentLocation?.Name,
+            gameSession.CanUseHouseholdAssets(),
             gameSession.Player.Stats.Money,
             gameSession.GetFoodCost(),
             gameSession.GetMedicineCost(),

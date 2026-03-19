@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
+using Slums.Application.HouseholdAssets;
 using Slums.Core.State;
 
 namespace Slums.Game.Screens;
@@ -17,6 +18,7 @@ internal sealed class ShopScreen : ScreenSurface
     private readonly GameScreen _parentScreen;
     private readonly ShopCommand _shopCommand = new();
     private readonly ShopMenuStatusQuery _shopMenuStatusQuery = new();
+    private readonly HouseholdAssetsMenuQuery _householdAssetsMenuQuery = new();
     private int _selectedIndex;
 
     public ShopScreen(int width, int height, GameSession gameState, ShopMenuContext context, GameScreen parentScreen) 
@@ -68,7 +70,7 @@ internal sealed class ShopScreen : ScreenSurface
             if (i < purchaseOptions.Count)
             {
                 var option = purchaseOptions[i];
-                label = $"{option.Name} ({option.Cost} LE)";
+                label = FormatOptionLabel(option);
                 if (!option.CanAfford)
                 {
                     color = Color.DarkGray;
@@ -135,7 +137,7 @@ internal sealed class ShopScreen : ScreenSurface
         for (var i = 0; i < purchaseOptions.Count + 1; i++)
         {
             var label = i < purchaseOptions.Count
-                ? $"{purchaseOptions[i].Name} ({purchaseOptions[i].Cost} LE)"
+                ? FormatOptionLabel(purchaseOptions[i])
                 : CancelOptionLabel;
             var endX = OptionsStartX + label.Length + 2;
             if (cellPosition.Y == OptionsStartY + i && cellPosition.X >= OptionsStartX && cellPosition.X < endX)
@@ -159,8 +161,28 @@ internal sealed class ShopScreen : ScreenSurface
         }
 
         var selectedOption = purchaseOptions[_selectedIndex];
+        if (selectedOption.OptionId == ShopOptionId.OpenHouseholdAssets)
+        {
+            OpenHouseholdAssetsScreen();
+            return;
+        }
+
         _shopCommand.Execute(_gameState, selectedOption.OptionId);
         ReturnToParentScreen();
+    }
+
+    private void OpenHouseholdAssetsScreen()
+    {
+        var householdContext = HouseholdAssetsMenuContext.Create(_gameState);
+        var statuses = _householdAssetsMenuQuery.GetStatuses(householdContext).ToList();
+        if (statuses.Count == 0)
+        {
+            ReturnToParentScreen();
+            return;
+        }
+
+        IsFocused = false;
+        GameHost.Instance.Screen = new HouseholdAssetsScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, householdContext, statuses, _parentScreen);
     }
 
     private void ReturnToParentScreen()
@@ -173,6 +195,13 @@ internal sealed class ShopScreen : ScreenSurface
     private IReadOnlyList<ShopMenuStatus> GetPurchaseOptions()
     {
         return _shopMenuStatusQuery.GetStatuses(_context);
+    }
+
+    private static string FormatOptionLabel(ShopMenuStatus option)
+    {
+        return option.Cost > 0
+            ? $"{option.Name} ({option.Cost} LE)"
+            : option.Name;
     }
 
     private int GetOptionCount()

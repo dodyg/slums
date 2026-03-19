@@ -12,6 +12,7 @@ public sealed class ShopCommand
 
         return optionId switch
         {
+            ShopOptionId.OpenHouseholdAssets => true,
             ShopOptionId.BuyFood => gameSession.BuyFood(),
             ShopOptionId.BuyMedicine => gameSession.BuyMedicine(),
             ShopOptionId.TakeMotherToClinic => gameSession.TakeMotherToClinic().Success,

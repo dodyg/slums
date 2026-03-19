@@ -89,40 +89,56 @@ internal sealed class GameScreen : ScreenSurface
         base.Render(delta);
         Surface.Clear();
 
-        RenderHud();
+        var statusContext = GameStatusContext.Create(_gameState);
+        RenderHud(statusContext);
+        RenderOverview(statusContext);
         RenderActions();
         RenderEventLog();
-        RenderStatusPage();
+        RenderStatusPage(statusContext);
     }
 
-    private void RenderHud()
+    private void RenderHud(GameStatusContext statusContext)
     {
-        var statusContext = GameStatusContext.Create(_gameState);
-
         Surface.Print(0, 0, "=== SLUMS - Cairo Survival ===", Color.Yellow);
-        Surface.Print(0, 2, $"Day {statusContext.Clock.Day} - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2}", Color.White);
-        Surface.Print(0, 3, $"Police Pressure: {statusContext.PolicePressure}", statusContext.PolicePressure >= 80 ? Color.Red : Color.Orange);
-        var districtBulletin = statusContext.CurrentDistrictCondition is null
-            ? "Today here: no major district pressure."
-            : $"Today here: {statusContext.CurrentDistrictCondition.Title} - {statusContext.CurrentDistrictCondition.GameplaySummary}";
-        Surface.Print(0, 4, TrimHudLine(districtBulletin), Color.LightGray);
-
-        // Money is displayed as a plain figure; the bar is only meaningful for 0-100 bounded stats
-        var rentColor = statusContext.UnpaidRentDays >= 5
-            ? Color.Red
-            : statusContext.UnpaidRentDays > 0 || statusContext.Player.Stats.Money < statusContext.RentCost
-                ? Color.Orange
-                : Color.Gray;
-        var rentText = statusContext.UnpaidRentDays > 0
-            ? $"Rent: {statusContext.RentCost} LE/day | Debt {statusContext.AccumulatedRentDebt} LE | {statusContext.UnpaidRentDays} unpaid"
-            : $"Rent: {statusContext.RentCost} LE (due end of day)";
-        Surface.Print(0, GameScreenLayout.GetStatRowY(Surface.Height, GetStatLineOffset("Rent")), rentText, rentColor);
-        Surface.Print(0, GameScreenLayout.GetStatRowY(Surface.Height, GetStatLineOffset("Money")), $"Money: {statusContext.Player.Stats.Money} LE", Color.Gold);
         RenderStat("Hunger", statusContext.Player.Stats.Hunger, 100, GetStatColor(statusContext.Player.Stats.Hunger));
         RenderStat("Energy", statusContext.Player.Stats.Energy, 100, GetStatColor(statusContext.Player.Stats.Energy));
         RenderStat("Health", statusContext.Player.Stats.Health, 100, GetStatColor(statusContext.Player.Stats.Health));
         RenderStat("Mother Health", statusContext.Player.Household.MotherHealth, 100, GetMotherHealthColor(statusContext.Player.Household.MotherCondition));
         RenderStat("Stress", statusContext.Player.Stats.Stress, 100, GetStressColor(statusContext.Player.Stats.Stress));
+    }
+
+    private void RenderOverview(GameStatusContext statusContext)
+    {
+        var household = statusContext.Player.Household;
+        var location = statusContext.World.GetCurrentLocation()?.Name ?? "Unknown";
+        var districtName = DistrictInfo.GetName(statusContext.World.CurrentDistrict);
+        var overviewX = GameScreenLayout.OverviewX;
+        var width = GameScreenLayout.RightPanelWidth;
+        var y = GameScreenLayout.OverviewY;
+
+        Surface.Print(overviewX, y++, "--- Overview ---", Color.Cyan);
+        Surface.Print(overviewX, y++, TrimToWidth($"Day {statusContext.Clock.Day} - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2}", width), Color.White);
+        Surface.Print(overviewX, y++, TrimToWidth($"Location: {location}", width), Color.White);
+        Surface.Print(overviewX, y++, TrimToWidth($"District: {districtName}", width), Color.White);
+        Surface.Print(overviewX, y++, TrimToWidth($"Money: {statusContext.Player.Stats.Money} LE | Police: {statusContext.PolicePressure}", width), Color.Gold);
+
+        var rentColor = statusContext.UnpaidRentDays >= 5
+            ? Color.Red
+            : statusContext.UnpaidRentDays > 0 || statusContext.Player.Stats.Money < statusContext.RentCost
+                ? Color.Orange
+                : Color.Gray;
+        Surface.Print(overviewX, y++, TrimToWidth(BuildRentOverviewText(statusContext), width), rentColor);
+        Surface.Print(overviewX, y++, TrimToWidth($"Food: {household.FoodStockpile} | Med: {household.MedicineStock} | f{statusContext.FoodCost} s{statusContext.StreetFoodCost} m{statusContext.MedicineCost}", width), Color.White);
+
+        var clinicText = statusContext.HasClinicServices
+            ? $"Clinic: {(statusContext.ClinicOpenToday ? "open" : "closed")} | visit {statusContext.ClinicVisitCost} LE"
+            : "Clinic: none here";
+        Surface.Print(overviewX, y++, TrimToWidth(clinicText, width), statusContext.HasClinicServices ? Color.LightGreen : Color.Gray);
+
+        var districtBulletin = statusContext.CurrentDistrictCondition is null
+            ? "Today: no major district pressure."
+            : $"Today: {statusContext.CurrentDistrictCondition.Title} - {statusContext.CurrentDistrictCondition.GameplaySummary}";
+        Surface.Print(overviewX, y, TrimToWidth(districtBulletin, width), Color.LightGray);
     }
 
     private void RenderStat(string name, int value, int max, Color color)
@@ -135,13 +151,11 @@ internal sealed class GameScreen : ScreenSurface
 
     private static int GetStatLineOffset(string name) => name switch
     {
-        "Rent" => 0,
-        "Money" => 1,
-        "Hunger" => 2,
-        "Energy" => 3,
-        "Health" => 4,
-        "Mother Health" => 5,
-        "Stress" => 6,
+        "Hunger" => 0,
+        "Energy" => 1,
+        "Health" => 2,
+        "Mother Health" => 3,
+        "Stress" => 4,
         _ => 0
     };
 
@@ -166,9 +180,15 @@ internal sealed class GameScreen : ScreenSurface
         _ => Color.Green
     };
 
-    private static string TrimHudLine(string text)
+    private static string BuildRentOverviewText(GameStatusContext statusContext)
     {
-        const int maxLength = 43;
+        return statusContext.UnpaidRentDays > 0
+            ? $"Rent debt: {statusContext.AccumulatedRentDebt} LE ({statusContext.UnpaidRentDays}d)"
+            : $"Rent: {statusContext.RentCost} LE due today";
+    }
+
+    private static string TrimToWidth(string text, int maxLength)
+    {
         return text.Length <= maxLength ? text : $"{text[..(maxLength - 3)]}...";
     }
 
@@ -194,19 +214,16 @@ internal sealed class GameScreen : ScreenSurface
         for (var i = _eventLog.Count - 1; i >= 0; i--)
         {
             var text = _eventLog[i];
-            if (text.Length > 32)
-            {
-                text = text[..32] + "...";
-            }
+            text = TrimToWidth(text, GameScreenLayout.RightPanelWidth);
             Surface.Print(GameScreenLayout.EventLogX, y + (_eventLog.Count - 1 - i), text, Color.Gray);
         }
     }
 
-    private void RenderStatusPage()
+    private void RenderStatusPage(GameStatusContext statusContext)
     {
         var x = GameScreenLayout.StatusPageX;
         var y = GameScreenLayout.StatusPageY;
-        var pages = _statusPageQuery.GetPages(GameStatusContext.Create(_gameState));
+        var pages = _statusPageQuery.GetPages(statusContext);
         if (pages.Count == 0)
         {
             return;
@@ -220,15 +237,16 @@ internal sealed class GameScreen : ScreenSurface
         var page = pages[_selectedStatusPage];
         Surface.Print(x, y++, $"--- {page.Title} [{_selectedStatusPage + 1}/{pages.Count}] ---", Color.Cyan);
 
-        foreach (var line in page.Lines.Take(10))
+        foreach (var line in page.Lines)
         {
-            foreach (var wrappedLine in WrapText(line, Surface.Width - x - 2).Take(2))
+            foreach (var wrappedLine in WrapText(line, GameScreenLayout.RightPanelWidth).Take(2))
             {
+                if (y >= GameScreenLayout.EventLogY - 1)
+                {
+                    return;
+                }
+
                 Surface.Print(x, y++, wrappedLine, Color.White);
-            }
-            if (y >= 14)
-            {
-                break;
             }
         }
     }
@@ -429,7 +447,7 @@ internal sealed class GameScreen : ScreenSurface
 
     private void ShowTravelMenu()
     {
-        var locations = WorldState.AllLocations.ToList();
+        var locations = _gameState.World.GetTravelableLocations().ToList();
         if (locations.Count == 0)
         {
             AddEventLogEntry("No travel destinations available");

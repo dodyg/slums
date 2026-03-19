@@ -2920,11 +2920,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/mnt/d/github/slums/src/Slums.Game/Slums.Game.csproj",
+      "projectUniqueName": "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj",
       "projectName": "Slums.Game",
-      "projectPath": "/mnt/d/github/slums/src/Slums.Game/Slums.Game.csproj",
+      "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Game/Slums.Game.csproj",
       "packagesPath": "/home/dodyg/.nuget/packages/",
-      "outputPath": "/mnt/d/github/slums/src/Slums.Game/obj/",
+      "outputPath": "/mnt/d/GitHub/Slums/src/Slums.Game/obj/",
       "projectStyle": "PackageReference",
       "centralPackageVersionsManagementEnabled": true,
       "configFilePaths": [
@@ -2941,17 +2941,17 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "/mnt/d/github/slums/src/Slums.Application/Slums.Application.csproj": {
-              "projectPath": "/mnt/d/github/slums/src/Slums.Application/Slums.Application.csproj"
+            "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj": {
+              "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Application/Slums.Application.csproj"
             },
-            "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj": {
-              "projectPath": "/mnt/d/github/slums/src/Slums.Core/Slums.Core.csproj"
+            "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj": {
+              "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Core/Slums.Core.csproj"
             },
-            "/mnt/d/github/slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj": {
-              "projectPath": "/mnt/d/github/slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj"
+            "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj": {
+              "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Infrastructure/Slums.Infrastructure.csproj"
             },
-            "/mnt/d/github/slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj": {
-              "projectPath": "/mnt/d/github/slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj"
+            "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj": {
+              "projectPath": "/mnt/d/GitHub/Slums/src/Slums.Narrative.Ink/Slums.Narrative.Ink.csproj"
             }
           }
         }

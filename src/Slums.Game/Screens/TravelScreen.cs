@@ -10,9 +10,6 @@ namespace Slums.Game.Screens;
 
 internal sealed class TravelScreen : ScreenSurface
 {
-    private const int DestinationStartX = 4;
-    private const int DestinationStartY = 6;
-    private const int ListRowHeight = 2;
     private readonly GameSession _gameState;
     private readonly IReadOnlyList<Location> _locations;
     private readonly GameScreen _parentScreen;
@@ -39,30 +36,41 @@ internal sealed class TravelScreen : ScreenSurface
         var centerX = Surface.Width / 2;
         Surface.Print(centerX - 5, 2, "=== Travel ===", Color.Cyan);
         Surface.Print(2, 4, "Select destination (Enter=travel, W=walk, Esc=cancel):", Color.Gray);
+        var visibleCount = TravelScreenLayout.GetMaxVisibleDestinations(Surface.Height);
+        var firstVisibleIndex = TravelScreenLayout.GetFirstVisibleIndex(_selectedIndex, visibleCount, _locations.Count);
+        var detailStartY = TravelScreenLayout.GetDetailStartY(Surface.Height);
 
-        for (var i = 0; i < _locations.Count; i++)
+        for (var rowIndex = 0; rowIndex < visibleCount && firstVisibleIndex + rowIndex < _locations.Count; rowIndex++)
         {
+            var i = firstVisibleIndex + rowIndex;
             var loc = _locations[i];
-            var isCurrentLocation = loc.Id == _gameState.World.CurrentLocationId;
             var travelCost = _gameState.GetTravelCost(loc.Id);
             var travelMinutes = _gameState.GetTravelTimeMinutes(loc.Id);
             var walkMinutes = _gameState.GetWalkTimeMinutes(loc.Id);
             var canAffordTravel = _gameState.Player.Stats.Money >= travelCost;
             var prefix = i == _selectedIndex ? "> " : "  ";
-            var nameColor = i == _selectedIndex ? Color.Cyan : isCurrentLocation ? Color.DarkGray : canAffordTravel ? Color.White : Color.Orange;
+            var nameColor = i == _selectedIndex ? Color.Cyan : canAffordTravel ? Color.White : Color.Orange;
 
-            var currentLocationSuffix = isCurrentLocation ? " [Current]" : string.Empty;
-            var displayName = $"{loc.Name} ({DistrictInfo.GetName(loc.District)}){currentLocationSuffix}";
+            var displayName = $"{loc.Name} ({DistrictInfo.GetName(loc.District)})";
             var travelInfo = canAffordTravel 
                 ? $"[{travelCost} LE | {travelMinutes} min]" 
                 : $"[Walk: {walkMinutes} min]";
-            
-            var rowY = DestinationStartY + i * ListRowHeight;
-            Surface.Print(DestinationStartX, rowY, $"{prefix}{displayName}", nameColor);
+
+            var rowY = TravelScreenLayout.DestinationStartY + rowIndex;
+            Surface.Print(TravelScreenLayout.DestinationStartX, rowY, TrimToFit($"{prefix}{displayName}", Surface.Width - travelInfo.Length - 8), nameColor);
             Surface.Print(Surface.Width - travelInfo.Length - 2, rowY, travelInfo, canAffordTravel ? Color.Yellow : Color.Orange);
-            var travelSummary = _gameState.GetTravelConditionSummary(loc.Id) ?? loc.Description;
-            Surface.Print(6, rowY + 1, $"{travelSummary[..Math.Min(50, travelSummary.Length)]}", Color.DarkGray);
         }
+
+        if (_locations.Count > visibleCount)
+        {
+            var pagingHint = firstVisibleIndex + visibleCount < _locations.Count
+                ? "More destinations below..."
+                : "More destinations above...";
+            Surface.Print(2, detailStartY - 1, pagingHint, Color.DarkGray);
+            RenderScrollBar(firstVisibleIndex, visibleCount);
+        }
+
+        RenderSelectedLocationDetails(detailStartY);
     }
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)
@@ -109,15 +117,16 @@ internal sealed class TravelScreen : ScreenSurface
         }
 
         var cellPosition = state.SurfaceCellPosition;
-        for (var i = 0; i < _locations.Count; i++)
+        var visibleCount = TravelScreenLayout.GetMaxVisibleDestinations(Surface.Height);
+        var firstVisibleIndex = TravelScreenLayout.GetFirstVisibleIndex(_selectedIndex, visibleCount, _locations.Count);
+        for (var rowIndex = 0; rowIndex < visibleCount && firstVisibleIndex + rowIndex < _locations.Count; rowIndex++)
         {
-            var rowY = DestinationStartY + i * ListRowHeight;
-            if (cellPosition.Y >= rowY &&
-                cellPosition.Y < rowY + ListRowHeight &&
-                cellPosition.X >= DestinationStartX &&
+            var rowY = TravelScreenLayout.DestinationStartY + rowIndex;
+            if (cellPosition.Y == rowY &&
+                cellPosition.X >= TravelScreenLayout.DestinationStartX &&
                 cellPosition.X < Surface.Width - 2)
             {
-                _selectedIndex = i;
+                _selectedIndex = firstVisibleIndex + rowIndex;
                 TravelToSelected();
                 return true;
             }
@@ -157,5 +166,42 @@ internal sealed class TravelScreen : ScreenSurface
         IsFocused = false;
         _parentScreen.IsFocused = true;
         GameHost.Instance.Screen = _parentScreen;
+    }
+
+    private void RenderSelectedLocationDetails(int detailStartY)
+    {
+        if (_locations.Count == 0)
+        {
+            return;
+        }
+
+        var selectedLocation = _locations[_selectedIndex];
+        var travelCost = _gameState.GetTravelCost(selectedLocation.Id);
+        var travelMinutes = _gameState.GetTravelTimeMinutes(selectedLocation.Id);
+        var walkMinutes = _gameState.GetWalkTimeMinutes(selectedLocation.Id);
+        var travelSummary = _gameState.GetTravelConditionSummary(selectedLocation.Id) ?? selectedLocation.Description;
+
+        Surface.Print(2, detailStartY, $"Selected: {selectedLocation.Name}", Color.White);
+        Surface.Print(2, detailStartY + 1, TrimToFit(travelSummary, Surface.Width - 4), Color.DarkGray);
+        Surface.Print(2, detailStartY + 2, $"Transport: {travelCost} LE / {travelMinutes} min | Walk: {walkMinutes} min", Color.Yellow);
+    }
+
+    private void RenderScrollBar(int firstVisibleIndex, int visibleCount)
+    {
+        var scrollBarX = Surface.Width - TravelScreenLayout.ScrollBarXOffset;
+        var thumbSize = TravelScreenLayout.GetScrollThumbSize(visibleCount, _locations.Count);
+        var thumbOffset = TravelScreenLayout.GetScrollThumbOffset(firstVisibleIndex, visibleCount, _locations.Count, thumbSize);
+
+        for (var rowIndex = 0; rowIndex < visibleCount; rowIndex++)
+        {
+            var rowY = TravelScreenLayout.DestinationStartY + rowIndex;
+            var isThumbRow = rowIndex >= thumbOffset && rowIndex < thumbOffset + thumbSize;
+            Surface.Print(scrollBarX, rowY, isThumbRow ? "#" : "|", isThumbRow ? Color.Cyan : Color.DarkGray);
+        }
+    }
+
+    private static string TrimToFit(string text, int maxLength)
+    {
+        return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
     }
 }

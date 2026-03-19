@@ -20,7 +20,7 @@ internal sealed class GameStatusPageQueryTests
 
         var pages = query.GetPages(GameStatusContext.Create(gameState));
 
-        pages.Select(static page => page.Title).Should().ContainInOrder("Survival", "Household", "City", "Debt", "Skills", "Network", "Heat", "Investments", "Signals", "Progress");
+        pages.Select(static page => page.Title).Should().ContainInOrder("Household", "City", "Debt", "Skills", "Network", "Heat", "Investments", "Signals", "Progress");
     }
 
     [Test]
@@ -65,24 +65,33 @@ internal sealed class GameStatusPageQueryTests
         var debt = pages.Single(static page => page.Title == "Debt");
         var network = pages.Single(static page => page.Title == "Network");
 
-        debt.Lines.Should().Contain(static line => line.Contains("Accumulated rent debt: 100 LE", StringComparison.Ordinal));
         debt.Lines.Should().Contain(static line => line.Contains("final warning", StringComparison.OrdinalIgnoreCase));
+        debt.Lines.Should().Contain(static line => line.Contains("Rent is overdue", StringComparison.Ordinal));
         debt.Lines.Should().Contain(static line => line.Contains("Nurse Salma", StringComparison.Ordinal));
         network.Lines.Should().Contain(static line => line.Contains("you owe them", StringComparison.Ordinal));
         network.Lines.Should().Contain(static line => line.Contains("helped you", StringComparison.Ordinal));
     }
 
     [Test]
-    public void GetPages_ShouldExposeClinicStatus_OnSurvivalPage()
+    public void GetPages_ShouldAvoidRepeatingOverviewFields_OnStatusPages()
     {
         var query = new GameStatusPageQuery();
         using var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Clinic);
+        gameState.SetPolicePressure(65);
+        gameState.RestoreRentState(unpaidRentDays: 3, accumulatedRentDebt: 60, firstWarningGiven: true, finalWarningGiven: false);
 
         var pages = query.GetPages(GameStatusContext.Create(gameState));
 
-        var survival = pages.Single(static page => page.Title == "Survival");
-        survival.Lines.Should().Contain(static line => line.Contains("Clinic here: open today | visit 35 LE", StringComparison.Ordinal));
+        var lines = pages.SelectMany(static page => page.Lines).ToArray();
+        lines.Should().NotContain(static line => line.StartsWith("Day ", StringComparison.Ordinal));
+        lines.Should().NotContain(static line => line.StartsWith("Location:", StringComparison.Ordinal));
+        lines.Should().NotContain(static line => line.StartsWith("District:", StringComparison.Ordinal));
+        lines.Should().NotContain(static line => line.StartsWith("Money:", StringComparison.Ordinal));
+        lines.Should().NotContain(static line => line.StartsWith("Police pressure:", StringComparison.Ordinal));
+        lines.Should().NotContain(static line => line.StartsWith("Rent debt:", StringComparison.Ordinal));
+        lines.Should().NotContain(static line => line.StartsWith("Local prices:", StringComparison.Ordinal));
+        lines.Should().NotContain(static line => line.StartsWith("Clinic here:", StringComparison.Ordinal));
     }
 
     [Test]
@@ -98,12 +107,10 @@ internal sealed class GameStatusPageQueryTests
 
         var pages = query.GetPages(GameStatusContext.Create(gameState));
 
-        var survival = pages.Single(static page => page.Title == "Survival");
         var city = pages.Single(static page => page.Title == "City");
 
-        survival.Lines.Should().Contain(static line => line.Contains("Market Crackdown", StringComparison.Ordinal));
-        city.Lines.Should().Contain(static line => line.Contains("Imbaba: Market Crackdown", StringComparison.Ordinal));
         city.Lines.Should().Contain(static line => line.Contains("Dokki: Checkpoint Sweep", StringComparison.Ordinal));
+        city.Lines.Should().NotContain(static line => line.Contains("Imbaba: Market Crackdown", StringComparison.Ordinal));
     }
 
     [Test]
@@ -181,7 +188,7 @@ internal sealed class GameStatusPageQueryTests
         var pages = query.GetPages(GameStatusContext.Create(gameState));
 
         var heat = pages.Single(static page => page.Title == "Heat");
-        heat.Lines.Should().Contain(static line => line.Contains("Police pressure: 65/100", StringComparison.Ordinal));
+        heat.Lines.Should().Contain(static line => line.Contains("materially raising crime risk", StringComparison.Ordinal));
         heat.Lines.Should().Contain(static line => line.Contains("Dokki Thugs 14", StringComparison.Ordinal));
         heat.Lines.Should().Contain(static line => line.Contains("extra suspicion", StringComparison.Ordinal));
     }

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Slums.Application.Activities;
+using Slums.Core.Characters;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.State;
@@ -49,6 +50,52 @@ internal sealed class ShopMenuStatusQueryTests
         clinicStatuses[2].Name.Should().Be("Take Mother to Clinic");
         clinicStatuses[2].Cost.Should().Be(35);
         clinicStatuses[2].CanAfford.Should().BeTrue();
+    }
+
+    [Test]
+    public void GetStatuses_ShouldSurfacePlantPurchases_InShopMenuAtPlantShop()
+    {
+        var query = new ShopMenuStatusQuery();
+        using var gameState = new GameSession();
+        gameState.World.TravelTo(LocationId.PlantShop);
+
+        var statuses = query.GetStatuses(ShopMenuContext.Create(gameState));
+
+        statuses[0].OptionId.Should().Be(ShopOptionId.OpenHouseholdAssets);
+        statuses[0].Name.Should().Be("Buy Plants");
+        statuses[0].Cost.Should().Be(0);
+        statuses[0].CanAfford.Should().BeTrue();
+        statuses[0].Note.Should().Contain("buy herbs, flowers, and aloe");
+    }
+
+    [Test]
+    public void GetStatuses_ShouldSurfaceFishTankPurchase_InShopMenuAtFishMarket()
+    {
+        var query = new ShopMenuStatusQuery();
+        using var gameState = new GameSession();
+        gameState.World.TravelTo(LocationId.FishMarket);
+
+        var statuses = query.GetStatuses(ShopMenuContext.Create(gameState));
+
+        statuses[0].OptionId.Should().Be(ShopOptionId.OpenHouseholdAssets);
+        statuses[0].Name.Should().Be("Buy Fish Tank");
+        statuses[0].Cost.Should().Be(0);
+        statuses[0].CanAfford.Should().BeTrue();
+    }
+
+    [Test]
+    public void GetStatuses_ShouldSurfaceHomePetsAndPlants_WhenHouseholdManagementExists()
+    {
+        var query = new ShopMenuStatusQuery();
+        using var gameState = new GameSession();
+        gameState.Player.HouseholdAssets.BuyPlant(PlantType.Basil, 1, 1);
+
+        var statuses = query.GetStatuses(ShopMenuContext.Create(gameState));
+
+        statuses[0].OptionId.Should().Be(ShopOptionId.OpenHouseholdAssets);
+        statuses[0].Name.Should().Be("Pets & Plants");
+        statuses[0].Cost.Should().Be(0);
+        statuses[0].CanAfford.Should().BeTrue();
     }
 
     [Test]

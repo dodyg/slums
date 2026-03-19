@@ -1,3 +1,5 @@
+using Slums.Core.World;
+
 namespace Slums.Application.Activities;
 
 public sealed class ShopMenuStatusQuery
@@ -8,11 +10,20 @@ public sealed class ShopMenuStatusQuery
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var statuses = new List<ShopMenuStatus>
+        var statuses = new List<ShopMenuStatus>();
+
+        if (context.HasHouseholdAssetsAccess)
         {
-            new(ShopOptionId.BuyFood, "Buy Food", context.FoodCost, context.Money >= context.FoodCost),
-            new(ShopOptionId.BuyMedicine, "Buy Medicine", context.MedicineCost, context.Money >= context.MedicineCost)
-        };
+            statuses.Add(new ShopMenuStatus(
+                ShopOptionId.OpenHouseholdAssets,
+                GetHouseholdOptionName(context),
+                0,
+                true,
+                GetHouseholdOptionNote(context)));
+        }
+
+        statuses.Add(new ShopMenuStatus(ShopOptionId.BuyFood, "Buy Food", context.FoodCost, context.Money >= context.FoodCost));
+        statuses.Add(new ShopMenuStatus(ShopOptionId.BuyMedicine, "Buy Medicine", context.MedicineCost, context.Money >= context.MedicineCost));
 
         if (context.HasClinicServices)
         {
@@ -29,5 +40,30 @@ public sealed class ShopMenuStatusQuery
         }
 
         return statuses;
+    }
+
+    private static string GetHouseholdOptionName(ShopMenuContext context)
+    {
+        return context.CurrentLocationId switch
+        {
+            var locationId when locationId == LocationId.PlantShop => "Buy Plants",
+            var locationId when locationId == LocationId.FishMarket => "Buy Fish Tank",
+            _ => "Pets & Plants"
+        };
+    }
+
+    private static string GetHouseholdOptionNote(ShopMenuContext context)
+    {
+        var locationName = context.LocationName ?? "this location";
+
+        return context.CurrentLocationId switch
+        {
+            var locationId when locationId == LocationId.PlantShop =>
+                $"Open the household-assets catalog for {locationName} to buy herbs, flowers, and aloe.",
+            var locationId when locationId == LocationId.FishMarket =>
+                $"Open the household-assets catalog for {locationName} to purchase the fish tank.",
+            _ =>
+                "Open the household-assets screen to adopt cats, cover weekly care, or manage plant upgrades."
+        };
     }
 }
