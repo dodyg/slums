@@ -44,6 +44,7 @@ internal sealed class GameScreen : ScreenSurface
         _gameState = gameState;
         _gameState.GameEvent += OnGameEvent;
         _automaticTimeAdvancer = new AutomaticTimeAdvancer(RealTimePerGameMinute);
+        Children.Add(new OverviewWindow(this));
         Children.Add(new EventLogWindow(this));
         _selectedAction = 0;
         IsFocused = true;
@@ -93,7 +94,6 @@ internal sealed class GameScreen : ScreenSurface
 
         var statusContext = GameStatusContext.Create(_gameState);
         RenderHud(statusContext);
-        RenderOverview(statusContext);
         RenderActions();
         RenderStatusPage(statusContext);
     }
@@ -106,40 +106,6 @@ internal sealed class GameScreen : ScreenSurface
         RenderStat("Health", statusContext.Player.Stats.Health, 100, GetStatColor(statusContext.Player.Stats.Health));
         RenderStat("Stress", statusContext.Player.Stats.Stress, 100, GetStressColor(statusContext.Player.Stats.Stress));
         RenderStat("Mother Health", statusContext.Player.Household.MotherHealth, 100, GetMotherHealthColor(statusContext.Player.Household.MotherCondition));
-    }
-
-    private void RenderOverview(GameStatusContext statusContext)
-    {
-        var household = statusContext.Player.Household;
-        var location = statusContext.World.GetCurrentLocation()?.Name ?? "Unknown";
-        var districtName = DistrictInfo.GetName(statusContext.World.CurrentDistrict);
-        var overviewX = GameScreenLayout.OverviewX;
-        var width = GameScreenLayout.RightPanelWidth;
-        var y = GameScreenLayout.OverviewY;
-
-        Surface.Print(overviewX, y++, "--- Overview ---", Color.Cyan);
-        Surface.Print(overviewX, y++, TrimToWidth($"Day {statusContext.Clock.Day} - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2}", width), Color.White);
-        Surface.Print(overviewX, y++, TrimToWidth($"Location: {location}", width), Color.White);
-        Surface.Print(overviewX, y++, TrimToWidth($"District: {districtName}", width), Color.White);
-        Surface.Print(overviewX, y++, TrimToWidth($"Money: {statusContext.Player.Stats.Money} LE | Police: {statusContext.PolicePressure}", width), Color.Gold);
-
-        var rentColor = statusContext.UnpaidRentDays >= 5
-            ? Color.Red
-            : statusContext.UnpaidRentDays > 0 || statusContext.Player.Stats.Money < statusContext.RentCost
-                ? Color.Orange
-                : Color.Gray;
-        Surface.Print(overviewX, y++, TrimToWidth(BuildRentOverviewText(statusContext), width), rentColor);
-        Surface.Print(overviewX, y++, TrimToWidth($"Food: {household.FoodStockpile} | Med: {household.MedicineStock} | f: {statusContext.FoodCost} sf: {statusContext.StreetFoodCost} m: {statusContext.MedicineCost}", width), Color.White);
-
-        var clinicText = statusContext.HasClinicServices
-            ? $"Clinic: {(statusContext.ClinicOpenToday ? "open" : "closed")} | visit {statusContext.ClinicVisitCost} LE"
-            : "Clinic: none here";
-        Surface.Print(overviewX, y++, TrimToWidth(clinicText, width), statusContext.HasClinicServices ? Color.LightGreen : Color.Gray);
-
-        var districtBulletin = statusContext.CurrentDistrictCondition is null
-            ? "Today: no major district pressure."
-            : $"Today: {statusContext.CurrentDistrictCondition.Title} - {statusContext.CurrentDistrictCondition.GameplaySummary}";
-        Surface.Print(overviewX, y, TrimToWidth(districtBulletin, width), Color.LightGray);
     }
 
     private void RenderStat(string name, int value, int max, Color color)
@@ -306,37 +272,6 @@ internal sealed class GameScreen : ScreenSurface
         _actionKeyGate.SuppressActionKeysUntilRelease();
     }
 
-    public override bool ProcessMouse(MouseScreenObjectState state)
-    {
-        var handled = base.ProcessMouse(state);
-        if (_gameState.IsGameOver || !state.IsOnScreenObject || !state.Mouse.LeftClicked)
-        {
-            return handled;
-        }
-
-        if (handled)
-        {
-            return true;
-        }
-
-        var cellPosition = state.SurfaceCellPosition;
-        var actions = GetActions();
-        var actionListStartY = GameScreenLayout.GetActionListStartY(Surface.Height);
-        for (var i = 0; i < actions.Count; i++)
-        {
-            var endX = GameScreenLayout.ActionListX + actions[i].Label.Length + 2;
-            if (cellPosition.Y == actionListStartY + i
-                && cellPosition.X >= GameScreenLayout.ActionListX
-                && cellPosition.X < endX)
-            {
-                _selectedAction = i;
-                ExecuteAction();
-                return true;
-            }
-        }
-
-        return handled;
-    }
 
     private void ExecuteAction()
     {
@@ -648,6 +583,61 @@ internal sealed class GameScreen : ScreenSurface
                 var text = TrimToWidth(_owner._eventLog[i], Surface.Width - 4);
                 Surface.Print(2, y + (_owner._eventLog.Count - 1 - i), text, Color.Gray);
             }
+        }
+    }
+
+    private sealed class OverviewWindow : Window
+    {
+        private readonly GameScreen _owner;
+
+        public OverviewWindow(GameScreen owner)
+            : base(GameScreenLayout.RightPanelWidth, 11)
+        {
+            _owner = owner;
+            Position = new Point(GameScreenLayout.OverviewX, GameScreenLayout.OverviewY);
+            Title = "Overview";
+            IsVisible = true;
+        }
+
+        public override void Render(TimeSpan delta)
+        {
+            base.Render(delta);
+            Surface.Clear();
+            DrawBorder();
+            RenderOverview();
+        }
+
+        private void RenderOverview()
+        {
+            var statusContext = GameStatusContext.Create(_owner._gameState);
+            var household = statusContext.Player.Household;
+            var location = statusContext.World.GetCurrentLocation()?.Name ?? "Unknown";
+            var districtName = DistrictInfo.GetName(statusContext.World.CurrentDistrict);
+            var width = Surface.Width - 4;
+            var y = 1;
+
+            Surface.Print(2, y++, TrimToWidth($"Day {statusContext.Clock.Day} - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2}", width), Color.White);
+            Surface.Print(2, y++, TrimToWidth($"Location: {location}", width), Color.White);
+            Surface.Print(2, y++, TrimToWidth($"District: {districtName}", width), Color.White);
+            Surface.Print(2, y++, TrimToWidth($"Money: {statusContext.Player.Stats.Money} LE | Police: {statusContext.PolicePressure}", width), Color.Gold);
+
+            var rentColor = statusContext.UnpaidRentDays >= 5
+                ? Color.Red
+                : statusContext.UnpaidRentDays > 0 || statusContext.Player.Stats.Money < statusContext.RentCost
+                    ? Color.Orange
+                    : Color.Gray;
+            Surface.Print(2, y++, TrimToWidth(BuildRentOverviewText(statusContext), width), rentColor);
+            Surface.Print(2, y++, TrimToWidth($"Food: {household.FoodStockpile} | Med: {household.MedicineStock} | f: {statusContext.FoodCost} sf: {statusContext.StreetFoodCost} m: {statusContext.MedicineCost}", width), Color.White);
+
+            var clinicText = statusContext.HasClinicServices
+                ? $"Clinic: {(statusContext.ClinicOpenToday ? "open" : "closed")} | visit {statusContext.ClinicVisitCost} LE"
+                : "Clinic: none here";
+            Surface.Print(2, y++, TrimToWidth(clinicText, width), statusContext.HasClinicServices ? Color.LightGreen : Color.Gray);
+
+            var districtBulletin = statusContext.CurrentDistrictCondition is null
+                ? "Today: no major district pressure."
+                : $"Today: {statusContext.CurrentDistrictCondition.Title} - {statusContext.CurrentDistrictCondition.GameplaySummary}";
+            Surface.Print(2, y, TrimToWidth(districtBulletin, width), Color.LightGray);
         }
     }
 }
