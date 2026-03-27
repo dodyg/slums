@@ -9,7 +9,7 @@ internal static class GameScreenLayout
     internal const int ActionListX = 2;
     internal const int OverviewX = 45;
     internal const int OverviewY = 0;
-    internal const int RightPanelWidth = 33;
+    internal const int RightPanelWidth = 53;
     internal const int EventLogX = 45;
     internal const int EventLogY = 18;
     internal const int StatusPageX = 45;

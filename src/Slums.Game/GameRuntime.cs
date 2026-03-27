@@ -6,7 +6,7 @@ namespace Slums.Game;
 
 internal sealed class GameRuntime
 {
-    public const int ScreenWidth = 80;
+    public const int ScreenWidth = 100;
     public const int ScreenHeight = 25;
 
     public GameRuntime(

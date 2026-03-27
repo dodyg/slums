@@ -100,11 +100,11 @@ internal sealed class GameScreen : ScreenSurface
     private void RenderHud(GameStatusContext statusContext)
     {
         Surface.Print(0, 0, "=== SLUMS - Cairo Survival ===", Color.Yellow);
-        RenderStat("Hunger", statusContext.Player.Stats.Hunger, 100, GetStatColor(statusContext.Player.Stats.Hunger));
         RenderStat("Energy", statusContext.Player.Stats.Energy, 100, GetStatColor(statusContext.Player.Stats.Energy));
+        RenderStat("Hunger", statusContext.Player.Stats.Hunger, 100, GetStatColor(statusContext.Player.Stats.Hunger));
         RenderStat("Health", statusContext.Player.Stats.Health, 100, GetStatColor(statusContext.Player.Stats.Health));
-        RenderStat("Mother Health", statusContext.Player.Household.MotherHealth, 100, GetMotherHealthColor(statusContext.Player.Household.MotherCondition));
         RenderStat("Stress", statusContext.Player.Stats.Stress, 100, GetStressColor(statusContext.Player.Stats.Stress));
+        RenderStat("Mother Health", statusContext.Player.Household.MotherHealth, 100, GetMotherHealthColor(statusContext.Player.Household.MotherCondition));
     }
 
     private void RenderOverview(GameStatusContext statusContext)
@@ -128,7 +128,7 @@ internal sealed class GameScreen : ScreenSurface
                 ? Color.Orange
                 : Color.Gray;
         Surface.Print(overviewX, y++, TrimToWidth(BuildRentOverviewText(statusContext), width), rentColor);
-        Surface.Print(overviewX, y++, TrimToWidth($"Food: {household.FoodStockpile} | Med: {household.MedicineStock} | f{statusContext.FoodCost} s{statusContext.StreetFoodCost} m{statusContext.MedicineCost}", width), Color.White);
+        Surface.Print(overviewX, y++, TrimToWidth($"Food: {household.FoodStockpile} | Med: {household.MedicineStock} | f: {statusContext.FoodCost} sf: {statusContext.StreetFoodCost} m: {statusContext.MedicineCost}", width), Color.White);
 
         var clinicText = statusContext.HasClinicServices
             ? $"Clinic: {(statusContext.ClinicOpenToday ? "open" : "closed")} | visit {statusContext.ClinicVisitCost} LE"
@@ -154,8 +154,8 @@ internal sealed class GameScreen : ScreenSurface
         "Hunger" => 0,
         "Energy" => 1,
         "Health" => 2,
-        "Mother Health" => 3,
-        "Stress" => 4,
+        "Stress" => 3,
+        "Mother Health" => 4,
         _ => 0
     };
 
