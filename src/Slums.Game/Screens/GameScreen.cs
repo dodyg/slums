@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using SadConsole;
 using SadConsole.Input;
+using SadConsole.UI;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
 using Slums.Core.Characters;
@@ -43,6 +44,7 @@ internal sealed class GameScreen : ScreenSurface
         _gameState = gameState;
         _gameState.GameEvent += OnGameEvent;
         _automaticTimeAdvancer = new AutomaticTimeAdvancer(RealTimePerGameMinute);
+        Children.Add(new EventLogWindow(this));
         _selectedAction = 0;
         IsFocused = true;
         UseMouse = true;
@@ -93,7 +95,6 @@ internal sealed class GameScreen : ScreenSurface
         RenderHud(statusContext);
         RenderOverview(statusContext);
         RenderActions();
-        RenderEventLog();
         RenderStatusPage(statusContext);
     }
 
@@ -206,19 +207,6 @@ internal sealed class GameScreen : ScreenSurface
         }
     }
 
-    private void RenderEventLog()
-    {
-        var y = GameScreenLayout.EventLogY;
-        Surface.Print(GameScreenLayout.EventLogX, y++, "--- Event Log ---", Color.Cyan);
-
-        for (var i = _eventLog.Count - 1; i >= 0; i--)
-        {
-            var text = _eventLog[i];
-            text = TrimToWidth(text, GameScreenLayout.RightPanelWidth);
-            Surface.Print(GameScreenLayout.EventLogX, y + (_eventLog.Count - 1 - i), text, Color.Gray);
-        }
-    }
-
     private void RenderStatusPage(GameStatusContext statusContext)
     {
         var x = GameScreenLayout.StatusPageX;
@@ -324,6 +312,11 @@ internal sealed class GameScreen : ScreenSurface
         if (_gameState.IsGameOver || !state.IsOnScreenObject || !state.Mouse.LeftClicked)
         {
             return handled;
+        }
+
+        if (handled)
+        {
+            return true;
         }
 
         var cellPosition = state.SurfaceCellPosition;
@@ -617,6 +610,44 @@ internal sealed class GameScreen : ScreenSurface
         if (current.Length > 0)
         {
             yield return current;
+        }
+    }
+
+    private sealed class EventLogWindow : Window
+    {
+        private readonly GameScreen _owner;
+
+        public EventLogWindow(GameScreen owner)
+            : base(GameScreenLayout.RightPanelWidth, GameScreenLayout.MaxEventLogEntries + 2)
+        {
+            _owner = owner;
+            Position = new Point(GameScreenLayout.EventLogX, GameScreenLayout.EventLogY);
+            Title = "Event Log";
+            CanDrag = true;
+            IsExclusiveMouse = true;
+            IsFocused = true;
+            UseMouse = true;
+            CloseOnEscKey = false;
+            IsVisible = true;
+        }
+
+        public override void Render(TimeSpan delta)
+        {
+            base.Render(delta);
+            Surface.Clear();
+            DrawBorder();
+            RenderEventLog();
+        }
+
+        public void RenderEventLog()
+        {
+            var y = 1;
+
+            for (var i = _owner._eventLog.Count - 1; i >= 0; i--)
+            {
+                var text = TrimToWidth(_owner._eventLog[i], Surface.Width - 4);
+                Surface.Print(2, y + (_owner._eventLog.Count - 1 - i), text, Color.Gray);
+            }
         }
     }
 }
