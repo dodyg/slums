@@ -42,7 +42,7 @@ internal sealed class NarrativeScreen : ScreenSurface
 
         Surface.Print(2, 1, "=== Scene ===", Color.Cyan);
 
-        var textPanelTop = 3;
+        const int textPanelTop = 3;
         var textPanelHeight = Surface.Height - 10;
 
         for (var row = 0; row < textPanelHeight; row++)

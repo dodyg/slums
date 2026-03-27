@@ -145,7 +145,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         while (minutes > 0)
         {
             var currentMinutes = (Clock.Hour * 60) + Clock.Minute;
-            var endOfDayMinutes = EndOfDayHour * 60;
+            const int endOfDayMinutes = EndOfDayHour * 60;
 
             if (currentMinutes >= endOfDayMinutes)
             {

@@ -61,7 +61,7 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
 
         RenderStatsPreview(centerX, y);
 
-        var instructions = "Arrow keys to navigate, Enter to select, ESC to go back";
+        const string instructions = "Arrow keys to navigate, Enter to select, ESC to go back";
         Surface.Print(centerX - instructions.Length / 2, Surface.Height - 2, instructions, Color.DarkGray);
     }
 

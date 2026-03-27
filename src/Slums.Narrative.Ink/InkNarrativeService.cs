@@ -272,7 +272,7 @@ public sealed class InkNarrativeService : INarrativeService
         }
 
         var assembly = Assembly.GetExecutingAssembly();
-        var resourceName = "Slums.Narrative.Ink.Content.main.json";
+        const string resourceName = "Slums.Narrative.Ink.Content.main.json";
 
         using var stream = assembly.GetManifestResourceStream(resourceName);
         if (stream is null)

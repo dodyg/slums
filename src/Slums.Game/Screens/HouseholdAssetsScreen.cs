@@ -97,7 +97,7 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface
         var cellPosition = state.SurfaceCellPosition;
         for (var i = 0; i < _statuses.Count; i++)
         {
-            var endX = DetailX - 1;
+            const int endX = DetailX - 1;
             if (cellPosition.Y == ListY + i && cellPosition.X >= ListX && cellPosition.X < endX)
             {
                 _selectedIndex = i;

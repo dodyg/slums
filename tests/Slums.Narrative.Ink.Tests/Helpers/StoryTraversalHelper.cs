@@ -16,7 +16,7 @@ internal static class StoryTraversalHelper
         }
 
         var assembly = typeof(InkNarrativeService).Assembly;
-        var resourceName = "Slums.Narrative.Ink.Content.main.json";
+        const string resourceName = "Slums.Narrative.Ink.Content.main.json";
 
         using var stream = assembly.GetManifestResourceStream(resourceName)
             ?? throw new InvalidOperationException($"Could not find Ink story resource: {resourceName}");

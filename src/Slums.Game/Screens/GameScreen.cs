@@ -45,6 +45,7 @@ internal sealed class GameScreen : ScreenSurface
         _gameState.GameEvent += OnGameEvent;
         _automaticTimeAdvancer = new AutomaticTimeAdvancer(RealTimePerGameMinute);
         Children.Add(new OverviewWindow(this));
+        Children.Add(new StatusPageWindow(this));
         Children.Add(new EventLogWindow(this));
         _selectedAction = 0;
         IsFocused = true;
@@ -95,7 +96,6 @@ internal sealed class GameScreen : ScreenSurface
         var statusContext = GameStatusContext.Create(_gameState);
         RenderHud(statusContext);
         RenderActions();
-        RenderStatusPage(statusContext);
     }
 
     private void RenderHud(GameStatusContext statusContext)
@@ -110,7 +110,7 @@ internal sealed class GameScreen : ScreenSurface
 
     private void RenderStat(string name, int value, int max, Color color)
     {
-        var barWidth = 10;
+        const int barWidth = 10;
         var filled = (int)((double)value / max * barWidth);
         var bar = new string('#', filled) + new string('-', barWidth - filled);
         Surface.Print(0, GameScreenLayout.GetStatRowY(Surface.Height, GetStatLineOffset(name)), $"{name}: [{bar}] {value}", color);
@@ -175,7 +175,7 @@ internal sealed class GameScreen : ScreenSurface
 
     private void RenderStatusPage(GameStatusContext statusContext)
     {
-        var x = GameScreenLayout.StatusPageX;
+        const int x = GameScreenLayout.StatusPageX;
         var y = GameScreenLayout.StatusPageY;
         var pages = _statusPageQuery.GetPages(statusContext);
         if (pages.Count == 0)
@@ -557,7 +557,7 @@ internal sealed class GameScreen : ScreenSurface
         {
             _owner = owner;
             Position = new Point(GameScreenLayout.EventLogX, GameScreenLayout.EventLogY);
-            Title = "Event Log";
+            Title = " Event Log ";
             CanDrag = true;
             IsExclusiveMouse = true;
             IsFocused = true;
@@ -576,7 +576,7 @@ internal sealed class GameScreen : ScreenSurface
 
         public void RenderEventLog()
         {
-            var y = 1;
+            const int y = 1;
 
             for (var i = _owner._eventLog.Count - 1; i >= 0; i--)
             {
@@ -595,7 +595,7 @@ internal sealed class GameScreen : ScreenSurface
         {
             _owner = owner;
             Position = new Point(GameScreenLayout.OverviewX, GameScreenLayout.OverviewY);
-            Title = "Overview";
+            Title = " Overview ";
             IsVisible = true;
         }
 
@@ -638,6 +638,67 @@ internal sealed class GameScreen : ScreenSurface
                 ? "Today: no major district pressure."
                 : $"Today: {statusContext.CurrentDistrictCondition.Title} - {statusContext.CurrentDistrictCondition.GameplaySummary}";
             Surface.Print(2, y, TrimToWidth(districtBulletin, width), Color.LightGray);
+        }
+    }
+
+    private sealed class StatusPageWindow : Window
+    {
+        private readonly GameScreen _owner;
+
+        public StatusPageWindow(GameScreen owner)
+            : base(GameScreenLayout.RightPanelWidth, 8)
+        {
+            _owner = owner;
+            Position = new Point(GameScreenLayout.StatusPageX, GameScreenLayout.StatusPageY);
+            Title = " Status ";
+            CanDrag = true;
+            IsExclusiveMouse = true;
+            IsFocused = true;
+            UseMouse = true;
+            IsVisible = true;
+        }
+
+        public override void Render(TimeSpan delta)
+        {
+            base.Render(delta);
+            Surface.Clear();
+            DrawBorder();
+            RenderStatusPage();
+        }
+
+        private void RenderStatusPage()
+        {
+            var statusContext = GameStatusContext.Create(_owner._gameState);
+            var pages = _owner._statusPageQuery.GetPages(statusContext);
+            if (pages.Count == 0)
+            {
+                return;
+            }
+
+            if (_owner._selectedStatusPage >= pages.Count)
+            {
+                _owner._selectedStatusPage = 0;
+            }
+
+            var page = pages[_owner._selectedStatusPage];
+            const int x = 2;
+            var y = 1;
+            var width = Surface.Width - 4;
+
+            Surface.Print(x, y++, $"{page.Title} [{_owner._selectedStatusPage + 1}/{pages.Count}]", Color.Cyan);
+
+            foreach (var line in page.Lines)
+            {
+                foreach (var wrappedLine in WrapText(line, width).Take(2))
+                {
+                    if (y >= Surface.Height - 1)
+                    {
+                        return;
+                    }
+
+                    Surface.Print(x, y++, wrappedLine, Color.White);
+                }
+            }
         }
     }
 }
