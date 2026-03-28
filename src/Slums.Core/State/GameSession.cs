@@ -203,11 +203,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         if (rentResult.Paid)
         {
             Player.Stats.ModifyMoney(-RecurringExpenses.DailyRentCost);
-            RaiseEvent($"Paid rent: {RecurringExpenses.DailyRentCost} LE");
+            RaiseAutoTransaction($"Paid rent: {RecurringExpenses.DailyRentCost} LE");
         }
         else
         {
-            RaiseEvent($"Could not pay rent! Debt: {rentResult.AccumulatedDebt} LE. Unpaid days: {rentResult.CurrentUnpaidDays}.");
+            RaiseAutoTransaction($"Could not pay rent! Debt: {rentResult.AccumulatedDebt} LE. Unpaid days: {rentResult.CurrentUnpaidDays}.");
 
             if (rentResult.WarningType == RentWarningType.First)
             {
@@ -251,7 +251,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         if (herbIncome > 0)
         {
             Player.Stats.ModifyMoney(herbIncome);
-            RaiseEvent($"The street vendor moves your herbs quietly. +{herbIncome} LE reaches home.");
+            RaiseAutoTransaction($"The street vendor moves your herbs quietly. +{herbIncome} LE reaches home.");
         }
 
         Clock.AdvanceToNextDay();
@@ -2114,6 +2114,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         GameEvent?.Invoke(this, new GameEventArgs(message));
     }
 
+    private void RaiseAutoTransaction(string message)
+    {
+        RaiseEvent($"[Day {CurrentDay}] {message}");
+    }
+
     public IReadOnlyList<InvestmentDefinition> GetAvailableInvestments()
     {
         var results = new List<InvestmentDefinition>();
@@ -2222,6 +2227,12 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             {
                 Player.Stats.ModifyMoney(result.Income);
                 TotalInvestmentEarnings += result.Income;
+                if (!result.WasLost && result.ExtortionPaid == 0 && result.PolicePressureIncrease == 0)
+                {
+                    var investmentDef = InvestmentRegistry.GetByType(investment.Type);
+                    var investmentName = investmentDef?.Name ?? investment.Type.ToString();
+                    RaiseAutoTransaction($"{investmentName}: +{result.Income} LE weekly income.");
+                }
             }
 
             if (result.ExtortionPaid > 0)
@@ -2237,7 +2248,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             if (!string.IsNullOrWhiteSpace(result.Message) &&
                 (result.WasLost || result.ExtortionPaid > 0 || result.PolicePressureIncrease > 0))
             {
-                RaiseEvent(result.Message);
+                RaiseAutoTransaction(result.Message);
             }
         }
 
@@ -2248,7 +2259,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         if (summary.TotalIncome > 0 || summary.TotalLosses > 0 || summary.TotalExtortion > 0)
         {
-            RaiseEvent($"Weekly investments: +{summary.TotalIncome} LE income, -{summary.TotalExtortion} LE extortion, {summary.LostCount} lost.");
+            RaiseAutoTransaction($"Weekly investments: +{summary.TotalIncome} LE income, -{summary.TotalExtortion} LE extortion, {summary.LostCount} lost.");
         }
 
         RecordMutation(MutationCategories.Investment, "ResolveWeeklyInvestments", before, CaptureStats(), $"Income +{summary.TotalIncome}, Extortion -{summary.TotalExtortion}, Lost {summary.LostCount}");
@@ -2285,7 +2296,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
 
         Player.Stats.ModifyStress(resolution.StressPenalty);
-        RaiseEvent($"Skipping household care all week weighs on your mother. Stress +{resolution.StressPenalty}.");
+        RaiseAutoTransaction($"Skipping household care all week weighs on your mother. Stress +{resolution.StressPenalty}.");
     }
 
     private void TryRollStreetCatEncounter(Random random)

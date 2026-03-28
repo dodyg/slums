@@ -208,6 +208,13 @@ Medicinal:
   - Hibiscus: 7 days, 25 LE base price
 - Money is added automatically; street vendor in home area handles sales (no travel required).
 
+### Event Log for Automatic Transactions
+
+- All automatic money deductions (rent, weekly pet/plant costs, investment fees, fertilizer/irrigation costs) must produce an event log entry so the player is informed about money going out.
+- All automatic income (plant harvest sales, investment returns, kiosk/foul cart revenue) must produce an event log entry so the player is informed about money coming in.
+- Each log entry must include: source/recipient, amount, and the in-game day it occurred.
+- The event log must be accessible from the HUD at any time.
+
 ### Plant Upgrades
 
 - All plants can be upgraded to increase yield (herbs) or health bonus (flowers/aloe).
