@@ -252,6 +252,110 @@ Medicinal:
   - Sudanese Refugee: community mentors join rooftop exercises, slight Physical training energy discount
 - Training must produce a diagnostic record and event log entry consistent with the tracing system.
 
+## Debt and Borrowing
+
+- Players can borrow money from multiple sources with different terms, costs, and consequences:
+
+| Source | Amount Range | Interest | Due Period | Trust Required | Consequence of Default |
+|--------|-------------|----------|------------|----------------|----------------------|
+| Neighbor (Mona, Umm Karim) | 20-50 LE | None | 7-14 days | Trust >= 10 | Trust erosion, eventual refusal to help |
+| Landlord advance (Hajj Mahmoud) | 50-100 LE | None (adds to rent debt) | 7 days | Trust >= 5 | Faster eviction pressure, harsher warnings |
+| Loan shark (via Hanan or Youssef) | 100-300 LE | 20-30% per week | 7 days | Criminal contact access | Weekly stress/health penalty, threats, possible bad ending |
+
+- Debts are tracked per source: amount owed, interest rate, due day, collection behavior state.
+- Players may partially repay; minimum payment prevents escalation.
+- Unpaid loan shark debt triggers escalating events: threats (stress), visits (health damage), and eventually a **DebtViolence** bad ending if unresolved after 14 days.
+- Borrowing from loan sharks increases police pressure slightly (criminal association).
+- Debt status visible in event log; overdue debts produce daily warning entries.
+- Background-specific flavor:
+  - Medical School Dropout: can negotiate better terms using Persuasion skill.
+  - Released Political Prisoner: loan sharks are more wary, cap loans at 200 LE.
+  - Sudanese Refugee: access to a low-interest community mutual-aid loan (30-60 LE, no interest, 14 days) through refugee network contacts.
+
+## Information Network
+
+- High-trust NPCs provide tips and warnings through conversations and the phone system:
+  - **Police tips**: upcoming sweeps, checkpoint schedules (from Officer Khalid at trust >= 20, or Umm Karim gossip at trust >= 15).
+  - **Job leads**: early notice of openings, employer moods (from employer NPCs at trust >= 10).
+  - **Market intel**: temporary food price changes, supply shortages (from shopkeeper/merchant NPCs).
+  - **Crime warnings**: gang movements, rival activity, heightened surveillance in a district (from criminal contacts at trust >= 10).
+  - **Personal warnings**: someone asking about the player, foreshadowing events (context-driven).
+- Tips are context-sensitive: triggered by NPC trust level, district, current heat, financial state, and recent events.
+- Tips are **time-limited** (expire within 1-2 days), creating decision urgency.
+- Ignoring repeated tips from a trusted NPC causes minor trust erosion.
+- Tips appear as special conversation variants in the existing pool system or as phone notifications.
+- Players with high trust across multiple NPCs receive overlapping intel, enabling better-informed decisions.
+
+## District-Specific Heat
+
+- Police pressure is tracked **per district** instead of as a single global value:
+  - Imbaba Heat, Dokki Heat, Ard Al-Liwa Heat, Bulaq Al-Dakrour Heat, Shubra Heat.
+- Crimes committed in a district raise that district's heat.
+- Heat decays daily per district (rate varies by district policing intensity):
+  - Dokki: fastest decay (better-policed, cases close faster).
+  - Imbaba: moderate decay.
+  - Ard Al-Liwa, Bulaq, Shubra: slower decay (under-policed but slow to clear cases).
+- **Bleed-over**: heat spreads slowly to adjacent districts (police coordination):
+  - Imbaba ↔ Bulaq: higher bleed rate (geographic proximity).
+  - Dokki: slower bleed (different policing jurisdiction).
+  - Bleed is asymmetric: heat flows from high to low.
+- Effects of district-specific heat:
+  - Crime detection chance increases in high-heat districts.
+  - Random events (raids, checkpoints) more likely in high-heat districts.
+  - Some NPCs become less available or cautious in high-heat districts.
+  - Travel through very high-heat districts (80+) may trigger encounters.
+- A **global pressure** value is still computed (max of district heats) for ending checks and narrative triggers.
+- The existing arrested ending uses global pressure reaching 100.
+- Background effects:
+  - Released Political Prisoner: slower heat decay across all districts.
+  - Sudanese Refugee: Dokki starts with +10 baseline heat (profiling).
+
+## Phone and Asynchronous Contacts
+
+- The player has a basic mobile phone requiring prepaid credit:
+  - **Credit cost**: 5 LE per week.
+  - Out of credit: cannot receive calls, tips, or notifications until refilled.
+  - Credit refilled at kiosks or through Umm Karim.
+- Asynchronous messages arrive at day start or when returning to Home:
+  - **Time-sensitive opportunities**: "Meet me at the square tonight" (criminal contacts).
+  - **Warnings**: "Don't come to Dokki today" (trusted NPCs).
+  - **Family alerts**: mother-related concerns from neighbors.
+  - **Network requests**: favors from faction contacts.
+- Player chooses to respond (spending time, sometimes money) or ignore (may lose opportunity or damage relationship).
+- Missed calls can be returned at extra credit and time cost.
+- **Phone loss** is a random event: stolen on the street, confiscated during a raid. Recovery is expensive and stressful; until recovered, all async contacts are unavailable.
+- Background-specific contacts:
+  - Sudanese Refugee: calls from refugee community with solidarity opportunities.
+  - Released Political Prisoner: old network contacts reach out with errands and warnings.
+  - Medical School Dropout: former classmates occasionally offer medical supply opportunities.
+
+## Community Solidarity Events
+
+- Recurring neighborhood events tied to cultural rhythms and calendar:
+
+| Event | Frequency | Location | Time Cost | Money Cost | Primary Benefit |
+|-------|-----------|----------|-----------|------------|----------------|
+| Friday rooftop gathering | Weekly | Home building | 2 hours | None | Trust with 2-3 neighbors, stress -5 |
+| Ramadan iftar sharing | Seasonal (Ramadan period) | Home area | 3 hours | 10 LE (contribution) | Trust with 3-5 NPCs, stress -10, community food access |
+| Neighborhood cleanup | Monthly | Home district | 3 hours | None | Faction reputation boost, trust with participating NPCs |
+| Rooftop tea circle | Informal (NPC invitation) | Home rooftop | 1.5 hours | None | Information network tips, trust with 1-2 NPCs |
+| Mulid (saint's festival) | Seasonal | Imbaba streets | 4 hours | 5-15 LE | Large trust/stress benefits, money-making opportunity, risk of pickpockets |
+
+- Attending provides:
+  - Simultaneous trust gains with multiple NPCs.
+  - Stress reduction.
+  - Natural information network access (tips surface during conversations).
+  - Group opportunities: shared childcare (mother health bonus for the day), bulk food buying discounts.
+  - Faction reputation changes.
+- Skipping events while visibly struggling (low money, poor health, high stress) triggers:
+  - Neighbor concern (unsolicited help or pity, small trust boost from the concerned NPC).
+  - Isolation signal: community-oriented NPCs lose trust slowly if the player never attends.
+- Events are mostly in Imbaba (home district); Dokki and other districts may have smaller venue-specific gatherings.
+- Background-specific flavor:
+  - Sudanese Refugee: separate refugee community gatherings with unique solidarity bonuses and information.
+  - Released Political Prisoner: trust gains at events start slower but deepen over repeated attendance.
+  - Medical School Dropout: can volunteer basic first aid at events, gaining bonus trust with injured/sick attendees.
+
 ## Tracing and Diagnostics
 
 - Every gameplay mutation (work outcomes, crime attempts, day transitions, ending triggers, rent processing, investment resolution, relationship changes, skill gains, random events) must produce a structured diagnostic record that captures what happened, what changed, and why.
