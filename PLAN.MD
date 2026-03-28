@@ -37,6 +37,7 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - `GameSession` kept as the runtime boundary while orchestration-heavy narrative, work/crime aftermath, and investment logic is delegated to focused core planners/evaluators/calculators
 - fail-fast bootstrap for repository-owned JSON content instead of silent fallback to default registries
 - multiple ending paths based on long-term behavior, pressure, and survival trajectory
+- world-enrichment mechanics planned: day-of-week rhythms, seasonal calendar, weather, sleep quality, rumors, territory dynamics, NPC-to-NPC economy (see dedicated sections below)
 
 ## Architecture Guardrails
 
@@ -82,7 +83,22 @@ Keep static world data in `content/data/` when it does not need hardcoded rules.
 
 ## Current Priorities
 
-### 1. UI Clarity
+### 1. Active Skill Training
+
+Status: planned. See dedicated section below.
+
+### 2. World-Enrichment Mechanics
+
+Implement in dependency order after skill training:
+1. Day-of-Week Rhythms (quick win, no dependencies)
+2. Sleep Quality (quick win, standalone)
+3. Seasonal Calendar (depends on day-of-week)
+4. Weather (depends on seasonal calendar)
+5. Rumors (depends on relationships)
+6. Territory Dynamics (depends on factions)
+7. NPC-to-NPC Economy (depends on relationships)
+
+### 3. UI Clarity
 
 Make the deeper systems legible to the player.
 
@@ -91,7 +107,7 @@ Make the deeper systems legible to the player.
 - surface debt, suspicion, relationship-memory, and district-pressure signals in menus or logs
 - make investment risk, suspension, and extortion outcomes easier to read from the UI
 
-### 2. Balance Pass
+### 4. Balance Pass
 
 Tune the expanded simulation without flattening background identity.
 
@@ -101,7 +117,7 @@ Tune the expanded simulation without flattening background identity.
 - review district event frequency and recurrence
 - add regression tests around balance-sensitive thresholds
 
-### 3. More Authored Reactivity
+### 5. More Authored Reactivity
 
 Expand content that reflects the systems already in place.
 
@@ -110,7 +126,7 @@ Expand content that reflects the systems already in place.
 - add more district-event and background-specific aftermath content
 - expand conversation pools beyond 100 days if needed
 
-### 4. Content Breadth
+### 6. Content Breadth
 
 Broaden the world through additional authored and systemic slices instead of more architecture churn.
 
@@ -119,7 +135,7 @@ Broaden the world through additional authored and systemic slices instead of mor
 - add more endings or epilogue variants only where they reflect existing systems cleanly
 - prefer content and UX improvements over another repo-wide refactor unless a new hotspot clearly appears
 
-### 5. Tracing and Diagnostics
+### 7. Tracing and Diagnostics
 
 Status: implemented.
 
@@ -413,13 +429,804 @@ Modified files:
 - `src/Slums.Application/Activities/GameActionMenuQuery.cs` -- add Train action conditional
 - `src/Slums.Game/Screens/GameScreen.cs` -- add dispatch and `ShowTrainingMenu()`
 
+## Day-of-Week Rhythms
+
+Status: planned.
+
+Requirements: see REQS.md "Day-of-Week Rhythms" section.
+
+### Design
+
+Add a `DayOfWeek` enum derived from `GameClock.Day`, a `DayScheduleModifiers` record, and a `DayScheduleRegistry` with per-day modifiers. Work queries, food purchase, crime detection, and event eligibility consult the schedule. The HUD shows the current day name.
+
+### Phase 1 -- Core types
+
+Create `src/Slums.Core/Clock/` additions:
+
+1. **`GameDayOfWeek.cs`** -- enum: `Saturday=0, Sunday=1, Monday=2, Tuesday=3, Wednesday=4, Thursday=5, Friday=6`.
+
+2. **`DayScheduleModifiers.cs`** -- sealed record:
+   ```
+   DayScheduleModifiers(
+       GameDayOfWeek Day,
+       string DayName,
+       bool MarketsClosed,
+       int FoodCostModifier,
+       int JobPayModifier,
+       int CrimeDetectionModifier,
+       bool PrayerGatheringAvailable,
+       bool ClinicDiscount,
+       int ClinicDiscountAmount,
+       int InvestmentRevenueModifier,
+       string[] BlockedJobTypes)
+   ```
+
+3. **`DayScheduleRegistry.cs`** -- static class returning `AllModifiers` as a dictionary keyed by `GameDayOfWeek`. Encode the REQS.md table:
+   - Friday: markets partially closed, no bakery/call-center/cafe work, prayer gathering, crime detection -10%, foul cart revenue x2
+   - Saturday: food costs -2 LE, laundry pay +2 LE
+   - Monday: clinic discount -5 LE
+   - Wednesday: investment returns distributed
+   - Other days: zero modifiers
+
+4. Add computed property `GameDayOfWeek GetDayOfWeek()` on `GameClock`:
+   ```
+   return (GameDayOfWeek)((Day - 1) % 7);
+   ```
+
+### Phase 2 -- Core integration on GameSession
+
+1. Add `public DayScheduleModifiers GetCurrentSchedule()` on `GameSession` that looks up `Clock.GetDayOfWeek()` in `DayScheduleRegistry`.
+
+2. Modify `WorkJob()` / job availability queries to check `schedule.BlockedJobTypes` and apply `schedule.JobPayModifier`.
+
+3. Modify food purchase logic to apply `schedule.FoodCostModifier`.
+
+4. Modify crime detection calculation to apply `schedule.CrimeDetectionModifier`.
+
+5. Modify investment weekly resolution to apply `schedule.InvestmentRevenueModifier`.
+
+6. Add Friday prayer gathering as a community event variant gated by `schedule.PrayerGatheringAvailable`.
+
+7. Apply background-specific flavor modifiers on top of the schedule.
+
+### Phase 3 -- Application and Game layer
+
+1. Add `DayScheduleModifiers` to relevant application query contexts (work menu, shop, crime preview).
+
+2. Update HUD to display day-of-week name alongside date and time.
+
+3. Show day-specific notes in UI (e.g., "Friday -- markets closed" in the location panel).
+
+### Phase 4 -- Tests
+
+1. **`tests/Slums.Core.Tests/Clock/DayScheduleTests.cs`**:
+   - `GetDayOfWeek()` returns correct values for days 1-14
+   - Friday blocks bakery, call-center, and cafe work
+   - Saturday reduces food costs by 2 LE
+   - Monday applies clinic discount
+   - Prayer gathering only available on Friday
+   - Background modifiers apply on top of schedule modifiers
+
+2. **`tests/Slums.Application.Tests/`** -- verify day-of-week is surfaced in menu contexts.
+
+### File Summary
+
+New files:
+- `src/Slums.Core/Clock/GameDayOfWeek.cs`
+- `src/Slums.Core/Clock/DayScheduleModifiers.cs`
+- `src/Slums.Core/Clock/DayScheduleRegistry.cs`
+- `tests/Slums.Core.Tests/Clock/DayScheduleTests.cs`
+
+Modified files:
+- `src/Slums.Core/Clock/GameClock.cs` -- add `GetDayOfWeek()`
+- `src/Slums.Core/State/GameSession.cs` -- add `GetCurrentSchedule()`, integrate into work/food/crime/investment
+- `src/Slums.Game/Screens/` -- HUD day-of-week display
+
+## Seasonal Calendar
+
+Status: planned.
+
+Requirements: see REQS.md "Seasonal Calendar" section.
+
+### Design
+
+Map Day 1 to October 1. Derive current date, season, and active holidays. Season modifiers affect daily stat decay, food prices, energy, and event pools. Holidays create temporary world-state shifts with unique events and economic pressure.
+
+### Phase 1 -- Core types
+
+Create `src/Slums.Core/Calendar/`:
+
+1. **`Season.cs`** -- enum: `Autumn, Winter, Spring, Summer`.
+
+2. **`GameCalendar.cs`** -- sealed record:
+   ```
+   GameCalendar(
+       int GameDay,
+       DateOnly StartDate, // October 1
+       DateOnly CurrentDate,
+       Season CurrentSeason,
+       string? ActiveHoliday,
+       bool IsRamadan)
+   ```
+   Static factory `FromGameDay(int day)` computes `CurrentDate` as `StartDate.AddDays(day - 1)`, derives `Season` from month, checks holidays.
+
+3. **`SeasonModifiers.cs`** -- sealed record:
+   ```
+   SeasonModifiers(
+       Season Season,
+       int FoodCostModifier,
+       int EnergyDrainModifier,
+       int StressModifier,
+       double IllnessEventFrequencyMultiplier,
+       double InvestmentReturnMultiplier,
+       bool MealQualityDegradesFaster)
+   ```
+
+4. **`SeasonRegistry.cs`** -- static class with per-season modifiers from REQS.md.
+
+5. **`HolidayRegistry.cs`** -- static class with holiday definitions for the ~180-day playable span. Each holiday: name, start date, duration, effects record.
+
+### Phase 2 -- Ramadan mechanic
+
+Create `src/Slums.Core/Calendar/RamadanState.cs`:
+
+1. **`RamadanState.cs`** -- sealed record:
+   ```
+   RamadanState(
+       bool IsActive,
+       bool PlayerIsFasting,
+       int DaysFasting,
+       int DaysRemaining)
+   ```
+
+2. Logic for fasting consequences: daily energy/stress/trust modifications applied in `EndDay()` during Ramadan.
+
+3. Iftar gathering as a community event variant available only during Ramadan.
+
+4. Discovery roll for non-fasting player: 30% per religious NPC per day in same district.
+
+### Phase 3 -- Core integration on GameSession
+
+1. Add `GameCalendar Calendar` property to `GameSession`, initialized with `GameCalendar.FromGameDay(1)`.
+
+2. Add `SeasonModifiers GetCurrentSeasonModifiers()` using `Calendar.CurrentSeason`.
+
+3. Modify `EndDay()`:
+   - Apply season energy/stress modifiers
+   - Apply season food cost modifiers (stored for next day's purchases)
+   - Check for active holidays and apply effects
+   - During Ramadan: apply fasting/consequences
+   - Update `Calendar` for new day
+
+4. Eid gift-spending pressure: during Eid al-Fitr, if money < 20, stress +5/day and trust -3/day with neighbors.
+
+5. Background-specific seasonal modifiers applied on top.
+
+### Phase 4 -- Application and Game layer
+
+1. Add season and holiday info to status queries and HUD display.
+
+2. Add Ramadan fasting choice dialog when Ramadan starts (Ink scene).
+
+3. Add iftar gathering to community events menu during Ramadan.
+
+4. Holiday events surfaced through existing event system.
+
+### Phase 5 -- Tests
+
+1. **`tests/Slums.Core.Tests/Calendar/`**:
+   - `GameCalendar.FromGameDay(1)` returns October 1, Autumn
+   - `GameCalendar.FromGameDay(92)` returns January 1, Winter
+   - `GameCalendar.FromGameDay(183)` returns April 1, Spring
+   - Season modifiers match REQS.md table
+   - Holiday dates resolve correctly
+   - Ramadan fasting applies correct energy/stress/trust deltas
+   - Non-fasting discovery roll works
+   - Eid gift pressure triggers when broke
+   - Background modifiers apply on top
+
+2. **`tests/Slums.Infrastructure.Tests/`** -- save/load round-trip includes `GameCalendar` and `RamadanState`.
+
+### File Summary
+
+New files:
+- `src/Slums.Core/Calendar/Season.cs`
+- `src/Slums.Core/Calendar/GameCalendar.cs`
+- `src/Slums.Core/Calendar/SeasonModifiers.cs`
+- `src/Slums.Core/Calendar/SeasonRegistry.cs`
+- `src/Slums.Core/Calendar/HolidayRegistry.cs`
+- `src/Slums.Core/Calendar/RamadanState.cs`
+- `tests/Slums.Core.Tests/Calendar/CalendarTests.cs`
+- `tests/Slums.Core.Tests/Calendar/RamadanTests.cs`
+
+Modified files:
+- `src/Slums.Core/State/GameSession.cs` -- add `Calendar`, integrate season/holiday/Ramadan into `EndDay()`
+- `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- add calendar and Ramadan state
+- `src/Slums.Game/Screens/` -- HUD season/holiday display, Ramadan choice dialog
+
+## Weather and Atmospheric Conditions
+
+Status: planned.
+
+Requirements: see REQS.md "Weather and Atmospheric Conditions" section.
+
+### Design
+
+Each day rolls a weather state based on season. Weather affects energy, health, costs, crime, travel, and events. Weather is stored on `GameSession` and displayed on the HUD.
+
+### Phase 1 -- Core types
+
+Create `src/Slums.Core/Weather/`:
+
+1. **`WeatherType.cs`** -- enum: `Clear, Hot, Heatwave, Khamsin, CoolOvercast, Rain, Windy`.
+
+2. **`WeatherState.cs`** -- sealed record:
+   ```
+   WeatherState(
+       WeatherType Type,
+       int EnergyDrainModifier,
+       int StressModifier,
+       int FoodCostModifier,
+       int CrimeDetectionModifier,
+       int TravelCostModifier,
+       bool BlocksOutdoorJobs,
+       bool BlocksCrime,
+       bool BlocksTravelToArdAlLiwa,
+       bool BlocksTravelToDokki)
+   ```
+
+3. **`WeatherModifiers.cs`** -- static registry mapping `WeatherType` to `WeatherState` with the REQS.md values.
+
+4. **`WeatherProbabilityTable.cs`** -- static class with per-season probability distributions. Returns `Dictionary<WeatherType, int>` (weights summing to 100) per season.
+
+5. **`WeatherRoller.cs`** -- takes season + seeded random, returns `WeatherType`.
+
+### Phase 2 -- Core integration on GameSession
+
+1. Add `WeatherState CurrentWeather` property to `GameSession`.
+
+2. In `EndDay()`, after advancing clock: roll new weather using `WeatherRoller.Roll(Calendar.CurrentSeason, _random)`.
+
+3. Apply weather modifiers during the day:
+   - `EnergyDrainModifier` applied during daily decay
+   - `FoodCostModifier` applied when buying food
+   - `CrimeDetectionModifier` applied during crime resolution
+   - `TravelCostModifier` applied during travel
+   - `BlocksOutdoorJobs` blocks outdoor job variants
+   - `BlocksCrime` blocks all crime actions
+   - `BlocksTravelToArdAlLiwa` / `BlocksTravelToDokki` block travel to those districts
+
+4. Khamsin triggers a unique Ink scene (`weather_khamsin`).
+
+5. Rain triggers a home leak event if player lacks curtain upgrade (repair cost 10-20 LE).
+
+6. Background-specific weather modifiers applied on top.
+
+### Phase 3 -- Application and Game layer
+
+1. Add weather to status queries and HUD display (icon + name in the header).
+
+2. Block relevant actions in menu queries based on weather state.
+
+3. Travel screen shows weather warnings for destination districts.
+
+4. Weather-gated random events added to `RandomEventRegistry`.
+
+### Phase 4 -- Tests
+
+1. **`tests/Slums.Core.Tests/Weather/WeatherTests.cs`**:
+   - Weather roll produces valid types per season
+   - Season probabilities match REQS.md tables
+   - Khamsin blocks outdoor jobs and crime
+   - Rain blocks travel to Ard Al-Liwa and Dokki
+   - Heatwave applies energy drain +10 and food cost +5
+   - Weather modifiers stack with season and day-of-week
+   - Home leak event triggers on rain without curtain
+   - Background modifiers apply (refugee khamsin stress, prisoner rain memory, dropout heatwave immunity)
+
+2. **`tests/Slums.Infrastructure.Tests/`** -- weather persists through save/load.
+
+### File Summary
+
+New files:
+- `src/Slums.Core/Weather/WeatherType.cs`
+- `src/Slums.Core/Weather/WeatherState.cs`
+- `src/Slums.Core/Weather/WeatherModifiers.cs`
+- `src/Slums.Core/Weather/WeatherProbabilityTable.cs`
+- `src/Slums.Core/Weather/WeatherRoller.cs`
+- `tests/Slums.Core.Tests/Weather/WeatherTests.cs`
+
+Modified files:
+- `src/Slums.Core/State/GameSession.cs` -- add `CurrentWeather`, weather roll in `EndDay()`, apply weather modifiers
+- `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist weather state
+- `src/Slums.Game/Screens/` -- HUD weather display, travel warnings
+
+## Sleep Quality
+
+Status: planned.
+
+Requirements: see REQS.md "Sleep Quality" section.
+
+### Design
+
+Replace flat +30 energy recovery from `RestAtHome()` with a calculated value based on conditions. Add home comfort upgrades. Add implicit overnight recovery to `EndDay()`.
+
+### Phase 1 -- Core types
+
+Create `src/Slums.Core/Home/`:
+
+1. **`HomeUpgrade.cs`** -- enum: `CleanBedding, Fan, WindowScreen, Curtain`.
+
+2. **`HomeUpgradeState.cs`** -- sealed record tracking a set of purchased upgrades with query methods:
+   ```
+   HomeUpgradeState(
+       IReadOnlySet<HomeUpgrade> PurchasedUpgrades)
+   ```
+   Methods: `HasUpgrade(HomeUpgrade)`, `Purchase(HomeUpgrade)`, `GetEnergyRecoveryBonus(Season)`, `GetStressBonus()`, `GetPrivacyBonus()`.
+
+3. **`HomeUpgradeDefinitions.cs`** -- static registry mapping `HomeUpgrade` to cost and effects.
+
+4. **`SleepQualityCalculator.cs`** -- static class:
+   ```
+   int CalculateRecovery(SurvivalStats stats, NutritionState nutrition,
+       HouseholdCareState household, RentState rent, WeatherState weather,
+       HomeUpgradeState upgrades, Season season)
+   ```
+   Base 30, applies modifiers from REQS.md table, minimum 10.
+
+### Phase 2 -- Core integration on GameSession
+
+1. Add `HomeUpgradeState HomeUpgrades` property to `GameSession`.
+
+2. Modify `RestAtHome()`: replace flat +30 with `SleepQualityCalculator.CalculateRecovery(...)`. Display recovery breakdown as event log message.
+
+3. Add `TryPurchaseHomeUpgrade(HomeUpgrade)` method on `GameSession`:
+   - Guard: at home, enough money, not already purchased
+   - On success: deduct money, add to `HomeUpgrades`, event log
+
+4. Add implicit overnight recovery to `EndDay()`:
+   - Base +15 energy
+   - Modified by same sleep quality factors (stress, hunger, mother health, rent, weather, upgrades)
+   - Applied after daily decay and nutrition effects
+   - Minimum 5 energy overnight
+
+5. `WindowScreen` blocks insect-related random events.
+6. `Curtain` reduces negative rumor spread probability by 20%.
+
+### Phase 3 -- Application and Game layer
+
+1. Add `HomeUpgradeMenuContext` and `HomeUpgradeMenuQuery` in `Slums.Application/Activities/`.
+
+2. Add `HomeUpgradeCommand` for purchase delegation.
+
+3. Add `HomeImprovement` to `GameActionId`, wired into action menu when at home.
+
+4. Create `HomeUpgradeScreen` in `Slums.Game/Screens/` following the shop/investment screen pattern.
+
+5. Show recovery breakdown in rest result message.
+
+### Phase 4 -- Tests
+
+1. **`tests/Slums.Core.Tests/Home/SleepQualityTests.cs`**:
+   - Base recovery is 30 with no modifiers
+   - Stress > 60 reduces by 5, stress > 80 reduces by 10
+   - Did not eat today reduces by 5
+   - DaysUndereating > 2 reduces by 5
+   - Mother health in crisis reduces by 5
+   - Rent unpaid > 3 days reduces by 3
+   - Heatwave reduces by 3
+   - Rain without curtain reduces by 3
+   - Cool/overcast weather adds 3
+   - Clean bedding adds 2
+   - Fan adds 3 in summer, 1 otherwise
+   - Window screen adds 1
+   - Curtain adds 1
+   - Multiple upgrades stack additively
+   - Minimum recovery is 10
+   - Overnight recovery base is 15 with minimum 5
+
+2. **`tests/Slums.Core.Tests/Home/HomeUpgradeTests.cs`**:
+   - Purchase succeeds with enough money at home
+   - Purchase fails when not at home
+   - Purchase fails with insufficient money
+   - Purchase fails when already owned
+   - Upgrades persist through save/load
+
+3. **`tests/Slums.Application.Tests/`** -- upgrade menu query and command tests.
+
+### File Summary
+
+New files:
+- `src/Slums.Core/Home/HomeUpgrade.cs`
+- `src/Slums.Core/Home/HomeUpgradeState.cs`
+- `src/Slums.Core/Home/HomeUpgradeDefinitions.cs`
+- `src/Slums.Core/Home/SleepQualityCalculator.cs`
+- `src/Slums.Application/Activities/HomeUpgradeMenuContext.cs`
+- `src/Slums.Application/Activities/HomeUpgradeMenuQuery.cs`
+- `src/Slums.Application/Activities/HomeUpgradeCommand.cs`
+- `src/Slums.Game/Screens/HomeUpgradeScreen.cs`
+- `tests/Slums.Core.Tests/Home/SleepQualityTests.cs`
+- `tests/Slums.Core.Tests/Home/HomeUpgradeTests.cs`
+
+Modified files:
+- `src/Slums.Core/State/GameSession.cs` -- add `HomeUpgrades`, modify `RestAtHome()`, add overnight recovery to `EndDay()`, add `TryPurchaseHomeUpgrade()`
+- `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist home upgrades
+- `src/Slums.Application/Activities/GameActionId.cs` -- add `HomeImprovement`
+- `src/Slums.Application/Activities/GameActionMenuContext.cs` -- add `HasHomeUpgradesAvailable`
+- `src/Slums.Application/Activities/GameActionMenuQuery.cs` -- add HomeImprovement conditional
+- `src/Slums.Game/Screens/GameScreen.cs` -- add dispatch for home upgrade screen
+
+## Rumors and Word of Mouth
+
+Status: planned.
+
+Requirements: see REQS.md "Rumors and Word of Mouth" section.
+
+### Design
+
+Player actions generate rumors that spread through the community over 1-3 days, affecting NPC trust. Rumors are tracked on `GameSession`, propagated in `EndDay()`, and surfaced through NPC conversations and the event log.
+
+### Phase 1 -- Core types
+
+Create `src/Slums.Core/Rumors/`:
+
+1. **`RumorId.cs`** -- enum or string-based identifier.
+
+2. **`Rumor.cs`** -- sealed record:
+   ```
+   Rumor(
+       string Id,
+       string SourceAction,
+       DistrictId District,
+       int DayCreated,
+       int Intensity,
+       bool IsPositive,
+       IReadOnlySet<NpcId> AffectedNpcs,
+       int TrustModifier,
+       IReadOnlySet<NpcId> NpcsWhoHeard)
+   ```
+
+3. **`RumorState.cs`** -- tracks active rumors:
+   ```
+   RumorState(IReadOnlyList<Rumor> ActiveRumors)
+   ```
+   Methods: `AddRumor(Rumor)`, `DecayAll()`, `RemoveExpired()`, `GetRumorsAffectingNpc(NpcId)`.
+
+4. **`RumorGenerator.cs`** -- static class mapping gameplay events to rumor creation:
+   - `OnCrimeSuccess(DistrictId, CrimeType)` -> rumor intensity 4-6
+   - `OnCrimeDetected(DistrictId)` -> rumor intensity 7-9
+   - `OnRentUnpaid(int daysUnpaid)` -> rumor intensity 3
+   - `OnExpensivePurchase(int cost, DistrictId)` -> rumor intensity 5-7
+   - `OnSeenWithCriminal(DistrictId)` -> rumor intensity 6
+   - `OnClinicVisit(int totalVisits)` -> positive rumor intensity 3
+   - `OnSkipCommunityEvents(int consecutiveSkips)` -> rumor intensity 4
+   - `OnHighDistrictHeat(DistrictId, int heat)` -> rumor intensity 5
+   - `OnCrimeEarningsThreshold(int totalEarnings)` -> rumor intensity 6
+
+5. **`RumorPropagator.cs`** -- static class handling daily spread:
+   - Day 1: affect co-located NPCs
+   - Day 2: spread to socially connected NPCs (trust > 20 with day-1 NPC)
+   - Day 3+: intensity drops to 1
+   - Positive rumors decay 1 day faster
+   - NPC disposition modifiers (trust > 30: -50% negative; trust < -10: +50% negative)
+
+### Phase 2 -- Core integration on GameSession
+
+1. Add `RumorState Rumors` property to `GameSession`.
+
+2. In crime success/failure methods: call `RumorGenerator.OnCrimeSuccess/Detected()` and add to `Rumors`.
+
+3. In `EndDay()`:
+   - Check rent unpaid > 2 days -> generate rumor
+   - Check crime earnings threshold -> generate rumor
+   - Run `RumorPropagator.Propagate(Rumors, Relationships, Clock.Day)` to spread and decay
+   - Apply trust modifications from newly heard rumors via `RelationshipService.ModifyTrust()`
+   - Remove expired rumors
+   - Generate event log entries for rumor effects
+
+4. In expensive purchase logic: generate rumor if cost > 50 LE.
+
+5. In community event skip tracking: generate rumor after 3+ consecutive skips.
+
+6. Add `TryCounterRumor(Rumor rumor)` method:
+   - Guard: in correct district, has 2 hours, not already countered
+   - Uses Persuasion skill to reduce intensity
+   - Background-specific bonus for Medical School Dropout
+
+### Phase 3 -- Application and Game layer
+
+1. Add rumor status to NPC conversation context so high-trust NPCs can warn about active rumors.
+
+2. Add "Clear the Air" action to game action menu when active rumors exist and player is in the correct district.
+
+3. Show rumor effects in event log with source and trust change.
+
+4. Add conversation pool variants for NPC rumor warnings (e.g., "People are talking about you...").
+
+### Phase 4 -- Tests
+
+1. **`tests/Slums.Core.Tests/Rumors/RumorTests.cs`**:
+   - Crime success generates rumor with correct intensity and district
+   - Crime detection generates higher-intensity rumor
+   - Rent unpaid generates rumor in home district
+   - Rumor spreads to co-located NPCs on day 1
+   - Rumor spreads to socially connected NPCs on day 2
+   - Rumor intensity decays daily
+   - Positive rumors decay faster
+   - High-trust NPCs discount negative rumors by 50%
+   - Low-trust NPCs amplify negative rumors by 50%
+   - Rumors expire after intensity reaches 0
+   - Clear the Air reduces intensity based on Persuasion skill
+   - Background modifiers apply (refugee faster spread, prisoner higher intensity)
+
+2. **`tests/Slums.Infrastructure.Tests/`** -- rumor state persists through save/load.
+
+### File Summary
+
+New files:
+- `src/Slums.Core/Rumors/RumorId.cs`
+- `src/Slums.Core/Rumors/Rumor.cs`
+- `src/Slums.Core/Rumors/RumorState.cs`
+- `src/Slums.Core/Rumors/RumorGenerator.cs`
+- `src/Slums.Core/Rumors/RumorPropagator.cs`
+- `src/Slums.Application/Activities/RumorMenuContext.cs`
+- `src/Slums.Application/Activities/RumorCommand.cs`
+- `tests/Slums.Core.Tests/Rumors/RumorTests.cs`
+
+Modified files:
+- `src/Slums.Core/State/GameSession.cs` -- add `Rumors`, integrate rumor generation into crime/work/purchase paths, rumor propagation in `EndDay()`
+- `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist rumor state
+- `src/Slums.Application/Activities/GameActionId.cs` -- add `ClearTheAir`
+- `src/Slums.Game/Screens/GameScreen.cs` -- add rumor counter action dispatch
+
+## Territory Dynamics
+
+Status: planned.
+
+Requirements: see REQS.md "Territory Dynamics" section.
+
+### Design
+
+Factions contest districts over time. Territory control affects NPC availability, crime access, prices, safety, and random events. The system builds on the existing `FactionId` and `RelationshipState` faction reputation model.
+
+### Phase 1 -- Core types
+
+Create `src/Slums.Core/Territory/`:
+
+1. **`TerritoryControl.cs`** -- sealed record:
+   ```
+   TerritoryControl(
+       DistrictId District,
+       IReadOnlyDictionary<FactionId, int> FactionInfluence,
+       int Tension,
+       FactionId? ControllingFaction,
+       int LastConflictDay)
+   ```
+   Computed: `ControllingFaction` is the faction with highest influence >= 50, or null.
+
+2. **`TerritoryState.cs`** -- tracks territory for all districts:
+   ```
+   TerritoryState(IReadOnlyDictionary<DistrictId, TerritoryControl> Districts)
+   ```
+   Methods: `GetControl(DistrictId)`, `SetInfluence(DistrictId, FactionId, int)`, `ModifyInfluence(DistrictId, FactionId, int)`, `ModifyTension(DistrictId, int)`, `GetTensionLevel(DistrictId)`.
+
+3. **`TensionLevel.cs`** -- enum: `Normal(0-30), Elevated(31-50), High(51-70), Dangerous(71-100)`.
+
+4. **`TerritoryEventRegistry.cs`** -- defines territory-triggered events (street argument, protection demand, alliance shift, police crackdown, territory flip, refugee solidarity) with their conditions and effects.
+
+5. **`TerritoryDynamicsCalculator.cs`** -- static class computing daily territory changes:
+   - Natural tension decay: -2/day
+   - Natural influence drift: +/-1 toward equilibrium
+   - Crime impact: faction approval -> +3 influence; without approval -> +5 tension, -2 influence
+   - Honest work: -1 tension per day worked
+   - Police crackdown: tension -30, all faction influence -10
+
+### Phase 2 -- Starting state and initialization
+
+Initialize `TerritoryState` with the REQS.md starting values:
+- Imbaba: ImbabaCrew 60, DokkiThugs 10, ExPrisonerNetwork 15, Tension 20
+- Dokki: ImbabaCrew 5, DokkiThugs 50, ExPrisonerNetwork 10, Tension 30
+- Ard Al-Liwa: ImbabaCrew 20, DokkiThugs 20, ExPrisonerNetwork 40, Tension 45
+- Bulaq: ImbabaCrew 15, DokkiThugs 15, ExPrisonerNetwork 30, Tension 15
+- Shubra: ImbabaCrew 10, DokkiThugs 10, ExPrisonerNetwork 20, Tension 10
+
+Background modifiers:
+- Released Political Prisoner: ExPrisonerNetwork +10 in all districts
+
+### Phase 3 -- Core integration on GameSession
+
+1. Add `TerritoryState Territory` property to `GameSession`.
+
+2. In `CommitCrime()`: update territory influence/tension based on faction approval and crime location.
+
+3. In `WorkJob()`: reduce tension by 1 in the work district.
+
+4. In `EndDay()`:
+   - Run `TerritoryDynamicsCalculator` for daily decay/drift
+   - Check territory event triggers (tension thresholds, influence thresholds)
+   - Apply territory event effects (market blocked, protection demand, etc.)
+   - High tension districts: increase district heat +3/day
+   - Territory flip: trigger narrative scene, update NPC availability
+
+5. Modify crime availability queries to check territory control (non-controlling faction crime routes blocked in high-tension districts).
+
+6. Modify NPC availability based on territory tension level.
+
+7. Modify food prices based on territory tension (+3 LE at 51+, +5 LE at 71+).
+
+8. Travel through dangerous districts (71+) may trigger crossfire event.
+
+### Phase 4 -- Application and Game layer
+
+1. Add territory status to map/status screen queries.
+
+2. Show territory control and tension in location display.
+
+3. Surface territory events through event log with clear explanation.
+
+4. Block crime actions in menu when territory tension blocks them.
+
+5. Add territory-related conversation variants for faction NPCs.
+
+### Phase 5 -- Tests
+
+1. **`tests/Slums.Core.Tests/Territory/TerritoryTests.cs`**:
+   - Starting territory state matches REQS.md table
+   - Crime with approval increases faction influence by 3
+   - Crime without approval increases tension by 5, decreases influence by 2
+   - Honest work decreases tension by 1
+   - Tension decays by 2 per day naturally
+   - Controlling faction computed correctly (highest influence >= 50)
+   - Territory flip triggers when controlling faction changes
+   - Elevated tension (31-50) triggers conflict events
+   - High tension (51-70) increases food prices and blocks non-controlling crime
+   - Dangerous tension (71-100) blocks all crime and increases heat
+   - Police crackdown reduces tension and influence
+   - Protection demand triggers when faction influence > 50 in home district
+   - Background modifier: Released Political Prisoner starts with ExPrisonerNetwork +10
+
+2. **`tests/Slums.Infrastructure.Tests/`** -- territory state persists through save/load.
+
+### File Summary
+
+New files:
+- `src/Slums.Core/Territory/TerritoryControl.cs`
+- `src/Slums.Core/Territory/TerritoryState.cs`
+- `src/Slums.Core/Territory/TensionLevel.cs`
+- `src/Slums.Core/Territory/TerritoryEventRegistry.cs`
+- `src/Slums.Core/Territory/TerritoryDynamicsCalculator.cs`
+- `tests/Slums.Core.Tests/Territory/TerritoryTests.cs`
+
+Modified files:
+- `src/Slums.Core/State/GameSession.cs` -- add `Territory`, integrate into crime/work/EndDay
+- `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist territory state
+- `src/Slums.Application/Activities/` -- territory-aware crime and NPC queries
+- `src/Slums.Game/Screens/` -- territory display on map/status
+
+## NPC-to-NPC Economy
+
+Status: planned.
+
+Requirements: see REQS.md "NPC-to-NPC Economy" section.
+
+### Design
+
+NPCs have individual financial states that shift weekly. They borrow from each other, creating observable economic ripple effects. The player participates through loan requests and observes gossip about NPC finances.
+
+### Phase 1 -- Core types
+
+Create `src/Slums.Core/Economy/`:
+
+1. **`NpcWealthLevel.cs`** -- enum: `Struggling, Poor, Stable, Comfortable`.
+
+2. **`NpcEconomy.cs`** -- sealed record:
+   ```
+   NpcEconomy(
+       NpcId Npc,
+       NpcWealthLevel WealthLevel,
+       int Generosity,
+       IReadOnlyDictionary<NpcId, int> MoneyOwedTo,
+       IReadOnlyDictionary<NpcId, int> MoneyOwedBy,
+       int LastHardshipDay,
+       int LastWindfallDay)
+   ```
+
+3. **`NpcEconomyState.cs`** -- tracks economy for all NPCs:
+   ```
+   NpcEconomyState(IReadOnlyDictionary<NpcId, NpcEconomy> Economies)
+   ```
+   Methods: `GetEconomy(NpcId)`, `SetWealthLevel(NpcId, NpcWealthLevel)`, `AddDebt(NpcId from, NpcId to, int amount)`, `ResolveDebt(NpcId from, NpcId to)`, `GetStrugglingNpcs()`, `GetComfortableNpcs()`.
+
+4. **`NpcEconomyDefinitions.cs`** -- static registry with starting wealth and generosity per NPC from REQS.md table.
+
+5. **`NpcEconomyResolver.cs`** -- handles weekly economy resolution:
+   - Roll wealth event per NPC (Hardship 20-35%, Windfall 10-20%, Stable 50-65%)
+   - On Hardship: decrease wealth level, attempt NPC-to-NPC borrowing
+   - On Windfall: increase wealth level, set generous flag for 3-5 days
+   - NPC lending: find wealthiest trusted NPC (trust > 10), lend if generosity >= 4
+   - Unpaid NPC-to-NPC debt after 14 days: trust -5 between them
+
+### Phase 2 -- Core integration on GameSession
+
+1. Add `NpcEconomyState NpcEconomies` property to `GameSession`, initialized from `NpcEconomyDefinitions`.
+
+2. In `EndDay()`, on Mondays (during existing weekly resolution):
+   - Run `NpcEconomyResolver.ResolveWeek(NpcEconomies, Relationships, Clock.Day)`
+   - Process NPC-to-NPC lending web
+   - If NPC cannot borrow from any NPC, queue a loan request to the player
+   - Apply ripple effects:
+     - Hajj Mahmoud hardship: rent warning threshold drops from day 3 to day 2
+     - Mona hardship: player stress +3
+     - Hanan calling in debts: increased pressure on player criminal debt
+     - Umm Karim comfortable: Imbaba food prices -1 LE for 3-5 days
+
+3. Add `TryLendToNpc(NpcId, int amount)` method on `GameSession`:
+   - Guard: enough money, NPC has asked for loan
+   - On success: deduct money, set `WasHelped`, increase trust +3 to +5
+   - Track player-to-NPC loan for repayment
+
+4. Add `RefuseNpcLoan(NpcId)` method:
+   - Trust -2 to -5 based on NPC desperation
+
+5. NPC economy state affects conversation variants (struggling NPCs reflect stress, comfortable NPCs share deals).
+
+### Phase 3 -- Application and Game layer
+
+1. Add NPC loan request to phone/message system or conversation variants.
+
+2. Add "Lend Money" action when an NPC has requested a loan.
+
+3. Add NPC financial gossip to conversation pools for high-trust NPCs (trust >= 15).
+
+4. Show NPC financial state hints in talk context (e.g., "Mona looks worried about money").
+
+5. NPC loan repayment events surface through event log.
+
+### Phase 4 -- Tests
+
+1. **`tests/Slums.Core.Tests/Economy/NpcEconomyTests.cs`**:
+   - Starting wealth matches REQS.md table
+   - Weekly hardship roll decreases wealth level
+   - Weekly windfall roll increases wealth level
+   - NPC borrows from wealthiest trusted contact
+   - Lending requires generosity >= 4
+   - Unpaid debt after 14 days reduces trust by 5
+   - Player lending increases trust by 3-5
+   - Player refusing decreases trust by 2-5
+   - Hajj Mahmoud hardship makes rent collection aggressive
+   - Mona hardship increases player stress
+   - Umm Karim comfortable reduces Imbaba food prices
+   - Background modifiers apply (refugee community sharing, prisoner financial independence, dropout medical discounts)
+
+2. **`tests/Slums.Infrastructure.Tests/`** -- NPC economy state persists through save/load.
+
+### File Summary
+
+New files:
+- `src/Slums.Core/Economy/NpcWealthLevel.cs`
+- `src/Slums.Core/Economy/NpcEconomy.cs`
+- `src/Slums.Core/Economy/NpcEconomyState.cs`
+- `src/Slums.Core/Economy/NpcEconomyDefinitions.cs`
+- `src/Slums.Core/Economy/NpcEconomyResolver.cs`
+- `src/Slums.Application/Activities/NpcLoanCommand.cs`
+- `tests/Slums.Core.Tests/Economy/NpcEconomyTests.cs`
+
+Modified files:
+- `src/Slums.Core/State/GameSession.cs` -- add `NpcEconomies`, weekly resolution, lending methods, ripple effects
+- `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist NPC economy state
+- `src/Slums.Game/Screens/` -- NPC loan dialog, financial gossip in conversations
+
 ## Suggested Next Ticket
 
-After tracing is in place, return to UI clarity around deeper systems:
+After Active Skill Training, implement the world-enrichment mechanics in dependency order:
 
-- explain why work variants improve, worsen, or lock out
-- surface debt, suspicion, relationship-memory, and district-pressure signals
-- explain investment disruption risk and recovery in a more player-readable way
+1. **Day-of-Week Rhythms** (quick win, no dependencies)
+2. **Sleep Quality** (quick win, standalone)
+3. **Seasonal Calendar** (depends on day-of-week pattern)
+4. **Weather** (depends on seasonal calendar)
+5. **Rumors** (depends on relationship system)
+6. **Territory Dynamics** (depends on factions, district heat)
+7. **NPC-to-NPC Economy** (depends on relationship system)
 
 ## Narrative Enhancement Pass
 

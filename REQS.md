@@ -365,3 +365,347 @@ Medicinal:
 - Tracing must not introduce dependencies into Slums.Core. Core mutations emit events or return results that the Application layer logs.
 - Diagnostic records must be structured (key-value pairs) rather than free-text, so agents can grep and parse them reliably.
 - Tracing overhead must not affect gameplay framerate or save/load times.
+
+## Day-of-Week Rhythms
+
+- The game tracks day-of-week using the Egyptian calendar (Saturday through Friday).
+- Day-of-week is derived from GameClock.Day: `(Day - 1) % 7` mapped to Saturday=0 through Friday=6.
+- Each day-of-week modifies available activities, NPC schedules, costs, and event pools.
+
+| Day | Schedule Effects |
+|-----|-----------------|
+| **Friday** | Markets partially closed; no bakery, call-center, or cafe work; community prayer gathering available (+2 trust with 2-3 neighbors, stress -3); crime detection -10% (reduced police presence); foul cart investment revenue doubled (post-prayer demand) |
+| **Saturday** | Weekend market in Imbaba: food costs -2 LE, food variety bonus; laundry pressing pay +2 LE (weekend demand surge) |
+| **Monday** | Clinic administrative visits cost -5 LE; government-related random events slightly more common |
+| **Wednesday** | Midweek market restock: better food availability; investment returns calculated and distributed |
+| **Other days** | Baseline behavior, no modifiers |
+
+- Day-specific modifiers are stored in a `DayScheduleRegistry` and consulted by work queries, food purchase logic, crime detection, and event eligibility.
+- The HUD must display the current day-of-week alongside the date and time.
+- Background-specific flavor:
+  - Released Political Prisoner: Friday prayer gathering trust gains are halved (community wariness).
+  - Sudanese Refugee: Saturday market provides an additional bulk-buy discount when buying for mother (-1 LE on food).
+  - Medical School Dropout: Monday clinic discount is doubled (-10 LE total).
+
+## Seasonal Calendar
+
+- Day 1 of the game maps to **October 1** on the in-game calendar.
+- The current calendar date, month, and season are derived from the game day.
+- Seasons affect baseline stats, food prices, energy drain, and event pools.
+
+### Seasons
+
+| Season | Months | Baseline Effects |
+|--------|--------|-----------------|
+| **Autumn** | October-November | Baseline. No modifiers. |
+| **Winter** | December-February | Food prices -2 LE (harvest). Illness random events +50% frequency. Rest recovery +3 energy. |
+| **Spring** | March-May | Khamsin weather season. Food prices +2 LE. Investment returns +10% (tourism season in Dokki). |
+| **Summer** | June-September | Energy drain +5/day from heat. Food spoilage: meal quality degrades 1 tier faster. Stress baseline +3/day. Outdoor work stress +3. |
+
+### Holidays
+
+Holidays are tied to the calendar date and create temporary world-state shifts.
+
+| Holiday | Calendar Date | Duration | Effects |
+|---------|--------------|----------|---------|
+| **Coptic Christmas** | January 7 | 1 day | Community gathering event. Bakery demand surge: forn work pay +5 LE. Stress -5 if attending community event. |
+| **Sham el-Nessim** | Monday after Coptic Easter (variable, approximately April) | 1 day | Outdoor spring festival. Unique food items available. Stress -8 event. Outdoor market bonus in Imbaba. |
+| **Ramadan** | Variable (~30 days; for the game's ~180-day span, use a fixed start or compute) | 30 days | See Ramadan subsection below. |
+| **Eid al-Fitr** | Day after Ramadan ends | 3 days | Gift-spending pressure: 20-50 LE expected. Large community events. Trust penalties if broke and not attending (-3/day with neighbors). Stress +5/day if can't afford gifts. |
+| **Eid al-Adha** | Approximately 70 days after Eid al-Fitr | 3 days | Meat-sharing event. Mother health +5 if participating. Market food prices spike +5 LE for 2 days then drop -3 LE for 3 days (post-holiday surplus). Community solidarity event with trust gains. |
+
+### Ramadan Mechanic
+
+- During Ramadan, the player chooses whether to fast (flag `IsFastingRamadan`, set at Ramadan start with option to break fast later).
+- **Fasting**:
+  - Energy -5/day
+  - Stress +3/day
+  - Community trust +1/day with religious NPCs (Hajj Mahmoud, Umm Karim, Mona, Nurse Salma)
+  - Iftar evening food available at half normal cost from iftar markets
+  - Work hours shortened: all jobs end 1 hour earlier (reduced pay -10%)
+- **Not fasting**:
+  - No energy/stress penalties
+  - Trust -1/day with religious NPCs if discovered (probability based on who sees the player eating: 30% chance per day per religious NPC in same district)
+  - Stress +2/day from social anxiety about being caught
+  - Can eat normally
+- **Iftar gathering**: available daily during Ramadan as a community event variant. Costs 5 LE, provides stress -8, trust +2 with 2-4 NPCs, food for the day.
+- Background-specific flavor:
+  - Sudanese Refugee: separate refugee community iftar available with unique solidarity bonuses.
+  - Released Political Prisoner: Ramadan trust gains doubled (religious community acceptance).
+  - Medical School Dropout: fasting energy penalty reduced by 2 (body knowledge).
+- Holiday dates for the game's playable span should be stored in a `HolidayRegistry` accessible from `GameCalendar`.
+- The HUD must display the current season and any active holiday.
+
+## Weather and Atmospheric Conditions
+
+- Each game day has a weather state rolled during `EndDay()` based on the current season.
+- Weather affects energy, health, costs, crime, travel, and event availability.
+
+### Weather Types
+
+| Weather | Seasonal Probability | Effects |
+|---------|---------------------|---------|
+| **Clear** | Autumn 70%, Winter 50%, Spring 40%, Summer 60% | Baseline. No modifiers. |
+| **Hot** | Summer 25%, Spring 15%, Autumn 5% | Energy drain +5. Outdoor work stress +3. Crime detection +5% (more people outside). Food prices +2 LE. |
+| **Heatwave** | Summer 10%, Spring 3% | Energy drain +10. Health -5 if energy < 30. All outdoor jobs unavailable. Food prices +5 LE. Stress +5. Crime detection +10%. |
+| **Khamsin (sandstorm)** | Spring 20%, Summer 3% | Travel costs +5 LE. All outdoor jobs unavailable. Energy drain +8. Crime completely blocked. Indoor stress +5. One day only; strong narrative event. |
+| **Cool/Overcast** | Winter 30%, Autumn 15% | Rest recovery +5 energy. Food prices -2 LE. Crime detection -5% (fewer witnesses). Stress -2. |
+| **Rain** | Winter 5%, Autumn 3% | Travel to Ard Al-Liwa and Dokki blocked (flooding). Food prices +5 LE. Home leak event (repair cost 10-20 LE if no curtain upgrade). Stress -3 if at home, +3 if caught outside. Unique rain scene in Ink. |
+| **Windy** | Spring 15%, Winter 10%, Autumn 5% | Energy drain +2. Crime detection -5% (fewer witnesses, noise cover). Market stall disruption: informal market stall investment revenue halved for the day. |
+
+- Weather is rolled using seeded randomness at the start of each new day during `EndDay()`.
+- The current weather is displayed on the HUD.
+- Weather modifiers stack with day-of-week and seasonal modifiers.
+- Random events can be gated by weather: khamsin triggers a unique sandstorm narrative scene; rain triggers a home leak event if the player lacks home upgrades.
+- Background-specific flavor:
+  - Sudanese Refugee: khamsin triggers additional stress (+3) due to shelter quality; refugee community offers shelter during extreme weather.
+  - Released Political Prisoner: rain triggers memories of prison (stress +5, unique Ink scene).
+  - Medical School Dropout: heatwave health penalty negated (body knowledge).
+
+## Sleep Quality
+
+- Energy recovery from `RestAtHome()` is no longer a flat +30. It is calculated based on current conditions.
+- The base recovery is 30 energy. Modifiers stack additively.
+
+### Recovery Modifiers
+
+| Condition | Effect |
+|-----------|--------|
+| Stress > 60 | -5 recovery |
+| Stress > 80 | -10 recovery (replaces the -5, not additive) |
+| Did not eat today | -5 recovery |
+| DaysUndereating > 2 | -5 recovery |
+| Mother health in Crisis (0-29) | -5 recovery (worry) |
+| Rent unpaid > 3 days | -3 recovery (anxiety) |
+| Heatwave weather | -3 recovery |
+| Rain weather + no roof upgrade | -3 recovery |
+| Cool/Overcast weather | +3 recovery |
+| Home comfort upgrades | See table below |
+
+- Minimum recovery is 10 energy regardless of penalties.
+- `RestAtHome()` displays the recovery amount and the contributing factors so the player understands why rest was effective or poor.
+
+### Home Comfort Upgrades
+
+Players can purchase one-time upgrades to improve their living conditions:
+
+| Upgrade | Cost | Effect |
+|---------|------|--------|
+| **Clean bedding** | 25 LE | +2 energy recovery permanently |
+| **Fan** | 40 LE | +3 energy recovery in summer, +1 other seasons |
+| **Window screen** | 20 LE | -2 stress daily, +1 energy recovery, blocks insect-related random events |
+| **Curtain** | 15 LE | +1 energy recovery, +1 privacy (reduces negative rumor spread probability by 20%) |
+
+- Upgrades are purchased from the shop or a "Home Improvement" action when at Home.
+- Each upgrade can only be purchased once.
+- Upgrade state persists through save/load.
+- Upgrades are visible in the home status display.
+
+### EndDay Implicit Recovery
+
+- EndDay currently has no energy recovery step (only decay).
+- With sleep quality, EndDay gains a small recovery step representing overnight sleep:
+  - Base: +15 energy (less than intentional `RestAtHome()` which takes 8 hours)
+  - Modified by the same sleep quality factors
+  - Applied after daily decay (-10) and nutrition effects
+  - Net result: baseline day with no meal is -10 (decay) + 15 (sleep) - 12 (no food) = -7 instead of -22
+  - Baseline day with good meal: -10 + 15 = +5 net
+  - This makes the economy less punishing in the early game while still requiring active rest for serious recovery
+
+## Rumors and Word of Mouth
+
+- Player actions generate rumors that spread through the community over 1-3 days.
+- Rumors affect NPC trust, behavior, and available interactions without requiring direct player-NPC contact.
+- The player may learn about rumors through high-trust NPC warnings.
+
+### Rumor Generation
+
+Rumors are generated by specific gameplay events:
+
+| Trigger Event | Rumor Content | Intensity | District |
+|--------------|---------------|-----------|----------|
+| Successful crime (any) | "She was near [location] when things went missing" | 4-6 | District where crime occurred |
+| Failed/detected crime | "People are asking questions about her" | 7-9 | District where crime occurred |
+| Rent unpaid > 2 days | "The Mahfouz family is falling behind on rent again" | 3 | Home building (Imbaba) |
+| Buying expensive item (cost > 50 LE) | "Where did she get that kind of money?" | 5-7 | District where purchase occurred |
+| Seen in Dokki with criminal NPC | "She's been spending time with the Dokki crowd" | 6 | Cross-district (slow spread) |
+| Taking mother to clinic 3+ times | "She's a devoted daughter, always caring for her mother" | 3 (positive) | Home building |
+| Skipping 3+ consecutive community events | "She thinks she's too good for the neighborhood" | 4 | Home building |
+| High district heat (> 60) | "Something is going on around here, and people are nervous" | 5 | District with high heat |
+| Crime earnings > 200 LE total | "She's been flashing money around" | 6 | Home district |
+
+### Rumor Model
+
+Each rumor tracks:
+- `RumorId`: unique identifier
+- `SourceAction`: what triggered it
+- `District`: originating district
+- `DayCreated`: when it started
+- `Intensity`: 1-10, decays by 2-3 per day
+- `AffectedNpcs`: determined by district and social proximity
+- `TrustModifier`: applied once per NPC when first hearing the rumor
+- `IsPositive`: positive rumors decay faster
+
+### Spread Rules
+
+- **Day 1**: Rumor affects NPCs in the same district as the source action.
+- **Day 2**: Rumor spreads to NPCs socially connected to day-1 affected NPCs (trust > 20 with the day-1 NPC).
+- **Day 3+**: Rumor intensity drops to 1. Minimal trust effect. Fades completely by day 4-5.
+- **Positive rumors** decay 1 day faster.
+- **Trust modification**: base modifier = rumor intensity * 0.5 (rounded down).
+- **NPC disposition modifiers**:
+  - NPC trust > 30 with player: negative rumor effect reduced by 50%
+  - NPC trust < -10 with player: negative rumor effect increased by 50%
+  - These modifiers do not apply to positive rumors.
+
+### Player Interaction with Rumors
+
+- High-trust NPCs (trust >= 15) may warn the player about active rumors through conversation variants: "People are talking about you..."
+- The player can attempt to counter a rumor through a "Clear the Air" action:
+  - Costs 2 hours, requires presence in the rumor's district
+  - Uses Persuasion skill: skill >= 3 reduces negative rumor intensity by 3, skill >= 6 reduces by 5
+  - Can only be attempted once per rumor
+- Rumor status is visible in the event log when trust is affected
+- Background-specific flavor:
+  - Sudanese Refugee: negative rumors spread 20% faster (outsider status).
+  - Released Political Prisoner: negative rumors start at +2 intensity (existing suspicion).
+  - Medical School Dropout: can counter medical-related rumors more effectively (flat -2 intensity bonus).
+
+## Territory Dynamics
+
+- Factions actively contest influence over districts, creating a living political landscape.
+- Territory control affects NPC availability, crime access, prices, safety, and random events.
+
+### Territory Model
+
+Each district has a `TerritoryControl` state tracking:
+- Faction influence: 0-100 per faction (multiple factions can have influence simultaneously)
+- Tension: 0-100 (how volatile the district is)
+- Controlling faction: the faction with highest influence above 50, or null if contested
+- Last conflict day: tracks cooldown on territory conflict events
+
+### Starting Territory State
+
+| District | ImbabaCrew | DokkiThugs | ExPrisonerNetwork | Tension | Controller |
+|----------|-----------|------------|-------------------|---------|------------|
+| Imbaba | 60 | 10 | 15 | 20 | ImbabaCrew |
+| Dokki | 5 | 50 | 10 | 30 | DokkiThugs |
+| Ard Al-Liwa | 20 | 20 | 40 | 45 | Contested |
+| Bulaq Al-Dakrour | 15 | 15 | 30 | 15 | None |
+| Shubra | 10 | 10 | 20 | 10 | None |
+
+### Influence Dynamics
+
+- **Crime committed with faction approval**: +3 influence for that faction in the district.
+- **Crime committed in faction territory without approval**: +5 tension, -2 influence for that faction (they're losing control).
+- **Faction-specific crime jobs completed**: +5 influence for that faction.
+- **Player working honest jobs in a district**: -1 tension per day worked (stabilizing presence).
+- **Time passage**: tension decays by 2/day naturally. Influence shifts by +/-1/day toward equilibrium if no player action.
+
+### Tension Effects
+
+| Tension Level | Effects |
+|--------------|---------|
+| 0-30 | Normal district behavior. |
+| 31-50 | NPC availability slightly reduced. Random conflict events possible (10% per day). |
+| 51-70 | Market disruption: food prices +3 LE. NPC availability reduced. Conflict events common (25% per day). Crime routes for non-controlling faction blocked. |
+| 71-100 | District dangerous. Travel may trigger crossfire event (health -5 to -15, stress +10). Most NPCs unavailable. All crime blocked. Food prices +5 LE. Police drawn to district (district heat rises +3/day). |
+
+### Territory Events
+
+| Event | Trigger | Effects |
+|-------|---------|---------|
+| **Street argument** | Tension > 40 + random roll | Market blocked for 1 day. Stress +3 if in district. |
+| **Protection demand** | Faction influence > 50 in player's home district | Pay 10-30 LE or faction reputation drops by -10. Occurs once per faction per game. |
+| **Alliance shift** | Faction influence reaches 80 in a district | New crime routes unlock for that faction. Old faction crime routes close. Narrative scene. |
+| **Police crackdown** | Tension > 60 + district heat > 40 | District raided. All crime blocked for 2 days. Tension drops by 30. Faction influence drops by 10 for all factions. |
+| **Territory flip** | Controlling faction changes | Dramatic narrative scene. NPCs affiliated with old faction leave district for 3-5 days. New faction NPCs arrive. Prices shift. |
+| **Refugee solidarity** | Imbaba tension > 50 + Sudanese Refugee background | Community defense event. Trust +5 with refugee NPCs. Tension -10 in Imbaba. |
+
+### Territory and Faction Interaction
+
+- Player faction reputation determines which faction crime jobs are available.
+- High reputation with a faction gives access to their territory's crime routes.
+- Betraying a faction (working against their interests) causes reputation loss and may trigger retaliation events.
+- Territory state is visible through the map/status screen.
+- Background-specific flavor:
+  - Released Political Prisoner: ExPrisonerNetwork influence starts +10 in all districts.
+  - Sudanese Refugee: territories with low tension are safer to travel; high tension is more dangerous (stress +5 in dangerous districts).
+  - Medical School Dropout: neutral in faction dynamics; no starting advantage or disadvantage.
+
+## NPC-to-NPC Economy
+
+- NPCs have individual financial states that shift over time, creating economic ripple effects the player can observe and participate in.
+- NPCs borrow from each other, experience hardship, and change behavior based on their financial situation.
+
+### NPC Financial State
+
+Each NPC tracks:
+- `WealthLevel`: Struggling / Poor / Stable / Comfortable
+- `MoneyOwedTo`: dictionary of other NPCs and amounts owed
+- `MoneyOwedBy`: dictionary of other NPCs and amounts owed to this NPC
+- `LastHardshipDay`: when they last hit financial trouble
+- `Generosity`: 0-10 scale determining willingness to lend
+
+### Starting NPC Wealth
+
+| NPC | Wealth | Generosity | Notes |
+|-----|--------|-----------|-------|
+| Hajj Mahmoud | Comfortable | 3 | Landlord; tight with money, only lends against rent |
+| Mona | Poor | 7 | Generous neighbor; always willing to help despite having little |
+| Umm Karim | Stable | 5 | Fixer; pragmatic lender, expects returns |
+| Nurse Salma | Stable | 6 | Caring; helps when she can |
+| Workshop Boss Abu Samir | Stable | 2 | Boss; doesn't mix business and personal finance |
+| Cafe Owner Nadia | Comfortable | 3 | Business owner; occasional small loans to regulars |
+| Fence Hanan | Comfortable | 2 | Criminal; only lends in her interest |
+| Runner Youssef | Poor | 4 | Street kid mentor; shares what he has |
+| Pharmacist Mariam | Stable | 4 | Professional; cautious but fair |
+| Officer Khalid | Comfortable | 1 | Rarely helps financially; may demand bribes instead |
+| Dispatcher Safaa | Poor | 5 | Working class solidarity |
+| Laundry Owner Iman | Stable | 3 | Small business; tight margins |
+
+### Weekly Economy Resolution
+
+Every 7 days (on Mondays, aligning with existing weekly resolution), each NPC rolls a wealth event:
+
+| Event | Probability (varies by role) | Effect |
+|-------|------------------------------|--------|
+| **Hardship** | 20-35% | NPC loses 1 wealth level. Seeks to borrow from wealthiest trusted contact. May ask player for help. |
+| **Windfall** | 10-20% | NPC gains 1 wealth level. More generous for 3-5 days (lending threshold increased, shop discounts available). |
+| **Stable** | 50-65% | No change. |
+
+### NPC Lending Web
+
+When an NPC hits hardship:
+1. They attempt to borrow from the wealthiest NPC they have trust > 10 with.
+2. If the lender's generosity >= 4, the loan is approved (20-40 LE).
+3. If no NPC will lend, they approach the player.
+4. Debt between NPCs resolves after 14 days; unpaid NPC-to-NPC debt reduces trust between them by -5.
+
+### Player Interaction
+
+- **NPC asks player for loan**: occurs when NPC hits hardship and no other NPC will help (or player is the most trusted contact). Amount: 10-30 LE.
+  - Lending: trust +3 to +5, NPC remembers the favor (sets `WasHelped`).
+  - Refusing: trust -2 to -5 depending on NPC desperation level.
+  - NPCs repay loans after 7-14 days, sometimes with a small favor instead of money.
+
+- **NPC financial state affects behavior**:
+  - Struggling NPCs: offer fewer discounts, may ask for help, conversation reflects stress
+  - Comfortable NPCs: offer occasional discounts, may share tips, conversation reflects stability
+  - NPCs who owe the player money are more willing to provide tips, cover for the player, or offer discounts (+2 trust equivalent behavior)
+
+- **Economic ripple effects**:
+  - When Hajj Mahmoud hits hardship: rent collection becomes aggressive (warning threshold drops from day 3 to day 2).
+  - When Mona hits hardship: the player's own stress increases (+3) from worry about the neighbor.
+  - When Hanan calls in debts: pressure increases on any player with criminal debt.
+  - When Umm Karim is comfortable: market prices in Imbaba drop by -1 LE for a few days (she shares deals).
+
+### Information Through NPC Economy
+
+- High-trust NPCs (trust >= 15) gossip about other NPCs' financial states in conversation.
+- This gives the player advance warning about which NPCs are approachable for lending or may need help.
+- Example: "Mona has been struggling this week. I wish someone would help her."
+- Background-specific flavor:
+  - Sudanese Refugee: refugee community NPCs share resources more readily; Mona always considers the player first when she has surplus.
+  - Released Political Prisoner: Hajj Mahmoud is slower to lend but respects financial independence (trust +2 when player refuses a loan from him).
+  - Medical School Dropout: Nurse Salma occasionally shares medical supply discounts when comfortable (medicine cost -5 LE for 3 days).
