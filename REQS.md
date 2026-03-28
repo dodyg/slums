@@ -230,6 +230,28 @@ Medicinal:
   - Aloe vera: health bonus increase
 - Multiple upgrades on the same plant stack additively.
 
+## Active Skill Training
+
+- Players can deliberately train skills by spending time and energy, giving agency over character progression beyond passive gains from work and crime.
+- Each skill has a distinct training activity grounded in the setting:
+
+| Skill | Training Method | Location | NPC Gate | Money Cost | Time Cost | Energy Cost |
+|---|---|---|---|---|---|---|
+| Medical | Study Nurse Salma's old textbooks | Home | Nurse Salma trust >= 10 | None | 2.5 hours | 18 |
+| Persuasion | Practice haggling and selling with Umm Karim | Home area | Umm Karim trust >= 5 | 10 LE (practice goods) | 2 hours | 15 |
+| StreetSmarts | Rooftop dice and cards with Youssef and street kids | Home rooftop | Runner Youssef trust >= 5 | 15 LE (stakes) | 2 hours | 12 |
+| Physical | Rooftop exercise routines | Home rooftop | None | None | 3 hours | 20 |
+
+- Training is capped to **once per skill per day** to prevent grinding.
+- Each successful training session grants **+1 skill level**, respecting the existing 0-10 cap.
+- Training is only available during **evening and night hours** (18:00-22:00), reinforcing the tension between rest, household duties, and self-improvement after a work day.
+- NPC trust gates must be met at the time of training; if trust drops below the threshold, training becomes unavailable.
+- Background-specific flavor applies to training scenes:
+  - Medical School Dropout: reads textbooks faster, gains small stress reduction from studying
+  - Released Political Prisoner: dice games feel natural, slight StreetSmarts training energy discount
+  - Sudanese Refugee: community mentors join rooftop exercises, slight Physical training energy discount
+- Training must produce a diagnostic record and event log entry consistent with the tracing system.
+
 ## Tracing and Diagnostics
 
 - Every gameplay mutation (work outcomes, crime attempts, day transitions, ending triggers, rent processing, investment resolution, relationship changes, skill gains, random events) must produce a structured diagnostic record that captures what happened, what changed, and why.
