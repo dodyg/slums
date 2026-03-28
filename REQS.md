@@ -252,9 +252,40 @@ Medicinal:
   - Sudanese Refugee: community mentors join rooftop exercises, slight Physical training energy discount
 - Training must produce a diagnostic record and event log entry consistent with the tracing system.
 
-## Debt and Borrowing
+## Debt and NPC Economy
 
-- Players can borrow money from multiple sources with different terms, costs, and consequences:
+- NPCs have individual financial states that shift over time, creating economic ripple effects the player can observe and participate in.
+- NPCs borrow from each other and from the player, and the player can borrow from NPCs and loan sharks, all tracked through a unified debt model.
+
+### NPC Financial State
+
+Each NPC tracks:
+- `WealthLevel`: Struggling / Poor / Stable / Comfortable
+- `MoneyOwedTo`: dictionary of creditors (other NPCs or the player) and amounts owed
+- `MoneyOwedBy`: dictionary of debtors (other NPCs or the player) and amounts owed to this NPC
+- `LastHardshipDay`: when they last hit financial trouble
+- `Generosity`: 0-10 scale determining willingness to lend
+
+### Starting NPC Wealth
+
+| NPC | Wealth | Generosity | Notes |
+|-----|--------|-----------|-------|
+| Hajj Mahmoud | Comfortable | 3 | Landlord; tight with money, only lends against rent |
+| Mona | Poor | 7 | Generous neighbor; always willing to help despite having little |
+| Umm Karim | Stable | 5 | Fixer; pragmatic lender, expects returns |
+| Nurse Salma | Stable | 6 | Caring; helps when she can |
+| Workshop Boss Abu Samir | Stable | 2 | Boss; doesn't mix business and personal finance |
+| Cafe Owner Nadia | Comfortable | 3 | Business owner; occasional small loans to regulars |
+| Fence Hanan | Comfortable | 2 | Criminal; only lends in her interest |
+| Runner Youssef | Poor | 4 | Street kid mentor; shares what he has |
+| Pharmacist Mariam | Stable | 4 | Professional; cautious but fair |
+| Officer Khalid | Comfortable | 1 | Rarely helps financially; may demand bribes instead |
+| Dispatcher Safaa | Poor | 5 | Working class solidarity |
+| Laundry Owner Iman | Stable | 3 | Small business; tight margins |
+
+### Debt Sources and Terms
+
+Players can borrow money from multiple sources with different terms, costs, and consequences:
 
 | Source | Amount Range | Interest | Due Period | Trust Required | Consequence of Default |
 |--------|-------------|----------|------------|----------------|----------------------|
@@ -262,15 +293,70 @@ Medicinal:
 | Landlord advance (Hajj Mahmoud) | 50-100 LE | None (adds to rent debt) | 7 days | Trust >= 5 | Faster eviction pressure, harsher warnings |
 | Loan shark (via Hanan or Youssef) | 100-300 LE | 20-30% per week | 7 days | Criminal contact access | Weekly stress/health penalty, threats, possible bad ending |
 
+Neighbor and landlord debts are tracked within the NPC's `MoneyOwedBy` (the NPC is the creditor, the player is the debtor). Loan shark debts are tracked separately with their own escalation mechanics.
+
 - Debts are tracked per source: amount owed, interest rate, due day, collection behavior state.
 - Players may partially repay; minimum payment prevents escalation.
 - Unpaid loan shark debt triggers escalating events: threats (stress), visits (health damage), and eventually a **DebtViolence** bad ending if unresolved after 14 days.
 - Borrowing from loan sharks increases police pressure slightly (criminal association).
 - Debt status visible in event log; overdue debts produce daily warning entries.
-- Background-specific flavor:
-  - Medical School Dropout: can negotiate better terms using Persuasion skill.
-  - Released Political Prisoner: loan sharks are more wary, cap loans at 200 LE.
-  - Sudanese Refugee: access to a low-interest community mutual-aid loan (30-60 LE, no interest, 14 days) through refugee network contacts.
+- All automatic debt transactions must produce event log entries (source/recipient, amount, in-game day).
+
+### Weekly Economy Resolution
+
+Every 7 days (on Mondays, aligning with existing weekly resolution), each NPC rolls a wealth event:
+
+| Event | Probability (varies by role) | Effect |
+|-------|------------------------------|--------|
+| **Hardship** | 20-35% | NPC loses 1 wealth level. Seeks to borrow from wealthiest trusted contact. May ask player for help. |
+| **Windfall** | 10-20% | NPC gains 1 wealth level. More generous for 3-5 days (lending threshold increased, shop discounts available). |
+| **Stable** | 50-65% | No change. |
+
+### Lending Web
+
+The unified lending model covers NPC-to-NPC, NPC-to-player, and player-to-NPC debts:
+
+**NPC-to-NPC lending** (triggered by hardship):
+1. An NPC that hits hardship attempts to borrow from the wealthiest NPC they have trust > 10 with.
+2. If the lender's generosity >= 4, the loan is approved (20-40 LE).
+3. If no NPC will lend, they approach the player.
+4. Debt between NPCs resolves after 14 days; unpaid NPC-to-NPC debt reduces trust between them by -5.
+
+**NPC-to-player lending** (player-initiated borrowing):
+- Covered by the debt sources table above (neighbors, landlord, loan sharks).
+- Neighbor loans use the NPC's `MoneyOwedBy` to track what the player owes.
+- Landlord advances add to the existing rent debt model rather than creating a separate loan entry.
+
+**Player-to-NPC lending** (NPC-initiated requests):
+- NPCs ask the player for a loan when they hit hardship and no other NPC will help (or the player is the most trusted contact). Amount: 10-30 LE.
+  - Lending: trust +3 to +5, NPC remembers the favor (sets `WasHelped`).
+  - Refusing: trust -2 to -5 depending on NPC desperation level.
+  - NPCs repay loans after 7-14 days, sometimes with a small favor instead of money.
+
+### NPC Financial Behavior
+
+- **Struggling NPCs**: offer fewer discounts, may ask for help, conversation reflects stress.
+- **Comfortable NPCs**: offer occasional discounts, may share tips, conversation reflects stability.
+- **NPCs who owe the player money**: more willing to provide tips, cover for the player, or offer discounts (+2 trust equivalent behavior).
+
+### Economic Ripple Effects
+
+- When Hajj Mahmoud hits hardship: rent collection becomes aggressive (warning threshold drops from day 3 to day 2).
+- When Mona hits hardship: the player's own stress increases (+3) from worry about the neighbor.
+- When Hanan calls in debts: pressure increases on any player with criminal debt.
+- When Umm Karim is comfortable: market prices in Imbaba drop by -1 LE for a few days (she shares deals).
+
+### Information Through NPC Economy
+
+- High-trust NPCs (trust >= 15) gossip about other NPCs' financial states in conversation.
+- This gives the player advance warning about which NPCs are approachable for lending or may need help.
+- Example: "Mona has been struggling this week. I wish someone would help her."
+
+### Background-Specific Flavor
+
+- **Medical School Dropout**: can negotiate better loan terms using Persuasion skill; Nurse Salma occasionally shares medical supply discounts when comfortable (medicine cost -5 LE for 3 days).
+- **Released Political Prisoner**: loan sharks are more wary, cap loans at 200 LE; Hajj Mahmoud is slower to lend but respects financial independence (trust +2 when player refuses a loan from him).
+- **Sudanese Refugee**: access to a low-interest community mutual-aid loan (30-60 LE, no interest, 14 days) through refugee network contacts; refugee community NPCs share resources more readily; Mona always considers the player first when she has surplus.
 
 ## Information Network
 
@@ -633,79 +719,3 @@ Each district has a `TerritoryControl` state tracking:
   - Sudanese Refugee: territories with low tension are safer to travel; high tension is more dangerous (stress +5 in dangerous districts).
   - Medical School Dropout: neutral in faction dynamics; no starting advantage or disadvantage.
 
-## NPC-to-NPC Economy
-
-- NPCs have individual financial states that shift over time, creating economic ripple effects the player can observe and participate in.
-- NPCs borrow from each other, experience hardship, and change behavior based on their financial situation.
-
-### NPC Financial State
-
-Each NPC tracks:
-- `WealthLevel`: Struggling / Poor / Stable / Comfortable
-- `MoneyOwedTo`: dictionary of other NPCs and amounts owed
-- `MoneyOwedBy`: dictionary of other NPCs and amounts owed to this NPC
-- `LastHardshipDay`: when they last hit financial trouble
-- `Generosity`: 0-10 scale determining willingness to lend
-
-### Starting NPC Wealth
-
-| NPC | Wealth | Generosity | Notes |
-|-----|--------|-----------|-------|
-| Hajj Mahmoud | Comfortable | 3 | Landlord; tight with money, only lends against rent |
-| Mona | Poor | 7 | Generous neighbor; always willing to help despite having little |
-| Umm Karim | Stable | 5 | Fixer; pragmatic lender, expects returns |
-| Nurse Salma | Stable | 6 | Caring; helps when she can |
-| Workshop Boss Abu Samir | Stable | 2 | Boss; doesn't mix business and personal finance |
-| Cafe Owner Nadia | Comfortable | 3 | Business owner; occasional small loans to regulars |
-| Fence Hanan | Comfortable | 2 | Criminal; only lends in her interest |
-| Runner Youssef | Poor | 4 | Street kid mentor; shares what he has |
-| Pharmacist Mariam | Stable | 4 | Professional; cautious but fair |
-| Officer Khalid | Comfortable | 1 | Rarely helps financially; may demand bribes instead |
-| Dispatcher Safaa | Poor | 5 | Working class solidarity |
-| Laundry Owner Iman | Stable | 3 | Small business; tight margins |
-
-### Weekly Economy Resolution
-
-Every 7 days (on Mondays, aligning with existing weekly resolution), each NPC rolls a wealth event:
-
-| Event | Probability (varies by role) | Effect |
-|-------|------------------------------|--------|
-| **Hardship** | 20-35% | NPC loses 1 wealth level. Seeks to borrow from wealthiest trusted contact. May ask player for help. |
-| **Windfall** | 10-20% | NPC gains 1 wealth level. More generous for 3-5 days (lending threshold increased, shop discounts available). |
-| **Stable** | 50-65% | No change. |
-
-### NPC Lending Web
-
-When an NPC hits hardship:
-1. They attempt to borrow from the wealthiest NPC they have trust > 10 with.
-2. If the lender's generosity >= 4, the loan is approved (20-40 LE).
-3. If no NPC will lend, they approach the player.
-4. Debt between NPCs resolves after 14 days; unpaid NPC-to-NPC debt reduces trust between them by -5.
-
-### Player Interaction
-
-- **NPC asks player for loan**: occurs when NPC hits hardship and no other NPC will help (or player is the most trusted contact). Amount: 10-30 LE.
-  - Lending: trust +3 to +5, NPC remembers the favor (sets `WasHelped`).
-  - Refusing: trust -2 to -5 depending on NPC desperation level.
-  - NPCs repay loans after 7-14 days, sometimes with a small favor instead of money.
-
-- **NPC financial state affects behavior**:
-  - Struggling NPCs: offer fewer discounts, may ask for help, conversation reflects stress
-  - Comfortable NPCs: offer occasional discounts, may share tips, conversation reflects stability
-  - NPCs who owe the player money are more willing to provide tips, cover for the player, or offer discounts (+2 trust equivalent behavior)
-
-- **Economic ripple effects**:
-  - When Hajj Mahmoud hits hardship: rent collection becomes aggressive (warning threshold drops from day 3 to day 2).
-  - When Mona hits hardship: the player's own stress increases (+3) from worry about the neighbor.
-  - When Hanan calls in debts: pressure increases on any player with criminal debt.
-  - When Umm Karim is comfortable: market prices in Imbaba drop by -1 LE for a few days (she shares deals).
-
-### Information Through NPC Economy
-
-- High-trust NPCs (trust >= 15) gossip about other NPCs' financial states in conversation.
-- This gives the player advance warning about which NPCs are approachable for lending or may need help.
-- Example: "Mona has been struggling this week. I wish someone would help her."
-- Background-specific flavor:
-  - Sudanese Refugee: refugee community NPCs share resources more readily; Mona always considers the player first when she has surplus.
-  - Released Political Prisoner: Hajj Mahmoud is slower to lend but respects financial independence (trust +2 when player refuses a loan from him).
-  - Medical School Dropout: Nurse Salma occasionally shares medical supply discounts when comfortable (medicine cost -5 LE for 3 days).

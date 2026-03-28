@@ -96,7 +96,7 @@ Implement in dependency order after skill training:
 4. Weather (depends on seasonal calendar)
 5. Rumors (depends on relationships)
 6. Territory Dynamics (depends on factions)
-7. NPC-to-NPC Economy (depends on relationships)
+7. Debt and NPC Economy (depends on relationships)
 
 ### 3. UI Clarity
 
@@ -1103,15 +1103,15 @@ Modified files:
 - `src/Slums.Application/Activities/` -- territory-aware crime and NPC queries
 - `src/Slums.Game/Screens/` -- territory display on map/status
 
-## NPC-to-NPC Economy
+## Debt and NPC Economy
 
 Status: planned.
 
-Requirements: see REQS.md "NPC-to-NPC Economy" section.
+Requirements: see REQS.md "Debt and NPC Economy" section.
 
 ### Design
 
-NPCs have individual financial states that shift weekly. They borrow from each other, creating observable economic ripple effects. The player participates through loan requests and observes gossip about NPC finances.
+NPCs have individual financial states that shift weekly. They borrow from each other and from the player, and the player can borrow from NPCs and loan sharks. All debts are tracked through a unified model. Loan shark debts carry interest and escalation mechanics. Economic ripple effects connect NPC wealth to rent, prices, and stress.
 
 ### Phase 1 -- Core types
 
@@ -1125,17 +1125,18 @@ Create `src/Slums.Core/Economy/`:
        NpcId Npc,
        NpcWealthLevel WealthLevel,
        int Generosity,
-       IReadOnlyDictionary<NpcId, int> MoneyOwedTo,
-       IReadOnlyDictionary<NpcId, int> MoneyOwedBy,
+       IReadOnlyDictionary<DebtorId, int> MoneyOwedTo,
+       IReadOnlyDictionary<DebtorId, int> MoneyOwedBy,
        int LastHardshipDay,
        int LastWindfallDay)
    ```
+   `DebtorId` is either an `NpcId` or a `PlayerDebtor` sentinel, enabling the same model to track NPC-to-NPC and NPC-to-player debts.
 
 3. **`NpcEconomyState.cs`** -- tracks economy for all NPCs:
    ```
    NpcEconomyState(IReadOnlyDictionary<NpcId, NpcEconomy> Economies)
    ```
-   Methods: `GetEconomy(NpcId)`, `SetWealthLevel(NpcId, NpcWealthLevel)`, `AddDebt(NpcId from, NpcId to, int amount)`, `ResolveDebt(NpcId from, NpcId to)`, `GetStrugglingNpcs()`, `GetComfortableNpcs()`.
+   Methods: `GetEconomy(NpcId)`, `SetWealthLevel(NpcId, NpcWealthLevel)`, `AddDebt(DebtorId from, DebtorId to, int amount)`, `ResolveDebt(DebtorId from, DebtorId to)`, `GetStrugglingNpcs()`, `GetComfortableNpcs()`.
 
 4. **`NpcEconomyDefinitions.cs`** -- static registry with starting wealth and generosity per NPC from REQS.md table.
 
@@ -1146,9 +1147,31 @@ Create `src/Slums.Core/Economy/`:
    - NPC lending: find wealthiest trusted NPC (trust > 10), lend if generosity >= 4
    - Unpaid NPC-to-NPC debt after 14 days: trust -5 between them
 
+6. **`PlayerDebt.cs`** -- sealed record tracking a single player debt:
+   ```
+   PlayerDebt(
+       DebtSource Source,
+       int AmountOwed,
+       int InterestWeeklyBasisPoints,
+       int DueDay,
+       DebtCollectionState CollectionState)
+   ```
+   `DebtSource`: `NeighborLoan`, `LandlordAdvance`, `LoanShark`, `CommunityMutualAid`.
+
+7. **`PlayerDebtState.cs`** -- tracks all active player debts:
+   ```
+   PlayerDebtState(IReadOnlyList<PlayerDebt> Debts)
+   ```
+   Methods: `AddDebt(PlayerDebt)`, `RepayPartial(DebtSource, int amount)`, `GetOverdueDebts(int currentDay)`, `ProcessInterest(int currentDay)`.
+
+8. **`LoanSharkEscalation.cs`** -- handles loan shark debt escalation:
+   - Days 1-7 overdue: stress +5/day
+   - Days 8-14 overdue: health -5/day, stress +8/day
+   - After 14 days overdue: trigger **DebtViolence** bad ending
+
 ### Phase 2 -- Core integration on GameSession
 
-1. Add `NpcEconomyState NpcEconomies` property to `GameSession`, initialized from `NpcEconomyDefinitions`.
+1. Add `NpcEconomyState NpcEconomies` and `PlayerDebtState PlayerDebts` properties to `GameSession`, initialized from `NpcEconomyDefinitions`.
 
 2. In `EndDay()`, on Mondays (during existing weekly resolution):
    - Run `NpcEconomyResolver.ResolveWeek(NpcEconomies, Relationships, Clock.Day)`
@@ -1160,15 +1183,40 @@ Create `src/Slums.Core/Economy/`:
      - Hanan calling in debts: increased pressure on player criminal debt
      - Umm Karim comfortable: Imbaba food prices -1 LE for 3-5 days
 
-3. Add `TryLendToNpc(NpcId, int amount)` method on `GameSession`:
+3. In `EndDay()`, every day:
+   - Process overdue debt checks via `PlayerDebtState.GetOverdueDebts(Clock.Day)`
+   - Run loan shark escalation via `LoanSharkEscalation`
+   - Apply interest on loan shark debts weekly
+   - Emit event log entries for overdue debt warnings
+
+4. Add `TryBorrowFromNpc(NpcId, int amount)` method on `GameSession`:
+   - Guard: NPC trust meets threshold, NPC has sufficient wealth, within amount range
+   - Neighbor loans (Mona, Umm Karim): 20-50 LE, no interest, 7-14 days, trust >= 10
+   - Landlord advance (Hajj Mahmoud): 50-100 LE, adds to rent debt, trust >= 5
+   - Creates entry in NPC's `MoneyOwedBy` and `PlayerDebtState`
+
+5. Add `TryBorrowFromLoanShark(int amount)` method:
+   - Guard: criminal contact access, amount 100-300 LE
+   - Interest 20-30% per week, due in 7 days
+   - Increases police pressure slightly
+
+6. Add `TryLendToNpc(NpcId, int amount)` method on `GameSession`:
    - Guard: enough money, NPC has asked for loan
    - On success: deduct money, set `WasHelped`, increase trust +3 to +5
    - Track player-to-NPC loan for repayment
 
-4. Add `RefuseNpcLoan(NpcId)` method:
+7. Add `RefuseNpcLoan(NpcId)` method:
    - Trust -2 to -5 based on NPC desperation
 
-5. NPC economy state affects conversation variants (struggling NPCs reflect stress, comfortable NPCs share deals).
+8. Add `RepayDebt(DebtSource, int amount)` method:
+   - Partial repayment allowed; minimum payment prevents escalation
+
+9. NPC economy state affects conversation variants (struggling NPCs reflect stress, comfortable NPCs share deals).
+
+10. Background modifiers:
+    - Medical School Dropout: Persuasion skill reduces loan shark interest rates
+    - Released Political Prisoner: loan shark cap at 200 LE; Hajj Mahmoud trust +2 on refusing his loan
+    - Sudanese Refugee: community mutual-aid loan (30-60 LE, no interest, 14 days) via refugee contacts
 
 ### Phase 3 -- Application and Game layer
 
@@ -1176,11 +1224,17 @@ Create `src/Slums.Core/Economy/`:
 
 2. Add "Lend Money" action when an NPC has requested a loan.
 
-3. Add NPC financial gossip to conversation pools for high-trust NPCs (trust >= 15).
+3. Add "Borrow Money" action showing available debt sources with terms.
 
-4. Show NPC financial state hints in talk context (e.g., "Mona looks worried about money").
+4. Add "Repay Debt" action showing active debts with amounts and due dates.
 
-5. NPC loan repayment events surface through event log.
+5. Add NPC financial gossip to conversation pools for high-trust NPCs (trust >= 15).
+
+6. Show NPC financial state hints in talk context (e.g., "Mona looks worried about money").
+
+7. NPC loan repayment events surface through event log.
+
+8. Debt status page shows all active debts, due dates, and escalation state.
 
 ### Phase 4 -- Tests
 
@@ -1198,7 +1252,17 @@ Create `src/Slums.Core/Economy/`:
    - Umm Karim comfortable reduces Imbaba food prices
    - Background modifiers apply (refugee community sharing, prisoner financial independence, dropout medical discounts)
 
-2. **`tests/Slums.Infrastructure.Tests/`** -- NPC economy state persists through save/load.
+2. **`tests/Slums.Core.Tests/Economy/PlayerDebtTests.cs`**:
+   - Borrow from neighbor creates debt with correct terms
+   - Borrow from landlord adds to rent debt
+   - Borrow from loan shark creates debt with interest and escalation
+   - Partial repayment reduces amount owed
+   - Overdue debt triggers escalation events
+   - Loan shark debt triggers DebtViolence ending after 14 days overdue
+   - Loan shark borrowing increases police pressure
+   - Background modifiers (refugee mutual-aid, prisoner cap, dropout negotiation)
+
+3. **`tests/Slums.Infrastructure.Tests/`** -- NPC economy state and player debt state persist through save/load.
 
 ### File Summary
 
@@ -1208,13 +1272,19 @@ New files:
 - `src/Slums.Core/Economy/NpcEconomyState.cs`
 - `src/Slums.Core/Economy/NpcEconomyDefinitions.cs`
 - `src/Slums.Core/Economy/NpcEconomyResolver.cs`
+- `src/Slums.Core/Economy/PlayerDebt.cs`
+- `src/Slums.Core/Economy/PlayerDebtState.cs`
+- `src/Slums.Core/Economy/LoanSharkEscalation.cs`
 - `src/Slums.Application/Activities/NpcLoanCommand.cs`
+- `src/Slums.Application/Activities/BorrowCommand.cs`
+- `src/Slums.Application/Activities/RepayDebtCommand.cs`
 - `tests/Slums.Core.Tests/Economy/NpcEconomyTests.cs`
+- `tests/Slums.Core.Tests/Economy/PlayerDebtTests.cs`
 
 Modified files:
-- `src/Slums.Core/State/GameSession.cs` -- add `NpcEconomies`, weekly resolution, lending methods, ripple effects
-- `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist NPC economy state
-- `src/Slums.Game/Screens/` -- NPC loan dialog, financial gossip in conversations
+- `src/Slums.Core/State/GameSession.cs` -- add `NpcEconomies`, `PlayerDebts`, weekly resolution, lending methods, borrowing methods, ripple effects, loan shark escalation
+- `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist NPC economy state and player debt state
+- `src/Slums.Game/Screens/` -- NPC loan dialog, borrow dialog, debt status page, financial gossip in conversations
 
 ## Suggested Next Ticket
 
@@ -1226,7 +1296,7 @@ After Active Skill Training, implement the world-enrichment mechanics in depende
 4. **Weather** (depends on seasonal calendar)
 5. **Rumors** (depends on relationship system)
 6. **Territory Dynamics** (depends on factions, district heat)
-7. **NPC-to-NPC Economy** (depends on relationship system)
+7. **Debt and NPC Economy** (depends on relationship system)
 
 ## Narrative Enhancement Pass
 
