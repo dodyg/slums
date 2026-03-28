@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Slums.Application.Persistence;
 using TUnit.Core;
@@ -20,7 +21,7 @@ internal sealed class LoadGameUseCaseTests
             static () => new Slums.Core.State.GameSession());
         var expectedGameSession = loadedSession.GameSession;
         store.LoadAsync("slot1", Arg.Any<CancellationToken>()).Returns(loadedSession);
-        var useCase = new LoadGameUseCase(store);
+        var useCase = new LoadGameUseCase(store, NullLogger<LoadGameUseCase>.Instance);
 
         var result = await useCase.ExecuteAsync("slot1").ConfigureAwait(false);
 

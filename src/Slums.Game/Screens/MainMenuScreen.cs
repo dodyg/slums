@@ -103,11 +103,13 @@ internal sealed class MainMenuScreen : ScreenSurface
         {
             case 0:
                 IsFocused = false;
+                var newSession = new Slums.Core.State.GameSession(_runtime.RandomSource.SharedRandom);
+                _runtime.MutationLogger.Attach(newSession);
                 GameHost.Instance.Screen = new BackgroundSelectionScreen(
                     GameRuntime.ScreenWidth,
                     GameRuntime.ScreenHeight,
                     _runtime,
-                    new Slums.Core.State.GameSession(_runtime.RandomSource.SharedRandom));
+                    newSession);
                 break;
             case 1:
                 IsFocused = false;

@@ -40,6 +40,8 @@ public sealed class JsonSaveGameStore : ISaveGameStore
         {
             await JsonSerializer.SerializeAsync(stream, document, SaveGameJsonContext.Default.GameSessionSaveDocument, cancellationToken).ConfigureAwait(false);
         }
+
+        LogSaveCompleted(_logger, slot);
     }
 
     public async Task<LoadedGameSession?> LoadAsync(string slot, CancellationToken cancellationToken = default)
@@ -157,6 +159,9 @@ public sealed class JsonSaveGameStore : ISaveGameStore
     private static readonly Action<ILogger, string, Exception?> LogSaveReadIoFailureDelegate =
         LoggerMessage.Define<string>(LogLevel.Warning, new EventId(3, "SaveReadIoFailure"), "Failed to read save file {Path}.");
 
+    private static readonly Action<ILogger, string, Exception?> LogSaveCompletedDelegate =
+        LoggerMessage.Define<string>(LogLevel.Debug, new EventId(4, "SaveCompleted"), "Save completed for slot {Slot}.");
+
     private static void LogVersionMismatch(ILogger logger, string slot, int foundVersion, int expectedVersion) =>
         LogVersionMismatchDelegate(logger, slot, foundVersion, expectedVersion, null);
 
@@ -165,4 +170,7 @@ public sealed class JsonSaveGameStore : ISaveGameStore
 
     private static void LogSaveReadIoFailure(ILogger logger, string path, Exception exception) =>
         LogSaveReadIoFailureDelegate(logger, path, exception);
+
+    private static void LogSaveCompleted(ILogger logger, string slot) =>
+        LogSaveCompletedDelegate(logger, slot, null);
 }

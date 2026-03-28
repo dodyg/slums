@@ -94,6 +94,7 @@ internal sealed class LoadGameScreen : ScreenSurface
             {
                 _runtime.NarrativeService.RestoreProgress(loadedGame.LastKnot);
                 var gameSession = loadedGame.TakeGameSession();
+                _runtime.MutationLogger.Attach(gameSession);
                 try
                 {
                     IsFocused = false;

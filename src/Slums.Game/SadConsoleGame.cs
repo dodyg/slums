@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using SadConsole;
 using SadConsole.Configuration;
 using Slums.Application.Content;
+using Slums.Application.Diagnostics;
 using Slums.Application.Narrative;
 using Slums.Application.Persistence;
 using Slums.Application.Randomness;
@@ -22,6 +23,7 @@ internal sealed class SadConsoleGame : IGame
     private readonly LoadGameUseCase _loadGameUseCase;
     private readonly IRandomSource _randomSource;
     private readonly IContentRepository _contentRepository;
+    private readonly GameMutationLogger _mutationLogger;
 
     public SadConsoleGame(
         ILogger<SadConsoleGame> logger,
@@ -30,7 +32,8 @@ internal sealed class SadConsoleGame : IGame
         SaveGameUseCase saveGameUseCase,
         LoadGameUseCase loadGameUseCase,
         IRandomSource randomSource,
-        IContentRepository contentRepository)
+        IContentRepository contentRepository,
+        GameMutationLogger mutationLogger)
     {
         _logger = logger;
         _narrativeService = narrativeService;
@@ -39,6 +42,7 @@ internal sealed class SadConsoleGame : IGame
         _loadGameUseCase = loadGameUseCase;
         _randomSource = randomSource;
         _contentRepository = contentRepository;
+        _mutationLogger = mutationLogger;
     }
 
     public void Run()
@@ -48,7 +52,7 @@ internal sealed class SadConsoleGame : IGame
         Settings.WindowTitle = "Slums";
         Settings.AllowWindowResize = false;
 
-        var runtime = new GameRuntime(_narrativeService, _saveGameStore, _saveGameUseCase, _loadGameUseCase, _randomSource);
+        var runtime = new GameRuntime(_narrativeService, _saveGameStore, _saveGameUseCase, _loadGameUseCase, _randomSource, _mutationLogger);
 
         Builder gameConfig = new Builder()
             .SetWindowSizeInCells(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight)

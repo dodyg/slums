@@ -13,6 +13,7 @@ using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.World;
 using EntitiesDb;
+using Slums.Core.Diagnostics;
 using NarrativeStoryFlags = Slums.Core.Narrative.StoryFlags;
 
 namespace Slums.Core.State;
@@ -36,6 +37,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     private readonly HashSet<string> _storyFlags;
     private readonly Dictionary<string, int> _randomEventHistory;
     private readonly bool _useDynamicDistrictConditions;
+    private readonly List<GameMutationRecord> _mutations = [];
 
     public GameSession(Random? sharedRandom = null)
     {
@@ -108,6 +110,8 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     private bool CrimeCommittedToday { get => _crimeState.CrimeCommittedToday; set => _crimeState.CrimeCommittedToday = value; }
 
     public event EventHandler<GameEventArgs>? GameEvent;
+    public IReadOnlyList<GameMutationRecord> Mutations => _mutations;
+    public event EventHandler<GameMutationEventArgs>? MutationRecorded;
 
     public IReadOnlyList<InvestmentDefinition> GetCurrentInvestmentOpportunities()
     {
@@ -177,6 +181,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public void EndDay(Random? random = null)
     {
+        var before = CaptureStats();
         var currentWeek = CurrentWeek;
         Player.Stats.ApplyDailyDecay();
 
@@ -284,12 +289,15 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         ActivityLedgerSystem.BeginNewDay(_crimeState);
         CheckGameOverConditions();
+        RecordMutation(MutationCategories.DayTransition, "EndDay", before, CaptureStats(), $"Day {CurrentDay} completed");
     }
 
     public bool RestAtHome()
     {
+        var before = CaptureStats();
         if (World.CurrentLocationId != LocationId.Home)
         {
+            RecordMutation(MutationCategories.GuardRejected, "RestAtHome", before, CaptureStats(), "Not at home");
             RaiseEvent("You need to go home to rest.");
             return false;
         }
@@ -297,19 +305,23 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Stats.Rest();
         AdvanceTime(8 * 60);
         RaiseEvent("You rest at home. 8 hours pass.");
+        RecordMutation(MutationCategories.Rest, "RestAtHome", before, CaptureStats(), "Rested at home");
         return true;
     }
 
     public bool TryTravelTo(LocationId locationId)
     {
+        var before = CaptureStats();
         var location = WorldState.AllLocations.FirstOrDefault(l => l.Id == locationId);
         if (location is null)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TryTravelTo", before, CaptureStats(), $"Location {locationId} not found");
             return false;
         }
 
         if (World.CurrentLocationId == locationId)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TryTravelTo", before, CaptureStats(), $"Already at {location.Name}");
             RaiseEvent($"You are already at {location.Name}.");
             return false;
         }
@@ -319,6 +331,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         if (Player.Stats.Money < travelCost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TryTravelTo", before, CaptureStats(), $"Not enough money (need {travelCost} LE, have {Player.Stats.Money} LE)");
             RaiseEvent("Not enough money for transport.");
             return false;
         }
@@ -346,19 +359,23 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         World.TravelTo(locationId);
 
         RaiseEvent($"Traveled to {location.Name}.");
+        RecordMutation(MutationCategories.Travel, "TryTravelTo", before, CaptureStats(), $"Traveled to {location.Name} (cost {travelCost} LE)");
         return true;
     }
 
     public bool TryWalkTo(LocationId locationId)
     {
+        var before = CaptureStats();
         var location = WorldState.AllLocations.FirstOrDefault(l => l.Id == locationId);
         if (location is null)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TryWalkTo", before, CaptureStats(), $"Location {locationId} not found");
             return false;
         }
 
         if (World.CurrentLocationId == locationId)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TryWalkTo", before, CaptureStats(), $"Already at {location.Name}");
             RaiseEvent($"You are already at {location.Name}.");
             return false;
         }
@@ -368,6 +385,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         if (Player.Stats.Energy < walkEnergyCost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TryWalkTo", before, CaptureStats(), $"Too exhausted (need {walkEnergyCost} energy, have {Player.Stats.Energy})");
             RaiseEvent("You are too exhausted to walk that far.");
             return false;
         }
@@ -385,6 +403,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         World.TravelTo(locationId);
 
         RaiseEvent($"Walked to {location.Name}. The streets took their toll.");
+        RecordMutation(MutationCategories.Travel, "TryWalkTo", before, CaptureStats(), $"Walked to {location.Name}");
         return true;
     }
 
@@ -430,15 +449,18 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public bool TryPerformEntertainment(EntertainmentActivity activity)
     {
         ArgumentNullException.ThrowIfNull(activity);
+        var before = CaptureStats();
 
         if (Player.Stats.Money < activity.BaseCost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TryPerformEntertainment", before, CaptureStats(), $"Cannot afford {activity.Name} (cost {activity.BaseCost} LE, have {Player.Stats.Money} LE)");
             RaiseEvent($"You cannot afford {activity.Name} right now.");
             return false;
         }
 
         if (Player.Stats.Energy < activity.EnergyCost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TryPerformEntertainment", before, CaptureStats(), $"Too tired for {activity.Name} (need {activity.EnergyCost} energy, have {Player.Stats.Energy})");
             RaiseEvent($"You are too tired for {activity.Name}.");
             return false;
         }
@@ -446,6 +468,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var location = World.GetCurrentLocation();
         if (location is null)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TryPerformEntertainment", before, CaptureStats(), "No current location");
             RaiseEvent("You are nowhere.");
             return false;
         }
@@ -453,6 +476,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var availableActivities = GetAvailableEntertainmentActivities();
         if (!availableActivities.Contains(activity))
         {
+            RecordMutation(MutationCategories.GuardRejected, "TryPerformEntertainment", before, CaptureStats(), $"{activity.Name} not available here");
             RaiseEvent($"{activity.Name} is not available here.");
             return false;
         }
@@ -467,6 +491,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         AdvanceTime(activity.DurationMinutes);
 
         RaiseEvent(GetEntertainmentFlavorMessage(activity));
+        RecordMutation(MutationCategories.Entertainment, "TryPerformEntertainment", before, CaptureStats(), $"{activity.Name} (cost {activity.BaseCost} LE, stress -{activity.StressReduction})");
         return true;
     }
 
@@ -488,9 +513,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     {
         ArgumentNullException.ThrowIfNull(job);
 
+        var before = CaptureStats();
         var location = World.GetCurrentLocation();
         if (location is null)
         {
+            RecordMutation(MutationCategories.GuardRejected, "WorkJob", before, CaptureStats(), "No current location");
             return JobResult.Failed("You are nowhere.");
         }
 
@@ -514,10 +541,12 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             ApplyBackgroundWorkFlavor(job, result);
 
             RaiseEvent(result.Message);
+            RecordMutation(MutationCategories.Work, "WorkJob", before, CaptureStats(), result.Message);
         }
         else
         {
             RaiseEvent(result.Message);
+            RecordMutation(MutationCategories.GuardRejected, "WorkJob", before, CaptureStats(), result.Message);
         }
 
         CheckGameOverConditions();
@@ -583,6 +612,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     {
         ArgumentNullException.ThrowIfNull(attempt);
 
+        var before = CaptureStats();
         var modifierEvaluation = EvaluateCrimeModifiers(attempt);
         var modifiedAttempt = modifierEvaluation.Attempt;
         ApplyCrimeModifierSideEffects(modifierEvaluation.ActiveModifiers);
@@ -615,14 +645,17 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
 
         CheckGameOverConditions();
+        RecordMutation(MutationCategories.Crime, "CommitCrime", before, CaptureStats(), $"{attempt.Type}: success={result.Success}, detected={result.Detected}");
         return result;
     }
 
     public bool BuyFood()
     {
+        var before = CaptureStats();
         var foodCost = GetFoodCost();
         if (Player.Stats.Money < foodCost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "BuyFood", before, CaptureStats(), $"Not enough money (need {foodCost} LE, have {Player.Stats.Money} LE)");
             RaiseEvent($"Not enough money. Food costs {foodCost} LE.");
             return false;
         }
@@ -636,14 +669,17 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
 
         RaiseEvent($"Bought food supplies for {foodCost} LE in {DistrictInfo.GetName(World.CurrentDistrict)}. Stockpile: {Player.Household.FoodStockpile}");
+        RecordMutation(MutationCategories.Food, "BuyFood", before, CaptureStats(), $"Bought food for {foodCost} LE");
         return true;
     }
 
     public bool BuyMedicine()
     {
+        var before = CaptureStats();
         var medicineCost = GetMedicineCost();
         if (Player.Stats.Money < medicineCost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "BuyMedicine", before, CaptureStats(), $"Not enough money (need {medicineCost} LE, have {Player.Stats.Money} LE)");
             RaiseEvent($"Not enough money. Medicine costs {medicineCost} LE.");
             return false;
         }
@@ -652,13 +688,16 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Household.AddMedicine(2);
         ApplySkillGain(SkillId.Medical);
         RaiseEvent($"Bought medicine for {medicineCost} LE. Medicine stock: {Player.Household.MedicineStock}");
+        RecordMutation(MutationCategories.Shop, "BuyMedicine", before, CaptureStats(), $"Bought medicine for {medicineCost} LE");
         return true;
     }
 
     public bool EatAtHome()
     {
+        var before = CaptureStats();
         if (!Player.Household.FeedMother())
         {
+            RecordMutation(MutationCategories.GuardRejected, "EatAtHome", before, CaptureStats(), "Not enough food at home");
             RaiseEvent("There is not enough food at home.");
             return false;
         }
@@ -677,14 +716,17 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             RaiseEvent($"Fresh herbs soften the meal a little. Stress -{cookingBonus}.");
         }
 
+        RecordMutation(MutationCategories.Food, "EatAtHome", before, CaptureStats(), "Ate at home");
         return true;
     }
 
     public bool EatStreetFood()
     {
+        var before = CaptureStats();
         var streetFoodCost = GetStreetFoodCost();
         if (Player.Stats.Money < streetFoodCost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "EatStreetFood", before, CaptureStats(), $"Not enough money (need {streetFoodCost} LE, have {Player.Stats.Money} LE)");
             RaiseEvent($"You do not have enough money for street food. It costs {streetFoodCost} LE here.");
             return false;
         }
@@ -693,44 +735,54 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Nutrition.Eat(MealQuality.Basic);
         SyncLegacyHunger();
         RaiseEvent($"You grab a cheap meal from the street for {streetFoodCost} LE.");
+        RecordMutation(MutationCategories.Food, "EatStreetFood", before, CaptureStats(), $"Ate street food for {streetFoodCost} LE");
         return true;
     }
 
     public void CheckOnMother()
     {
+        var before = CaptureStats();
         Player.Household.CheckOnMother();
         RaiseEvent(GetMotherStatusMessage());
+        RecordMutation(MutationCategories.Clinic, "CheckOnMother", before, CaptureStats(), GetMotherStatusMessage());
     }
 
     public bool GiveMotherMedicine()
     {
+        var before = CaptureStats();
         if (!Player.Household.GiveMedicine())
         {
+            RecordMutation(MutationCategories.GuardRejected, "GiveMotherMedicine", before, CaptureStats(), "No medicine available");
             RaiseEvent("You have no medicine to give.");
             return false;
         }
 
         RaiseEvent("You give your mother her medicine.");
+        RecordMutation(MutationCategories.Clinic, "GiveMotherMedicine", before, CaptureStats(), "Gave mother medicine");
         return true;
     }
 
     public MotherClinicVisitResult TakeMotherToClinic()
     {
+        var before = CaptureStats();
         var clinicStatus = GetCurrentLocationClinicStatus();
         if (!clinicStatus.HasClinicServices)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TakeMotherToClinic", before, CaptureStats(), "No clinic at this location");
             RaiseEvent("There is no clinic service at this location.");
             return new MotherClinicVisitResult(false, 0, 0);
         }
 
         if (!clinicStatus.IsOpenToday)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TakeMotherToClinic", before, CaptureStats(), $"{clinicStatus.LocationName} closed today");
             RaiseEvent($"{clinicStatus.LocationName} is closed today. Open days: {clinicStatus.OpenDaysSummary}.");
             return new MotherClinicVisitResult(false, clinicStatus.VisitCost, 0);
         }
 
         if (Player.Stats.Money < clinicStatus.VisitCost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TakeMotherToClinic", before, CaptureStats(), $"Not enough money (need {clinicStatus.VisitCost} LE, have {Player.Stats.Money} LE)");
             RaiseEvent($"Not enough money. A clinic visit costs {clinicStatus.VisitCost} LE here.");
             return new MotherClinicVisitResult(false, clinicStatus.VisitCost, 0);
         }
@@ -765,6 +817,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             TryQueueNarrativeTrigger(new NarrativeSceneTrigger(NarrativeStoryFlags.MotherClinicFirstVisit, NarrativeKnots.MotherClinicFirstVisit));
         }
 
+        RecordMutation(MutationCategories.Clinic, "TakeMotherToClinic", before, CaptureStats(), $"Clinic visit at {clinicStatus.LocationName} (cost {clinicStatus.VisitCost} LE, health +{healthChange})");
         return new MotherClinicVisitResult(true, clinicStatus.VisitCost, healthChange);
     }
 
@@ -859,21 +912,25 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public TravelAndClinicVisitResult TravelAndTakeMotherToClinic(LocationId clinicLocationId)
     {
+        var before = CaptureStats();
         var option = GetClinicTravelOption(clinicLocationId);
         if (!option.IsValidOption)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TravelAndTakeMotherToClinic", before, CaptureStats(), "No clinic at that location");
             RaiseEvent("There is no clinic service at that location.");
             return new TravelAndClinicVisitResult(false, 0, 0, 0, 0);
         }
 
         if (!option.IsOpenToday)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TravelAndTakeMotherToClinic", before, CaptureStats(), $"{option.LocationName} closed today");
             RaiseEvent($"{option.LocationName} is closed today. Open days: {option.OpenDaysSummary}.");
             return new TravelAndClinicVisitResult(false, option.TravelCost, option.ClinicCost, option.TotalCost, 0);
         }
 
         if (Player.Stats.Money < option.TotalCost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "TravelAndTakeMotherToClinic", before, CaptureStats(), $"Not enough money (need {option.TotalCost} LE, have {Player.Stats.Money} LE)");
             RaiseEvent($"Not enough money. Travel + clinic visit costs {option.TotalCost} LE ({option.TravelCost} LE travel + {option.ClinicCost} LE clinic).");
             return new TravelAndClinicVisitResult(false, option.TravelCost, option.ClinicCost, option.TotalCost, 0);
         }
@@ -900,6 +957,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         var clinicResult = TakeMotherToClinic();
 
+        RecordMutation(MutationCategories.Clinic, "TravelAndTakeMotherToClinic", before, CaptureStats(), $"Travel+clinic to {option.LocationName} (total cost {option.TravelCost + clinicResult.TotalCost} LE)");
         return new TravelAndClinicVisitResult(
             clinicResult.Success,
             option.TravelCost,
@@ -1019,32 +1077,39 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public bool AdoptStreetCat()
     {
+        var before = CaptureStats();
         if (World.CurrentLocationId != LocationId.Home)
         {
+            RecordMutation(MutationCategories.GuardRejected, "AdoptStreetCat", before, CaptureStats(), "Not at home");
             RaiseEvent("You need to be home to bring a street cat inside.");
             return false;
         }
 
         if (!Player.HouseholdAssets.AdoptCat(Clock.Day, CurrentWeek))
         {
+            RecordMutation(MutationCategories.GuardRejected, "AdoptStreetCat", before, CaptureStats(), "No cat encounter available");
             RaiseEvent("No stray cat is trusting you enough to come home right now.");
             return false;
         }
 
         RaiseEvent("The cat slips inside, claims a corner, and your mother smiles for the first time all day.");
+        RecordMutation(MutationCategories.HouseholdAsset, "AdoptStreetCat", before, CaptureStats(), "Adopted street cat");
         return true;
     }
 
     public bool BuyFishTank()
     {
+        var before = CaptureStats();
         if (World.CurrentLocationId != LocationId.FishMarket)
         {
+            RecordMutation(MutationCategories.GuardRejected, "BuyFishTank", before, CaptureStats(), "Not at fish market");
             RaiseEvent("You need to be at the fish market to buy a tank.");
             return false;
         }
 
         if (!Player.HouseholdAssets.CanBuyFishTank)
         {
+            RecordMutation(MutationCategories.GuardRejected, "BuyFishTank", before, CaptureStats(), "Already have a fish tank");
             RaiseEvent("There is already a fish tank at home.");
             return false;
         }
@@ -1052,6 +1117,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var definition = PetRegistry.GetByType(PetType.Fish);
         if (Player.Stats.Money < definition.OneTimeCost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "BuyFishTank", before, CaptureStats(), $"Not enough money (need {definition.OneTimeCost} LE, have {Player.Stats.Money} LE)");
             RaiseEvent($"Not enough money. A fish tank costs {definition.OneTimeCost} LE.");
             return false;
         }
@@ -1059,19 +1125,23 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Stats.ModifyMoney(-definition.OneTimeCost);
         Player.HouseholdAssets.BuyFishTank(Clock.Day, CurrentWeek);
         RaiseEvent($"You carry a modest fish tank home from the market for {definition.OneTimeCost} LE.");
+        RecordMutation(MutationCategories.HouseholdAsset, "BuyFishTank", before, CaptureStats(), $"Bought fish tank for {definition.OneTimeCost} LE");
         return true;
     }
 
     public bool BuyPlant(PlantType plantType)
     {
+        var before = CaptureStats();
         if (World.CurrentLocationId != LocationId.PlantShop)
         {
+            RecordMutation(MutationCategories.GuardRejected, "BuyPlant", before, CaptureStats(), "Not at plant shop");
             RaiseEvent("You need to be at the plant shop to buy plants.");
             return false;
         }
 
         if (!Player.HouseholdAssets.CanBuyPlant)
         {
+            RecordMutation(MutationCategories.GuardRejected, "BuyPlant", before, CaptureStats(), "No room for more plants");
             RaiseEvent("There is no room left for more plants at home.");
             return false;
         }
@@ -1079,6 +1149,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var definition = PlantRegistry.GetByType(plantType);
         if (Player.Stats.Money < definition.OneTimeCost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "BuyPlant", before, CaptureStats(), $"Not enough money (need {definition.OneTimeCost} LE, have {Player.Stats.Money} LE)");
             RaiseEvent($"Not enough money. {definition.Name} costs {definition.OneTimeCost} LE.");
             return false;
         }
@@ -1086,13 +1157,16 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Stats.ModifyMoney(-definition.OneTimeCost);
         Player.HouseholdAssets.BuyPlant(plantType, Clock.Day, CurrentWeek);
         RaiseEvent($"You buy {definition.Name} for {definition.OneTimeCost} LE and carry it back home.");
+        RecordMutation(MutationCategories.HouseholdAsset, "BuyPlant", before, CaptureStats(), $"Bought {definition.Name} for {definition.OneTimeCost} LE");
         return true;
     }
 
     public bool PayPetCare()
     {
+        var before = CaptureStats();
         if (World.CurrentLocationId != LocationId.Home)
         {
+            RecordMutation(MutationCategories.GuardRejected, "PayPetCare", before, CaptureStats(), "Not at home");
             RaiseEvent("You need to be home to sort out pet care.");
             return false;
         }
@@ -1100,12 +1174,14 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var cost = Player.HouseholdAssets.GetPetCareCostDue(CurrentWeek);
         if (cost <= 0)
         {
+            RecordMutation(MutationCategories.GuardRejected, "PayPetCare", before, CaptureStats(), "Pet care already covered");
             RaiseEvent("Pet care is already covered for this week.");
             return false;
         }
 
         if (Player.Stats.Money < cost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "PayPetCare", before, CaptureStats(), $"Not enough money (need {cost} LE, have {Player.Stats.Money} LE)");
             RaiseEvent($"Not enough money. Pet food for the week costs {cost} LE.");
             return false;
         }
@@ -1113,13 +1189,16 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Stats.ModifyMoney(-cost);
         Player.HouseholdAssets.PayPetCare(CurrentWeek);
         RaiseEvent($"You cover this week's pet food and care supplies for {cost} LE.");
+        RecordMutation(MutationCategories.HouseholdAsset, "PayPetCare", before, CaptureStats(), $"Paid pet care {cost} LE");
         return true;
     }
 
     public bool PayPlantCare()
     {
+        var before = CaptureStats();
         if (World.CurrentLocationId != LocationId.Home)
         {
+            RecordMutation(MutationCategories.GuardRejected, "PayPlantCare", before, CaptureStats(), "Not at home");
             RaiseEvent("You need to be home to water and supply the plants.");
             return false;
         }
@@ -1127,12 +1206,14 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var cost = Player.HouseholdAssets.GetPlantCareCostDue(CurrentWeek);
         if (cost <= 0)
         {
+            RecordMutation(MutationCategories.GuardRejected, "PayPlantCare", before, CaptureStats(), "Plant care already covered");
             RaiseEvent("Plant care is already covered for this week.");
             return false;
         }
 
         if (Player.Stats.Money < cost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "PayPlantCare", before, CaptureStats(), $"Not enough money (need {cost} LE, have {Player.Stats.Money} LE)");
             RaiseEvent($"Not enough money. Plant care supplies cost {cost} LE this week.");
             return false;
         }
@@ -1140,13 +1221,16 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Stats.ModifyMoney(-cost);
         Player.HouseholdAssets.PayPlantCare(CurrentWeek);
         RaiseEvent($"You pay {cost} LE to keep the plants watered and supplied this week.");
+        RecordMutation(MutationCategories.HouseholdAsset, "PayPlantCare", before, CaptureStats(), $"Paid plant care {cost} LE");
         return true;
     }
 
     public bool UpgradePlant(Guid plantId, PlantUpgradeType upgradeType)
     {
+        var before = CaptureStats();
         if (World.CurrentLocationId != LocationId.Home)
         {
+            RecordMutation(MutationCategories.GuardRejected, "UpgradePlant", before, CaptureStats(), "Not at home");
             RaiseEvent("You need to be home to work on the plants.");
             return false;
         }
@@ -1154,6 +1238,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var plant = Player.HouseholdAssets.GetPlant(plantId);
         if (plant is null)
         {
+            RecordMutation(MutationCategories.GuardRejected, "UpgradePlant", before, CaptureStats(), "Plant not found");
             RaiseEvent("That plant is not in your flat anymore.");
             return false;
         }
@@ -1161,12 +1246,14 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var cost = PlantUpgradeCatalog.GetCost(upgradeType);
         if (Player.Stats.Money < cost)
         {
+            RecordMutation(MutationCategories.GuardRejected, "UpgradePlant", before, CaptureStats(), $"Not enough money (need {cost} LE, have {Player.Stats.Money} LE)");
             RaiseEvent($"Not enough money. {PlantUpgradeCatalog.GetName(upgradeType)} costs {cost} LE.");
             return false;
         }
 
         if (!Player.HouseholdAssets.TryUpgradePlant(plantId, upgradeType, CurrentWeek))
         {
+            RecordMutation(MutationCategories.GuardRejected, "UpgradePlant", before, CaptureStats(), $"{PlantUpgradeCatalog.GetName(upgradeType)} already active");
             RaiseEvent($"{PlantUpgradeCatalog.GetName(upgradeType)} is already active for that plant.");
             return false;
         }
@@ -1174,6 +1261,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Stats.ModifyMoney(-cost);
         var definition = PlantRegistry.GetByType(plant.Type);
         RaiseEvent($"{definition.Name}: {PlantUpgradeCatalog.GetName(upgradeType)} added for {cost} LE.");
+        RecordMutation(MutationCategories.HouseholdAsset, "UpgradePlant", before, CaptureStats(), $"Upgraded {definition.Name} with {PlantUpgradeCatalog.GetName(upgradeType)} for {cost} LE");
         return true;
     }
 
@@ -1741,10 +1829,12 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             return;
         }
 
+        var before = CaptureStats();
         EndingId = ending;
         IsGameOver = true;
         GameOverReason = EndingService.GetMessage(ending.Value);
         PendingEndingKnot = EndingService.GetInkKnot(this, ending.Value);
+        RecordMutation(MutationCategories.EndingTriggered, "CheckGameOverConditions", before, CaptureStats(), $"Ending triggered: {ending}");
     }
 
     private void ModifyEmployerTrust(JobType jobType, int delta)
@@ -1881,6 +1971,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     {
         ArgumentNullException.ThrowIfNull(randomEvent);
 
+        var before = CaptureStats();
         RecordEventHistory(randomEvent.Id, GetEventCount(randomEvent.Id) + 1);
 
         var effect = randomEvent.Effect;
@@ -1943,6 +2034,8 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         {
             QueueNarrativeScene(effect.InkKnot);
         }
+
+        RecordMutation(MutationCategories.RandomEvent, "ApplyRandomEvent", before, CaptureStats(), $"Event: {randomEvent.Id} - {randomEvent.Description}");
     }
 
     private void ApplySkillGain(SkillId skillId)
@@ -1994,6 +2087,28 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         };
     }
 
+    private Dictionary<string, object?> CaptureStats() => new()
+    {
+        ["Money"] = Player.Stats.Money,
+        ["Hunger"] = Player.Stats.Hunger,
+        ["Energy"] = Player.Stats.Energy,
+        ["Health"] = Player.Stats.Health,
+        ["Stress"] = Player.Stats.Stress,
+        ["MotherHealth"] = Player.Household.MotherHealth,
+        ["PolicePressure"] = PolicePressure,
+        ["Day"] = CurrentDay,
+        ["Location"] = World.CurrentLocationId.ToString(),
+        ["FoodStockpile"] = Player.Household.FoodStockpile,
+        ["RentDaysUnpaid"] = UnpaidRentDays,
+    };
+
+    private void RecordMutation(string category, string action, Dictionary<string, object?> before, Dictionary<string, object?> after, string reason)
+    {
+        var record = new GameMutationRecord(RunId, DateTimeOffset.UtcNow, category, action, before, after, reason);
+        _mutations.Add(record);
+        MutationRecorded?.Invoke(this, new GameMutationEventArgs(record));
+    }
+
     private void RaiseEvent(string message)
     {
         GameEvent?.Invoke(this, new GameEventArgs(message));
@@ -2024,15 +2139,18 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public MakeInvestmentResult MakeInvestment(InvestmentType type)
     {
+        var before = CaptureStats();
         var definition = InvestmentRegistry.GetByType(type);
         if (definition is null)
         {
+            RecordMutation(MutationCategories.GuardRejected, "MakeInvestment", before, CaptureStats(), $"Unknown investment type: {type}");
             return new MakeInvestmentResult(false, 0, "Unknown investment type.");
         }
 
         var eligibility = CheckInvestmentEligibility(definition);
         if (!eligibility.IsEligible)
         {
+            RecordMutation(MutationCategories.GuardRejected, "MakeInvestment", before, CaptureStats(), string.Join(" ", eligibility.FailureReasons));
             return new MakeInvestmentResult(false, 0, string.Join(" ", eligibility.FailureReasons));
         }
 
@@ -2049,11 +2167,13 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         RaiseEvent($"Invested {definition.Cost} LE in {definition.Name}.");
 
+        RecordMutation(MutationCategories.Investment, "MakeInvestment", before, CaptureStats(), $"Invested {definition.Cost} LE in {definition.Name}");
         return new MakeInvestmentResult(true, definition.Cost, $"Successfully invested in {definition.Name}.");
     }
 
     public InvestmentResolutionSummary ResolveWeeklyInvestments(Random? random = null)
     {
+        var before = CaptureStats();
         var rng = random ?? _sharedRandom;
         var summary = new InvestmentResolutionSummary();
 
@@ -2131,6 +2251,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             RaiseEvent($"Weekly investments: +{summary.TotalIncome} LE income, -{summary.TotalExtortion} LE extortion, {summary.LostCount} lost.");
         }
 
+        RecordMutation(MutationCategories.Investment, "ResolveWeeklyInvestments", before, CaptureStats(), $"Income +{summary.TotalIncome}, Extortion -{summary.TotalExtortion}, Lost {summary.LostCount}");
         return summary;
     }
 

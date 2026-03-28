@@ -222,3 +222,13 @@ Medicinal:
   - Flowers: plant-specific health bonus increase
   - Aloe vera: health bonus increase
 - Multiple upgrades on the same plant stack additively.
+
+## Tracing and Diagnostics
+
+- Every gameplay mutation (work outcomes, crime attempts, day transitions, ending triggers, rent processing, investment resolution, relationship changes, skill gains, random events) must produce a structured diagnostic record that captures what happened, what changed, and why.
+- All diagnostic records within a single game session must carry the session's RunId so agents can filter logs to one playthrough.
+- At key boundaries (day start, day end, save, load), the system must emit a compact snapshot of core survival stats so agents can spot drifting values without reading full save files.
+- When a guard fails, a domain rule rejects an action, or an ending triggers, the diagnostic record must include the rule or condition that fired.
+- Tracing must not introduce dependencies into Slums.Core. Core mutations emit events or return results that the Application layer logs.
+- Diagnostic records must be structured (key-value pairs) rather than free-text, so agents can grep and parse them reliably.
+- Tracing overhead must not affect gameplay framerate or save/load times.

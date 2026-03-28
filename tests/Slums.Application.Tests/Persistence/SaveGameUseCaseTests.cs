@@ -1,4 +1,6 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Slums.Application.Persistence;
 using Slums.Core.State;
@@ -12,7 +14,8 @@ internal sealed class SaveGameUseCaseTests
     public async Task ExecuteAsync_ShouldForwardSaveRequestToStore()
     {
         var store = Substitute.For<ISaveGameStore>();
-        var useCase = new SaveGameUseCase(store);
+        var logger = NullLogger<SaveGameUseCase>.Instance;
+        var useCase = new SaveGameUseCase(store, logger);
         using var gameSession = new GameSession();
         var request = SaveGameRequest.Create(gameSession, "intro_medical");
 
@@ -28,7 +31,8 @@ internal sealed class SaveGameUseCaseTests
     public async Task ExecuteAsync_ShouldThrow_WhenRequestIsNull()
     {
         var store = Substitute.For<ISaveGameStore>();
-        var useCase = new SaveGameUseCase(store);
+        var logger = NullLogger<SaveGameUseCase>.Instance;
+        var useCase = new SaveGameUseCase(store, logger);
 
         var act = () => useCase.ExecuteAsync(null!, "slot1");
 

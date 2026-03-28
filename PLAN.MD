@@ -119,6 +119,44 @@ Broaden the world through additional authored and systemic slices instead of mor
 - add more endings or epilogue variants only where they reflect existing systems cleanly
 - prefer content and UX improvements over another repo-wide refactor unless a new hotspot clearly appears
 
+### 5. Tracing and Diagnostics
+
+Status: implemented.
+
+Add structured diagnostic logging across all gameplay layers so agents can quickly detect logic bugs and understand gameflow.
+
+**Phase 1 -- Diagnostic record types in `Slums.Core`:**
+
+- Define lightweight `GameMutationRecord` (sealed record with `RunId`, `Timestamp`, `Category`, `Action`, `Before`/`After` snapshots as key-value dictionaries, `Reason` string) in `Slums.Core/Diagnostics/`.
+- `GameSession` mutation methods (`WorkJob`, `CommitCrime`, `EndDay`, `MakeInvestment`, `Travel`, `FeedFamily`, `TakeMotherToClinic`, `Entertain`, etc.) append a `GameMutationRecord` to a `List<GameMutationRecord> Mutations` on `GameSession`.
+- Guard failures (action blocked, rule rejection, ending triggered) also produce records with a `GuardRejected` or `EndingTriggered` category and include the rule/condition name in `Reason`.
+- This keeps `Slums.Core` dependency-free -- it only produces records; it does not log them.
+
+**Phase 2 -- Application-layer logging with `ILogger`:**
+
+- Add `ILogger<T>` to all application commands (`WorkCommand`, `CrimeCommand`, `AdvanceTimeCommand`, `EntertainmentCommand`, `ShopCommand`, `TravelCommand`, `ClinicTravelCommand`, `GameActionCommand`) and use-case classes (`SaveGameUseCase`, `LoadGameUseCase`).
+- After each command executes, emit structured `ILogger` events using the existing `LoggerMessage.Define` pattern, pulling data from the `GameMutationRecord` produced by Core.
+- Each log event includes `RunId` from `GameSession.RunId` for session correlation.
+- Add `ILogger<T>` to all application queries that perform filtering or eligibility evaluation so rejected actions log why they were unavailable.
+
+**Phase 3 -- State snapshot logging at key boundaries:**
+
+- At day-start (`EndDay` entry) and day-end (`EndDay` completion), emit a compact snapshot log event containing core survival stats: `Money`, `Hunger`, `Energy`, `Health`, `Stress`, `RentDaysUnpaid`, `PolicePressure`, `Day`, `Location`.
+- At save and load boundaries in `SaveGameUseCase`/`LoadGameUseCase`, emit a snapshot log event so agents can correlate save state with subsequent behavior.
+- Snapshot events use a dedicated `LogLevel.Information` with a distinct `EventId` range (200-299) to separate them from mutation events.
+
+**Phase 4 -- Narrative and infrastructure tracing:**
+
+- Extend `InkNarrativeService` logging to include `RunId` in all existing and new log events.
+- Add logging to `JsonSaveGameStore` and `JsonContentRepository` for all paths including success cases (not just failures).
+- Log scene transitions, random-event selections, and narrative follow-up triggers with the scene/event name and eligibility reasoning.
+
+**Phase 5 -- Tests and validation:**
+
+- Add `Slums.Application.Tests` tests that verify commands produce the correct `GameMutationRecord` entries after execution.
+- Add tests that verify guard rejections produce records with the expected `Reason`.
+- Verify all existing tests still pass after logging is introduced (logging is additive, not behavioral).
+
 ## Architecture Hardening Pass
 
 Status: implemented.
@@ -176,7 +214,7 @@ Completed steps:
 
 ## Suggested Next Ticket
 
-If only one follow-up slice is implemented next, improve UI clarity around deeper systems:
+After tracing is in place, return to UI clarity around deeper systems:
 
 - explain why work variants improve, worsen, or lock out
 - surface debt, suspicion, relationship-memory, and district-pressure signals

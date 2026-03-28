@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Slums.Application.Content;
+using Slums.Application.Diagnostics;
 using Slums.Application.Narrative;
 using Slums.Application.Persistence;
 using Slums.Application.Randomness;
@@ -20,6 +21,7 @@ using IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<SaveGameUseCase>();
         services.AddSingleton<LoadGameUseCase>();
         services.AddSingleton<IRandomSource, SeededRandomSource>();
+        services.AddSingleton<GameMutationLogger>();
         services.AddSingleton<IGame>(serviceProvider => new SadConsoleGame(
             serviceProvider.GetRequiredService<ILogger<SadConsoleGame>>(),
             serviceProvider.GetRequiredService<INarrativeService>(),
@@ -27,7 +29,8 @@ using IHost host = Host.CreateDefaultBuilder(args)
             serviceProvider.GetRequiredService<SaveGameUseCase>(),
             serviceProvider.GetRequiredService<LoadGameUseCase>(),
             serviceProvider.GetRequiredService<IRandomSource>(),
-            serviceProvider.GetRequiredService<IContentRepository>()));
+            serviceProvider.GetRequiredService<IContentRepository>(),
+            serviceProvider.GetRequiredService<GameMutationLogger>()));
     })
     .Build();
 
