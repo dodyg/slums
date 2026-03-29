@@ -18,5 +18,6 @@ public enum GameActionId
     Travel,
     SaveGame,
     EndDay,
-    Train
+    Train,
+    HomeImprovement
 }

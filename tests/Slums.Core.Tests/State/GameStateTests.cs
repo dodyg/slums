@@ -991,7 +991,7 @@ internal sealed class GameStateTests
 
         state.EndDay();
 
-        await Assert.That(state.Player.Stats.Energy).IsEqualTo(58);
+        await Assert.That(state.Player.Stats.Energy).IsEqualTo(70);
         await Assert.That(state.Player.Stats.Stress).IsEqualTo(31);
         await Assert.That(state.Player.Stats.Hunger).IsEqualTo(57);
     }

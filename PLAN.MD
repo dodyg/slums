@@ -91,7 +91,7 @@ Status: **implemented** (committed as `333bfc3`). See dedicated section below.
 
 Implement in dependency order after skill training:
 1. Day-of-Week Rhythms (quick win, no dependencies) — **implemented**
-2. Sleep Quality (quick win, standalone)
+2. Sleep Quality (quick win, standalone) — **implemented**
 3. Seasonal Calendar (depends on day-of-week)
 4. Community Solidarity Events (depends on day-of-week, seasonal calendar)
 5. Weather (depends on seasonal calendar)
@@ -717,7 +717,7 @@ Modified files:
 
 ## Sleep Quality
 
-Status: planned.
+Status: **implemented**.
 
 Requirements: see REQS.md "Sleep Quality" section.
 
@@ -1774,7 +1774,7 @@ Modified files:
 After Active Skill Training, implement the world-enrichment mechanics in dependency order:
 
 1. ~~**Day-of-Week Rhythms** (quick win, no dependencies)~~ **implemented**
-2. **Sleep Quality** (quick win, standalone)
+2. ~~**Sleep Quality** (quick win, standalone)~~ **implemented**
 3. **Seasonal Calendar** (depends on day-of-week pattern)
 4. **Community Solidarity Events** (depends on day-of-week, seasonal calendar)
 5. **Weather** (depends on seasonal calendar)

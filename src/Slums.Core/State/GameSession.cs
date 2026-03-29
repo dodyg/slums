@@ -12,6 +12,7 @@ using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.Training;
+using Slums.Core.Home;
 using Slums.Core.World;
 using EntitiesDb;
 using Slums.Core.Diagnostics;
@@ -110,6 +111,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public bool FirstWarningGiven => _rentState.FirstWarningGiven;
     public bool FinalWarningGiven => _rentState.FinalWarningGiven;
     private bool CrimeCommittedToday { get => _crimeState.CrimeCommittedToday; set => _crimeState.CrimeCommittedToday = value; }
+    public HomeUpgradeState HomeUpgrades { get; } = new();
 
     public event EventHandler<GameEventArgs>? GameEvent;
     public IReadOnlyList<GameMutationRecord> Mutations => _mutations;
@@ -192,6 +194,16 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Stats.ModifyHealth(nutritionResolution.HealthDelta);
         Player.Stats.ModifyStress(nutritionResolution.StressDelta);
         SyncLegacyHunger();
+
+        var overnightRecovery = SleepQualityCalculator.CalculateOvernightRecovery(
+            Player.Stats, Player.Nutrition, Player.Household,
+            UnpaidRentDays, HomeUpgrades);
+        Player.Stats.ModifyEnergy(overnightRecovery);
+
+        if (HomeUpgrades.GetStressBonus() > 0)
+        {
+            Player.Stats.ModifyStress(-HomeUpgrades.GetStressBonus());
+        }
 
         var motherCareResolution = Player.Household.ResolveDay();
         Player.Stats.ModifyStress(motherCareResolution.StressDelta);
@@ -305,10 +317,52 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             return false;
         }
 
-        Player.Stats.Rest();
+        var recovery = SleepQualityCalculator.CalculateRecovery(
+            Player.Stats, Player.Nutrition, Player.Household,
+            UnpaidRentDays, HomeUpgrades);
+
+        Player.Stats.ModifyEnergy(recovery);
+        Player.Stats.ModifyHunger(-10);
+        Player.Stats.ModifyStress(-15);
         AdvanceTime(8 * 60);
-        RaiseEvent("You rest at home. 8 hours pass.");
+
+        var breakdown = SleepQualityCalculator.BuildRecoveryBreakdown(
+            recovery, Player.Stats, Player.Nutrition, Player.Household,
+            UnpaidRentDays, HomeUpgrades);
+        RaiseEvent($"You rest at home. Energy +{recovery}. ({breakdown})");
         RecordMutation(MutationCategories.Rest, "RestAtHome", before, CaptureStats(), "Rested at home");
+        return true;
+    }
+
+    public bool TryPurchaseHomeUpgrade(HomeUpgrade upgrade)
+    {
+        var before = CaptureStats();
+        if (World.CurrentLocationId != LocationId.Home)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "TryPurchaseHomeUpgrade", before, CaptureStats(), "Not at home");
+            RaiseEvent("You need to be at home to improve it.");
+            return false;
+        }
+
+        if (HomeUpgrades.HasUpgrade(upgrade))
+        {
+            RecordMutation(MutationCategories.GuardRejected, "TryPurchaseHomeUpgrade", before, CaptureStats(), $"{upgrade} already purchased");
+            RaiseEvent($"You already have {HomeUpgradeDefinitions.GetDescription(upgrade)}.");
+            return false;
+        }
+
+        var cost = HomeUpgradeDefinitions.GetCost(upgrade);
+        if (Player.Stats.Money < cost)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "TryPurchaseHomeUpgrade", before, CaptureStats(), $"Not enough money ({cost} LE)");
+            RaiseEvent($"You can't afford that. You need {cost} LE but only have {Player.Stats.Money} LE.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-cost);
+        HomeUpgrades.Purchase(upgrade);
+        RaiseEvent($"You bought {HomeUpgradeDefinitions.GetDescription(upgrade)} for {cost} LE.");
+        RecordMutation(MutationCategories.Shop, "TryPurchaseHomeUpgrade", before, CaptureStats(), $"Purchased {upgrade} for {cost} LE");
         return true;
     }
 
@@ -641,6 +695,19 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     }
 
     public IReadOnlyDictionary<SkillId, bool> TrainedSkillsToday => _trainedSkillsToday;
+
+    public void RestoreHomeUpgrades(IEnumerable<HomeUpgrade> upgrades)
+    {
+        ArgumentNullException.ThrowIfNull(upgrades);
+        HomeUpgrades.Restore(upgrades);
+    }
+
+    public IReadOnlyList<HomeUpgrade> GetAvailableHomeUpgrades()
+    {
+        return HomeUpgradeDefinitions.AllUpgrades
+            .Where(u => !HomeUpgrades.HasUpgrade(u))
+            .ToList();
+    }
 
     private static string GetTrainingFlavorMessage(TrainingActivity activity)
     {

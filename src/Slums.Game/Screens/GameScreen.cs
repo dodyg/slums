@@ -302,6 +302,9 @@ internal sealed class GameScreen : ScreenSurface
             case GameActionId.Train:
                 ShowTrainingMenu();
                 break;
+            case GameActionId.HomeImprovement:
+                ShowHomeUpgradeMenu();
+                break;
             case GameActionId.Invest:
                 ShowInvestmentMenu();
                 break;
@@ -436,6 +439,19 @@ internal sealed class GameScreen : ScreenSurface
 
         IsFocused = false;
         GameHost.Instance.Screen = new TrainingScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, trainingContext, activities, this);
+    }
+
+    private void ShowHomeUpgradeMenu()
+    {
+        var availableUpgrades = _gameState.GetAvailableHomeUpgrades();
+        if (availableUpgrades.Count == 0)
+        {
+            AddEventLogEntry("No home upgrades available.");
+            return;
+        }
+
+        IsFocused = false;
+        GameHost.Instance.Screen = new HomeUpgradeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, this);
     }
 
     private void ShowInvestmentMenu()

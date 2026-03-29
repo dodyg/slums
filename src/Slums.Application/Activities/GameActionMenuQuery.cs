@@ -45,6 +45,11 @@ public sealed class GameActionMenuQuery
             actions.Add(new GameAction(GameActionId.Train, "Train Skills"));
         }
 
+        if (context.HasHomeUpgradesAvailable)
+        {
+            actions.Add(new GameAction(GameActionId.HomeImprovement, "Home Improvement"));
+        }
+
         actions.Add(new GameAction(GameActionId.Shop, "Shop"));
 
         if (context.HasHouseholdAssetsAccess)
