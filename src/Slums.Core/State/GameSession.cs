@@ -11,6 +11,7 @@ using Slums.Core.Jobs;
 using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
+using Slums.Core.Training;
 using Slums.Core.World;
 using EntitiesDb;
 using Slums.Core.Diagnostics;
@@ -38,6 +39,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     private readonly Dictionary<string, int> _randomEventHistory;
     private readonly bool _useDynamicDistrictConditions;
     private readonly List<GameMutationRecord> _mutations = [];
+    private readonly Dictionary<SkillId, bool> _trainedSkillsToday = [];
 
     public GameSession(Random? sharedRandom = null)
     {
@@ -278,6 +280,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         Player.Nutrition.BeginNewDay();
         Player.Household.BeginNewDay();
+        _trainedSkillsToday.Clear();
 
         foreach (var randomEvent in _randomEventService.RollDailyEvents(this, random ?? _sharedRandom))
         {
@@ -506,6 +509,148 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             EntertainmentActivityType.FootballWatching => "The crowd screams at the TV. You scream with them.",
             EntertainmentActivityType.SocialHangout => "Just talking. Just listening. It helps.",
             _ => $"You spent some time on {activity.Name}."
+        };
+    }
+
+    public IReadOnlyList<TrainingActivity> GetAvailableTrainingActivities()
+    {
+        var results = new List<TrainingActivity>();
+        foreach (var activity in TrainingRegistry.AllActivities)
+        {
+            if (activity.RequiresHome && World.CurrentLocationId != LocationId.Home)
+            {
+                continue;
+            }
+
+            if (activity.RequiredNpc is NpcId npcId)
+            {
+                var relationship = Relationships.GetNpcRelationship(npcId);
+                if (relationship.Trust < activity.RequiredTrust)
+                {
+                    continue;
+                }
+            }
+
+            if (Player.Skills.GetLevel(activity.Skill) >= 10)
+            {
+                continue;
+            }
+
+            if (_trainedSkillsToday.ContainsKey(activity.Skill))
+            {
+                continue;
+            }
+
+            results.Add(activity);
+        }
+
+        return results;
+    }
+
+    public bool TryPerformTraining(TrainingActivity activity)
+    {
+        ArgumentNullException.ThrowIfNull(activity);
+        var before = CaptureStats();
+
+        var available = GetAvailableTrainingActivities();
+        if (!available.Contains(activity))
+        {
+            RecordMutation(MutationCategories.GuardRejected, "TryPerformTraining", before, CaptureStats(), $"{activity.Name} not available");
+            RaiseEvent($"{activity.Name} is not available right now.");
+            return false;
+        }
+
+        if (Player.Stats.Energy < activity.EnergyCost)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "TryPerformTraining", before, CaptureStats(), $"Too tired (need {activity.EnergyCost} energy, have {Player.Stats.Energy})");
+            RaiseEvent($"You are too tired for {activity.Name}.");
+            return false;
+        }
+
+        if (Player.Stats.Money < activity.MoneyCost)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "TryPerformTraining", before, CaptureStats(), $"Cannot afford {activity.Name} (cost {activity.MoneyCost} LE, have {Player.Stats.Money} LE)");
+            RaiseEvent($"You cannot afford {activity.Name} right now.");
+            return false;
+        }
+
+        if (Clock.Hour < 18 || Clock.Hour >= 22)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "TryPerformTraining", before, CaptureStats(), "Not evening hours (18:00-22:00)");
+            RaiseEvent("You can only train in the evening (18:00-22:00).");
+            return false;
+        }
+
+        if (Player.Skills.GetLevel(activity.Skill) >= 10)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "TryPerformTraining", before, CaptureStats(), $"{activity.Skill} already at max level");
+            RaiseEvent($"Your {activity.Skill} is already at maximum.");
+            return false;
+        }
+
+        var actualEnergyCost = activity.EnergyCost;
+        var stressModifier = 0;
+
+        if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout && activity.Type == TrainingActivityType.StudyMedical)
+        {
+            stressModifier = -3;
+        }
+
+        if (Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner && activity.Type == TrainingActivityType.StreetDice)
+        {
+            actualEnergyCost = Math.Max(1, actualEnergyCost - 3);
+        }
+
+        if (Player.BackgroundType == BackgroundType.SudaneseRefugee && activity.Type == TrainingActivityType.RooftopExercise)
+        {
+            actualEnergyCost = Math.Max(1, actualEnergyCost - 3);
+        }
+
+        if (activity.MoneyCost > 0)
+        {
+            Player.Stats.ModifyMoney(-activity.MoneyCost);
+        }
+
+        AdvanceTime(activity.TimeCostMinutes);
+        Player.Stats.ModifyEnergy(-actualEnergyCost);
+
+        var oldLevel = Player.Skills.GetLevel(activity.Skill);
+        ApplySkillGain(activity.Skill);
+        var newLevel = Player.Skills.GetLevel(activity.Skill);
+
+        _trainedSkillsToday[activity.Skill] = true;
+
+        if (stressModifier != 0)
+        {
+            Player.Stats.ModifyStress(stressModifier);
+        }
+
+        RaiseEvent(GetTrainingFlavorMessage(activity));
+        RecordMutation(MutationCategories.Training, "TryPerformTraining", before, CaptureStats(), $"{activity.Name} ({activity.Skill} {oldLevel}->{newLevel})");
+        return true;
+    }
+
+    public void RestoreTrainedSkillsToday(Dictionary<SkillId, bool> trainedSkillsToday)
+    {
+        ArgumentNullException.ThrowIfNull(trainedSkillsToday);
+        _trainedSkillsToday.Clear();
+        foreach (var pair in trainedSkillsToday)
+        {
+            _trainedSkillsToday[pair.Key] = pair.Value;
+        }
+    }
+
+    public IReadOnlyDictionary<SkillId, bool> TrainedSkillsToday => _trainedSkillsToday;
+
+    private static string GetTrainingFlavorMessage(TrainingActivity activity)
+    {
+        return activity.Type switch
+        {
+            TrainingActivityType.StudyMedical => "The old textbooks feel less foreign now. Knowledge settles in.",
+            TrainingActivityType.PracticePersuasion => "Words sharpen. Umm Karim nods approvingly.",
+            TrainingActivityType.StreetDice => "The dice talk to you differently after Youssef's lessons.",
+            TrainingActivityType.RooftopExercise => "Your muscles burn, but the evening breeze makes it bearable.",
+            _ => $"You practiced {activity.Name}."
         };
     }
 

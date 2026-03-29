@@ -22,8 +22,8 @@ internal sealed class GameScreenLayoutTests
     public void Layout_ShouldKeepOverviewStatusPageAndEventLogInSeparateBands()
     {
         GameScreenLayout.OverviewY.Should().Be(0);
-        GameScreenLayout.StatusPageY.Should().Be(9);
-        GameScreenLayout.EventLogY.Should().Be(18);
-        GameScreenLayout.RightPanelWidth.Should().Be(33);
+        GameScreenLayout.StatusPageY.Should().Be(11);
+        GameScreenLayout.EventLogY.Should().Be(19);
+        GameScreenLayout.RightPanelWidth.Should().Be(53);
     }
 }

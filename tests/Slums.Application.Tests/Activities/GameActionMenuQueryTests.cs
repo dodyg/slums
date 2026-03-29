@@ -76,6 +76,17 @@ internal sealed class GameActionMenuQueryTests
     }
 
     [Test]
+    public void GetActions_ShouldShowTrainAction_WhenTrainingAvailable()
+    {
+        var query = new GameActionMenuQuery();
+        using var gameState = new GameSession();
+
+        var actions = query.GetActions(GameActionMenuContext.Create(gameState));
+
+        actions.Select(static a => a.Id).Should().Contain(GameActionId.Train);
+    }
+
+    [Test]
     public void GetActions_ShouldUsePetsAndPlantsLabel_AtHomeWhenManagementIsAvailable()
     {
         var query = new GameActionMenuQuery();

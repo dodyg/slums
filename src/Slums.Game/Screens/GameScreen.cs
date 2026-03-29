@@ -26,6 +26,7 @@ internal sealed class GameScreen : ScreenSurface
     private readonly TalkNpcStatusQuery _talkNpcStatusQuery = new();
     private readonly ClinicTravelMenuQuery _clinicTravelMenuQuery = new();
     private readonly EntertainmentMenuQuery _entertainmentMenuQuery = new();
+    private readonly TrainingMenuQuery _trainingMenuQuery = new();
     private readonly InvestmentMenuQuery _investmentMenuQuery = new();
     private readonly HouseholdAssetsMenuQuery _householdAssetsMenuQuery = new();
     private readonly GameActionMenuQuery _gameActionMenuQuery = new();
@@ -298,6 +299,9 @@ internal sealed class GameScreen : ScreenSurface
             case GameActionId.Entertainment:
                 ShowEntertainmentMenu();
                 break;
+            case GameActionId.Train:
+                ShowTrainingMenu();
+                break;
             case GameActionId.Invest:
                 ShowInvestmentMenu();
                 break;
@@ -418,6 +422,20 @@ internal sealed class GameScreen : ScreenSurface
 
         IsFocused = false;
         GameHost.Instance.Screen = new EntertainmentScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, entertainmentContext, activities, this);
+    }
+
+    private void ShowTrainingMenu()
+    {
+        var trainingContext = TrainingMenuContext.Create(_gameState);
+        var activities = _trainingMenuQuery.GetStatuses(trainingContext).ToList();
+        if (activities.Count == 0)
+        {
+            AddEventLogEntry("No training available right now.");
+            return;
+        }
+
+        IsFocused = false;
+        GameHost.Instance.Screen = new TrainingScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, trainingContext, activities, this);
     }
 
     private void ShowInvestmentMenu()

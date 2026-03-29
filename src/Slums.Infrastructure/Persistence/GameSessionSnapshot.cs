@@ -2,6 +2,7 @@ using Slums.Core.Characters;
 using Slums.Core.Investments;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
+using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 
@@ -33,6 +34,8 @@ public sealed record GameSessionSnapshot
 
     public int TotalInvestmentEarnings { get; init; }
 
+    public Dictionary<string, bool> TrainedSkillsToday { get; init; } = [];
+
     public static GameSessionSnapshot Capture(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
@@ -50,7 +53,8 @@ public sealed record GameSessionSnapshot
             Narrative = GameSessionNarrativeSnapshot.Capture(gameSession),
             HouseholdAssets = GameSessionHouseholdAssetsSnapshot.Capture(gameSession),
             Investments = gameSession.ActiveInvestments.Select(static investment => investment.CreateSnapshot()).ToArray(),
-            TotalInvestmentEarnings = gameSession.TotalInvestmentEarnings
+            TotalInvestmentEarnings = gameSession.TotalInvestmentEarnings,
+            TrainedSkillsToday = gameSession.TrainedSkillsToday.ToDictionary(static kvp => kvp.Key.ToString(), static kvp => kvp.Value)
         };
     }
 
@@ -116,6 +120,11 @@ public sealed record GameSessionSnapshot
                 HouseholdAssets.TotalHerbEarnings);
 
             gameSession.RestoreInvestmentState(Investments, TotalInvestmentEarnings);
+
+            var trainedSkills = TrainedSkillsToday.ToDictionary(
+                kvp => Enum.Parse<SkillId>(kvp.Key),
+                kvp => kvp.Value);
+            gameSession.RestoreTrainedSkillsToday(trainedSkills);
 
             foreach (var npcId in Enum.GetValues<NpcId>())
             {

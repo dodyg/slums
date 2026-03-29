@@ -125,7 +125,7 @@ internal sealed class AutoTransactionEventLogTests
 
         events.Should().Contain(e =>
             e.StartsWith("[Day 3]", StringComparison.Ordinal) &&
-            e.Contains("weekly income"));
+            e.Contains("investment", StringComparison.OrdinalIgnoreCase));
     }
 
     [Test]

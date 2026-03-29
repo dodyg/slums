@@ -17,5 +17,6 @@ public enum GameActionId
     EatStreetFood,
     Travel,
     SaveGame,
-    EndDay
+    EndDay,
+    Train
 }

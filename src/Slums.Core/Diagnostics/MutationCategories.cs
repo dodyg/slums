@@ -17,4 +17,5 @@ public static class MutationCategories
     public const string GuardRejected = "GuardRejected";
     public const string EndingTriggered = "EndingTriggered";
     public const string StateSnapshot = "StateSnapshot";
+    public const string Training = "Training";
 }

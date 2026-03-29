@@ -5,6 +5,8 @@ using Slums.Core.Characters;
 using Slums.Core.Investments;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
+using Slums.Core.Skills;
+using Slums.Core.Training;
 using Slums.Core.World;
 using Slums.Infrastructure.Persistence;
 using TUnit.Core;
@@ -65,6 +67,10 @@ internal sealed class JsonSaveGameStoreTests
                 new InvestmentSnapshot(InvestmentType.FoulCart, 150, 8, 12, 3, false)
             ],
             totalInvestmentEarnings: 27);
+            gameSession.Player.Stats.SetEnergy(100);
+            gameSession.Player.Skills.SetLevel(Slums.Core.Skills.SkillId.Physical, 2);
+            gameSession.RestoreTrainedSkillsToday(
+                new Dictionary<Slums.Core.Skills.SkillId, bool> { { Slums.Core.Skills.SkillId.Physical, true } });
 
             await store.SaveAsync(SaveGameRequest.Create(gameSession, "crime_warning"), "slot1").ConfigureAwait(false);
             var loaded = await store.LoadAsync("slot1").ConfigureAwait(false);
@@ -113,6 +119,8 @@ internal sealed class JsonSaveGameStoreTests
                     restoredSession.ActiveInvestments.Should().ContainSingle();
                     restoredSession.ActiveInvestments[0].Type.Should().Be(InvestmentType.FoulCart);
                     restoredSession.ActiveInvestments[0].WeeksActive.Should().Be(3);
+                    restoredSession.TrainedSkillsToday.Should().ContainKey(SkillId.Physical);
+                    restoredSession.Player.Skills.GetLevel(SkillId.Physical).Should().BeGreaterThan(0);
                 }
                 finally
                 {

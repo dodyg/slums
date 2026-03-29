@@ -8,7 +8,8 @@ public sealed record GameActionMenuContext(
     bool IsAtHome,
     bool HasReachableNpcs,
     bool HasInvestmentOpportunities,
-    bool HasHouseholdAssetsAccess)
+    bool HasHouseholdAssetsAccess,
+    bool HasTrainingAvailable)
 {
     public static GameActionMenuContext Create(GameSession gameSession)
     {
@@ -19,6 +20,7 @@ public sealed record GameActionMenuContext(
             gameSession.World.CurrentLocationId == LocationId.Home,
             gameSession.GetReachableNpcs().Count > 0,
             gameSession.GetCurrentInvestmentOpportunities().Count > 0,
-            gameSession.CanUseHouseholdAssets());
+            gameSession.CanUseHouseholdAssets(),
+            gameSession.GetAvailableTrainingActivities().Count > 0);
     }
 }
