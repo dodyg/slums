@@ -37,7 +37,7 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - `GameSession` kept as the runtime boundary while orchestration-heavy narrative, work/crime aftermath, and investment logic is delegated to focused core planners/evaluators/calculators
 - fail-fast bootstrap for repository-owned JSON content instead of silent fallback to default registries
 - multiple ending paths based on long-term behavior, pressure, and survival trajectory
-- world-enrichment mechanics planned: day-of-week rhythms, seasonal calendar, weather, sleep quality, rumors, territory dynamics, NPC-to-NPC economy (see dedicated sections below)
+- world-enrichment mechanics planned: day-of-week rhythms, seasonal calendar, community solidarity events, weather, sleep quality, rumors, district-specific heat, territory dynamics, phone and async contacts, debt and NPC economy, information network (see dedicated sections below)
 
 ## Architecture Guardrails
 
@@ -93,10 +93,14 @@ Implement in dependency order after skill training:
 1. Day-of-Week Rhythms (quick win, no dependencies)
 2. Sleep Quality (quick win, standalone)
 3. Seasonal Calendar (depends on day-of-week)
-4. Weather (depends on seasonal calendar)
-5. Rumors (depends on relationships)
-6. Territory Dynamics (depends on factions)
-7. Debt and NPC Economy (depends on relationships)
+4. Community Solidarity Events (depends on day-of-week, seasonal calendar)
+5. Weather (depends on seasonal calendar)
+6. Rumors (depends on relationships)
+7. District-Specific Heat (foundational for territory and information network)
+8. Territory Dynamics (depends on factions, district-specific heat)
+9. Phone and Asynchronous Contacts (standalone core, enables information network)
+10. Debt and NPC Economy (depends on relationships)
+11. Information Network (depends on phone system, district-specific heat, relationships)
 
 ### 3. UI Clarity
 
@@ -644,6 +648,163 @@ Modified files:
 - `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- add calendar and Ramadan state
 - `src/Slums.Game/Screens/` -- HUD season/holiday display, Ramadan choice dialog
 
+## Community Solidarity Events
+
+Status: planned.
+
+Requirements: see REQS.md "Community Solidarity Events" section.
+
+### Design
+
+Recurring neighborhood events tied to cultural rhythms and the calendar. Players attend to gain multi-NPC trust, stress relief, and information. Skipping while struggling triggers concern or isolation. The system builds on the existing community event concept and extends it with attendance tracking, background-specific flavor, and the full event catalog.
+
+### Phase 1 -- Core types
+
+Create `src/Slums.Core/Community/`:
+
+1. **`CommunityEventId.cs`** -- enum: `FridayRooftopGathering`, `RamadanIftarSharing`, `NeighborhoodCleanup`, `RooftopTeaCircle`, `MulidFestival`.
+
+2. **`CommunityEventDefinition.cs`** -- sealed record:
+   ```
+   CommunityEventDefinition(
+       CommunityEventId Id,
+       string Name,
+       string Description,
+       string? RequiredSeason,
+       string Frequency,
+       string Location,
+       int TimeCostMinutes,
+       int MoneyCost,
+       int StressChange,
+       int TrustGainCount,
+       int TrustGainAmount,
+       bool ProvidesFoodAccess,
+       bool ProvidesBulkDiscount,
+       bool ProvidesInformationTips,
+       string[] Backgrounds granting bonus trust)
+   ```
+
+3. **`CommunityEventRegistry.cs`** -- static class returning all event definitions from the REQS.md table:
+   - Friday rooftop gathering: weekly, Home building, 120 min, 0 LE, stress -5, trust +2 with 2-3 neighbors
+   - Ramadan iftar sharing: seasonal (Ramadan only), Home area, 180 min, 10 LE, stress -10, trust +2 with 3-5 NPCs, community food access
+   - Neighborhood cleanup: monthly, Home district, 180 min, 0 LE, faction reputation boost, trust with participating NPCs
+   - Rooftop tea circle: informal (NPC invitation), Home rooftop, 90 min, 0 LE, info network tips, trust +1 with 1-2 NPCs
+   - Mulid (saint's festival): seasonal, Imbaba streets, 240 min, 5-15 LE, large trust/stress benefits, money-making opportunity, pickpocket risk
+
+4. **`CommunityEventAttendance.cs`** -- sealed record tracking attendance state:
+   ```
+   CommunityEventAttendance(
+       int ConsecutiveSkips,
+       int TotalAttended,
+       int LastAttendanceDay,
+       HashSet<CommunityEventId> AttendedThisWeek)
+   ```
+
+### Phase 2 -- Core integration on GameSession
+
+1. Add `CommunityEventAttendance EventAttendance` property to `GameSession`.
+
+2. Add `GetAvailableCommunityEvents()` method:
+   - Filter by: current day-of-week (Friday gathering only on Friday), current season/month (Mulid seasonal), Ramadan state (iftar only during Ramadan), NPC invitation state (tea circle requires invitation)
+   - Return filtered list of `CommunityEventDefinition`
+
+3. Add `AttendCommunityEvent(CommunityEventId)` method on `GameSession`:
+   - Guard: event is available, enough time remaining, enough money, not already attended today
+   - On success:
+     - Deduct money and time
+     - Apply stress reduction
+     - Grant trust with randomly selected NPCs from the event's attendee pool (filtered by trust and proximity)
+     - If event provides food access: mark daily food as covered
+     - If event provides bulk discount: set a temporary food discount flag for the day
+     - If event provides information tips: queue an information network tip delivery
+     - If mulid: roll pickpocket event (10% chance, lose 5-15 LE)
+     - If neighborhood cleanup: grant faction reputation boost with local factions
+     - Reset `ConsecutiveSkips` to 0, increment `TotalAttended`, update `LastAttendanceDay`
+   - Background-specific modifiers:
+     - Sudanese Refugee: separate refugee community gathering variant with unique solidarity bonuses (+2 extra trust with refugee NPCs)
+     - Released Political Prisoner: trust gains start slower (halved for first 3 events attended), then deepen (full value +1 bonus after 3 events)
+     - Medical School Dropout: can volunteer basic first aid, gaining bonus trust (+1) with any injured/sick attendees
+
+4. In `EndDay()`:
+   - If no community event attended today: increment `ConsecutiveSkips`
+   - If `ConsecutiveSkips >= 3` and player is struggling (money < 30, health < 40, or stress > 60):
+     - Trigger neighbor concern: random community-oriented NPC grants small trust boost (+1)
+   - If `ConsecutiveSkips >= 5`:
+     - Community-oriented NPCs (Mona, Umm Karim, Nurse Salma) lose trust slowly (-1 per additional skip)
+   - Reset weekly attendance tracker at the start of each new week
+
+5. Integration with other systems:
+   - Day-of-week: prayer gathering on Friday (already planned in Day-of-Week section) becomes a `CommunityEventDefinition`
+   - Seasonal calendar: Ramadan iftar, Mulid, holiday-specific events use calendar state
+   - Rumors: skipping 3+ events generates "She thinks she's too good for the neighborhood" rumor
+   - Information network: attending events surfaces tips during conversations
+
+6. Rooftop tea circle invitation mechanic:
+   - High-trust NPCs (trust >= 10) may invite the player during conversation
+   - Invitation creates a temporary flag on `CommunityEventAttendance` making `RooftopTeaCircle` available that day
+   - Invitations are random (20% chance per qualifying NPC per day)
+
+### Phase 3 -- Application and Game layer
+
+1. Add `CommunityEventMenuContext` and `CommunityEventMenuQuery` in `Slums.Application/Activities/`:
+   - Context carries available events, player money, time, attendance state
+   - Query computes per-event availability and produces human-readable status
+
+2. Add `AttendCommunityEventCommand` for delegation.
+
+3. Add `CommunityEvent` to `GameActionId`, wired into action menu when events are available.
+
+4. Create `CommunityEventScreen` in `Slums.Game/Screens/`:
+   - Lists available events with costs, benefits, and timing
+   - Shows attendance history summary
+   - Keyboard navigation, selection, confirmation
+
+5. Show event-related flavor in HUD (e.g., "Friday -- rooftop gathering tonight").
+
+6. Show isolation/concern messages in event log when skip thresholds trigger.
+
+### Phase 4 -- Tests
+
+1. **`tests/Slums.Core.Tests/Community/CommunityEventTests.cs`**:
+   - Friday gathering is available on Friday, unavailable on other days
+   - Ramadan iftar is only available during Ramadan
+   - Mulid is seasonal and location-gated
+   - Tea circle requires NPC invitation
+   - Attending grants trust with correct number of NPCs
+   - Attending reduces stress by the correct amount
+   - Ramadan iftar covers daily food
+   - Mulid pickpocket risk rolls correctly
+   - Consecutive skips increment when no event attended
+   - Struggling player with 3+ skips triggers neighbor concern
+   - 5+ skips cause community NPC trust erosion
+   - Rumor generated at 3+ consecutive skips
+   - Background-specific modifiers apply (refugee gathering, prisoner trust curve, dropout first aid)
+   - Weekly attendance tracker resets on new week
+   - Save/load round-trip preserves attendance state
+
+2. **`tests/Slums.Application.Tests/`** -- event menu query returns correct availability per day/season.
+
+### File Summary
+
+New files:
+- `src/Slums.Core/Community/CommunityEventId.cs`
+- `src/Slums.Core/Community/CommunityEventDefinition.cs`
+- `src/Slums.Core/Community/CommunityEventRegistry.cs`
+- `src/Slums.Core/Community/CommunityEventAttendance.cs`
+- `src/Slums.Application/Activities/CommunityEventMenuContext.cs`
+- `src/Slums.Application/Activities/CommunityEventMenuQuery.cs`
+- `src/Slums.Application/Activities/AttendCommunityEventCommand.cs`
+- `src/Slums.Game/Screens/CommunityEventScreen.cs`
+- `tests/Slums.Core.Tests/Community/CommunityEventTests.cs`
+
+Modified files:
+- `src/Slums.Core/State/GameSession.cs` -- add `EventAttendance`, `GetAvailableCommunityEvents()`, `AttendCommunityEvent()`, skip tracking in `EndDay()`
+- `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist community event attendance
+- `src/Slums.Application/Activities/GameActionId.cs` -- add `CommunityEvent`
+- `src/Slums.Application/Activities/GameActionMenuContext.cs` -- add `HasCommunityEventAvailable`
+- `src/Slums.Application/Activities/GameActionMenuQuery.cs` -- add CommunityEvent conditional
+- `src/Slums.Game/Screens/GameScreen.cs` -- add dispatch for community event screen
+
 ## Weather and Atmospheric Conditions
 
 Status: planned.
@@ -979,6 +1140,148 @@ Modified files:
 - `src/Slums.Application/Activities/GameActionId.cs` -- add `ClearTheAir`
 - `src/Slums.Game/Screens/GameScreen.cs` -- add rumor counter action dispatch
 
+## District-Specific Heat
+
+Status: planned.
+
+Requirements: see REQS.md "District-Specific Heat" section.
+
+### Design
+
+Replace the single global `PolicePressure` value with per-district heat tracking. Each district has its own heat level that rises from crimes committed there, decays at district-specific rates, and bleeds over to adjacent districts. A global pressure value is still computed as the max of all district heats for ending checks and narrative triggers. This is a foundational system that Territory Dynamics, Information Network, and enhanced crime detection all depend on.
+
+### Phase 1 -- Core types
+
+Create `src/Slums.Core/Heat/`:
+
+1. **`DistrictHeatEntry.cs`** -- sealed record:
+   ```
+   DistrictHeatEntry(
+       DistrictId District,
+       int Heat,
+       int DecayRate,
+       int BaselineHeat)
+   ```
+   Heat is clamped to 0-100. `DecayRate` is per-day. `BaselineHeat` is a floor that does not decay below (e.g., Sudanese Refugee starts Dokki at 10 baseline).
+
+2. **`DistrictHeatState.cs`** -- tracks heat for all districts:
+   ```
+   DistrictHeatState(IReadOnlyDictionary<DistrictId, DistrictHeatEntry> Districts)
+   ```
+   Methods:
+   - `GetHeat(DistrictId)` -> int (current heat level)
+   - `AddHeat(DistrictId, int amount)` -> clamped to 0-100
+   - `DecayAll()` -> apply per-district decay rates, floor at baseline
+   - `ApplyBleedOver()` -> transfer heat between adjacent districts
+   - `GetGlobalPressure()` -> max of all district heats
+   - `GetHighHeatDistricts(int threshold)` -> districts above threshold
+
+3. **`HeatDecayRates.cs`** -- static registry with per-district decay rates from REQS.md:
+   - Dokki: 5/day (fastest, better-policed)
+   - Imbaba: 3/day (moderate)
+   - Ard Al-Liwa: 2/day (slower)
+   - Bulaq Al-Dakrour: 2/day (slower)
+   - Shubra: 2/day (slower)
+
+4. **`HeatBleedOverTable.cs`** -- static registry defining bleed-over relationships:
+   - Imbaba <-> Bulaq: 15% of difference (high proximity)
+   - Imbaba <-> Dokki: 5% of difference (different jurisdiction)
+   - Ard Al-Liwa <-> Imbaba: 10% of difference (geographic proximity)
+   - Ard Al-Liwa <-> Dokki: 5% of difference
+   - Bleed is asymmetric: flows from high to low only
+
+### Phase 2 -- Core integration on GameSession
+
+1. Replace the existing `PolicePressure` integer on `GameSession` with `DistrictHeatState DistrictHeat`, initialized with:
+   - All districts at 0 heat, except:
+   - Sudanese Refugee background: Dokki starts at 10 baseline heat (profiling)
+   - Decay rates from `HeatDecayRates`
+
+2. Add `int GetGlobalPolicePressure()` computed property that returns `DistrictHeat.GetGlobalPressure()` for backward compatibility with existing ending checks.
+
+3. In `CommitCrime()`: replace flat `PolicePressure` increase with `DistrictHeat.AddHeat(crimeDistrict, amount)` where amount scales with crime severity.
+
+4. In `EndDay()`:
+   - Call `DistrictHeat.DecayAll()` to apply per-district daily decay
+   - Call `DistrictHeat.ApplyBleedOver()` to spread heat between adjacent districts
+   - Apply background modifier:
+     - Released Political Prisoner: decay rates halved across all districts (slower heat decay)
+   - Check for high-heat effects:
+     - Heat > 80 in any district: travel through that district may trigger encounter (stress +5, time +30 min)
+     - Heat > 60 in a district: generate "something is going on" rumor in that district
+   - Update `GameMutationRecord` to include district heat changes
+
+5. Modify crime detection calculation:
+   - Detection chance in a district increases proportionally to that district's heat (e.g., +heat/5 percent)
+
+6. Modify random event eligibility:
+   - Raids and checkpoints more likely in high-heat districts (event weight multiplied by 1 + heat/50)
+
+7. Modify NPC availability:
+   - NPCs with low criminal tolerance become unavailable or cautious in high-heat districts (heat > 60)
+
+8. Background effects:
+   - Released Political Prisoner: all decay rates halved (heat lingers longer)
+   - Sudanese Refugee: Dokki starts with +10 baseline heat (persistent profiling)
+
+### Phase 3 -- Migration from global PolicePressure
+
+1. The existing `PolicePressure` property on `GameSession` becomes a computed facade: `get => DistrictHeat.GetGlobalPressure()`.
+
+2. All existing ending checks that compare `PolicePressure >= 100` continue to work through the computed property.
+
+3. All existing crime aftermath logic that reads `PolicePressure` is updated to read the relevant district heat instead.
+
+4. `GameSessionSnapshot` capture/restore is updated to persist `DistrictHeatState` instead of a flat integer.
+
+5. The existing `ArrestedEnding` trigger (global pressure >= 100) remains unchanged.
+
+### Phase 4 -- Application and Game layer
+
+1. Add district heat to status queries and HUD display (heat indicator per district on map/status screen).
+
+2. Crime preview shows district-specific detection chance.
+
+3. Travel screen warns about high-heat districts (80+).
+
+4. Map/status screen shows heat levels for all known districts.
+
+### Phase 5 -- Tests
+
+1. **`tests/Slums.Core.Tests/Heat/DistrictHeatTests.cs`**:
+   - Heat is clamped to 0-100
+   - Each district decays at its configured rate
+   - Dokki decays fastest, Imbaba moderate, others slower
+   - Bleed-over transfers heat from high to low districts
+   - Imbaba-Bulaq bleed rate is higher than Imbaba-Dokki
+   - Bleed is asymmetric (only high to low)
+   - Global pressure is max of all district heats
+   - Crime committed in a district raises that district's heat
+   - Released Political Prisoner: decay rates halved
+   - Sudanese Refugee: Dokki starts at +10 baseline
+   - Heat > 80 triggers travel encounter check
+   - Heat > 60 generates rumor
+   - Save/load round-trip preserves district heat state
+
+2. **`tests/Slums.Core.Tests/`** -- existing tests that use `PolicePressure` are updated to work with district heat but produce the same behavioral results.
+
+3. **`tests/Slums.Infrastructure.Tests/`** -- save/load round-trip includes full `DistrictHeatState`.
+
+### File Summary
+
+New files:
+- `src/Slums.Core/Heat/DistrictHeatEntry.cs`
+- `src/Slums.Core/Heat/DistrictHeatState.cs`
+- `src/Slums.Core/Heat/HeatDecayRates.cs`
+- `src/Slums.Core/Heat/HeatBleedOverTable.cs`
+- `tests/Slums.Core.Tests/Heat/DistrictHeatTests.cs`
+
+Modified files:
+- `src/Slums.Core/State/GameSession.cs` -- replace `PolicePressure` with `DistrictHeatState`, add district-aware crime heat, decay/bleed in `EndDay()`
+- `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist district heat state
+- `src/Slums.Game/Screens/` -- HUD heat display per district, travel warnings
+- Existing tests referencing `PolicePressure` -- update to use district heat facade
+
 ## Territory Dynamics
 
 Status: planned.
@@ -1102,6 +1405,196 @@ Modified files:
 - `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist territory state
 - `src/Slums.Application/Activities/` -- territory-aware crime and NPC queries
 - `src/Slums.Game/Screens/` -- territory display on map/status
+
+## Phone and Asynchronous Contacts
+
+Status: planned.
+
+Requirements: see REQS.md "Phone and Asynchronous Contacts" section.
+
+### Design
+
+The player has a basic mobile phone requiring weekly prepaid credit. Async messages arrive at day start or when returning home. Messages include time-sensitive opportunities, warnings, family alerts, and network requests. Phone loss is a random event that disables the system until recovered. This system is a prerequisite for the Information Network (tips delivered via phone).
+
+### Phase 1 -- Core types
+
+Create `src/Slums.Core/Phone/`:
+
+1. **`PhoneState.cs`** -- sealed record tracking phone status:
+   ```
+   PhoneState(
+       bool HasPhone,
+       int CreditRemaining,
+       int CreditWeekCost,
+       int DaysSinceCreditRefill,
+       bool PhoneLost,
+       int? PhoneLostDay,
+       bool PhoneRecovered)
+   ```
+   Methods:
+   - `IsOperational()` -> true if has phone and credit > 0 and not lost
+   - `RefillCredit()` -> reset `DaysSinceCreditRefill`, set credit to 7 days
+   - `DailyCreditDrain()` -> decrement credit tracker, mark out-of-credit if expired
+   - `LosePhone(int day)` -> set phone lost
+   - `RecoverPhone()` -> clear phone lost state
+
+2. **`PhoneMessageId.cs`** -- enum or string-based identifier for message types.
+
+3. **`PhoneMessage.cs`** -- sealed record:
+   ```
+   PhoneMessage(
+       string Id,
+       PhoneMessageType Type,
+       string Sender,
+       string Content,
+       int DayReceived,
+       int? ExpiresAfterDay,
+       bool RequiresResponse,
+       int? ResponseTimeCost,
+       int? ResponseMoneyCost,
+       bool Responded,
+       bool Ignored)
+   ```
+   `PhoneMessageType`: `Opportunity`, `Warning`, `FamilyAlert`, `NetworkRequest`, `Tip`, `Background`.
+
+4. **`PhoneMessageState.cs`** -- tracks inbox:
+   ```
+   PhoneMessageState(IReadOnlyList<PhoneMessage> Inbox)
+   ```
+   Methods: `AddMessage(PhoneMessage)`, `GetActiveMessages(int currentDay)`, `RespondToMessage(string id)`, `IgnoreMessage(string id)`, `RemoveExpired(int currentDay)`, `GetUnrespondedCount()`.
+
+5. **`PhoneMessageGenerator.cs`** -- static class creating messages from game state:
+   - Criminal contacts: "Meet me at the square tonight" (opportunity, criminal contact, trust >= 10)
+   - Trusted NPC: "Don't come to Dokki today" (warning, high heat in district)
+   - Neighbors: mother-related concerns (family alert, triggered by low mother health)
+   - Faction contacts: favor requests (network request, faction reputation >= 5)
+   - Background-specific:
+     - Sudanese Refugee: refugee community solidarity opportunities
+     - Released Political Prisoner: old network errands and warnings
+     - Medical School Dropout: former classmate medical supply opportunities
+
+### Phase 2 -- Core integration on GameSession
+
+1. Add `PhoneState Phone` and `PhoneMessageState PhoneMessages` properties to `GameSession`, initialized with phone available and 7 days of credit.
+
+2. In `EndDay()`:
+   - Call `Phone.DailyCreditDrain()` to track weekly credit usage
+   - If credit expired: mark phone as out-of-credit (cannot receive messages)
+   - Generate new messages based on current game state:
+     - Criminal contact opportunities: 20% chance per day if any criminal NPC has trust >= 10
+     - District heat warnings: if any district heat > 60, trusted NPC in that district sends warning
+     - Family alerts: if mother health < 40, neighbor sends concern message
+     - Network requests: if faction reputation >= 5, 10% chance of favor request
+     - Background-specific messages: rolled against background-specific NPC pools
+   - Remove expired messages from inbox
+   - Append `GameMutationRecord` for messages received and credit drain
+
+3. When player returns to Home location:
+   - Deliver any queued messages that were waiting
+   - Show notification count
+
+4. Add `RefillPhoneCredit()` method:
+   - Guard: at kiosk location OR talking to Umm Karim, money >= 5 LE
+   - On success: deduct 5 LE, refill credit for 7 days
+   - Event log entry
+
+5. Add `RespondToMessage(string messageId)` method:
+   - Guard: phone operational, message exists and not expired, not already responded
+   - Deduct time (varies by message) and money if required
+   - Mark message as responded
+   - Apply message-specific effects (e.g., criminal opportunity -> unlock crime route, warning -> stress -3, family alert -> mother health insight)
+   - Event log entry
+
+6. Add `IgnoreMessage(string messageId)` method:
+   - Mark message as ignored
+   - If sender trust >= 10 and multiple messages ignored from same sender: trust -1 per ignored message after the third
+
+7. Phone loss random event:
+   - Add to `RandomEventRegistry`: "Phone Stolen" (3% base chance per day, higher in Dokki and high-heat districts)
+   - On trigger: `Phone.LosePhone(Clock.Day)`, stress +5
+   - All async contacts unavailable until phone is replaced
+   - Recovery: purchase replacement phone at kiosk for 30 LE + refill credit
+   - Alternative recovery: during raid, phone confiscated (police-related event variant)
+
+8. Missed calls:
+   - When phone is out of credit or lost, messages queue as "missed"
+   - On credit refill or phone recovery, missed messages become available
+   - Returning a missed call costs 1 extra time unit and 1 LE credit
+
+### Phase 3 -- Application and Game layer
+
+1. Add `PhoneMenuContext` and `PhoneMenuQuery` in `Slums.Application/Activities/`:
+   - Context carries phone state, inbox, credit status
+   - Query computes message availability and response cost
+
+2. Add `PhoneCommand` for responding/ignoring messages.
+
+3. Add `RefillCreditCommand` for credit purchase.
+
+4. Add `Phone` to `GameActionId`, wired into action menu when phone is operational.
+
+5. Create `PhoneScreen` in `Slums.Game/Screens/`:
+   - Inbox view with message list, sender, type icon
+   - Message detail panel with content, response options, costs
+   - Credit status bar
+   - "Refill Credit" action at bottom when credit low
+
+6. Show phone notification indicator on HUD when unread messages exist.
+
+7. Show "No Credit" or "No Phone" indicator on HUD when phone is non-operational.
+
+### Phase 4 -- Tests
+
+1. **`tests/Slums.Core.Tests/Phone/PhoneStateTests.cs`**:
+   - Phone is operational when has phone, credit > 0, not lost
+   - Daily credit drain tracks correctly over 7 days
+   - Phone becomes non-operational after credit expires
+   - Refill credit resets counter and deducts 5 LE
+   - Phone loss disables all phone features
+   - Phone recovery restores functionality
+   - Missed calls queue correctly during outage
+
+2. **`tests/Slums.Core.Tests/Phone/PhoneMessageTests.cs`**:
+   - Messages generated based on game state (criminal contacts, heat warnings, family alerts)
+   - Background-specific messages generate for correct backgrounds
+   - Messages expire after their time limit
+   - Responding applies correct effects (time, money, gameplay consequence)
+   - Ignoring messages tracks ignore count
+   - Repeated ignoring causes trust erosion after third ignore
+   - Missed messages become available after phone recovery
+
+3. **`tests/Slums.Core.Tests/Phone/PhoneEventTests.cs`**:
+   - Phone stolen event triggers correctly and disables phone
+   - Phone stolen event is more likely in Dokki and high-heat districts
+   - Phone recovery costs 30 LE plus credit refill
+   - Save/load round-trip preserves phone state and messages
+
+4. **`tests/Slums.Infrastructure.Tests/`** -- phone state and message inbox persist through save/load.
+
+### File Summary
+
+New files:
+- `src/Slums.Core/Phone/PhoneState.cs`
+- `src/Slums.Core/Phone/PhoneMessage.cs`
+- `src/Slums.Core/Phone/PhoneMessageId.cs`
+- `src/Slums.Core/Phone/PhoneMessageState.cs`
+- `src/Slums.Core/Phone/PhoneMessageGenerator.cs`
+- `src/Slums.Application/Activities/PhoneMenuContext.cs`
+- `src/Slums.Application/Activities/PhoneMenuQuery.cs`
+- `src/Slums.Application/Activities/PhoneCommand.cs`
+- `src/Slums.Application/Activities/RefillCreditCommand.cs`
+- `src/Slums.Game/Screens/PhoneScreen.cs`
+- `tests/Slums.Core.Tests/Phone/PhoneStateTests.cs`
+- `tests/Slums.Core.Tests/Phone/PhoneMessageTests.cs`
+- `tests/Slums.Core.Tests/Phone/PhoneEventTests.cs`
+
+Modified files:
+- `src/Slums.Core/State/GameSession.cs` -- add `Phone`, `PhoneMessages`, message generation in `EndDay()`, credit drain, phone loss handling
+- `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist phone state and message inbox
+- `src/Slums.Application/Activities/GameActionId.cs` -- add `Phone`
+- `src/Slums.Application/Activities/GameActionMenuContext.cs` -- add `HasPhoneMessages` and `PhoneNeedsCredit`
+- `src/Slums.Application/Activities/GameActionMenuQuery.cs` -- add Phone action conditional
+- `src/Slums.Game/Screens/GameScreen.cs` -- add dispatch for phone screen, message notification on HUD
 
 ## Debt and NPC Economy
 
@@ -1286,6 +1779,183 @@ Modified files:
 - `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist NPC economy state and player debt state
 - `src/Slums.Game/Screens/` -- NPC loan dialog, borrow dialog, debt status page, financial gossip in conversations
 
+## Information Network
+
+Status: planned.
+
+Requirements: see REQS.md "Information Network" section.
+
+### Design
+
+High-trust NPCs provide context-sensitive tips and warnings through conversations and the phone system. Tips cover police activity, job leads, market intel, crime warnings, and personal alerts. Tips are time-limited, and ignoring repeated tips from trusted NPCs causes minor trust erosion. This system builds on the phone system for async delivery and the district-specific heat model for police-related tips.
+
+### Phase 1 -- Core types
+
+Create `src/Slums.Core/Information/`:
+
+1. **`TipType.cs`** -- enum: `PoliceTip`, `JobLead`, `MarketIntel`, `CrimeWarning`, `PersonalWarning`.
+
+2. **`Tip.cs`** -- sealed record:
+   ```
+   Tip(
+       string Id,
+       TipType Type,
+       NpcId Source,
+       string Content,
+       int DayGenerated,
+       int ExpiresAfterDay,
+       DistrictId? RelevantDistrict,
+       bool Acknowledged,
+       bool Ignored,
+       bool Delivered)
+   ```
+
+3. **`TipState.cs`** -- tracks active tips:
+   ```
+   TipState(IReadOnlyList<Tip> ActiveTips)
+   ```
+   Methods: `AddTip(Tip)`, `GetActiveTips(int currentDay)`, `AcknowledgeTip(string id)`, `IgnoreTip(string id)`, `RemoveExpired(int currentDay)`, `GetTipsByType(TipType)`, `GetTipsFromNpc(NpcId)`.
+
+4. **`TipGenerator.cs`** -- static class generating tips from game state:
+   - **Police tips** (Officer Khalid trust >= 20, or Umm Karim gossip at trust >= 15):
+     - Upcoming sweeps in a district (district heat rising fast, +5/day)
+     - Checkpoint schedules (random, district-specific)
+   - **Job leads** (employer NPC trust >= 10):
+     - Early notice of openings (new job variant available tomorrow)
+     - Employer mood (reliability bonus/penalty preview)
+   - **Market intel** (shopkeeper/merchant NPCs):
+     - Temporary food price changes (season/weather interaction preview)
+     - Supply shortages (specific food tier unavailable tomorrow)
+   - **Crime warnings** (criminal contact trust >= 10):
+     - Gang movements in a district (territory tension rising)
+     - Rival activity (crime detection chance temporarily higher)
+     - Heightened surveillance in a district (district heat spike incoming)
+   - **Personal warnings** (context-driven):
+     - Someone asking about the player (foreshadowing police or gang interest)
+     - Landlord mood shift (rent pressure incoming)
+     - NPC in trouble (debt/economy ripple warning)
+
+5. **`TipDeliveryConfig.cs`** -- static registry mapping tip sources to delivery method:
+   - Tips from NPCs in current district: delivered as conversation variants
+   - Tips from NPCs in other districts: delivered as phone messages
+   - Emergency tips (police raid imminent): delivered regardless of delivery method
+
+### Phase 2 -- Core integration on GameSession
+
+1. Add `TipState Tips` property to `GameSession`.
+
+2. In `EndDay()`:
+   - Generate new tips based on current game state:
+     - Roll per qualifying NPC (trust threshold met):
+       - Officer Khalid (trust >= 20): 30% chance of police tip if district heat > 30
+       - Umm Karim (trust >= 15): 20% chance of police/market gossip
+       - Employer NPCs (trust >= 10): 25% chance of job lead if work is available
+       - Criminal contacts (trust >= 10): 20% chance of crime warning if active in crime
+       - Shopkeeper NPCs: 15% chance of market intel
+       - Personal warnings: context-triggered (5% baseline, higher during specific events)
+   - Remove expired tips
+   - Track ignored tips per NPC: if a trusted NPC has sent 3+ tips that were all ignored, trust -1
+   - Append `GameMutationRecord` for tips generated and expired
+
+3. Tip delivery mechanics:
+   - At day start (during `EndDay()` completion): queue phone-delivered tips to `PhoneMessages`
+   - When player talks to an NPC who has a tip: tip appears as a conversation variant in the pool
+   - Emergency tips (high urgency): force-deliver through both channels
+
+4. Add `AcknowledgeTip(string tipId)` method:
+   - Mark tip as acknowledged
+   - Player acts on the information (e.g., avoids a district, takes a job, prepares for an event)
+   - No direct gameplay effect -- the tip itself is information; the player chooses whether to act
+
+5. Add `IgnoreTip(string tipId)` method:
+   - Mark tip as ignored
+   - Track ignore count per source NPC
+
+6. Integration with other systems:
+   - District-specific heat: police tips reference district heat levels
+   - Phone system: async tips delivered via phone messages
+   - Territory dynamics: crime warnings reference territory tension
+   - NPC economy: personal warnings reference NPC financial states
+   - Community events: tips surface during event conversations (bonus delivery channel)
+   - Day-of-week: job lead tips reference day-specific job availability
+   - Seasonal calendar: market intel tips reference seasonal price changes
+
+7. Background-specific tip access:
+   - Sudanese Refugee: refugee community contacts provide additional solidarity tips (safe areas, community support events)
+   - Released Political Prisoner: old network contacts provide political/police tips with higher accuracy
+   - Medical School Dropout: former classmates provide medical supply tips and clinic-related intel
+
+### Phase 3 -- Application and Game layer
+
+1. Add tip delivery to conversation pool system:
+   - When building conversation context for an NPC, check `Tips.GetTipsFromNpc(npcId)` for undelivered tips
+   - Add tip variants to the conversation pool with higher priority than generic dialogues
+   - After player selects a tip conversation variant, mark tip as delivered
+
+2. Add tip display to phone screen:
+   - Tips delivered as phone messages appear in the phone inbox with a distinct type icon
+   - Acknowledging a tip via phone marks it as acknowledged
+
+3. Add tip status indicator to HUD:
+   - Show "New tip" indicator when undelivered tips exist
+   - Flash for emergency tips
+
+4. Add tip log section to event log:
+   - Tips received are logged with source, type, and content summary
+   - Expired tips are noted when they expire (so player sees what they missed)
+
+5. Show tip context in relevant screens:
+   - Crime screen: show active crime warnings (" heightened surveillance in Dokki")
+   - Work screen: show active job leads ("Bakery looking for help tomorrow")
+   - Travel screen: show active police tips ("Checkpoint expected in Bulaq")
+
+### Phase 4 -- Tests
+
+1. **`tests/Slums.Core.Tests/Information/TipGeneratorTests.cs`**:
+   - Police tips generated when Officer Khalid trust >= 20 and district heat > 30
+   - Police tips from Umm Karim gossip when trust >= 15
+   - Job leads generated from employer NPCs at trust >= 10
+   - Market intel generated from shopkeeper NPCs
+   - Crime warnings generated from criminal contacts at trust >= 10
+   - Personal warnings triggered by context (debt, landlord mood, NPC trouble)
+   - Tips are time-limited and expire after 1-2 days
+   - Multiple tips can coexist from different sources
+   - Background-specific tips generate for correct backgrounds
+
+2. **`tests/Slums.Core.Tests/Information/TipStateTests.cs`**:
+   - Tips tracked correctly in state
+   - Acknowledged tips marked as acknowledged
+   - Ignored tips tracked per NPC source
+   - 3+ ignored tips from same NPC triggers trust -1
+   - Expired tips removed on day boundary
+   - Emergency tips delivered through all channels
+
+3. **`tests/Slums.Core.Tests/Information/TipDeliveryTests.cs`**:
+   - Tips from current-district NPCs appear as conversation variants
+   - Tips from other-district NPCs appear as phone messages
+   - Emergency tips appear through both channels
+   - Phone-delivered tips respect phone operational state (no delivery if phone lost/no credit)
+
+4. **`tests/Slums.Infrastructure.Tests/`** -- tip state persists through save/load.
+
+### File Summary
+
+New files:
+- `src/Slums.Core/Information/TipType.cs`
+- `src/Slums.Core/Information/Tip.cs`
+- `src/Slums.Core/Information/TipState.cs`
+- `src/Slums.Core/Information/TipGenerator.cs`
+- `src/Slums.Core/Information/TipDeliveryConfig.cs`
+- `tests/Slums.Core.Tests/Information/TipGeneratorTests.cs`
+- `tests/Slums.Core.Tests/Information/TipStateTests.cs`
+- `tests/Slums.Core.Tests/Information/TipDeliveryTests.cs`
+
+Modified files:
+- `src/Slums.Core/State/GameSession.cs` -- add `Tips`, tip generation in `EndDay()`, tip acknowledge/ignore methods
+- `src/Slums.Infrastructure/Persistence/GameSessionSnapshot.cs` -- persist tip state
+- `src/Slums.Application/Activities/` -- tip-aware conversation context, crime/work/travel screen context
+- `src/Slums.Game/Screens/` -- tip display in HUD, phone, and conversation screens
+
 ## Suggested Next Ticket
 
 After Active Skill Training, implement the world-enrichment mechanics in dependency order:
@@ -1293,10 +1963,14 @@ After Active Skill Training, implement the world-enrichment mechanics in depende
 1. **Day-of-Week Rhythms** (quick win, no dependencies)
 2. **Sleep Quality** (quick win, standalone)
 3. **Seasonal Calendar** (depends on day-of-week pattern)
-4. **Weather** (depends on seasonal calendar)
-5. **Rumors** (depends on relationship system)
-6. **Territory Dynamics** (depends on factions, district heat)
-7. **Debt and NPC Economy** (depends on relationship system)
+4. **Community Solidarity Events** (depends on day-of-week, seasonal calendar)
+5. **Weather** (depends on seasonal calendar)
+6. **Rumors** (depends on relationship system)
+7. **District-Specific Heat** (foundational for territory and information network)
+8. **Territory Dynamics** (depends on factions, district-specific heat)
+9. **Phone and Asynchronous Contacts** (standalone core, enables information network)
+10. **Debt and NPC Economy** (depends on relationships)
+11. **Information Network** (depends on phone system, district-specific heat, relationships)
 
 ## Narrative Enhancement Pass
 
