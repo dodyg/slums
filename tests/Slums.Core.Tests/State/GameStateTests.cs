@@ -87,6 +87,7 @@ internal sealed class GameStateTests
     public async Task EatStreetFood_ShouldCostMoneyAndFeedOnlyPlayer()
     {
         using var state = new GameSession();
+        state.Clock.SetTime(2, 8, 0);
 
         var result = state.EatStreetFood();
 
@@ -100,6 +101,7 @@ internal sealed class GameStateTests
     public async Task EatStreetFood_ShouldCostMoreInDokkiThanAtHome()
     {
         using var state = new GameSession();
+        state.Clock.SetTime(2, 8, 0);
         state.TryTravelTo(LocationId.CallCenter);
         var moneyBefore = state.Player.Stats.Money;
 
@@ -147,6 +149,7 @@ internal sealed class GameStateTests
     public async Task GetFoodCost_ShouldReflectCurrentDistrictCondition()
     {
         using var state = new GameSession();
+        state.Clock.SetTime(2, 8, 0);
         state.World.SetActiveDistrictConditions(
         [
             new ActiveDistrictCondition { District = DistrictId.Imbaba, ConditionId = "imbaba_utility_cut" }
@@ -585,6 +588,7 @@ internal sealed class GameStateTests
     public async Task BuyFood_ShouldCostMoreInShubraThanImbaba()
     {
         using var state = new GameSession();
+        state.Clock.SetTime(2, 8, 0);
         state.World.TravelTo(LocationId.Laundry);
 
         var result = state.BuyFood();

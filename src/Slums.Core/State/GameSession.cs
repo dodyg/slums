@@ -269,7 +269,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
         RaiseEvent("You return home for the night.");
 
-        if (GetCurrentDayOfWeek() == DayOfWeek.Monday)
+        if (GetCurrentDayOfWeek() == GameDayOfWeek.Monday)
         {
             ResolveWeeklyHouseholdAssets();
             if (_investmentState.ActiveInvestments.Count > 0)
@@ -706,8 +706,10 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             return [];
         }
 
+        var schedule = GetCurrentSchedule();
         return Jobs.GetAvailableJobs(location, Player, Relationships, JobProgress)
-            .Select(ApplyDistrictConditionToJob)
+            .Where(job => !schedule.BlockedJobTypes.Contains(job.Type.ToString()))
+            .Select(job => ApplyDayScheduleToJob(ApplyDistrictConditionToJob(job), schedule))
             .ToArray();
     }
 
@@ -970,14 +972,28 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public int GetFoodCost()
     {
         var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
-        var modifiedCost = _locationPricingService.GetFoodCost(World.CurrentDistrict) + (districtCondition?.Effect.FoodCostModifier ?? 0);
+        var schedule = GetCurrentSchedule();
+        var baseModifier = (districtCondition?.Effect.FoodCostModifier ?? 0) + schedule.FoodCostModifier;
+        if (Player.BackgroundType == BackgroundType.SudaneseRefugee && schedule.FoodCostModifier < 0)
+        {
+            baseModifier -= 1;
+        }
+
+        var modifiedCost = _locationPricingService.GetFoodCost(World.CurrentDistrict) + baseModifier;
         return Math.Max(1, modifiedCost);
     }
 
     public int GetStreetFoodCost()
     {
         var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
-        var modifiedCost = _locationPricingService.GetStreetFoodCost(World.CurrentDistrict) + (districtCondition?.Effect.StreetFoodCostModifier ?? 0);
+        var schedule = GetCurrentSchedule();
+        var baseModifier = (districtCondition?.Effect.StreetFoodCostModifier ?? 0) + schedule.FoodCostModifier;
+        if (Player.BackgroundType == BackgroundType.SudaneseRefugee && schedule.FoodCostModifier < 0)
+        {
+            baseModifier -= 1;
+        }
+
+        var modifiedCost = _locationPricingService.GetStreetFoodCost(World.CurrentDistrict) + baseModifier;
         return Math.Max(1, modifiedCost);
     }
 
@@ -1000,7 +1016,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         return new CurrentLocationClinicStatus(
             HasClinicServices: true,
-            IsOpenToday: location.ClinicOpenDays.Contains(currentDay),
+            IsOpenToday: location.ClinicOpenDays.Contains(currentDay.ToSystemDayOfWeek()),
             VisitCost: GetClinicVisitCost(location),
             LocationName: location.Name,
             CurrentDayName: currentDayName,
@@ -1048,7 +1064,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             TravelCost: travelCost,
             ClinicCost: clinicCost,
             TotalCost: totalCost,
-            IsOpenToday: location.ClinicOpenDays.Contains(currentDay),
+            IsOpenToday: location.ClinicOpenDays.Contains(currentDay.ToSystemDayOfWeek()),
             OpenDaysSummary: FormatOpenDays(location.ClinicOpenDays),
             TravelTimeMinutes: GetTravelTimeMinutes(location),
             CanAfford: Player.Stats.Money >= totalCost,
@@ -1190,7 +1206,14 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     private int GetClinicVisitCost(Location location)
     {
         var districtCondition = GetActiveDistrictConditionDefinition(location.District);
-        var modifiedCost = _locationPricingService.GetClinicVisitCost(location, Relationships, Player.Skills) + (districtCondition?.Effect.ClinicVisitCostModifier ?? 0);
+        var schedule = GetCurrentSchedule();
+        var scheduleDiscount = schedule.ClinicDiscount ? schedule.ClinicDiscountAmount : 0;
+        if (scheduleDiscount > 0 && Player.BackgroundType == BackgroundType.MedicalSchoolDropout)
+        {
+            scheduleDiscount *= 2;
+        }
+
+        var modifiedCost = _locationPricingService.GetClinicVisitCost(location, Relationships, Player.Skills) + (districtCondition?.Effect.ClinicVisitCostModifier ?? 0) - scheduleDiscount;
         return Math.Max(1, modifiedCost);
     }
 
@@ -1867,22 +1890,44 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     private JobPreview ApplyDistrictConditionToJobPreview(JobPreview preview)
     {
         var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
-        if (districtCondition is null)
-        {
-            return preview;
-        }
+        var schedule = GetCurrentSchedule();
+        var hasDistrictModifiers = districtCondition is not null && (districtCondition.Effect.WorkPayModifier != 0 || districtCondition.Effect.WorkStressModifier != 0);
+        var hasScheduleModifiers = schedule.JobPayModifier != 0 || schedule.JobPayOverrides.Count > 0;
 
-        var effect = districtCondition.Effect;
-        if (effect.WorkPayModifier == 0 && effect.WorkStressModifier == 0)
+        if (!hasDistrictModifiers && !hasScheduleModifiers)
         {
             return preview;
         }
 
         var activeModifiers = preview.ActiveModifiers.ToList();
-        activeModifiers.Add(BuildWorkDistrictModifierText(districtCondition));
+        if (hasDistrictModifiers)
+        {
+            activeModifiers.Add(BuildWorkDistrictModifierText(districtCondition!));
+        }
+
+        if (hasScheduleModifiers)
+        {
+            activeModifiers.Add($"{schedule.DayName}: pay {schedule.JobPayModifier:+#;-#;0} LE (schedule).");
+        }
+
+        if (schedule.JobPayOverrides.TryGetValue(preview.Job.Type.ToString(), out var jobPayOverride))
+        {
+            activeModifiers.Add($"{schedule.DayName}: {preview.Job.Type} pay {jobPayOverride:+#;-#;0} LE (schedule).");
+        }
+
+        var job = preview.Job;
+        if (hasDistrictModifiers)
+        {
+            job = ApplyDistrictConditionToJob(job);
+        }
+
+        if (hasScheduleModifiers)
+        {
+            job = ApplyDayScheduleToJob(job, schedule);
+        }
 
         return new JobPreview(
-            ApplyDistrictConditionToJob(preview.Job),
+            job,
             preview.VariantReason,
             preview.NextUnlockHint,
             activeModifiers,
@@ -1909,6 +1954,30 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             job,
             Math.Max(0, job.BasePay + effect.WorkPayModifier),
             Math.Max(0, job.StressCost + effect.WorkStressModifier));
+    }
+
+    private static JobShift ApplyDayScheduleToJob(JobShift job, DayScheduleModifiers schedule)
+    {
+        if (schedule.JobPayModifier == 0 && !schedule.JobPayOverrides.TryGetValue(job.Type.ToString(), out _))
+        {
+            return job;
+        }
+
+        var payModifier = schedule.JobPayModifier;
+        if (schedule.JobPayOverrides.TryGetValue(job.Type.ToString(), out var jobPayOverride))
+        {
+            payModifier += jobPayOverride;
+        }
+
+        if (payModifier == 0)
+        {
+            return job;
+        }
+
+        return CloneJobShift(
+            job,
+            Math.Max(0, job.BasePay + payModifier),
+            job.StressCost);
     }
 
     private static JobShift CloneJobShift(JobShift source, int basePay, int stressCost)
@@ -2096,6 +2165,16 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             }
         }
 
+        var schedule = GetCurrentSchedule();
+        if (schedule.CrimeDetectionModifier != 0)
+        {
+            modifiedAttempt = modifiedAttempt with
+            {
+                DetectionRisk = Math.Clamp(modifiedAttempt.DetectionRisk + schedule.CrimeDetectionModifier, 1, 95)
+            };
+            activeModifiers.Add($"{schedule.DayName}: crime detection {schedule.CrimeDetectionModifier} (schedule effect).");
+        }
+
         return new CrimeModifierEvaluation(modifiedAttempt, activeModifiers);
     }
 
@@ -2196,10 +2275,14 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Stats.SetHunger(Player.Nutrition.Satiety);
     }
 
-    private DayOfWeek GetCurrentDayOfWeek()
+    private GameDayOfWeek GetCurrentDayOfWeek()
     {
-        var offset = (Clock.Day - 1) % 7;
-        return (DayOfWeek)(((int)DayOfWeek.Saturday + offset) % 7);
+        return Clock.DayOfWeek;
+    }
+
+    public DayScheduleModifiers GetCurrentSchedule()
+    {
+        return DayScheduleRegistry.GetModifiers(GetCurrentDayOfWeek());
     }
 
     private string GetMotherStatusMessage()
@@ -2326,6 +2409,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var before = CaptureStats();
         var rng = random ?? _sharedRandom;
         var summary = new InvestmentResolutionSummary();
+        var schedule = GetCurrentSchedule();
 
         var toRemove = new List<Investment>();
 
@@ -2361,6 +2445,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             }
 
             var result = calculation.Resolution;
+
+            if (result.Income > 0 && schedule.InvestmentRevenueModifier != 0)
+            {
+                result = result with { Income = Math.Max(0, result.Income + schedule.InvestmentRevenueModifier) };
+            }
             summary.AddResult(result);
 
             if (result.WasLost)

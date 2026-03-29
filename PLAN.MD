@@ -85,12 +85,12 @@ Keep static world data in `content/data/` when it does not need hardcoded rules.
 
 ### 1. Active Skill Training
 
-Status: planned. See dedicated section below.
+Status: **implemented** (committed as `333bfc3`). See dedicated section below.
 
 ### 2. World-Enrichment Mechanics
 
 Implement in dependency order after skill training:
-1. Day-of-Week Rhythms (quick win, no dependencies)
+1. Day-of-Week Rhythms (quick win, no dependencies) — **implemented**
 2. Sleep Quality (quick win, standalone)
 3. Seasonal Calendar (depends on day-of-week)
 4. Community Solidarity Events (depends on day-of-week, seasonal calendar)
@@ -248,7 +248,7 @@ Completed steps:
 
 ## Day-of-Week Rhythms
 
-Status: planned.
+Status: **implemented**.
 
 Requirements: see REQS.md "Day-of-Week Rhythms" section.
 
@@ -1773,7 +1773,7 @@ Modified files:
 
 After Active Skill Training, implement the world-enrichment mechanics in dependency order:
 
-1. **Day-of-Week Rhythms** (quick win, no dependencies)
+1. ~~**Day-of-Week Rhythms** (quick win, no dependencies)~~ **implemented**
 2. **Sleep Quality** (quick win, standalone)
 3. **Seasonal Calendar** (depends on day-of-week pattern)
 4. **Community Solidarity Events** (depends on day-of-week, seasonal calendar)

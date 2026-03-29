@@ -16,6 +16,7 @@ internal sealed class ShopMenuStatusQueryTests
     {
         var query = new ShopMenuStatusQuery();
         using var gameState = new GameSession();
+        gameState.Clock.SetTime(2, 8, 0);
         gameState.World.TravelTo(LocationId.CallCenter);
         gameState.Player.Stats.SetMoney(59);
 

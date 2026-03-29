@@ -61,6 +61,8 @@ public sealed record GameClock
     }
 
     public bool IsEndOfDay => Hour >= 22;
+
+    public GameDayOfWeek DayOfWeek => (GameDayOfWeek)((Day - 1) % 7);
 }
 
 public enum TimeOfDay
