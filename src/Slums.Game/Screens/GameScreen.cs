@@ -30,6 +30,7 @@ internal sealed class GameScreen : ScreenSurface
     private readonly InvestmentMenuQuery _investmentMenuQuery = new();
     private readonly HouseholdAssetsMenuQuery _householdAssetsMenuQuery = new();
     private readonly GameActionMenuQuery _gameActionMenuQuery = new();
+    private readonly CommunityEventMenuQuery _communityEventMenuQuery = new();
     private readonly GameActionCommand _gameActionCommand = new();
     private readonly AdvanceTimeCommand _advanceTimeCommand = new();
     private readonly AutomaticTimeAdvancer _automaticTimeAdvancer;
@@ -305,6 +306,9 @@ internal sealed class GameScreen : ScreenSurface
             case GameActionId.HomeImprovement:
                 ShowHomeUpgradeMenu();
                 break;
+            case GameActionId.CommunityEvent:
+                ShowCommunityEventMenu();
+                break;
             case GameActionId.Invest:
                 ShowInvestmentMenu();
                 break;
@@ -452,6 +456,20 @@ internal sealed class GameScreen : ScreenSurface
 
         IsFocused = false;
         GameHost.Instance.Screen = new HomeUpgradeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, this);
+    }
+
+    private void ShowCommunityEventMenu()
+    {
+        var context = CommunityEventMenuContext.Create(_gameState);
+        var events = _communityEventMenuQuery.GetStatuses(context).ToList();
+        if (events.Count == 0)
+        {
+            AddEventLogEntry("No community events available right now.");
+            return;
+        }
+
+        IsFocused = false;
+        GameHost.Instance.Screen = new CommunityEventScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, context, events, this);
     }
 
     private void ShowInvestmentMenu()

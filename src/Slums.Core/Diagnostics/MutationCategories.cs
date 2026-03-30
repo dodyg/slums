@@ -18,4 +18,5 @@ public static class MutationCategories
     public const string EndingTriggered = "EndingTriggered";
     public const string StateSnapshot = "StateSnapshot";
     public const string Training = "Training";
+    public const string Community = "Community";
 }

@@ -19,5 +19,6 @@ public enum GameActionId
     SaveGame,
     EndDay,
     Train,
-    HomeImprovement
+    HomeImprovement,
+    CommunityEvent
 }

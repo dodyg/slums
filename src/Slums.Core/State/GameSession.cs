@@ -13,6 +13,7 @@ using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.Training;
 using Slums.Core.Calendar;
+using Slums.Core.Community;
 using Slums.Core.Home;
 using Slums.Core.World;
 using EntitiesDb;
@@ -113,6 +114,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public bool FinalWarningGiven => _rentState.FinalWarningGiven;
     private bool CrimeCommittedToday { get => _crimeState.CrimeCommittedToday; set => _crimeState.CrimeCommittedToday = value; }
     public HomeUpgradeState HomeUpgrades { get; } = new();
+    public CommunityEventAttendance EventAttendance { get; } = new();
     private RamadanState _ramadanState = RamadanState.Inactive;
     public RamadanState RamadanState => _ramadanState;
 
@@ -353,6 +355,32 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Nutrition.BeginNewDay();
         Player.Household.BeginNewDay();
         _trainedSkillsToday.Clear();
+
+        if (EventAttendance.LastAttendanceDay < Clock.Day - 1 || Clock.Day == 1)
+        {
+            EventAttendance.RecordSkip();
+        }
+
+        EventAttendance.ResetWeeklyIfNeeded(Clock.Day);
+
+        if (EventAttendance.ConsecutiveSkips >= 3)
+        {
+            var struggling = Player.Stats.Money < 30 || Player.Stats.Health < 40 || Player.Stats.Stress > 60;
+            if (struggling)
+            {
+                var concernNpc = NpcId.NeighborMona;
+                Relationships.ModifyNpcTrust(concernNpc, 1);
+                RaiseEvent("Mona notices you struggling and drops off some bread. Trust +1.");
+            }
+        }
+
+        if (EventAttendance.ConsecutiveSkips >= 5)
+        {
+            Relationships.ModifyNpcTrust(NpcId.NeighborMona, -1);
+            Relationships.ModifyNpcTrust(NpcId.FixerUmmKarim, -1);
+            Relationships.ModifyNpcTrust(NpcId.NurseSalma, -1);
+            RaiseEvent("Neighbors are starting to talk. You never show up anymore.");
+        }
 
         foreach (var randomEvent in _randomEventService.RollDailyEvents(this, random ?? _sharedRandom))
         {
@@ -625,6 +653,166 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             EntertainmentActivityType.SocialHangout => "Just talking. Just listening. It helps.",
             _ => $"You spent some time on {activity.Name}."
         };
+    }
+
+    public IReadOnlyList<CommunityEventDefinition> GetAvailableCommunityEvents()
+    {
+        var events = new List<CommunityEventDefinition>();
+        var dayOfWeek = Clock.DayOfWeek;
+        var isRamadan = _ramadanState.IsActive;
+
+        foreach (var evt in CommunityEventRegistry.AllEvents)
+        {
+            if (evt.RequiresFriday && dayOfWeek != GameDayOfWeek.Friday)
+            {
+                continue;
+            }
+
+            if (evt.RequiresRamadan && !isRamadan)
+            {
+                continue;
+            }
+
+            if (evt.RequiresNpcInvitation && !EventAttendance.HasTeaCircleInvitation)
+            {
+                continue;
+            }
+
+            if (evt.HasPickpocketRisk && World.CurrentDistrict != DistrictId.Imbaba)
+            {
+                continue;
+            }
+
+            events.Add(evt);
+        }
+
+        return events;
+    }
+
+    public bool AttendCommunityEvent(CommunityEventId eventId, Random? random = null)
+    {
+        var definition = CommunityEventRegistry.GetById(eventId);
+        if (definition is null)
+        {
+            return false;
+        }
+
+        var before = CaptureStats();
+        random ??= Random.Shared;
+
+        var available = GetAvailableCommunityEvents();
+        if (available.All(e => e.Id != eventId))
+        {
+            RaiseEvent($"{definition.Name} is not available right now.");
+            RecordMutation(MutationCategories.GuardRejected, "AttendCommunityEvent", before, CaptureStats(), "Event not available");
+            return false;
+        }
+
+        if (EventAttendance.AttendedThisWeek.Contains(eventId))
+        {
+            RaiseEvent($"You already attended {definition.Name} this week.");
+            RecordMutation(MutationCategories.GuardRejected, "AttendCommunityEvent", before, CaptureStats(), "Already attended this week");
+            return false;
+        }
+
+        if (Player.Stats.Money < definition.MoneyCost)
+        {
+            RaiseEvent($"You cannot afford the {definition.MoneyCost} LE contribution.");
+            RecordMutation(MutationCategories.GuardRejected, "AttendCommunityEvent", before, CaptureStats(), $"Cannot afford {definition.MoneyCost} LE");
+            return false;
+        }
+
+        var remainingMinutes = (EndOfDayHour * 60) - (Clock.Hour * 60 + Clock.Minute);
+        if (remainingMinutes < definition.TimeCostMinutes)
+        {
+            RaiseEvent("Not enough time in the day for that.");
+            RecordMutation(MutationCategories.GuardRejected, "AttendCommunityEvent", before, CaptureStats(), "Not enough time");
+            return false;
+        }
+
+        if (definition.MoneyCost > 0)
+        {
+            Player.Stats.ModifyMoney(-definition.MoneyCost);
+        }
+
+        Player.Stats.ModifyStress(definition.StressChange);
+        AdvanceTime(definition.TimeCostMinutes);
+
+        var trustGained = ApplyCommunityEventTrust(definition, random);
+        var backgroundBonus = ApplyBackgroundEventBonus(definition);
+
+        if (definition.ProvidesFoodAccess)
+        {
+            Player.Nutrition.Eat(MealQuality.Basic);
+        }
+
+        if (definition.HasPickpocketRisk)
+        {
+#pragma warning disable CA5394
+            var roll = random.Next(100);
+            if (roll < 10)
+            {
+                var stolen = random.Next(5, 16);
+#pragma warning restore CA5394
+                Player.Stats.ModifyMoney(-stolen);
+                RaiseEvent($"A pickpocket slips away with {stolen} LE from your pocket!");
+            }
+        }
+
+        EventAttendance.RecordAttendance(eventId, Clock.Day);
+
+        var trustMessage = trustGained > 0 ? $" Trust +{trustGained} with neighbors." : "";
+        var backgroundMessage = backgroundBonus > 0 ? $" Background bonus: +{backgroundBonus} trust." : "";
+        RaiseEvent($"You attend {definition.Name}. Stress {definition.StressChange}.{trustMessage}{backgroundMessage}");
+        RecordMutation(MutationCategories.Community, "AttendCommunityEvent", before, CaptureStats(), $"{definition.Name} (stress {definition.StressChange}, trust gained: {trustGained})");
+        return true;
+    }
+
+    private int ApplyCommunityEventTrust(CommunityEventDefinition definition, Random random)
+    {
+        var communityNpcs = new[] { NpcId.LandlordHajjMahmoud, NpcId.FixerUmmKarim, NpcId.NeighborMona, NpcId.NurseSalma, NpcId.CafeOwnerNadia };
+        var count = Math.Min(definition.TrustGainCount, communityNpcs.Length);
+#pragma warning disable CA5394
+        var selected = communityNpcs.OrderBy(_ => random.Next()).Take(count).ToArray();
+#pragma warning restore CA5394
+
+        var totalTrust = 0;
+        foreach (var npcId in selected)
+        {
+            var trust = definition.TrustGainAmount;
+            Relationships.ModifyNpcTrust(npcId, trust);
+            totalTrust += trust;
+        }
+
+        return totalTrust;
+    }
+
+    private int ApplyBackgroundEventBonus(CommunityEventDefinition definition)
+    {
+        var bonus = 0;
+        var background = Player.BackgroundType;
+
+        if (background == BackgroundType.SudaneseRefugee && definition.Id == CommunityEventId.FridayRooftopGathering)
+        {
+            bonus = 2;
+            Relationships.ModifyNpcTrust(NpcId.NeighborMona, bonus);
+        }
+        else if (background == BackgroundType.ReleasedPoliticalPrisoner)
+        {
+            if (EventAttendance.TotalAttended <= 3)
+            {
+                return 0;
+            }
+
+            bonus = 1;
+        }
+        else if (background == BackgroundType.MedicalSchoolDropout)
+        {
+            bonus = 1;
+            Relationships.ModifyNpcTrust(NpcId.NurseSalma, bonus);
+        }
+
+        return bonus;
     }
 
     public IReadOnlyList<TrainingActivity> GetAvailableTrainingActivities()
@@ -1951,6 +2139,28 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             DaysFasting = daysFasting,
             DaysRemaining = daysRemaining
         };
+    }
+
+    public void RestoreCommunityEventAttendance(
+        int consecutiveSkips,
+        int totalAttended,
+        int lastAttendanceDay,
+        IEnumerable<CommunityEventId> attendedThisWeek,
+        int lastWeekResetDay,
+        bool hasTeaCircleInvitation)
+    {
+        ArgumentNullException.ThrowIfNull(attendedThisWeek);
+
+        EventAttendance.ConsecutiveSkips = consecutiveSkips;
+        EventAttendance.TotalAttended = totalAttended;
+        EventAttendance.LastAttendanceDay = lastAttendanceDay;
+        EventAttendance.LastWeekResetDay = lastWeekResetDay;
+        EventAttendance.HasTeaCircleInvitation = hasTeaCircleInvitation;
+
+        foreach (var eventId in attendedThisWeek)
+        {
+            EventAttendance.AttendedThisWeek.Add(eventId);
+        }
     }
 
     public int GetEventCount(string eventId)

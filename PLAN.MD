@@ -463,7 +463,7 @@ Modified files:
 
 ## Community Solidarity Events
 
-Status: planned.
+Status: implemented (core types, event registry, attendance tracking, GameSession integration, skip tracking, application layer, game screen, persistence, tests).
 
 Requirements: see REQS.md "Community Solidarity Events" section.
 

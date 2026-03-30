@@ -41,6 +41,8 @@ public sealed record GameSessionSnapshot
 
     public GameSessionRamadanSnapshot Ramadan { get; init; } = new();
 
+    public GameSessionCommunityEventSnapshot CommunityEvents { get; init; } = new();
+
     public static GameSessionSnapshot Capture(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
@@ -61,7 +63,8 @@ public sealed record GameSessionSnapshot
             TotalInvestmentEarnings = gameSession.TotalInvestmentEarnings,
             TrainedSkillsToday = gameSession.TrainedSkillsToday.ToDictionary(static kvp => kvp.Key.ToString(), static kvp => kvp.Value),
             HomeUpgrades = gameSession.HomeUpgrades.PurchasedUpgrades.Select(static u => u.ToString()).ToArray(),
-            Ramadan = GameSessionRamadanSnapshot.Capture(gameSession)
+            Ramadan = GameSessionRamadanSnapshot.Capture(gameSession),
+            CommunityEvents = GameSessionCommunityEventSnapshot.Capture(gameSession)
         };
     }
 
@@ -141,6 +144,14 @@ public sealed record GameSessionSnapshot
                 Ramadan.PlayerIsFasting,
                 Ramadan.DaysFasting,
                 Ramadan.DaysRemaining);
+
+            gameSession.RestoreCommunityEventAttendance(
+                CommunityEvents.ConsecutiveSkips,
+                CommunityEvents.TotalAttended,
+                CommunityEvents.LastAttendanceDay,
+                CommunityEvents.AttendedThisWeek.Select(static s => Enum.Parse<Slums.Core.Community.CommunityEventId>(s)),
+                CommunityEvents.LastWeekResetDay,
+                CommunityEvents.HasTeaCircleInvitation);
 
             foreach (var npcId in Enum.GetValues<NpcId>())
             {

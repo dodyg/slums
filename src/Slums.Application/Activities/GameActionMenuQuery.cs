@@ -50,6 +50,11 @@ public sealed class GameActionMenuQuery
             actions.Add(new GameAction(GameActionId.HomeImprovement, "Home Improvement"));
         }
 
+        if (context.HasCommunityEventAvailable)
+        {
+            actions.Add(new GameAction(GameActionId.CommunityEvent, "Community Events"));
+        }
+
         actions.Add(new GameAction(GameActionId.Shop, "Shop"));
 
         if (context.HasHouseholdAssetsAccess)

@@ -10,7 +10,8 @@ public sealed record GameActionMenuContext(
     bool HasInvestmentOpportunities,
     bool HasHouseholdAssetsAccess,
     bool HasTrainingAvailable,
-    bool HasHomeUpgradesAvailable)
+    bool HasHomeUpgradesAvailable,
+    bool HasCommunityEventAvailable)
 {
     public static GameActionMenuContext Create(GameSession gameSession)
     {
@@ -23,6 +24,7 @@ public sealed record GameActionMenuContext(
             gameSession.GetCurrentInvestmentOpportunities().Count > 0,
             gameSession.CanUseHouseholdAssets(),
             gameSession.GetAvailableTrainingActivities().Count > 0,
-            gameSession.World.CurrentLocationId == LocationId.Home && gameSession.GetAvailableHomeUpgrades().Count > 0);
+            gameSession.World.CurrentLocationId == LocationId.Home && gameSession.GetAvailableHomeUpgrades().Count > 0,
+            gameSession.GetAvailableCommunityEvents().Count > 0);
     }
 }

@@ -269,17 +269,18 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_EndDay_WinterAppliesExtraRestRecovery()
     {
-        using var autumn = new GameSession();
+        var rng = new Random(42);
+        using var autumn = new GameSession(rng);
         autumn.Player.Stats.SetEnergy(30);
         autumn.Player.Nutrition.Eat(MealQuality.Basic);
 
-        using var winter = new GameSession();
-        winter.Clock.SetTime(62, 6, 0);
+        using var winter = new GameSession(new Random(42));
+        winter.Clock.SetTime(64, 6, 0);
         winter.Player.Stats.SetEnergy(30);
         winter.Player.Nutrition.Eat(MealQuality.Basic);
 
-        autumn.EndDay();
-        winter.EndDay();
+        autumn.EndDay(rng);
+        winter.EndDay(rng);
 
         await Assert.That(winter.Player.Stats.Energy).IsGreaterThan(autumn.Player.Stats.Energy);
     }
