@@ -46,6 +46,8 @@ public sealed record GameSessionSnapshot
 
     public string CurrentWeather { get; init; } = "Clear";
 
+    public GameSessionDistrictHeatSnapshot DistrictHeat { get; init; } = new();
+
     public static GameSessionSnapshot Capture(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
@@ -68,7 +70,8 @@ public sealed record GameSessionSnapshot
             HomeUpgrades = gameSession.HomeUpgrades.PurchasedUpgrades.Select(static u => u.ToString()).ToArray(),
             Ramadan = GameSessionRamadanSnapshot.Capture(gameSession),
             CommunityEvents = GameSessionCommunityEventSnapshot.Capture(gameSession),
-            CurrentWeather = gameSession.CurrentWeather.Type.ToString()
+            CurrentWeather = gameSession.CurrentWeather.Type.ToString(),
+            DistrictHeat = GameSessionDistrictHeatSnapshot.Capture(gameSession)
         };
     }
 
@@ -161,6 +164,8 @@ public sealed record GameSessionSnapshot
             {
                 gameSession.RestoreWeather(weatherType);
             }
+
+            DistrictHeat.Restore(gameSession);
 
             foreach (var npcId in Enum.GetValues<NpcId>())
             {

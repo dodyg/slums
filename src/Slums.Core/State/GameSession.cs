@@ -17,6 +17,7 @@ using Slums.Core.Community;
 using Slums.Core.Home;
 using Slums.Core.Rumors;
 using Slums.Core.Weather;
+using Slums.Core.Heat;
 using Slums.Core.World;
 using EntitiesDb;
 using Slums.Core.Diagnostics;
@@ -94,7 +95,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public bool IsGameOver { get => _runState.IsGameOver; private set => _runState.IsGameOver = value; }
     public string? GameOverReason { get => _runState.GameOverReason; private set => _runState.GameOverReason = value; }
     public EndingId? EndingId { get => _runState.EndingId; private set => _runState.EndingId = value; }
-    public int PolicePressure { get => _crimeState.PolicePressure; private set => _crimeState.PolicePressure = value; }
+    public int PolicePressure => DistrictHeat.GetGlobalPressure();
     public int TotalCrimeEarnings { get => _crimeState.TotalCrimeEarnings; private set => _crimeState.TotalCrimeEarnings = value; }
     public int CrimesCommitted { get => _crimeState.CrimesCommitted; private set => _crimeState.CrimesCommitted = value; }
     public int TotalHonestWorkEarnings { get => _workState.TotalHonestWorkEarnings; private set => _workState.TotalHonestWorkEarnings = value; }
@@ -119,6 +120,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public CommunityEventAttendance EventAttendance { get; } = new();
     public WeatherState CurrentWeather { get; private set; } = WeatherState.Clear;
     public RumorState Rumors { get; } = new();
+    public DistrictHeatState DistrictHeat { get; } = new();
     private RamadanState _ramadanState = RamadanState.Inactive;
     public RamadanState RamadanState => _ramadanState;
 
@@ -315,11 +317,18 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             RaiseEvent("Your mother needed medicine today and did not get it.");
         }
 
-        if (!CrimeCommittedToday && PolicePressure > 0)
+        if (Player.BackgroundType == BackgroundType.SudaneseRefugee)
         {
-            var pressureDecay = ActivityLedgerSystem.GetDailyPolicePressureDecay(Player.BackgroundType);
-            SetPolicePressure(PolicePressure - pressureDecay);
+            DistrictHeat.SetBaselineHeat(DistrictId.Dokki, 10);
         }
+
+        if (Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner)
+        {
+            DistrictHeat.DecayRateModifier = 0.5;
+        }
+
+        DistrictHeat.DecayAll();
+        DistrictHeat.ApplyBleedOver();
 
         if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout && Player.Household.MotherHealth < 60)
         {
@@ -1141,7 +1150,8 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var modifierEvaluation = EvaluateCrimeModifiers(attempt);
         var modifiedAttempt = modifierEvaluation.Attempt;
         ApplyCrimeModifierSideEffects(modifierEvaluation.ActiveModifiers);
-        var result = _crimeService.AttemptCrime(modifiedAttempt, Player, PolicePressure, random ?? _sharedRandom);
+        var districtHeat = DistrictHeat.GetHeat(World.CurrentDistrict);
+        var result = _crimeService.AttemptCrime(modifiedAttempt, Player, districtHeat, random ?? _sharedRandom);
         Player.Stats.ModifyEnergy(-result.EnergyCost);
         Player.Stats.ModifyStress(result.StressCost);
         ActivityLedgerSystem.RecordCrimeOutcome(_crimeState, Clock, result);
@@ -1160,7 +1170,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetRouteSceneTrigger(attempt.Type, result));
 
-        SetPolicePressure(PolicePressure + result.PolicePressureDelta);
+        DistrictHeat.AddHeat(World.CurrentDistrict, result.PolicePressureDelta);
         RaiseEvent(result.Message);
         ApplyCrimeContactAftermath(result);
 
@@ -1993,7 +2003,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public void SetPolicePressure(int value)
     {
-        PolicePressure = Math.Clamp(value, 0, 100);
+        DistrictHeat.SetHeatAll(value);
     }
 
     public CrimeRoutePreview PreviewCrime(CrimeAttempt attempt)
@@ -2001,7 +2011,8 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         ArgumentNullException.ThrowIfNull(attempt);
 
         var modifierEvaluation = EvaluateCrimeModifiers(attempt);
-        var resolution = _crimeService.PreviewCrime(modifierEvaluation.Attempt, Player, PolicePressure);
+        var districtHeat = DistrictHeat.GetHeat(World.CurrentDistrict);
+        var resolution = _crimeService.PreviewCrime(modifierEvaluation.Attempt, Player, districtHeat);
         return new CrimeRoutePreview(modifierEvaluation.Attempt, resolution, modifierEvaluation.ActiveModifiers);
     }
 
@@ -2056,13 +2067,14 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             return;
         }
 
-        var updatedPressure = Math.Max(0, PolicePressure - amount);
-        if (updatedPressure == PolicePressure)
+        var currentHeat = DistrictHeat.GetHeat(World.CurrentDistrict);
+        var updatedHeat = Math.Max(0, currentHeat - amount);
+        if (updatedHeat == currentHeat)
         {
             return;
         }
 
-        SetPolicePressure(updatedPressure);
+        DistrictHeat.SetHeat(World.CurrentDistrict, updatedHeat);
         RaiseEvent(message);
         TryQueueNarrativeTrigger(trigger);
     }
@@ -2123,7 +2135,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public void RestoreCrimeState(int policePressure, int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay, bool hasCrimeCommittedToday)
     {
-        SetPolicePressure(policePressure);
+        DistrictHeat.SetHeatAll(policePressure);
         SetCrimeCounters(totalCrimeEarnings, crimesCommitted, lastCrimeDay);
         CrimeCommittedToday = hasCrimeCommittedToday;
     }
@@ -2645,7 +2657,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         if (effect.PolicePressureChange != 0)
         {
-            SetPolicePressure(PolicePressure + effect.PolicePressureChange);
+            DistrictHeat.AddHeat(World.CurrentDistrict, effect.PolicePressureChange);
         }
 
         if (effect.MotherHealthChange != 0)
@@ -2925,7 +2937,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
             if (result.PolicePressureIncrease > 0)
             {
-                SetPolicePressure(PolicePressure + result.PolicePressureIncrease);
+                DistrictHeat.AddHeat(World.CurrentDistrict, result.PolicePressureIncrease);
             }
 
             if (!string.IsNullOrWhiteSpace(result.Message) &&

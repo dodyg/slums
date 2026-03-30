@@ -619,7 +619,7 @@ internal sealed class GameStateTests
 
         state.EndDay(new Random(2));
 
-        await Assert.That(state.PolicePressure).IsEqualTo(23);
+        await Assert.That(state.PolicePressure).IsEqualTo(24);
     }
 
     [Test]
@@ -981,7 +981,7 @@ internal sealed class GameStateTests
 
         state.EndDay(new Random(2));
 
-        await Assert.That(state.PolicePressure).IsEqualTo(20);
+        await Assert.That(state.PolicePressure).IsEqualTo(23);
     }
 
     [Test]

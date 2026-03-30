@@ -955,7 +955,7 @@ Modified files:
 
 ## District-Specific Heat
 
-Status: planned.
+Status: done.
 
 Requirements: see REQS.md "District-Specific Heat" section.
 
