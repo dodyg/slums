@@ -1,3 +1,4 @@
+using Slums.Core.Calendar;
 using Slums.Core.Characters;
 using Slums.Core.Clock;
 using Slums.Core.Expenses;
@@ -35,6 +36,7 @@ public sealed record GameStatusContext(
     IReadOnlyList<DistrictConditionDefinition> DailyDistrictConditions,
     IReadOnlyList<Investment> ActiveInvestments,
     int TotalInvestmentEarnings,
+    string SeasonName,
     IReadOnlySet<string> StoryFlags)
 {
     public static GameStatusContext Create(GameSession gameSession)
@@ -70,6 +72,7 @@ public sealed record GameStatusContext(
             gameSession.GetDailyDistrictConditions(),
             gameSession.ActiveInvestments,
             gameSession.TotalInvestmentEarnings,
+            GameCalendar.GetSeasonName(gameSession.GetCurrentSeason()),
             gameSession.StoryFlags.ToHashSet(StringComparer.Ordinal));
     }
 

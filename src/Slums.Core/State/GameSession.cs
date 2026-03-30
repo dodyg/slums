@@ -12,6 +12,7 @@ using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.Training;
+using Slums.Core.Calendar;
 using Slums.Core.Home;
 using Slums.Core.World;
 using EntitiesDb;
@@ -112,6 +113,8 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public bool FinalWarningGiven => _rentState.FinalWarningGiven;
     private bool CrimeCommittedToday { get => _crimeState.CrimeCommittedToday; set => _crimeState.CrimeCommittedToday = value; }
     public HomeUpgradeState HomeUpgrades { get; } = new();
+    private RamadanState _ramadanState = RamadanState.Inactive;
+    public RamadanState RamadanState => _ramadanState;
 
     public event EventHandler<GameEventArgs>? GameEvent;
     public IReadOnlyList<GameMutationRecord> Mutations => _mutations;
@@ -189,15 +192,57 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var currentWeek = CurrentWeek;
         Player.Stats.ApplyDailyDecay();
 
+        var seasonModifiers = SeasonModifiersRegistry.GetModifiers(GetCurrentSeason());
+        if (seasonModifiers.EnergyDrainModifier != 0)
+        {
+            Player.Stats.ModifyEnergy(-seasonModifiers.EnergyDrainModifier);
+        }
+
+        if (seasonModifiers.StressModifier != 0)
+        {
+            Player.Stats.ModifyStress(seasonModifiers.StressModifier);
+        }
+
+        var holidayState = HolidayRegistry.GetHolidayState(GameCalendar.GetDate(Clock.Day));
+        if (holidayState.IsActive)
+        {
+            if (holidayState.StressModifier.HasValue && holidayState.StressModifier.Value != 0)
+            {
+                Player.Stats.ModifyStress(holidayState.StressModifier.Value);
+            }
+
+            if (holidayState.MotherHealthModifier.HasValue && holidayState.MotherHealthModifier.Value != 0)
+            {
+                Player.Household.UpdateMotherHealth(holidayState.MotherHealthModifier.Value);
+            }
+        }
+
+        if (holidayState.IsRamadan && _ramadanState.PlayerIsFasting)
+        {
+            if (_ramadanState.EnergyModifier != 0)
+            {
+                Player.Stats.ModifyEnergy(_ramadanState.EnergyModifier);
+            }
+            if (_ramadanState.StressModifier != 0)
+            {
+                Player.Stats.ModifyStress(_ramadanState.StressModifier);
+            }
+            if (_ramadanState.TrustModifierWithReligiousNpcs != 0)
+            {
+                Relationships.ModifyNpcTrust(NpcId.LandlordHajjMahmoud, _ramadanState.TrustModifierWithReligiousNpcs);
+            }
+        }
+
         var nutritionResolution = Player.Nutrition.ResolveDay();
         Player.Stats.ModifyEnergy(nutritionResolution.EnergyDelta);
         Player.Stats.ModifyHealth(nutritionResolution.HealthDelta);
         Player.Stats.ModifyStress(nutritionResolution.StressDelta);
         SyncLegacyHunger();
 
+        var seasonRestBonus = seasonModifiers.RestRecoveryBonus;
         var overnightRecovery = SleepQualityCalculator.CalculateOvernightRecovery(
             Player.Stats, Player.Nutrition, Player.Household,
-            UnpaidRentDays, HomeUpgrades);
+            UnpaidRentDays, HomeUpgrades, seasonRestBonus);
         Player.Stats.ModifyEnergy(overnightRecovery);
 
         if (HomeUpgrades.GetStressBonus() > 0)
@@ -271,6 +316,21 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Clock.AdvanceToNextDay();
         DaysSurvived++;
         World.TravelTo(LocationId.Home);
+
+        var newHolidayState = HolidayRegistry.GetHolidayState(GameCalendar.GetDate(Clock.Day));
+        if (newHolidayState.IsRamadan)
+        {
+            _ramadanState = _ramadanState.AdvanceDay() with
+            {
+                IsActive = true,
+                DaysRemaining = newHolidayState.DaysRemaining
+            };
+        }
+        else if (_ramadanState.IsActive)
+        {
+            _ramadanState = RamadanState.Inactive;
+        }
+
         if (_useDynamicDistrictConditions)
         {
             RollDistrictConditionsForCurrentDay(random ?? _sharedRandom);
@@ -317,9 +377,10 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             return false;
         }
 
+        var seasonRestBonus = GetCurrentSeasonModifiers().RestRecoveryBonus;
         var recovery = SleepQualityCalculator.CalculateRecovery(
             Player.Stats, Player.Nutrition, Player.Household,
-            UnpaidRentDays, HomeUpgrades);
+            UnpaidRentDays, HomeUpgrades, seasonRestBonus);
 
         Player.Stats.ModifyEnergy(recovery);
         Player.Stats.ModifyHunger(-10);
@@ -328,7 +389,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         var breakdown = SleepQualityCalculator.BuildRecoveryBreakdown(
             recovery, Player.Stats, Player.Nutrition, Player.Household,
-            UnpaidRentDays, HomeUpgrades);
+            UnpaidRentDays, HomeUpgrades, seasonRestBonus);
         RaiseEvent($"You rest at home. Energy +{recovery}. ({breakdown})");
         RecordMutation(MutationCategories.Rest, "RestAtHome", before, CaptureStats(), "Rested at home");
         return true;
@@ -1040,7 +1101,8 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     {
         var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
         var schedule = GetCurrentSchedule();
-        var baseModifier = (districtCondition?.Effect.FoodCostModifier ?? 0) + schedule.FoodCostModifier;
+        var seasonModifiers = SeasonModifiersRegistry.GetModifiers(GetCurrentSeason());
+        var baseModifier = (districtCondition?.Effect.FoodCostModifier ?? 0) + schedule.FoodCostModifier + seasonModifiers.FoodCostModifier;
         if (Player.BackgroundType == BackgroundType.SudaneseRefugee && schedule.FoodCostModifier < 0)
         {
             baseModifier -= 1;
@@ -1054,7 +1116,8 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     {
         var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
         var schedule = GetCurrentSchedule();
-        var baseModifier = (districtCondition?.Effect.StreetFoodCostModifier ?? 0) + schedule.FoodCostModifier;
+        var seasonModifiers = SeasonModifiersRegistry.GetModifiers(GetCurrentSeason());
+        var baseModifier = (districtCondition?.Effect.StreetFoodCostModifier ?? 0) + schedule.FoodCostModifier + seasonModifiers.FoodCostModifier;
         if (Player.BackgroundType == BackgroundType.SudaneseRefugee && schedule.FoodCostModifier < 0)
         {
             baseModifier -= 1;
@@ -1879,6 +1942,17 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.HouseholdAssets.Restore(pets, plants, hasStreetCatEncounter, lastStreetCatEncounterDay, totalHerbEarnings);
     }
 
+    public void RestoreRamadanState(bool isActive, bool playerIsFasting, int daysFasting, int daysRemaining)
+    {
+        _ramadanState = new RamadanState
+        {
+            IsActive = isActive,
+            PlayerIsFasting = playerIsFasting,
+            DaysFasting = daysFasting,
+            DaysRemaining = daysRemaining
+        };
+    }
+
     public int GetEventCount(string eventId)
     {
         if (string.IsNullOrWhiteSpace(eventId))
@@ -2349,7 +2423,38 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public DayScheduleModifiers GetCurrentSchedule()
     {
-        return DayScheduleRegistry.GetModifiers(GetCurrentDayOfWeek());
+        return DayScheduleRegistry.GetModifiers(Clock.DayOfWeek);
+    }
+
+    public Season GetCurrentSeason()
+    {
+        return GameCalendar.GetSeason(Clock.Day);
+    }
+
+    public SeasonModifiers GetCurrentSeasonModifiers()
+    {
+        return SeasonModifiersRegistry.GetModifiers(GetCurrentSeason());
+    }
+
+    public ActiveHolidayState GetActiveHolidayState()
+    {
+        return HolidayRegistry.GetHolidayState(GameCalendar.GetDate(Clock.Day));
+    }
+
+    public void SetRamadanFasting(bool isFasting)
+    {
+        var holidayState = GetActiveHolidayState();
+        if (!holidayState.IsRamadan)
+        {
+            return;
+        }
+
+        _ramadanState = _ramadanState with
+        {
+            IsActive = true,
+            PlayerIsFasting = isFasting,
+            DaysRemaining = holidayState.DaysRemaining
+        };
     }
 
     private string GetMotherStatusMessage()

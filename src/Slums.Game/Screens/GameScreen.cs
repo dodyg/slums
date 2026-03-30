@@ -652,7 +652,7 @@ internal sealed class GameScreen : ScreenSurface
 
             var dayOfWeek = statusContext.Clock.DayOfWeek;
             var daySchedule = DayScheduleRegistry.GetModifiers(dayOfWeek);
-            Surface.Print(2, y++, TrimToWidth($"Day {statusContext.Clock.Day} ({daySchedule.DayName}) - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2}", width), Color.White);
+            Surface.Print(2, y++, TrimToWidth($"Day {statusContext.Clock.Day} ({daySchedule.DayName}) - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2} | {statusContext.SeasonName}", width), Color.White);
             Surface.Print(2, y++, TrimToWidth($"Location: {location}", width), Color.White);
             Surface.Print(2, y++, TrimToWidth($"District: {districtName}", width), Color.White);
             Surface.Print(2, y++, TrimToWidth($"Money: {statusContext.Player.Stats.Money} LE | Police: {statusContext.PolicePressure}", width), Color.Gold);

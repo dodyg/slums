@@ -341,7 +341,7 @@ Modified files:
 
 ## Seasonal Calendar
 
-Status: planned.
+Status: implemented (core types, modifiers, EndDay integration, food cost integration, rest recovery bonus, HUD display, tests).
 
 Requirements: see REQS.md "Seasonal Calendar" section.
 

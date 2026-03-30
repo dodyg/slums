@@ -14,7 +14,8 @@ public static class SleepQualityCalculator
         NutritionState nutrition,
         HouseholdCareState household,
         int unpaidRentDays,
-        HomeUpgradeState upgrades)
+        HomeUpgradeState upgrades,
+        int seasonRestBonus = 0)
     {
         ArgumentNullException.ThrowIfNull(stats);
         ArgumentNullException.ThrowIfNull(nutrition);
@@ -53,6 +54,7 @@ public static class SleepQualityCalculator
         }
 
         recovery += upgrades.GetEnergyRecoveryBonus();
+        recovery += seasonRestBonus;
 
         return Math.Max(MinimumRecovery, recovery);
     }
@@ -62,7 +64,8 @@ public static class SleepQualityCalculator
         NutritionState nutrition,
         HouseholdCareState household,
         int unpaidRentDays,
-        HomeUpgradeState upgrades)
+        HomeUpgradeState upgrades,
+        int seasonRestBonus = 0)
     {
         ArgumentNullException.ThrowIfNull(stats);
         ArgumentNullException.ThrowIfNull(nutrition);
@@ -101,6 +104,7 @@ public static class SleepQualityCalculator
         }
 
         recovery += upgrades.GetEnergyRecoveryBonus() / 2;
+        recovery += seasonRestBonus;
 
         return Math.Max(OvernightMinimumRecovery, recovery);
     }
@@ -111,7 +115,8 @@ public static class SleepQualityCalculator
         NutritionState nutrition,
         HouseholdCareState household,
         int unpaidRentDays,
-        HomeUpgradeState upgrades)
+        HomeUpgradeState upgrades,
+        int seasonRestBonus = 0)
     {
         ArgumentNullException.ThrowIfNull(stats);
         ArgumentNullException.ThrowIfNull(nutrition);
@@ -152,6 +157,11 @@ public static class SleepQualityCalculator
         if (upgrades.GetEnergyRecoveryBonus() > 0)
         {
             factors.Add($"Home upgrades: +{upgrades.GetEnergyRecoveryBonus()}");
+        }
+
+        if (seasonRestBonus > 0)
+        {
+            factors.Add($"Season bonus: +{seasonRestBonus}");
         }
 
         factors.Add($"Recovery: {recovery}");

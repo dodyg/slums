@@ -110,6 +110,13 @@ public sealed class RelationshipState
         _factionStandings[factionId] = new FactionStanding(factionId, reputation);
     }
 
+    public void ModifyNpcTrust(NpcId npcId, int delta)
+    {
+        var existing = GetNpcRelationship(npcId);
+        var newTrust = Math.Clamp(existing.Trust + delta, -100, 100);
+        _npcRelationships[npcId] = existing with { Trust = newTrust };
+    }
+
     public void RecordSeenConversation(NpcId npcId, string knotName)
     {
         if (string.IsNullOrWhiteSpace(knotName))

@@ -39,6 +39,8 @@ public sealed record GameSessionSnapshot
 
     public IReadOnlyList<string> HomeUpgrades { get; init; } = [];
 
+    public GameSessionRamadanSnapshot Ramadan { get; init; } = new();
+
     public static GameSessionSnapshot Capture(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
@@ -58,7 +60,8 @@ public sealed record GameSessionSnapshot
             Investments = gameSession.ActiveInvestments.Select(static investment => investment.CreateSnapshot()).ToArray(),
             TotalInvestmentEarnings = gameSession.TotalInvestmentEarnings,
             TrainedSkillsToday = gameSession.TrainedSkillsToday.ToDictionary(static kvp => kvp.Key.ToString(), static kvp => kvp.Value),
-            HomeUpgrades = gameSession.HomeUpgrades.PurchasedUpgrades.Select(static u => u.ToString()).ToArray()
+            HomeUpgrades = gameSession.HomeUpgrades.PurchasedUpgrades.Select(static u => u.ToString()).ToArray(),
+            Ramadan = GameSessionRamadanSnapshot.Capture(gameSession)
         };
     }
 
@@ -132,6 +135,12 @@ public sealed record GameSessionSnapshot
 
             var homeUpgrades = HomeUpgrades.Select(static u => Enum.Parse<HomeUpgrade>(u));
             gameSession.RestoreHomeUpgrades(homeUpgrades);
+
+            gameSession.RestoreRamadanState(
+                Ramadan.IsActive,
+                Ramadan.PlayerIsFasting,
+                Ramadan.DaysFasting,
+                Ramadan.DaysRemaining);
 
             foreach (var npcId in Enum.GetValues<NpcId>())
             {
