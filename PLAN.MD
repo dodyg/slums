@@ -832,7 +832,7 @@ Modified files:
 
 ## Rumors and Word of Mouth
 
-Status: planned.
+Status: implemented (core types, rumor generation from gameplay events, propagation with trust effects, decay system, tests).
 
 Requirements: see REQS.md "Rumors and Word of Mouth" section.
 

@@ -15,6 +15,7 @@ using Slums.Core.Training;
 using Slums.Core.Calendar;
 using Slums.Core.Community;
 using Slums.Core.Home;
+using Slums.Core.Rumors;
 using Slums.Core.Weather;
 using Slums.Core.World;
 using EntitiesDb;
@@ -117,6 +118,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public HomeUpgradeState HomeUpgrades { get; } = new();
     public CommunityEventAttendance EventAttendance { get; } = new();
     public WeatherState CurrentWeather { get; private set; } = WeatherState.Clear;
+    public RumorState Rumors { get; } = new();
     private RamadanState _ramadanState = RamadanState.Inactive;
     public RamadanState RamadanState => _ramadanState;
 
@@ -413,6 +415,42 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         TryRollStreetCatEncounter(random ?? _sharedRandom);
         QueueNarrativeFollowUpScenes();
+
+        Rumors.DecayAll();
+        RumorPropagator.Propagate(Rumors, Relationships, Clock.Day);
+        foreach (var rumor in Rumors.ActiveRumors)
+        {
+            foreach (var npcId in rumor.AffectedNpcs)
+            {
+                if (!rumor.NpcsWhoHeard.Contains(npcId))
+                {
+                    var modifier = rumor.TrustModifier;
+                    var relationship = Relationships.GetNpcRelationship(npcId);
+                    if (relationship.Trust > 30 && !rumor.IsPositive)
+                    {
+                        modifier = modifier / 2;
+                    }
+                    else if (relationship.Trust < -10 && !rumor.IsPositive)
+                    {
+                        modifier = (int)(modifier * 1.5);
+                    }
+
+                    if (modifier != 0)
+                    {
+                        Relationships.ModifyNpcTrust(npcId, modifier);
+                    }
+
+                    rumor.NpcsWhoHeard.Add(npcId);
+                }
+            }
+        }
+
+        Rumors.RemoveExpired();
+
+        if (EventAttendance.ConsecutiveSkips >= 3)
+        {
+            Rumors.AddRumor(RumorGenerator.OnSkippingCommunityEvents(EventAttendance.ConsecutiveSkips, Clock.Day));
+        }
 
         ActivityLedgerSystem.BeginNewDay(_crimeState);
         CheckGameOverConditions();
