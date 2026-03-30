@@ -620,7 +620,7 @@ Modified files:
 
 ## Weather and Atmospheric Conditions
 
-Status: planned.
+Status: implemented (core types, weather rolling, weather effects on energy/stress/food, HUD display, persistence, tests).
 
 Requirements: see REQS.md "Weather and Atmospheric Conditions" section.
 

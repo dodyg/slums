@@ -1,6 +1,7 @@
 using Slums.Core.Calendar;
 using Slums.Core.Characters;
 using Slums.Core.State;
+using Slums.Core.Weather;
 using TUnit.Core;
 
 namespace Slums.Core.Tests.Calendar;
@@ -269,18 +270,19 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_EndDay_WinterAppliesExtraRestRecovery()
     {
-        var rng = new Random(42);
-        using var autumn = new GameSession(rng);
+        using var autumn = new GameSession(new Random(42));
         autumn.Player.Stats.SetEnergy(30);
         autumn.Player.Nutrition.Eat(MealQuality.Basic);
+        autumn.RestoreWeather(WeatherType.Clear);
 
         using var winter = new GameSession(new Random(42));
         winter.Clock.SetTime(64, 6, 0);
         winter.Player.Stats.SetEnergy(30);
         winter.Player.Nutrition.Eat(MealQuality.Basic);
+        winter.RestoreWeather(WeatherType.Clear);
 
-        autumn.EndDay(rng);
-        winter.EndDay(rng);
+        autumn.EndDay(new Random(42));
+        winter.EndDay(new Random(42));
 
         await Assert.That(winter.Player.Stats.Energy).IsGreaterThan(autumn.Player.Stats.Energy);
     }

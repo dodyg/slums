@@ -5,6 +5,7 @@ using Slums.Core.Jobs;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.State;
+using Slums.Core.Weather;
 using Slums.Core.World;
 
 namespace Slums.Infrastructure.Persistence;
@@ -43,6 +44,8 @@ public sealed record GameSessionSnapshot
 
     public GameSessionCommunityEventSnapshot CommunityEvents { get; init; } = new();
 
+    public string CurrentWeather { get; init; } = "Clear";
+
     public static GameSessionSnapshot Capture(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
@@ -64,7 +67,8 @@ public sealed record GameSessionSnapshot
             TrainedSkillsToday = gameSession.TrainedSkillsToday.ToDictionary(static kvp => kvp.Key.ToString(), static kvp => kvp.Value),
             HomeUpgrades = gameSession.HomeUpgrades.PurchasedUpgrades.Select(static u => u.ToString()).ToArray(),
             Ramadan = GameSessionRamadanSnapshot.Capture(gameSession),
-            CommunityEvents = GameSessionCommunityEventSnapshot.Capture(gameSession)
+            CommunityEvents = GameSessionCommunityEventSnapshot.Capture(gameSession),
+            CurrentWeather = gameSession.CurrentWeather.Type.ToString()
         };
     }
 
@@ -152,6 +156,11 @@ public sealed record GameSessionSnapshot
                 CommunityEvents.AttendedThisWeek.Select(static s => Enum.Parse<Slums.Core.Community.CommunityEventId>(s)),
                 CommunityEvents.LastWeekResetDay,
                 CommunityEvents.HasTeaCircleInvitation);
+
+            if (Enum.TryParse<WeatherType>(CurrentWeather, out var weatherType))
+            {
+                gameSession.RestoreWeather(weatherType);
+            }
 
             foreach (var npcId in Enum.GetValues<NpcId>())
             {

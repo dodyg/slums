@@ -15,6 +15,7 @@ using Slums.Core.Training;
 using Slums.Core.Calendar;
 using Slums.Core.Community;
 using Slums.Core.Home;
+using Slums.Core.Weather;
 using Slums.Core.World;
 using EntitiesDb;
 using Slums.Core.Diagnostics;
@@ -115,6 +116,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     private bool CrimeCommittedToday { get => _crimeState.CrimeCommittedToday; set => _crimeState.CrimeCommittedToday = value; }
     public HomeUpgradeState HomeUpgrades { get; } = new();
     public CommunityEventAttendance EventAttendance { get; } = new();
+    public WeatherState CurrentWeather { get; private set; } = WeatherState.Clear;
     private RamadanState _ramadanState = RamadanState.Inactive;
     public RamadanState RamadanState => _ramadanState;
 
@@ -203,6 +205,21 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         if (seasonModifiers.StressModifier != 0)
         {
             Player.Stats.ModifyStress(seasonModifiers.StressModifier);
+        }
+
+        if (CurrentWeather.EnergyDrainModifier != 0)
+        {
+            Player.Stats.ModifyEnergy(-CurrentWeather.EnergyDrainModifier);
+        }
+
+        if (CurrentWeather.StressModifier != 0)
+        {
+            Player.Stats.ModifyStress(CurrentWeather.StressModifier);
+        }
+
+        if (CurrentWeather.HealthModifier != 0 && (CurrentWeather.Type == WeatherType.Heatwave && Player.Stats.Energy < 30))
+        {
+            Player.Stats.ModifyHealth(CurrentWeather.HealthModifier);
         }
 
         var holidayState = HolidayRegistry.GetHolidayState(GameCalendar.GetDate(Clock.Day));
@@ -341,6 +358,13 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         {
             SetBaselineDistrictConditions();
         }
+
+        var newSeason = GetCurrentSeason();
+        CurrentWeather = WeatherRoller.Roll(newSeason, random ?? _sharedRandom) switch
+        {
+            var type => WeatherModifiers.GetModifiers(type)
+        };
+        RaiseEvent($"Weather: {WeatherModifiers.GetDisplayName(CurrentWeather.Type)}");
         RaiseEvent("You return home for the night.");
 
         if (GetCurrentDayOfWeek() == GameDayOfWeek.Monday)
@@ -1290,7 +1314,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
         var schedule = GetCurrentSchedule();
         var seasonModifiers = SeasonModifiersRegistry.GetModifiers(GetCurrentSeason());
-        var baseModifier = (districtCondition?.Effect.FoodCostModifier ?? 0) + schedule.FoodCostModifier + seasonModifiers.FoodCostModifier;
+        var baseModifier = (districtCondition?.Effect.FoodCostModifier ?? 0) + schedule.FoodCostModifier + seasonModifiers.FoodCostModifier + CurrentWeather.FoodCostModifier;
         if (Player.BackgroundType == BackgroundType.SudaneseRefugee && schedule.FoodCostModifier < 0)
         {
             baseModifier -= 1;
@@ -1305,7 +1329,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
         var schedule = GetCurrentSchedule();
         var seasonModifiers = SeasonModifiersRegistry.GetModifiers(GetCurrentSeason());
-        var baseModifier = (districtCondition?.Effect.StreetFoodCostModifier ?? 0) + schedule.FoodCostModifier + seasonModifiers.FoodCostModifier;
+        var baseModifier = (districtCondition?.Effect.StreetFoodCostModifier ?? 0) + schedule.FoodCostModifier + seasonModifiers.FoodCostModifier + CurrentWeather.FoodCostModifier;
         if (Player.BackgroundType == BackgroundType.SudaneseRefugee && schedule.FoodCostModifier < 0)
         {
             baseModifier -= 1;
@@ -2161,6 +2185,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         {
             EventAttendance.AttendedThisWeek.Add(eventId);
         }
+    }
+
+    public void RestoreWeather(WeatherType weatherType)
+    {
+        CurrentWeather = WeatherModifiers.GetModifiers(weatherType);
     }
 
     public int GetEventCount(string eventId)
