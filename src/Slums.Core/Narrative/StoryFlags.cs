@@ -40,6 +40,15 @@ public static class StoryFlags
     public const string CrimeImanCoverSeen = "crime_iman_cover_seen";
     public const string CrimeImanExitSeen = "crime_iman_exit_seen";
 
+    public const string EventArrestCloseCallSeen = "event_arrest_close_call_seen";
+    public const string EventHonestMilestoneSeen = "event_honest_milestone_seen";
+    public const string EventCommunityAftermathSeen = "event_community_aftermath_seen";
+    public const string EventEmbarrassmentRecoverySeen = "event_embarrassment_recovery_seen";
+    public const string BackgroundPrisonerKhalidSeen = "background_prisoner_khalid_seen";
+    public const string BackgroundSudaneseMariamSeen = "background_sudanese_mariam_seen";
+    public const string EventYoussefEmbeddedSeen = "event_youssef_embedded_seen";
+    public const string EventNadiaSuspicionSeen = "event_nadia_suspicion_seen";
+
     public static IReadOnlyList<string> GetCrimeRouteAftermathFlags(CrimeType crimeType)
     {
         return crimeType switch

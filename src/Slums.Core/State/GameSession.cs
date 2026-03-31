@@ -2668,6 +2668,17 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         {
             TryQueueNarrativeTrigger(trigger);
         }
+
+        foreach (var trigger in NarrativeFollowUpPlanner.GetWorkFollowUpTriggers(
+                     HonestShiftsCompleted,
+                     CrimesCommitted,
+                     Relationships,
+                     _storyFlags))
+        {
+            TryQueueNarrativeTrigger(trigger);
+        }
+
+        TryQueueNarrativeTrigger(NarrativeFollowUpPlanner.GetCommunityAftermathTrigger(EventAttendance, _storyFlags));
     }
 
     private CrimeModifierEvaluation EvaluateCrimeModifiers(CrimeAttempt attempt)

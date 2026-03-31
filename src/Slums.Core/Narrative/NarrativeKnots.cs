@@ -38,4 +38,13 @@ public static class NarrativeKnots
     public const string CrimeSafaaSalvage = "crime_safaa_salvage";
     public const string CrimeImanCover = "crime_iman_cover";
     public const string CrimeImanExit = "crime_iman_exit";
+
+    public const string EventArrestCloseCall = "event_arrest_close_call";
+    public const string EventHonestMilestone = "event_honest_milestone";
+    public const string EventCommunityAftermath = "event_community_aftermath";
+    public const string EventEmbarrassmentRecovery = "event_embarrassment_recovery";
+    public const string BackgroundPrisonerKhalid = "background_prisoner_khalid";
+    public const string BackgroundSudaneseMariam = "background_sudanese_mariam";
+    public const string EventYoussefEmbedded = "event_youssef_embedded";
+    public const string EventNadiaSuspicion = "event_nadia_suspicion";
 }

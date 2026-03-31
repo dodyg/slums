@@ -204,6 +204,72 @@ public sealed class TalkNpcStatusQuery
                     signals.Add("Your double life is starting to show in a clinical setting.");
                 }
                 break;
+
+            case NpcId.OfficerKhalid:
+                if (context.PolicePressure >= 70)
+                {
+                    signals.Add("High pressure is making Khalid's attention feel personal.");
+                }
+
+                if (context.CrimesCommitted >= 2 && relationship.Trust <= 0)
+                {
+                    signals.Add("Your record and his distrust are a dangerous combination.");
+                }
+                break;
+
+            case NpcId.WorkshopBossAbuSamir:
+                if (relationship.WasEmbarrassed)
+                {
+                    signals.Add("The embarrassment still hangs between you.");
+                }
+
+                if (relationship.WasEmbarrassed && relationship.Trust >= 5)
+                {
+                    signals.Add("Your recovery is starting to earn back his patience.");
+                }
+                break;
+
+            case NpcId.CafeOwnerNadia:
+                if (maintainingDoubleLife && relationship.Trust >= 10)
+                {
+                    signals.Add("Nadia can see the gap between your work clothes and your street.");
+                }
+                break;
+
+            case NpcId.RunnerYoussef:
+                if (context.CrimesCommitted >= 3 && relationship.Trust >= 15)
+                {
+                    signals.Add("Youssef is treating you like part of the route, not just a customer.");
+                }
+                break;
+
+            case NpcId.FenceHanan:
+                if (context.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation >= 15)
+                {
+                    signals.Add("Your faction standing makes Hanan more willing to share.");
+                }
+                break;
+
+            case NpcId.PharmacistMariam:
+                if (context.Player.Household.MotherHealth < 40)
+                {
+                    signals.Add("Your mother's condition is pressing Mariam toward urgency.");
+                }
+                break;
+
+            case NpcId.DispatcherSafaa:
+                if (relationship.RecentContactCount >= 3)
+                {
+                    signals.Add("Regular contact is making Safaa treat you like part of the depot rhythm.");
+                }
+                break;
+
+            case NpcId.LaundryOwnerIman:
+                if (context.Player.Stats.Money < 50 && relationship.Trust >= 10)
+                {
+                    signals.Add("Iman can see the lean week and may quietly offer help.");
+                }
+                break;
         }
 
         return signals;

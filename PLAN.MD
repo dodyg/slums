@@ -127,6 +127,8 @@ Tune the expanded simulation without flattening background identity.
 
 ### 5. More Authored Reactivity
 
+Status: **implemented**.
+
 Expand content that reflects the systems already in place.
 
 - add more memory-reactive NPC variants

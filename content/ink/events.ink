@@ -92,3 +92,46 @@ When Hajj Mahmoud finally speaks plainly, humiliation becomes logistical. Two da
 === event_investment_suspension ===
 The message reaches you through three mouths before it reaches you as fact: the venture is not dead, only stalled, squeezed, and waiting for the city to look elsewhere for a week. In Cairo, that kind of pause can still feel like panic.
 -> DONE
+
+=== event_arrest_close_call ===
+The patrol car rolls past slowly enough to study faces. You press against the wall and feel your pulse in your teeth. Later, alone, the shaking does not stop for an hour. The city has shown you how thin the ice is, and the crack does not heal just because you survived the crossing.
+# STRESS:8
+-> DONE
+
+=== event_honest_milestone ===
+Ten shifts. Ten days of clocking in, swallowing insults, counting coins, and going home with just enough. Nobody hands you a certificate. The landlord does not smile. But somewhere between the call center scripts and the clinic queues, the street has started reading you as someone who shows up. In Cairo, reliability is not rewarded. It is merely noticed, and that counts as grace.
+# STRESS:-5
+-> DONE
+
+=== event_community_aftermath ===
+After the gathering, the stairwell smells different — not cleaner, just lived-in by people who decided you belong here. The woman downstairs nods instead of stares. The man above stops counting your footsteps. Belonging in Cairo is never announced. It accumulates, like dust, until one day you realize it has become a kind of shelter.
+# STRESS:-3
+-> DONE
+
+=== event_embarrassment_recovery ===
+Abu Samir does not apologize — that is not how workshop forgiveness works. He just hands you the better fabric this time, the kind he gives to women whose hands he trusts. The silence between you is no longer cold. It is the quiet of two people who have agreed never to mention the mistake again.
+# NPC_TRUST:WorkshopBossAbuSamir,5
+-> DONE
+
+=== background_prisoner_khalid ===
+Officer Khalid studies your face a beat too long. You know the look — the one that searches for a name in an old file, the one that remembers who was inside before the amnesty. He does not say anything yet. He just watches, and in Cairo a watching policeman is a sentence that has not decided whether to become a paragraph.
+# STRESS:5
+-> DONE
+
+=== background_sudanese_mariam ===
+Mariam asks where your mother learned to make that tea, and the question is gentle enough to carry real grief inside it. She mentions her own family's route south, the border crossings, the way pharmacies in Khartoum used to smell exactly like this one. For a moment the counter between you becomes a border neither of you had to explain.
+# NPC_TRUST:PharmacistMariam,5
+# STRESS:-2
+-> DONE
+
+=== event_youssef_embedded ===
+Youssef stops calling you by name and starts using the route shorthand instead: drop times, back-alley signals, which corners stay blind after midnight. He does not ask permission to trust you. He just does, which is how you know the route has moved from opportunity to identity without anyone naming the moment it happened.
+# NPC_TRUST:RunnerYoussef,3
+# STRESS:3
+-> DONE
+
+=== event_nadia_suspicion ===
+Nadia sets the tea down and does not move away. Her eyes track from your work-worn hands to the way you check the door before speaking. She does not accuse. She just says, carefully, that some women in this neighborhood carry two lives, and the ones who survive are the ones who stop pretending the cracks do not show.
+# STRESS:4
+# NPC_TRUST:CafeOwnerNadia,-2
+-> DONE

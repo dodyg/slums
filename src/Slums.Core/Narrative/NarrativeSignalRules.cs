@@ -89,4 +89,72 @@ public static class NarrativeSignalRules
                string.Equals(eventId, "NeighborhoodSolidarity", StringComparison.Ordinal) &&
                !storyFlags.Contains(StoryFlags.BackgroundSudaneseSolidaritySeen);
     }
+
+    public static bool HasPendingArrestCloseCall(int policePressure, IReadOnlySet<string> storyFlags)
+    {
+        ArgumentNullException.ThrowIfNull(storyFlags);
+        return policePressure >= 90 &&
+               !storyFlags.Contains(StoryFlags.EventArrestCloseCallSeen);
+    }
+
+    public static bool HasPendingHonestMilestone(int honestShiftsCompleted, IReadOnlySet<string> storyFlags)
+    {
+        ArgumentNullException.ThrowIfNull(storyFlags);
+        return honestShiftsCompleted >= 10 &&
+               !storyFlags.Contains(StoryFlags.EventHonestMilestoneSeen);
+    }
+
+    public static bool HasPendingCommunityAftermath(bool attendedSolidarityEvent, IReadOnlySet<string> storyFlags)
+    {
+        ArgumentNullException.ThrowIfNull(storyFlags);
+        return attendedSolidarityEvent &&
+               !storyFlags.Contains(StoryFlags.EventCommunityAftermathSeen);
+    }
+
+    public static bool HasPendingEmbarrassmentRecovery(RelationshipState relationships, IReadOnlySet<string> storyFlags)
+    {
+        ArgumentNullException.ThrowIfNull(relationships);
+        ArgumentNullException.ThrowIfNull(storyFlags);
+        var abuSamir = relationships.GetNpcRelationship(NpcId.WorkshopBossAbuSamir);
+        return abuSamir.WasEmbarrassed &&
+               abuSamir.Trust >= 5 &&
+               !storyFlags.Contains(StoryFlags.EventEmbarrassmentRecoverySeen);
+    }
+
+    public static bool HasPendingPrisonerKhalid(BackgroundType backgroundType, RelationshipState relationships, IReadOnlySet<string> storyFlags)
+    {
+        ArgumentNullException.ThrowIfNull(relationships);
+        ArgumentNullException.ThrowIfNull(storyFlags);
+        return backgroundType == BackgroundType.ReleasedPoliticalPrisoner &&
+               relationships.GetNpcRelationship(NpcId.OfficerKhalid).Trust <= 0 &&
+               !storyFlags.Contains(StoryFlags.BackgroundPrisonerKhalidSeen);
+    }
+
+    public static bool HasPendingSudaneseMariam(BackgroundType backgroundType, RelationshipState relationships, IReadOnlySet<string> storyFlags)
+    {
+        ArgumentNullException.ThrowIfNull(relationships);
+        ArgumentNullException.ThrowIfNull(storyFlags);
+        return backgroundType == BackgroundType.SudaneseRefugee &&
+               relationships.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= 10 &&
+               !storyFlags.Contains(StoryFlags.BackgroundSudaneseMariamSeen);
+    }
+
+    public static bool HasPendingYoussefEmbedded(int crimesCommitted, RelationshipState relationships, IReadOnlySet<string> storyFlags)
+    {
+        ArgumentNullException.ThrowIfNull(relationships);
+        ArgumentNullException.ThrowIfNull(storyFlags);
+        return crimesCommitted >= 3 &&
+               relationships.GetNpcRelationship(NpcId.RunnerYoussef).Trust >= 15 &&
+               !storyFlags.Contains(StoryFlags.EventYoussefEmbeddedSeen);
+    }
+
+    public static bool HasPendingNadiaSuspicion(int honestShiftsCompleted, int crimesCommitted, RelationshipState relationships, IReadOnlySet<string> storyFlags)
+    {
+        ArgumentNullException.ThrowIfNull(relationships);
+        ArgumentNullException.ThrowIfNull(storyFlags);
+        return honestShiftsCompleted >= 3 &&
+               crimesCommitted > 0 &&
+               relationships.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust >= 10 &&
+               !storyFlags.Contains(StoryFlags.EventNadiaSuspicionSeen);
+    }
 }
