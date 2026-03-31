@@ -115,6 +115,8 @@ Make the deeper systems legible to the player.
 
 ### 4. Balance Pass
 
+Status: **implemented**.
+
 Tune the expanded simulation without flattening background identity.
 
 - review pay, stress, pressure, reliability, and lockout values

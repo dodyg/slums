@@ -65,7 +65,7 @@ internal sealed class NutritionStateTests
         await Assert.That(result.EnergyDelta).IsEqualTo(-12);
         await Assert.That(result.HealthDelta).IsEqualTo(0);
         await Assert.That(result.StressDelta).IsEqualTo(6);
-        await Assert.That(state.Satiety).IsEqualTo(57);
+        await Assert.That(state.Satiety).IsEqualTo(60);
     }
 
     [Test]
@@ -81,7 +81,7 @@ internal sealed class NutritionStateTests
         await Assert.That(result.EnergyDelta).IsEqualTo(-5);
         await Assert.That(result.HealthDelta).IsEqualTo(0);
         await Assert.That(result.StressDelta).IsEqualTo(2);
-        await Assert.That(state.Satiety).IsEqualTo(32);
+        await Assert.That(state.Satiety).IsEqualTo(35);
     }
 
     [Test]

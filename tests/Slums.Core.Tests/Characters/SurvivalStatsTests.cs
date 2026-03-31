@@ -100,9 +100,9 @@ internal sealed class SurvivalStatsTests
 
         stats.ApplyDailyDecay();
 
-        await Assert.That(stats.Hunger).IsEqualTo(65);
+        await Assert.That(stats.Hunger).IsEqualTo(68);
         await Assert.That(stats.Energy).IsEqualTo(70);
-        await Assert.That(stats.Stress).IsEqualTo(25);
+        await Assert.That(stats.Stress).IsEqualTo(23);
     }
 
     [Test]
