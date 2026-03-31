@@ -4,7 +4,7 @@ public sealed class NutritionState
 {
     private const int DefaultSatiety = 75;
     private const int MaxValue = 100;
-    private const int DailySatietyDecay = 18;
+    private const int DailySatietyDecay = 15;
 
     public int Satiety { get; private set; } = DefaultSatiety;
 

@@ -32,6 +32,21 @@ namespace Slums.Infrastructure.Persistence;
 [JsonSerializable(typeof(GameSessionDistrictHeatSnapshot))]
 [JsonSerializable(typeof(DistrictHeatEntrySnapshot))]
 [JsonSerializable(typeof(List<DistrictHeatEntrySnapshot>))]
+[JsonSerializable(typeof(GameSessionTerritorySnapshot))]
+[JsonSerializable(typeof(TerritoryDistrictSnapshot))]
+[JsonSerializable(typeof(GameSessionEconomySnapshot))]
+[JsonSerializable(typeof(NpcEconomyEntrySnapshot))]
+[JsonSerializable(typeof(PlayerDebtEntrySnapshot))]
+[JsonSerializable(typeof(DebtorAmountSnapshot))]
+[JsonSerializable(typeof(List<NpcEconomyEntrySnapshot>))]
+[JsonSerializable(typeof(List<PlayerDebtEntrySnapshot>))]
+[JsonSerializable(typeof(List<DebtorAmountSnapshot>))]
+[JsonSerializable(typeof(GameSessionPhoneSnapshot))]
+[JsonSerializable(typeof(PhoneMessageSnapshot))]
+[JsonSerializable(typeof(List<PhoneMessageSnapshot>))]
+[JsonSerializable(typeof(GameSessionTipSnapshot))]
+[JsonSerializable(typeof(TipEntrySnapshot))]
+[JsonSerializable(typeof(List<TipEntrySnapshot>))]
 internal sealed partial class SaveGameJsonContext : JsonSerializerContext
 {
 }

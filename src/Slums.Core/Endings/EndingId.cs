@@ -12,5 +12,6 @@ public enum EndingId
     NetworkShelter,
     LeavingCrime,
     BuriedByHeat,
-    Eviction
+    Eviction,
+    DebtViolence
 }

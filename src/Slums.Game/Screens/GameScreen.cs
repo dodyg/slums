@@ -173,6 +173,12 @@ internal sealed class GameScreen : ScreenSurface
             var color = i == _selectedAction ? Color.Cyan : Color.White;
             Surface.Print(GameScreenLayout.ActionListX, actionListStartY + i, prefix + actions[i].Label, color);
         }
+
+        var tabHintY = actionListStartY + actions.Count + 1;
+        if (tabHintY < GameScreenLayout.GetActionHeaderY(Surface.Height) + 14)
+        {
+            Surface.Print(GameScreenLayout.ActionListX, tabHintY, "Tab=status pages", Color.DarkGray);
+        }
     }
 
     private void RenderStatusPage(GameStatusContext statusContext)
@@ -193,18 +199,18 @@ internal sealed class GameScreen : ScreenSurface
         var page = pages[_selectedStatusPage];
         Surface.Print(x, y++, $"--- {page.Title} [{_selectedStatusPage + 1}/{pages.Count}] ---", Color.Cyan);
 
-        foreach (var line in page.Lines)
-        {
-            foreach (var wrappedLine in WrapText(line, GameScreenLayout.RightPanelWidth).Take(2))
+            foreach (var line in page.Lines)
             {
-                if (y >= GameScreenLayout.EventLogY - 1)
+                foreach (var wrappedLine in WrapText(line, GameScreenLayout.RightPanelWidth).Take(3))
                 {
-                    return;
-                }
+                    if (y >= GameScreenLayout.EventLogY - 1)
+                    {
+                        return;
+                    }
 
-                Surface.Print(x, y++, wrappedLine, Color.White);
+                    Surface.Print(x, y++, wrappedLine, Color.White);
+                }
             }
-        }
     }
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)
@@ -324,6 +330,9 @@ internal sealed class GameScreen : ScreenSurface
             case GameActionId.Travel:
                 ShowTravelMenu();
                 break;
+            case GameActionId.Phone:
+                ShowPhoneMenu();
+                break;
             case GameActionId.SaveGame:
                 ShowSaveMenu();
                 break;
@@ -395,6 +404,13 @@ internal sealed class GameScreen : ScreenSurface
 
         IsFocused = false;
         GameHost.Instance.Screen = new TravelScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, locations, this);
+    }
+
+    private void ShowPhoneMenu()
+    {
+        var phoneContext = PhoneMenuContext.Create(_gameState);
+        IsFocused = false;
+        GameHost.Instance.Screen = new PhoneScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, phoneContext, this);
     }
 
     private void ShowSaveMenu()
@@ -500,7 +516,7 @@ internal sealed class GameScreen : ScreenSurface
         GameHost.Instance.Screen = new HouseholdAssetsScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, householdContext, statuses, this);
     }
 
-    private void AddEventLogEntry(string message)
+    internal void AddEventLogEntry(string message)
     {
         _eventLog.Add(message);
         while (_eventLog.Count > GameScreenLayout.MaxEventLogEntries)
@@ -643,7 +659,7 @@ internal sealed class GameScreen : ScreenSurface
         private readonly GameScreen _owner;
 
         public OverviewWindow(GameScreen owner)
-            : base(GameScreenLayout.RightPanelWidth, 11)
+            : base(GameScreenLayout.RightPanelWidth, 12)
         {
             _owner = owner;
             Position = new Point(GameScreenLayout.OverviewX, GameScreenLayout.OverviewY);
@@ -673,7 +689,13 @@ internal sealed class GameScreen : ScreenSurface
             Surface.Print(2, y++, TrimToWidth($"Day {statusContext.Clock.Day} ({daySchedule.DayName}) - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2} | {statusContext.SeasonName} | {statusContext.WeatherName}", width), Color.White);
             Surface.Print(2, y++, TrimToWidth($"Location: {location}", width), Color.White);
             Surface.Print(2, y++, TrimToWidth($"District: {districtName}", width), Color.White);
-            Surface.Print(2, y++, TrimToWidth($"Money: {statusContext.Player.Stats.Money} LE | Police: {statusContext.PolicePressure}", width), Color.Gold);
+            var policeColor = statusContext.PolicePressure >= 80 ? Color.Red
+                : statusContext.PolicePressure >= 50 ? Color.Orange
+                : Color.Green;
+            var moneyPrefix = $"Money: {statusContext.Player.Stats.Money} LE | Police: ";
+            Surface.Print(2, y, TrimToWidth($"{moneyPrefix}{statusContext.PolicePressure}", width), Color.Gold);
+            Surface.Print(2 + moneyPrefix.Length, y, $"{statusContext.PolicePressure}", policeColor);
+            y++;
 
             var rentColor = statusContext.UnpaidRentDays >= 5
                 ? Color.Red
@@ -681,12 +703,22 @@ internal sealed class GameScreen : ScreenSurface
                     ? Color.Orange
                     : Color.Gray;
             Surface.Print(2, y++, TrimToWidth(BuildRentOverviewText(statusContext), width), rentColor);
-            Surface.Print(2, y++, TrimToWidth($"Food: {household.FoodStockpile} | Med: {household.MedicineStock} | f: {statusContext.FoodCost} sf: {statusContext.StreetFoodCost} m: {statusContext.MedicineCost}", width), Color.White);
+            Surface.Print(2, y++, TrimToWidth($"Food: {household.FoodStockpile} | Med: {household.MedicineStock} | Buy food {statusContext.FoodCost} | Street {statusContext.StreetFoodCost} | Meds {statusContext.MedicineCost}", width), Color.White);
 
             var clinicText = statusContext.HasClinicServices
                 ? $"Clinic: {(statusContext.ClinicOpenToday ? "open" : "closed")} | visit {statusContext.ClinicVisitCost} LE"
                 : "Clinic: none here";
             Surface.Print(2, y++, TrimToWidth(clinicText, width), statusContext.HasClinicServices ? Color.LightGreen : Color.Gray);
+
+            var undeliveredTips = _owner._gameState.Tips.GetUndeliveredTips(statusContext.Clock.Day);
+            if (undeliveredTips.Count > 0)
+            {
+                var tipText = undeliveredTips.Any(t => t.IsEmergency)
+                    ? $"!! URGENT TIP ({undeliveredTips.Count} new)"
+                    : $"New tip ({undeliveredTips.Count})";
+                Surface.Print(2, y++, TrimToWidth(tipText, width),
+                    undeliveredTips.Any(t => t.IsEmergency) ? Color.Red : Color.Yellow);
+            }
 
             var districtBulletin = statusContext.CurrentDistrictCondition is null
                 ? "Today: no major district pressure."
@@ -743,7 +775,7 @@ internal sealed class GameScreen : ScreenSurface
 
             foreach (var line in page.Lines)
             {
-                foreach (var wrappedLine in WrapText(line, width).Take(2))
+                foreach (var wrappedLine in WrapText(line, width).Take(3))
                 {
                     if (y >= Surface.Height - 1)
                     {

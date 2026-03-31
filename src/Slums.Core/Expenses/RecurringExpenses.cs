@@ -5,7 +5,7 @@ public static class RecurringExpenses
     public const int DailyRentCost = 20;
     public const int CheapMealCost = 5;
     public const int GoodMealCost = 15;
-    public const int MedicineCost = 50;
+    public const int MedicineCost = 40;
     public const int CheapFoodStockpile = 15;
     public const int TravelCost = 2;
 

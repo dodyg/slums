@@ -388,9 +388,9 @@ public sealed class JobService
     {
         return jobType switch
         {
-            JobType.CallCenterWork when track.Reliability >= 70 => 4,
-            JobType.ClinicReception when track.Reliability >= 70 => 4,
-            _ => 6
+            JobType.CallCenterWork when track.Reliability >= 70 => 5,
+            JobType.ClinicReception when track.Reliability >= 70 => 5,
+            _ => 7
         };
     }
 
@@ -444,10 +444,10 @@ public sealed class JobService
     {
         return jobType switch
         {
-            JobType.CallCenterWork => -15,
-            JobType.ClinicReception => -12,
-            JobType.PharmacyStock => -12,
-            _ => -10
+            JobType.CallCenterWork => -12,
+            JobType.ClinicReception => -10,
+            JobType.PharmacyStock => -10,
+            _ => -8
         };
     }
 

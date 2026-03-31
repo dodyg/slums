@@ -108,6 +108,7 @@ public static class EndingService
             EndingId.LeavingCrime => "You carry what the crime years made of you, but you still manage to walk away before they take the rest.",
             EndingId.BuriedByHeat => "The money came fast enough to stain everything and slow enough to save nothing.",
             EndingId.Eviction => "Seven days behind on rent. The landlord throws you and your mother onto the street.",
+            EndingId.DebtViolence => "The loan sharks come to collect. You cannot pay.",
             _ => throw new ArgumentOutOfRangeException(nameof(endingId))
         };
     }

@@ -16,6 +16,7 @@ public static class EndingKnotCatalog
     public const string LeavingCrime = "ending_leaving_crime";
     public const string BuriedByHeat = "ending_buried_by_heat";
     public const string Eviction = "ending_eviction";
+    public const string DebtViolence = "ending_debt_violence";
 
     public const string StabilityMedical = "ending_stability_medical";
     public const string StabilityPrisoner = "ending_stability_prisoner";
@@ -49,6 +50,7 @@ public static class EndingKnotCatalog
             EndingId.LeavingCrime => LeavingCrime,
             EndingId.BuriedByHeat => BuriedByHeat,
             EndingId.Eviction => Eviction,
+            EndingId.DebtViolence => DebtViolence,
             _ => throw new ArgumentOutOfRangeException(nameof(endingId))
         };
     }

@@ -48,6 +48,14 @@ public sealed record GameSessionSnapshot
 
     public GameSessionDistrictHeatSnapshot DistrictHeat { get; init; } = new();
 
+    public GameSessionTerritorySnapshot Territory { get; init; } = new();
+
+    public GameSessionEconomySnapshot Economy { get; init; } = new();
+
+    public GameSessionPhoneSnapshot Phone { get; init; } = new();
+
+    public GameSessionTipSnapshot Tips { get; init; } = new();
+
     public static GameSessionSnapshot Capture(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
@@ -71,7 +79,11 @@ public sealed record GameSessionSnapshot
             Ramadan = GameSessionRamadanSnapshot.Capture(gameSession),
             CommunityEvents = GameSessionCommunityEventSnapshot.Capture(gameSession),
             CurrentWeather = gameSession.CurrentWeather.Type.ToString(),
-            DistrictHeat = GameSessionDistrictHeatSnapshot.Capture(gameSession)
+            DistrictHeat = GameSessionDistrictHeatSnapshot.Capture(gameSession),
+            Territory = GameSessionTerritorySnapshot.Capture(gameSession),
+            Economy = GameSessionEconomySnapshot.Capture(gameSession),
+            Phone = GameSessionPhoneSnapshot.Capture(gameSession),
+            Tips = GameSessionTipSnapshot.Capture(gameSession)
         };
     }
 
@@ -166,6 +178,10 @@ public sealed record GameSessionSnapshot
             }
 
             DistrictHeat.Restore(gameSession);
+            Territory.Restore(gameSession);
+            Economy.Restore(gameSession);
+            Phone.Restore(gameSession);
+            Tips.Restore(gameSession);
 
             foreach (var npcId in Enum.GetValues<NpcId>())
             {

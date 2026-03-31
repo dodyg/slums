@@ -75,6 +75,13 @@ public sealed class GameActionMenuQuery
         }
 
         actions.Add(new GameAction(GameActionId.Travel, "Travel"));
+
+        if (context.PhoneIsOperational)
+        {
+            var label = context.HasPhoneMessages || context.HasUndeliveredTips ? "Phone *" : "Phone";
+            actions.Add(new GameAction(GameActionId.Phone, label));
+        }
+
         actions.Add(new GameAction(GameActionId.SaveGame, "Save Game"));
         actions.Add(new GameAction(GameActionId.EndDay, "End Day"));
 

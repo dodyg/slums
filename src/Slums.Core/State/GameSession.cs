@@ -18,7 +18,11 @@ using Slums.Core.Home;
 using Slums.Core.Rumors;
 using Slums.Core.Weather;
 using Slums.Core.Heat;
+using Slums.Core.Territory;
+using Slums.Core.Economy;
 using Slums.Core.World;
+using Slums.Core.Phone;
+using Slums.Core.Information;
 using EntitiesDb;
 using Slums.Core.Diagnostics;
 using NarrativeStoryFlags = Slums.Core.Narrative.StoryFlags;
@@ -75,6 +79,8 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         _database.Create(_crimeState);
         _database.Create(_workState);
         _database.Create(_runState, _narrativeState);
+        Territory.Initialize(_playerIdentity.BackgroundType);
+        NpcEconomies.Initialize();
         if (_useDynamicDistrictConditions)
         {
             RollDistrictConditionsForCurrentDay(_sharedRandom);
@@ -121,6 +127,12 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public WeatherState CurrentWeather { get; private set; } = WeatherState.Clear;
     public RumorState Rumors { get; } = new();
     public DistrictHeatState DistrictHeat { get; } = new();
+    public TerritoryState Territory { get; } = new();
+    public NpcEconomyState NpcEconomies { get; } = new();
+    public PlayerDebtState PlayerDebts { get; } = new();
+    public PhoneState Phone { get; } = new();
+    public PhoneMessageState PhoneMessages { get; } = new();
+    public TipState Tips { get; } = new();
     private RamadanState _ramadanState = RamadanState.Inactive;
     public RamadanState RamadanState => _ramadanState;
 
@@ -330,6 +342,19 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         DistrictHeat.DecayAll();
         DistrictHeat.ApplyBleedOver();
 
+        TerritoryDynamicsCalculator.ApplyDailyDecay(Territory);
+
+        foreach (DistrictId district in Enum.GetValues<DistrictId>())
+        {
+            var control = Territory.GetControl(district);
+            if (control.TensionLevel == TensionLevel.Dangerous)
+            {
+                DistrictHeat.AddHeat(district, 3);
+            }
+        }
+
+        RollTerritoryEvents(new Random(Clock.Day * 31 + 7919));
+
         if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout && Player.Household.MotherHealth < 60)
         {
             Player.Stats.ModifyStress(3);
@@ -385,6 +410,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             {
                 ResolveWeeklyInvestments(random ?? _sharedRandom);
             }
+            ResolveWeeklyEconomy(random ?? _sharedRandom);
         }
 
         Player.Nutrition.BeginNewDay();
@@ -462,8 +488,94 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
 
         ActivityLedgerSystem.BeginNewDay(_crimeState);
+        ProcessDailyDebt();
+        ProcessDailyPhone(random ?? _sharedRandom);
+        ProcessDailyTips(random ?? _sharedRandom);
         CheckGameOverConditions();
         RecordMutation(MutationCategories.DayTransition, "EndDay", before, CaptureStats(), $"Day {CurrentDay} completed");
+    }
+
+    private void RollTerritoryEvents(Random random)
+    {
+        foreach (DistrictId district in Enum.GetValues<DistrictId>())
+        {
+            if (!TerritoryDynamicsCalculator.ShouldTriggerConflictEvent(Territory, district, random))
+            {
+                continue;
+            }
+
+            var control = Territory.GetControl(district);
+            if (control.TensionLevel == TensionLevel.Dangerous)
+            {
+                if (district == World.CurrentDistrict)
+                {
+                    var crossfire = TerritoryEventRegistry.CrossfireEvent;
+                    Player.Stats.ModifyStress(crossfire.StressModifier);
+                    Player.Stats.ModifyHealth(crossfire.HealthModifier);
+                    RaiseEvent(crossfire.Narration!);
+                }
+                else
+                {
+                    RaiseEvent($"Fighting breaks out in {district}. The streets are dangerous.");
+                }
+            }
+            else
+            {
+                var argument = TerritoryEventRegistry.StreetArgument;
+                if (district == World.CurrentDistrict)
+                {
+                    Player.Stats.ModifyStress(argument.StressModifier);
+                    RaiseEvent(argument.Narration!);
+                }
+                else
+                {
+                    RaiseEvent($"Tensions flare in {district}. Word spreads through the neighborhood.");
+                }
+            }
+
+            if (TerritoryDynamicsCalculator.ShouldTriggerPoliceCrackdown(Territory, district, DistrictHeat.GetHeat(district)))
+            {
+                var beforeFlip = Territory.GetControl(district);
+                TerritoryDynamicsCalculator.ApplyPoliceCrackdown(Territory, district);
+                DistrictHeat.AddHeat(district, 10);
+                var crackdown = TerritoryEventRegistry.PoliceCrackdownEvent;
+
+                if (district == World.CurrentDistrict)
+                {
+                    Player.Stats.ModifyStress(crackdown.StressModifier);
+                    RaiseEvent(crackdown.Narration!);
+                }
+                else
+                {
+                    RaiseEvent($"Police crack down hard in {district}. The whole city feels it.");
+                }
+
+                var afterCrackdown = Territory.GetControl(district);
+                var flip = TerritoryDynamicsCalculator.DetectTerritoryFlip(beforeFlip, afterCrackdown);
+                if (flip.HasValue)
+                {
+                    var flipEvent = TerritoryEventRegistry.TerritoryFlipEvent(flip);
+                    RaiseEvent(flipEvent.Narration!);
+                }
+            }
+        }
+
+        if (Player.BackgroundType == BackgroundType.SudaneseRefugee && World.CurrentDistrict == DistrictId.Imbaba)
+        {
+            var control = Territory.GetControl(DistrictId.Imbaba);
+            if (control.TensionLevel >= TensionLevel.Elevated)
+            {
+#pragma warning disable CA5394
+                if (random.Next(100) < 15)
+#pragma warning restore CA5394
+                {
+                    var solidarity = TerritoryEventRegistry.RefugeeSolidarityEvent;
+                    Player.Stats.ModifyStress(solidarity.StressModifier);
+                    Territory.ModifyTension(DistrictId.Imbaba, solidarity.TensionModifier);
+                    RaiseEvent(solidarity.Narration!);
+                }
+            }
+        }
     }
 
     public bool RestAtHome()
@@ -1071,6 +1183,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
             ApplyWorkCrimeSpillover(job, result);
             ApplyBackgroundWorkFlavor(job, result);
+            TerritoryDynamicsCalculator.ApplyHonestWorkImpact(Territory, World.CurrentDistrict);
 
             RaiseEvent(result.Message);
             RecordMutation(MutationCategories.Work, "WorkJob", before, CaptureStats(), result.Message);
@@ -1139,6 +1252,12 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             crimes.Add(new CrimeAttempt(CrimeType.ShubraBundleLift, 68, 24, 12, 0, 15));
         }
 
+        if (TerritoryDynamicsCalculator.IsCrimeBlocked(Territory, World.CurrentDistrict))
+        {
+            crimes.RemoveAll(static _ => true);
+            RaiseEvent("The streets are too dangerous for any criminal activity right now.");
+        }
+
         return crimes;
     }
 
@@ -1171,6 +1290,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetRouteSceneTrigger(attempt.Type, result));
 
         DistrictHeat.AddHeat(World.CurrentDistrict, result.PolicePressureDelta);
+        TerritoryDynamicsCalculator.ApplyCrimeImpact(Territory, World.CurrentDistrict, null);
         RaiseEvent(result.Message);
         ApplyCrimeContactAftermath(result);
 
@@ -1368,6 +1488,9 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             baseModifier -= 1;
         }
 
+        baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(Territory, World.CurrentDistrict);
+        baseModifier += GetUmmKarimFoodDiscount();
+
         var modifiedCost = _locationPricingService.GetFoodCost(World.CurrentDistrict) + baseModifier;
         return Math.Max(1, modifiedCost);
     }
@@ -1382,6 +1505,9 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         {
             baseModifier -= 1;
         }
+
+        baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(Territory, World.CurrentDistrict);
+        baseModifier += GetUmmKarimFoodDiscount();
 
         var modifiedCost = _locationPricingService.GetStreetFoodCost(World.CurrentDistrict) + baseModifier;
         return Math.Max(1, modifiedCost);
@@ -3047,5 +3173,723 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     public void Dispose()
     {
         _database.Dispose();
+    }
+
+    private void ResolveWeeklyEconomy(Random random)
+    {
+        NpcEconomyResolver.ResolveWeek(NpcEconomies, Relationships, Clock.Day, random);
+
+        var hajjEconomy = NpcEconomies.GetEconomy(NpcId.LandlordHajjMahmoud);
+        if (hajjEconomy.WealthLevel == NpcWealthLevel.Struggling || hajjEconomy.WealthLevel == NpcWealthLevel.Poor)
+        {
+            _rentState.PayPartialDebt(-10);
+            RaiseEvent("Hajj Mahmoud's money troubles make him meaner about rent. Rent pressure increases.");
+        }
+
+        var monaEconomy = NpcEconomies.GetEconomy(NpcId.NeighborMona);
+        if (monaEconomy.WealthLevel == NpcWealthLevel.Struggling)
+        {
+            Player.Stats.ModifyStress(3);
+            RaiseEvent("Mona is struggling. The worry weighs on you.");
+        }
+
+        var ummKarimEconomy = NpcEconomies.GetEconomy(NpcId.FixerUmmKarim);
+        if (ummKarimEconomy.WealthLevel == NpcWealthLevel.Comfortable)
+        {
+            RaiseEvent("Umm Karim is doing well. She slips you an extra portion.");
+        }
+
+        var needingLoan = NpcEconomyResolver.GetNpcNeedingLoan(NpcEconomies, Relationships);
+        if (needingLoan.HasValue)
+        {
+            var npcRel = Relationships.GetNpcRelationship(needingLoan.Value);
+            if (npcRel.Trust >= 10)
+            {
+                RaiseEvent($"{needingLoan.Value} is in rough shape. They could use help.");
+            }
+        }
+
+        PlayerDebts.ProcessInterest(Clock.Day);
+        PlayerDebts.UpdateCollectionStates(Clock.Day);
+    }
+
+    private void ProcessDailyDebt()
+    {
+        var overdue = PlayerDebts.GetOverdueDebts(Clock.Day);
+        foreach (var debt in overdue)
+        {
+            if (debt.Source == DebtSource.LoanShark)
+            {
+                var penalty = LoanSharkEscalation.ApplyDailyPenalty(debt, Clock.Day);
+                if (penalty.Stress != 0)
+                {
+                    Player.Stats.ModifyStress(penalty.Stress);
+                }
+                if (penalty.Health != 0)
+                {
+                    Player.Stats.ModifyHealth(penalty.Health);
+                }
+                if (!string.IsNullOrEmpty(penalty.Message))
+                {
+                    RaiseEvent(penalty.Message);
+                }
+
+                if (LoanSharkEscalation.ShouldTriggerViolence(debt, Clock.Day))
+                {
+                    var before = CaptureStats();
+                    EndingId = Endings.EndingId.DebtViolence;
+                    IsGameOver = true;
+                    GameOverReason = "The loan sharks come to collect. You cannot pay.";
+                    PendingEndingKnot = EndingKnotCatalog.DebtViolence;
+                    RecordMutation(MutationCategories.EndingTriggered, "ProcessDailyDebt", before, CaptureStats(), "DebtViolence ending triggered");
+                    return;
+                }
+            }
+        }
+    }
+
+    private int GetUmmKarimFoodDiscount()
+    {
+        var ummKarimEconomy = NpcEconomies.GetEconomy(NpcId.FixerUmmKarim);
+        return ummKarimEconomy.WealthLevel == NpcWealthLevel.Comfortable ? -1 : 0;
+    }
+
+    public (bool Success, int Amount, string Message) TryBorrowFromNpc(NpcId npc, int amount)
+    {
+        if (amount <= 0)
+        {
+            return (false, 0, "Invalid amount.");
+        }
+
+        var relationship = Relationships.GetNpcRelationship(npc);
+        if (relationship.Trust < 10)
+        {
+            return (false, 0, $"{npc} doesn't trust you enough for a loan.");
+        }
+
+        if (relationship.HasUnpaidDebt)
+        {
+            return (false, 0, $"You already owe {npc}.");
+        }
+
+        var economy = NpcEconomies.GetEconomy(npc);
+        if (economy.WealthLevel == NpcWealthLevel.Struggling)
+        {
+            return (false, 0, $"{npc} can't afford to lend right now.");
+        }
+
+        var maxAmount = economy.Generosity >= 7 ? 50 : 30;
+        var actualAmount = Math.Min(amount, maxAmount);
+
+        var source = npc == NpcId.LandlordHajjMahmoud ? DebtSource.LandlordAdvance : DebtSource.NeighborLoan;
+        if (Player.BackgroundType == BackgroundType.SudaneseRefugee && source == DebtSource.NeighborLoan)
+        {
+            source = DebtSource.CommunityMutualAid;
+        }
+
+        if (source == DebtSource.LandlordAdvance)
+        {
+            actualAmount = Math.Min(amount, 100);
+        }
+
+        var interestBps = 0;
+        var dueDay = Clock.Day + 14;
+
+        if (source == DebtSource.NeighborLoan && economy.Generosity < 5)
+        {
+            dueDay = Clock.Day + 7;
+        }
+
+        if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout && economy.Generosity >= 5)
+        {
+            dueDay = Clock.Day + 21;
+        }
+
+        Player.Stats.ModifyMoney(actualAmount);
+        Relationships.SetDebtState(npc, true);
+
+        PlayerDebts.AddDebt(new PlayerDebt
+        {
+            Source = source,
+            AmountOwed = actualAmount,
+            InterestWeeklyBasisPoints = interestBps,
+            DueDay = dueDay,
+            CollectionState = DebtCollectionState.Current,
+            OriginDay = Clock.Day,
+            CreditorNpcId = (int)npc
+        });
+
+        var before = CaptureStats();
+        RecordMutation(MutationCategories.Economy, "TryBorrowFromNpc", before, CaptureStats(), $"Borrowed {actualAmount} LE from {npc} (due day {dueDay})");
+        RaiseAutoTransaction($"Borrowed {actualAmount} LE from {npc}.");
+
+        return (true, actualAmount, $"{npc} lends you {actualAmount} LE. Pay it back by day {dueDay}.");
+    }
+
+    public (bool Success, int Amount, string Message) TryBorrowFromLandlord(int amount)
+    {
+        if (amount <= 0)
+        {
+            return (false, 0, "Invalid amount.");
+        }
+
+        var relationship = Relationships.GetNpcRelationship(NpcId.LandlordHajjMahmoud);
+        if (relationship.Trust < 5)
+        {
+            return (false, 0, "Hajj Mahmoud won't advance you anything.");
+        }
+
+        if (relationship.HasUnpaidDebt)
+        {
+            return (false, 0, "You already owe the landlord.");
+        }
+
+        var actualAmount = Math.Clamp(amount, 50, 100);
+
+        Player.Stats.ModifyMoney(actualAmount);
+        Relationships.SetDebtState(NpcId.LandlordHajjMahmoud, true);
+        _rentState.PayPartialDebt(-actualAmount);
+
+        PlayerDebts.AddDebt(new PlayerDebt
+        {
+            Source = DebtSource.LandlordAdvance,
+            AmountOwed = actualAmount,
+            InterestWeeklyBasisPoints = 0,
+            DueDay = Clock.Day + 14,
+            CollectionState = DebtCollectionState.Current,
+            OriginDay = Clock.Day,
+            CreditorNpcId = (int)NpcId.LandlordHajjMahmoud
+        });
+
+        var before = CaptureStats();
+        RecordMutation(MutationCategories.Economy, "TryBorrowFromLandlord", before, CaptureStats(), $"Landlord advance: {actualAmount} LE (added to rent debt)");
+        RaiseAutoTransaction($"Hajj Mahmoud advances you {actualAmount} LE. It's added to your rent debt.");
+
+        return (true, actualAmount, $"Hajj Mahmoud advances {actualAmount} LE. It goes on your rent account.");
+    }
+
+    public (bool Success, int Amount, string Message) TryBorrowFromLoanShark(int amount)
+    {
+        if (amount <= 0)
+        {
+            return (false, 0, "Invalid amount.");
+        }
+
+        var existingSharkDebt = PlayerDebts.Debts.FirstOrDefault(static d => d.Source == DebtSource.LoanShark);
+        if (existingSharkDebt is not null)
+        {
+            return (false, 0, "You already have an outstanding loan shark debt. Settle it first.");
+        }
+
+        var maxAmount = Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner ? 200 : 300;
+        var actualAmount = Math.Clamp(amount, 100, maxAmount);
+
+#pragma warning disable CA5394
+        var interestBps = _sharedRandom.Next(2000, 3000);
+#pragma warning restore CA5394
+
+        Player.Stats.ModifyMoney(actualAmount);
+        DistrictHeat.AddHeat(World.CurrentDistrict, 5);
+
+        PlayerDebts.AddDebt(new PlayerDebt
+        {
+            Source = DebtSource.LoanShark,
+            AmountOwed = actualAmount,
+            InterestWeeklyBasisPoints = interestBps,
+            DueDay = Clock.Day + 7,
+            CollectionState = DebtCollectionState.Current,
+            OriginDay = Clock.Day
+        });
+
+        var before = CaptureStats();
+        RecordMutation(MutationCategories.Economy, "TryBorrowFromLoanShark", before, CaptureStats(), $"Loan shark: {actualAmount} LE at {interestBps}bps, due day {Clock.Day + 7}");
+        RaiseAutoTransaction($"A loan shark hands you {actualAmount} LE. The interest is brutal. Due in 7 days.");
+
+        return (true, actualAmount, $"You take {actualAmount} LE from a loan shark. Interest compounds weekly. Due in 7 days. Police pressure rises.");
+    }
+
+    public (bool Success, string Message) TryLendToNpc(NpcId npc, int amount)
+    {
+        if (amount <= 0)
+        {
+            return (false, "Invalid amount.");
+        }
+
+        if (Player.Stats.Money < amount)
+        {
+            return (false, "You can't afford that.");
+        }
+
+        Player.Stats.ModifyMoney(-amount);
+        Relationships.ModifyNpcTrust(npc, 4);
+        Relationships.RecordFavor(npc, Clock.Day, hasUnpaidDebt: true);
+        Relationships.SetHelpedState(npc, true);
+
+        NpcEconomies.AddDebt(DebtorId.Player, new DebtorId.NpcDebtor(npc), amount);
+
+        var before = CaptureStats();
+        RecordMutation(MutationCategories.Economy, "TryLendToNpc", before, CaptureStats(), $"Lent {amount} LE to {npc}");
+        RaiseAutoTransaction($"You lend {amount} LE to {npc}.");
+
+        return (true, $"You lend {npc} {amount} LE. They'll remember this.");
+    }
+
+    public (bool Success, string Message) RefuseNpcLoan(NpcId npc)
+    {
+#pragma warning disable CA5394
+        var trustLoss = _sharedRandom.Next(2, 6);
+#pragma warning restore CA5394
+
+        Relationships.ModifyNpcTrust(npc, -trustLoss);
+        Relationships.RecordRefusal(npc, Clock.Day);
+
+        var before = CaptureStats();
+        RecordMutation(MutationCategories.Economy, "RefuseNpcLoan", before, CaptureStats(), $"Refused loan to {npc}, trust -{trustLoss}");
+
+        return (true, $"{npc} asked for help. You said no. Trust -{trustLoss}.");
+    }
+
+    public (bool Success, int Remaining, string Message) RepayDebt(DebtSource source, int amount)
+    {
+        if (amount <= 0)
+        {
+            return (false, 0, "Invalid amount.");
+        }
+
+        var debt = PlayerDebts.Debts.FirstOrDefault(d => d.Source == source);
+        if (debt is null)
+        {
+            return (false, 0, "No such debt to repay.");
+        }
+
+        var payment = Math.Min(amount, debt.AmountOwed);
+        if (Player.Stats.Money < payment)
+        {
+            return (false, debt.AmountOwed, "Not enough money.");
+        }
+
+        Player.Stats.ModifyMoney(-payment);
+        PlayerDebts.RepayPartial(source, payment);
+
+        var remaining = PlayerDebts.Debts.FirstOrDefault(d => d.Source == source)?.AmountOwed ?? 0;
+
+        if (remaining <= 0 && debt.CreditorNpcId.HasValue)
+        {
+            var creditorNpc = (NpcId)debt.CreditorNpcId.Value;
+            Relationships.SetDebtState(creditorNpc, false);
+            Relationships.ModifyNpcTrust(creditorNpc, 3);
+            RaiseAutoTransaction($"Debt to {creditorNpc} fully repaid: {payment} LE.");
+        }
+        else
+        {
+            RaiseAutoTransaction($"Repaid {payment} LE toward {source} debt. Remaining: {remaining} LE.");
+        }
+
+        if (source == DebtSource.LoanShark && remaining <= 0)
+        {
+            DistrictHeat.AddHeat(World.CurrentDistrict, -3);
+        }
+
+        var before = CaptureStats();
+        RecordMutation(MutationCategories.Economy, "RepayDebt", before, CaptureStats(), $"Repaid {payment} LE ({source}), remaining {remaining} LE");
+
+        return (true, remaining, remaining > 0
+            ? $"Paid {payment} LE. {remaining} LE remaining on {source} debt."
+            : $"{source} debt fully repaid!");
+    }
+
+    public void RestoreEconomyState(
+        IEnumerable<(NpcId Npc, NpcWealthLevel WealthLevel, int Generosity,
+            Dictionary<DebtorId, int> OwedTo, Dictionary<DebtorId, int> OwedBy,
+            int LastHardshipDay, int LastWindfallDay, int GenerousUntilDay)> npcEconomies,
+        IEnumerable<PlayerDebt> playerDebts)
+    {
+        ArgumentNullException.ThrowIfNull(npcEconomies);
+        ArgumentNullException.ThrowIfNull(playerDebts);
+
+        foreach (var entry in npcEconomies)
+        {
+            NpcEconomies.RestoreEntry(
+                entry.Npc, entry.WealthLevel, entry.Generosity,
+                entry.OwedTo, entry.OwedBy,
+                entry.LastHardshipDay, entry.LastWindfallDay, entry.GenerousUntilDay);
+        }
+
+        PlayerDebts.RestoreDebts(playerDebts);
+    }
+
+    private void ProcessDailyPhone(Random random)
+    {
+        if (!Phone.IsOperational())
+        {
+            Phone.DailyCreditDrain();
+            PhoneMessages.MarkPendingAsMissed();
+            return;
+        }
+
+        Phone.DailyCreditDrain();
+
+        var newMessages = PhoneMessageGenerator.GenerateMessages(
+            Clock.Day, Relationships, PolicePressure,
+            Player.Household.MotherHealth, DistrictHeat,
+            Player.BackgroundType, random);
+
+        foreach (var message in newMessages)
+        {
+            PhoneMessages.AddMessage(message);
+        }
+
+        PhoneMessages.RemoveExpired(Clock.Day);
+
+        if (newMessages.Count > 0)
+        {
+            var before = CaptureStats();
+            RecordMutation(MutationCategories.Phone, "ProcessDailyPhone", before, CaptureStats(),
+                $"Received {newMessages.Count} message(s)");
+        }
+    }
+
+    public (bool Success, string Message) RefillPhoneCredit()
+    {
+        if (!Phone.IsOperational() && !Phone.HasPhone)
+        {
+            return (false, "You don't have a phone.");
+        }
+
+        if (Phone.PhoneLost)
+        {
+            return (false, "Your phone is lost.");
+        }
+
+        if (Player.Stats.Money < Phone.CreditWeekCost)
+        {
+            return (false, $"Not enough money (need {Phone.CreditWeekCost} LE, have {Player.Stats.Money} LE).");
+        }
+
+        var before = CaptureStats();
+        Player.Stats.ModifyMoney(-Phone.CreditWeekCost);
+        Phone.RefillCredit();
+        PhoneMessages.DeliverMissedMessages();
+
+        RecordMutation(MutationCategories.Phone, "RefillPhoneCredit", before, CaptureStats(),
+            $"Refilled phone credit for {Phone.CreditWeekCost} LE");
+
+        return (true, "Phone credit refilled for 7 days.");
+    }
+
+    public (bool Success, string Message) RespondToMessage(string messageId)
+    {
+        if (!Phone.IsOperational())
+        {
+            return (false, "Phone is not operational.");
+        }
+
+        var message = PhoneMessages.GetMessage(messageId);
+        if (message is null)
+        {
+            return (false, "Message not found.");
+        }
+
+        if (message.Responded)
+        {
+            return (false, "Already responded to this message.");
+        }
+
+        if (message.Ignored)
+        {
+            return (false, "Message was ignored.");
+        }
+
+        if (message.IsExpired(Clock.Day))
+        {
+            return (false, "Message has expired.");
+        }
+
+        if (message.WasMissed)
+        {
+            if (Player.Stats.Money < 1)
+            {
+                return (false, "Not enough money to return this missed call (1 LE).");
+            }
+
+            Player.Stats.ModifyMoney(-1);
+        }
+
+        if (message.ResponseTimeCost > 0 && Clock.Hour + message.ResponseTimeCost > EndOfDayHour)
+        {
+            return (false, "Not enough time to respond today.");
+        }
+
+        if (message.ResponseMoneyCost > 0 && Player.Stats.Money < message.ResponseMoneyCost)
+        {
+            return (false, $"Not enough money (need {message.ResponseMoneyCost} LE).");
+        }
+
+        var before = CaptureStats();
+
+        if (message.ResponseTimeCost > 0)
+        {
+            Clock.AdvanceHours(message.ResponseTimeCost);
+        }
+
+        if (message.ResponseMoneyCost > 0)
+        {
+            Player.Stats.ModifyMoney(-message.ResponseMoneyCost);
+        }
+
+        PhoneMessages.RespondToMessage(messageId);
+
+        ApplyMessageResponseEffects(message);
+
+        RecordMutation(MutationCategories.Phone, "RespondToMessage", before, CaptureStats(),
+            $"Responded to message from {message.Sender}: {message.Content}");
+
+        return (true, $"Responded to {message.Sender}.");
+    }
+
+    private void ApplyMessageResponseEffects(PhoneMessage message)
+    {
+        switch (message.Type)
+        {
+            case PhoneMessageType.Opportunity:
+            {
+                if (Enum.TryParse<NpcId>(message.SenderNpcId, out var npc))
+                {
+                    Relationships.RecordFavor(npc, Clock.Day);
+                }
+
+                break;
+            }
+            case PhoneMessageType.Warning:
+            {
+                Player.Stats.ModifyStress(-3);
+                break;
+            }
+            case PhoneMessageType.FamilyAlert:
+            {
+                RaiseEvent("You check on your mother after Mona's message.");
+                break;
+            }
+            case PhoneMessageType.NetworkRequest:
+            {
+                if (Enum.TryParse<NpcId>(message.SenderNpcId, out var npc))
+                {
+                    Relationships.RecordFavor(npc, Clock.Day);
+                }
+
+                break;
+            }
+            case PhoneMessageType.Background:
+            {
+                if (Enum.TryParse<NpcId>(message.SenderNpcId, out var npc))
+                {
+                    Relationships.ModifyNpcTrust(npc, 1);
+                }
+
+                break;
+            }
+        }
+    }
+
+    public (bool Success, string Message, int TrustLoss) IgnoreMessage(string messageId)
+    {
+        if (!Phone.IsOperational())
+        {
+            return (false, "Phone is not operational.", 0);
+        }
+
+        var message = PhoneMessages.GetMessage(messageId);
+        if (message is null)
+        {
+            return (false, "Message not found.", 0);
+        }
+
+        if (message.Responded || message.Ignored)
+        {
+            return (false, "Message already handled.", 0);
+        }
+
+        var before = CaptureStats();
+
+        var ignoreCount = PhoneMessages.IgnoreMessage(messageId);
+        var trustLoss = 0;
+
+        if (Enum.TryParse<NpcId>(message.SenderNpcId, out var npc))
+        {
+            var trust = Relationships.GetNpcRelationship(npc).Trust;
+            if (trust >= 10 && ignoreCount > 3)
+            {
+                trustLoss = 1;
+                Relationships.ModifyNpcTrust(npc, -trustLoss);
+            }
+        }
+
+        RecordMutation(MutationCategories.Phone, "IgnoreMessage", before, CaptureStats(),
+            $"Ignored message from {message.Sender}");
+
+        return (true, $"Ignored message from {message.Sender}.", trustLoss);
+    }
+
+    public (bool Success, string Message) ReplacePhone()
+    {
+        if (!Phone.PhoneLost)
+        {
+            return (false, "Your phone is not lost.");
+        }
+
+        const int replacementCost = 30;
+        if (Player.Stats.Money < replacementCost)
+        {
+            return (false, $"Not enough money (need {replacementCost} LE for replacement + credit).");
+        }
+
+        var before = CaptureStats();
+        Player.Stats.ModifyMoney(-replacementCost);
+        Phone.ReplacePhone();
+        PhoneMessages.DeliverMissedMessages();
+
+        RecordMutation(MutationCategories.Phone, "ReplacePhone", before, CaptureStats(),
+            $"Replaced phone for {replacementCost} LE");
+
+        return (true, "New phone purchased. Credit refilled for 7 days.");
+    }
+
+    public void RestorePhoneState(bool hasPhone, int creditRemaining, int daysSinceCreditRefill,
+        bool phoneLost, int? phoneLostDay, bool phoneRecovered)
+    {
+        Phone.Restore(hasPhone, creditRemaining, daysSinceCreditRefill, phoneLost, phoneLostDay, phoneRecovered);
+    }
+
+    public void RestorePhoneMessages(IEnumerable<PhoneMessage> messages)
+    {
+        PhoneMessages.RestoreMessages(messages);
+    }
+
+    private void ProcessDailyTips(Random random)
+    {
+        var newTips = TipGenerator.GenerateTips(
+            Clock.Day, Relationships, DistrictHeat, NpcEconomies,
+            Player.BackgroundType, CrimesCommitted,
+            Relationships.GetNpcRelationship(NpcId.LandlordHajjMahmoud).Trust,
+            random);
+
+        foreach (var tip in newTips)
+        {
+            Tips.AddTip(tip);
+
+            var deliveryMethod = TipDeliveryConfig.GetDeliveryMethod(tip, World.CurrentDistrict);
+            if (deliveryMethod == TipDeliveryMethod.Phone || deliveryMethod == TipDeliveryMethod.Emergency)
+            {
+                if (Phone.IsOperational())
+                {
+                    PhoneMessages.AddMessage(new PhoneMessage
+                    {
+                        Type = PhoneMessageType.Tip,
+                        Sender = NpcRegistry.GetName(tip.Source),
+                        SenderNpcId = tip.Source.ToString(),
+                        Content = tip.Content,
+                        DayReceived = tip.DayGenerated,
+                        ExpiresAfterDay = tip.ExpiresAfterDay,
+                        RequiresResponse = false,
+                        ResponseTimeCost = 0,
+                        ResponseMoneyCost = 0
+                    });
+                    Tips.MarkAsDelivered(tip.Id);
+                }
+            }
+        }
+
+        ApplyTipIgnoreErosion();
+
+        var removed = Tips.RemoveExpired(Clock.Day);
+        if (newTips.Count > 0 || removed > 0)
+        {
+            var before = CaptureStats();
+            RecordMutation(MutationCategories.Information, "ProcessDailyTips", before, CaptureStats(),
+                $"Generated {newTips.Count} tip(s), expired {removed}");
+        }
+    }
+
+    private void ApplyTipIgnoreErosion()
+    {
+        foreach (NpcId npc in Enum.GetValues<NpcId>())
+        {
+            var ignoredCount = Tips.GetIgnoredCount(npc);
+            if (ignoredCount < 3)
+            {
+                continue;
+            }
+
+            var trust = Relationships.GetNpcRelationship(npc).Trust;
+            if (trust < 10)
+            {
+                continue;
+            }
+
+            Relationships.ModifyNpcTrust(npc, -1);
+            RaiseEvent($"{NpcRegistry.GetName(npc)} seems annoyed that you keep ignoring their advice. Trust -1.");
+        }
+    }
+
+    public (bool Success, string Message) AcknowledgeTip(string tipId)
+    {
+        var tip = Tips.GetTip(tipId);
+        if (tip is null)
+        {
+            return (false, "Tip not found.");
+        }
+
+        if (tip.Acknowledged)
+        {
+            return (false, "Already acknowledged.");
+        }
+
+        if (tip.Ignored)
+        {
+            return (false, "Tip was ignored.");
+        }
+
+        var before = CaptureStats();
+        Tips.AcknowledgeTip(tipId);
+
+        RecordMutation(MutationCategories.Information, "AcknowledgeTip", before, CaptureStats(),
+            $"Acknowledged tip from {NpcRegistry.GetName(tip.Source)}: {tip.Content}");
+
+        return (true, $"Acknowledged tip from {NpcRegistry.GetName(tip.Source)}.");
+    }
+
+    public (bool Success, string Message, int TrustLoss) IgnoreTipAction(string tipId)
+    {
+        var tip = Tips.GetTip(tipId);
+        if (tip is null)
+        {
+            return (false, "Tip not found.", 0);
+        }
+
+        if (tip.Acknowledged || tip.Ignored)
+        {
+            return (false, "Tip already handled.", 0);
+        }
+
+        var before = CaptureStats();
+        var ignoreCount = Tips.IgnoreTip(tipId);
+
+        var trustLoss = 0;
+        var trust = Relationships.GetNpcRelationship(tip.Source).Trust;
+        if (trust >= 10 && ignoreCount >= 3)
+        {
+            trustLoss = 1;
+            Relationships.ModifyNpcTrust(tip.Source, -trustLoss);
+        }
+
+        RecordMutation(MutationCategories.Information, "IgnoreTip", before, CaptureStats(),
+            $"Ignored tip from {NpcRegistry.GetName(tip.Source)}");
+
+        return (true, $"Ignored tip from {NpcRegistry.GetName(tip.Source)}.", trustLoss);
+    }
+
+    public void RestoreTips(IEnumerable<Tip> tips, Dictionary<NpcId, int> ignoredCounts)
+    {
+        Tips.RestoreTips(tips, ignoredCounts);
     }
 }

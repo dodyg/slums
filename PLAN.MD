@@ -104,6 +104,8 @@ Implement in dependency order after skill training:
 
 ### 3. UI Clarity
 
+Status: **implemented**.
+
 Make the deeper systems legible to the player.
 
 - explain why work variants improve, worsen, or lock out
@@ -1097,7 +1099,7 @@ Modified files:
 
 ## Territory Dynamics
 
-Status: planned.
+Status: implemented.
 
 Requirements: see REQS.md "Territory Dynamics" section.
 
@@ -1221,7 +1223,7 @@ Modified files:
 
 ## Phone and Asynchronous Contacts
 
-Status: planned.
+Status: **implemented**. Core types, GameSession integration, persistence, message generator, application menu integration, and tests all complete.
 
 Requirements: see REQS.md "Phone and Asynchronous Contacts" section.
 
@@ -1411,9 +1413,7 @@ Modified files:
 
 ## Debt and NPC Economy
 
-Status: planned.
-
-Requirements: see REQS.md "Debt and NPC Economy" section.
+Status: **implemented**. Core types, GameSession integration, persistence, endings, tests all complete.
 
 ### Design
 
@@ -1594,7 +1594,7 @@ Modified files:
 
 ## Information Network
 
-Status: planned.
+Status: **implemented**.
 
 Requirements: see REQS.md "Information Network" section.
 

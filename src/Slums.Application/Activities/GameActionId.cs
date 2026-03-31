@@ -20,5 +20,6 @@ public enum GameActionId
     EndDay,
     Train,
     HomeImprovement,
-    CommunityEvent
+    CommunityEvent,
+    Phone
 }

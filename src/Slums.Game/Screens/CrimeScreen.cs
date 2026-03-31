@@ -11,9 +11,10 @@ namespace Slums.Game.Screens;
 internal sealed class CrimeScreen : ScreenSurface
 {
     private const int ListX = 2;
-    private const int ListY = 6;
+    private const int ListY = 7;
     private const int ListRowHeight = 2;
     private const int DetailX = 36;
+    private const int MaxTipHints = 2;
     private readonly CrimeMenuContext _context;
     private readonly GameSession _gameState;
     private readonly IReadOnlyList<CrimeMenuStatus> _crimeAttempts;
@@ -21,6 +22,7 @@ internal sealed class CrimeScreen : ScreenSurface
     private readonly GameRuntime _runtime;
     private readonly ScreenActionKeyGate _actionKeyGate = new();
     private readonly CrimeCommand _crimeCommand = new();
+    private readonly TipContextQuery _tipContextQuery = new();
     private int _selectedIndex;
 
     public CrimeScreen(int width, int height, GameRuntime runtime, GameSession gameState, CrimeMenuContext context, IReadOnlyList<CrimeMenuStatus> crimeAttempts, GameScreen parentScreen)
@@ -43,14 +45,39 @@ internal sealed class CrimeScreen : ScreenSurface
         Surface.Clear();
 
         Surface.Print(ListX, 2, "=== Crime ===", Color.Cyan);
-        Surface.Print(ListX, 4, $"Police Pressure: {_context.PolicePressure}", GetPressureColor(_context.PolicePressure));
+        var pressureColor = GetPressureColor(_context.PolicePressure);
+        Surface.Print(ListX, 3, $"Police Pressure: {_context.PolicePressure}", pressureColor);
+        var pressureHint = _context.PolicePressure switch
+        {
+            >= 100 => "Arrest threshold!",
+            >= 80 => "Near arrest level",
+            >= 50 => "Elevated heat",
+            _ => "Manageable"
+        };
+        Surface.Print(ListX, 4, pressureHint, pressureColor);
         Surface.Print(DetailX, 2, "=== Route Detail ===", Color.Cyan);
+
+        var tipHints = _tipContextQuery.GetCrimeHints(_gameState);
+        var tipOffset = 0;
+        if (tipHints.Count > 0)
+        {
+            for (var t = 0; t < Math.Min(tipHints.Count, MaxTipHints); t++)
+            {
+                var hint = tipHints[t];
+                var hintColor = hint.IsEmergency ? Color.Red : hint.IsWarning ? Color.Orange : Color.Gray;
+                Surface.Print(ListX, 5 + t, TrimToFit($"! {hint.Content}", DetailX - ListX - 2), hintColor);
+            }
+
+            tipOffset = Math.Min(tipHints.Count, MaxTipHints);
+        }
+
+        var effectiveListY = ListY + tipOffset;
 
         for (var i = 0; i < _crimeAttempts.Count; i++)
         {
             var attempt = _crimeAttempts[i];
             var prefix = i == _selectedIndex ? "> " : "  ";
-            var rowY = ListY + (i * ListRowHeight);
+            var rowY = effectiveListY + (i * ListRowHeight);
             var color = attempt.IsAvailable
                 ? i == _selectedIndex ? Color.Cyan : Color.White
                 : i == _selectedIndex ? Color.Orange : Color.Gray;
@@ -202,7 +229,7 @@ internal sealed class CrimeScreen : ScreenSurface
         if (selected.AccessSignals.Count > 0 && y < Surface.Height - 4)
         {
             y++;
-            Surface.Print(DetailX, y++, "Access signals:", Color.Cyan);
+            Surface.Print(DetailX, y++, "Requirements:", Color.Cyan);
             foreach (var signal in selected.AccessSignals)
             {
                 foreach (var line in WrapText($"- {signal}", detailWidth))
@@ -219,7 +246,7 @@ internal sealed class CrimeScreen : ScreenSurface
         if (selected.RiskNotes.Count > 0 && y < Surface.Height - 4)
         {
             y++;
-            Surface.Print(DetailX, y++, "Risk notes:", Color.Cyan);
+            Surface.Print(DetailX, y++, "Risk details:", Color.Cyan);
             foreach (var note in selected.RiskNotes)
             {
                 foreach (var line in WrapText($"- {note}", detailWidth))
@@ -236,7 +263,7 @@ internal sealed class CrimeScreen : ScreenSurface
         if (selected.ActiveModifiers.Count > 0)
         {
             y++;
-            Surface.Print(DetailX, y++, "Active modifiers:", Color.Cyan);
+            Surface.Print(DetailX, y++, "Active effects:", Color.Cyan);
             foreach (var modifier in selected.ActiveModifiers)
             {
                 foreach (var line in WrapText($"- {modifier}", detailWidth))
@@ -249,7 +276,7 @@ internal sealed class CrimeScreen : ScreenSurface
         if (selected.NarrativeSignals.Count > 0 && y < Surface.Height - 4)
         {
             y++;
-            Surface.Print(DetailX, y++, "Narrative signals:", Color.Cyan);
+            Surface.Print(DetailX, y++, "Story triggers:", Color.Cyan);
             foreach (var signal in selected.NarrativeSignals)
             {
                 foreach (var line in WrapText($"- {signal}", detailWidth))

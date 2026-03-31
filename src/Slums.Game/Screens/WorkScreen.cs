@@ -18,6 +18,7 @@ internal sealed class WorkScreen : ScreenSurface
     private readonly List<WorkMenuStatus> _jobs;
     private readonly GameScreen _parentScreen;
     private readonly WorkCommand _workCommand = new();
+    private readonly TipContextQuery _tipContextQuery = new();
     private int _selectedIndex;
 
     public WorkScreen(int width, int height, GameSession gameState, WorkMenuContext context, List<WorkMenuStatus> jobs, GameScreen parentScreen)
@@ -42,11 +43,20 @@ internal sealed class WorkScreen : ScreenSurface
         Surface.Print(ListX, 3, "Select a shift to inspect or take.", Color.Gray);
         Surface.Print(DetailX, 2, "=== Shift Detail ===", Color.Cyan);
 
+        var tipHints = _tipContextQuery.GetWorkHints(_gameState);
+        var tipStartY = 4;
+        for (var t = 0; t < Math.Min(tipHints.Count, 2); t++)
+        {
+            Surface.Print(ListX, tipStartY + t, TrimToFit($"* {tipHints[t].Content}", DetailX - ListX - 2), Color.Yellow);
+        }
+
+        var effectiveListY = ListY + Math.Min(tipHints.Count, 2);
+
         for (var i = 0; i < _jobs.Count; i++)
         {
             var job = _jobs[i];
             var prefix = i == _selectedIndex ? "> " : "  ";
-            var rowY = ListY + (i * ListRowHeight);
+            var rowY = effectiveListY + (i * ListRowHeight);
             var color = job.CanPerform
                 ? i == _selectedIndex ? Color.Cyan : Color.White
                 : i == _selectedIndex ? Color.Orange : Color.Gray;
@@ -138,12 +148,12 @@ internal sealed class WorkScreen : ScreenSurface
     {
         if (status.LockoutUntilDay is int lockoutUntilDay)
         {
-            return $"Locked to day {lockoutUntilDay + 1} | Rel {status.Reliability}";
+            return $"Locked to day {lockoutUntilDay + 1} | Reliability {status.Reliability}";
         }
 
         return status.CanPerform
-            ? $"Ready | Rel {status.Reliability}"
-            : status.AvailabilityReason ?? $"Blocked | Rel {status.Reliability}";
+            ? $"Ready | Reliability {status.Reliability}"
+            : status.AvailabilityReason ?? $"Blocked | Reliability {status.Reliability}";
     }
 
     private static string TrimToFit(string text, int maxLength)
@@ -175,7 +185,7 @@ internal sealed class WorkScreen : ScreenSurface
         Surface.Print(DetailX, y++, $"Reliability {selected.Reliability} | Shifts {selected.ShiftsCompleted}", Color.Gray);
 
         y++;
-        Surface.Print(DetailX, y++, "Current access:", Color.Cyan);
+        Surface.Print(DetailX, y++, "Availability:", Color.Cyan);
         foreach (var signal in selected.AvailabilitySignals)
         {
             foreach (var line in WrapText($"- {signal}", detailWidth))
@@ -185,7 +195,7 @@ internal sealed class WorkScreen : ScreenSurface
         }
 
         y++;
-        Surface.Print(DetailX, y++, "Why this shift:", Color.Cyan);
+        Surface.Print(DetailX, y++, "Why this variant:", Color.Cyan);
         foreach (var line in WrapText(selected.VariantReason, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.White);
@@ -220,7 +230,7 @@ internal sealed class WorkScreen : ScreenSurface
         if (selected.ActiveModifiers.Count > 0)
         {
             y++;
-            Surface.Print(DetailX, y++, "Active modifiers:", Color.Cyan);
+            Surface.Print(DetailX, y++, "Active effects:", Color.Cyan);
             foreach (var modifier in selected.ActiveModifiers)
             {
                 foreach (var line in WrapText($"- {modifier}", detailWidth))
@@ -233,7 +243,7 @@ internal sealed class WorkScreen : ScreenSurface
         if (selected.NarrativeSignals.Count > 0 && y < Surface.Height - 4)
         {
             y++;
-            Surface.Print(DetailX, y++, "Narrative signals:", Color.Cyan);
+            Surface.Print(DetailX, y++, "Story triggers:", Color.Cyan);
             foreach (var signal in selected.NarrativeSignals)
             {
                 foreach (var line in WrapText($"- {signal}", detailWidth))

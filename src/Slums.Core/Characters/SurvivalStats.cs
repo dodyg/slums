@@ -66,9 +66,9 @@ public sealed class SurvivalStats
 
     public void ApplyDailyDecay()
     {
-        ModifyHunger(-15);
+        ModifyHunger(-12);
         ModifyEnergy(-10);
-        ModifyStress(5);
+        ModifyStress(3);
     }
 
     private static int Clamp(int value)

@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
+using Slums.Core.Clock;
 using Slums.Core.State;
 using Slums.Core.World;
 
@@ -14,6 +15,7 @@ internal sealed class TravelScreen : ScreenSurface
     private readonly IReadOnlyList<Location> _locations;
     private readonly GameScreen _parentScreen;
     private readonly TravelCommand _travelCommand = new();
+    private readonly TipContextQuery _tipContextQuery = new();
     private int _selectedIndex;
 
     public TravelScreen(int width, int height, GameSession gameState, IReadOnlyList<Location> locations, GameScreen parentScreen) 
@@ -182,8 +184,41 @@ internal sealed class TravelScreen : ScreenSurface
         var travelSummary = _gameState.GetTravelConditionSummary(selectedLocation.Id) ?? selectedLocation.Description;
 
         Surface.Print(2, detailStartY, $"Selected: {selectedLocation.Name}", Color.White);
-        Surface.Print(2, detailStartY + 1, TrimToFit(travelSummary, Surface.Width - 4), Color.DarkGray);
-        Surface.Print(2, detailStartY + 2, $"Transport: {travelCost} LE / {travelMinutes} min | Walk: {walkMinutes} min", Color.Yellow);
+
+        var travelHints = _tipContextQuery.GetTravelHints(_gameState);
+        if (travelHints.Count > 0)
+        {
+            var hintY = detailStartY + 1;
+            for (var t = 0; t < Math.Min(travelHints.Count, 2); t++)
+            {
+                var hint = travelHints[t];
+                var hintColor = hint.IsEmergency ? Color.Red : Color.Orange;
+                Surface.Print(2, hintY + t, TrimToFit($"! {hint.Content}", Surface.Width - 4), hintColor);
+            }
+
+            Surface.Print(2, detailStartY + 1 + Math.Min(travelHints.Count, 2), TrimToFit(travelSummary, Surface.Width - 4), Color.DarkGray);
+        }
+        else
+        {
+            Surface.Print(2, detailStartY + 1, TrimToFit(travelSummary, Surface.Width - 4), Color.DarkGray);
+        }
+
+        Surface.Print(2, detailStartY + 2, $"Transport: {travelCost} LE / {travelMinutes} min | Walk: {walkMinutes} min (free, more energy)", Color.Yellow);
+
+        var currentMinutes = _gameState.Clock.Hour * 60 + _gameState.Clock.Minute;
+        var arrivalHour = (currentMinutes + travelMinutes) / 60;
+        var arrivalMinute = (currentMinutes + travelMinutes) % 60;
+        if (arrivalHour < 24)
+        {
+            Surface.Print(2, detailStartY + 3, $"Arrive by {arrivalHour:D2}:{arrivalMinute:D2} via transport", Color.Gray);
+        }
+
+        var walkArrivalHour = (currentMinutes + walkMinutes) / 60;
+        var walkArrivalMinute = (currentMinutes + walkMinutes) % 60;
+        if (walkArrivalHour < 24)
+        {
+            Surface.Print(2, detailStartY + 4, $"Arrive by {walkArrivalHour:D2}:{walkArrivalMinute:D2} via walk", Color.Gray);
+        }
     }
 
     private void RenderScrollBar(int firstVisibleIndex, int visibleCount)

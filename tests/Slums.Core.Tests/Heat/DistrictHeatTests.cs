@@ -98,8 +98,39 @@ internal sealed class DistrictHeatTests
         state.SetHeatAll(50);
 
         state.DecayAll();
+        await Assert.That(state.GetHeat(DistrictId.Dokki)).IsEqualTo(44);
+    }
 
-        await Assert.That(state.GetHeat(DistrictId.Dokki)).IsEqualTo(45);
+    
+    [Test]
+    public async Task DistrictHeatState_DecayAll_ImbabaModerateDecay()
+    {
+        var state = new DistrictHeatState();
+        state.SetHeatAll(50);
+        state.DecayAll();
+        await Assert.That(state.GetHeat(DistrictId.Imbaba)).IsEqualTo(46);
+    }
+    
+    [Test]
+    public async Task DistrictHeatState_DecayAll_SlumsDecaySlowest()
+    {
+        var state = new DistrictHeatState();
+        state.SetHeatAll(50);
+        state.DecayAll();
+        await Assert.That(state.GetHeat(DistrictId.BulaqAlDakrour)).IsEqualTo(47);
+        await Assert.That(state.GetHeat(DistrictId.Shubra)).IsEqualTo(47);
+        await Assert.That(state.GetHeat(DistrictId.ArdAlLiwa)).IsEqualTo(47);
+    }
+    
+    [Test]
+    public async Task DistrictHeatState_DecayAll_SlumsDecaySlowest()
+    {
+        var state = new DistrictHeatState();
+        state.SetHeatAll(50);
+        state.DecayAll();
+        await Assert.That(state.GetHeat(DistrictId.BulaqAlDakrour)).IsEqualTo(47);
+        await Assert.That(state.GetHeat(DistrictId.Shubra)).IsEqualTo(47);
+        await Assert.That(state.GetHeat(DistrictId.ArdAlLiwa)).IsEqualTo(47);
     }
 
     [Test]

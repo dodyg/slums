@@ -19,4 +19,7 @@ public static class MutationCategories
     public const string StateSnapshot = "StateSnapshot";
     public const string Training = "Training";
     public const string Community = "Community";
+    public const string Economy = "Economy";
+    public const string Phone = "Phone";
+    public const string Information = "Information";
 }

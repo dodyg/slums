@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
+using Slums.Core.Information;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 
@@ -35,6 +36,14 @@ internal sealed class TalkScreen : ScreenSurface
         FocusOnMouseClick = true;
     }
 
+    private static Color GetTrustColor(int trust) => trust switch
+    {
+        > 15 => Color.Green,
+        > 0 => Color.LightGreen,
+        0 => Color.Gray,
+        _ => Color.Orange
+    };
+
     public override void Render(TimeSpan delta)
     {
         base.Render(delta);
@@ -51,7 +60,7 @@ internal sealed class TalkScreen : ScreenSurface
             var prefix = i == _selectedIndex ? "> " : "  ";
             var color = i == _selectedIndex ? Color.Cyan : Color.White;
             Surface.Print(ListX, rowY, TrimToFit($"{prefix}{npc.Name}", DetailX - ListX - 2), color);
-            Surface.Print(ListX + 2, rowY + 1, $"Trust: {npc.Trust}", npc.Trust < 0 ? Color.Orange : Color.Gray);
+            Surface.Print(ListX + 2, rowY + 1, $"Trust: {npc.Trust}", GetTrustColor(npc.Trust));
         }
 
         RenderSelectedNpcDetails();
@@ -111,7 +120,7 @@ internal sealed class TalkScreen : ScreenSurface
         var detailWidth = Surface.Width - DetailX - 2;
 
         Surface.Print(DetailX, y++, selected.Name, Color.White);
-        Surface.Print(DetailX, y++, $"Trust: {selected.Trust}", selected.Trust < 0 ? Color.Orange : Color.Gray);
+        Surface.Print(DetailX, y++, $"Trust: {selected.Trust}", GetTrustColor(selected.Trust));
         y++;
 
         foreach (var line in WrapText(selected.Summary, detailWidth))
@@ -128,7 +137,7 @@ internal sealed class TalkScreen : ScreenSurface
         if (selected.TriggerSignals.Count > 0)
         {
             y++;
-            Surface.Print(DetailX, y++, "Conversation triggers:", Color.Cyan);
+            Surface.Print(DetailX, y++, "What's on their mind:", Color.Cyan);
             foreach (var signal in selected.TriggerSignals)
             {
                 foreach (var line in WrapText($"- {signal}", detailWidth))
@@ -145,7 +154,7 @@ internal sealed class TalkScreen : ScreenSurface
         if (selected.MemoryFlags.Count > 0)
         {
             y++;
-            Surface.Print(DetailX, y++, "Memory flags:", Color.Cyan);
+            Surface.Print(DetailX, y++, "They remember:", Color.Cyan);
             foreach (var flag in selected.MemoryFlags)
             {
                 foreach (var line in WrapText($"- {flag}", detailWidth))
@@ -156,6 +165,33 @@ internal sealed class TalkScreen : ScreenSurface
                 if (y >= Surface.Height - 3)
                 {
                     break;
+                }
+            }
+        }
+
+        var npcTips = _gameState.Tips.GetTipsFromNpc(selected.NpcId)
+            .Where(t => !t.Ignored && !t.Acknowledged && !t.IsExpired(_gameState.Clock.Day))
+            .ToList();
+        if (npcTips.Count > 0 && y < Surface.Height - 4)
+        {
+            y++;
+            Surface.Print(DetailX, y++, "Tips to share:", Color.Yellow);
+            foreach (var tip in npcTips)
+            {
+                if (y >= Surface.Height - 3)
+                {
+                    break;
+                }
+
+                var tipColor = tip.IsEmergency ? Color.Red : Color.Orange;
+                foreach (var line in WrapText($"- {tip.Content}", detailWidth))
+                {
+                    if (y >= Surface.Height - 3)
+                    {
+                        break;
+                    }
+
+                    Surface.Print(DetailX, y++, line, tipColor);
                 }
             }
         }

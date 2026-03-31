@@ -176,7 +176,7 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
         }
 
         y++;
-        Surface.Print(DetailX, y++, "Unlock requirements:", Color.Cyan);
+        Surface.Print(DetailX, y++, "Requirements:", Color.Cyan);
         foreach (var line in WrapText(selected.UnlockSummary, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.Gray);
@@ -195,7 +195,7 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
         if (selected.CurrentStateNotes.Count > 0)
         {
             y++;
-            Surface.Print(DetailX, y++, "Risk behavior:", Color.Cyan);
+            Surface.Print(DetailX, y++, "Status notes:", Color.Cyan);
             foreach (var note in selected.CurrentStateNotes)
             {
                 foreach (var line in WrapText($"- {note}", detailWidth))
