@@ -10,5 +10,8 @@ public enum JobType
     CafeService,
     PharmacyStock,
     MicrobusDispatch,
-    LaundryPressing
+    LaundryPressing,
+    StreetVending,
+    FishSorter,
+    MarketPorter
 }

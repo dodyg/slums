@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Economy;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 
@@ -46,6 +47,11 @@ public static class EndingService
             gameState.Player.Stats.Stress >= 70)
         {
             return EndingId.BuriedByHeat;
+        }
+
+        if (gameState.PlayerDebts.GetOverdueDebts(gameState.Clock.Day).Any(d => d.Source == DebtSource.LoanShark && d.CollectionState == DebtCollectionState.Critical))
+        {
+            return EndingId.DebtViolence;
         }
 
         if (gameState.DaysSurvived >= 30 &&

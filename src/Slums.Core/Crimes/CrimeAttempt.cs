@@ -18,6 +18,8 @@ public sealed record CrimeAttempt(
         CrimeType.NetworkErrand => "Network Errand",
         CrimeType.DepotFareSkim => "Depot Fare Skim",
         CrimeType.ShubraBundleLift => "Shubra Bundle Lift",
+        CrimeType.WorkshopContraband => "Workshop Contraband Run",
+        CrimeType.BulaqProtectionRacket => "Protection Collection",
         _ => Type.ToString()
     };
 }

@@ -226,6 +226,69 @@ public static class DistrictConditionRegistry
                 StreetFoodCostModifier = -1,
                 BoostedRandomEventIds = ["ShubraBlockSolidarity"]
             }
+        },
+        new()
+        {
+            Id = "downtown_cairo_protest_rumors",
+            District = DistrictId.DowntownCairo,
+            Title = "Protest Rumors",
+            BulletinText = "Rumors of a demonstration circulate. The square is tense and foot traffic is heavier than usual.",
+            GameplaySummary = "Travel is slower and work carries extra tension with police watching the crowds.",
+            MinDay = 3,
+            Weight = 3,
+            MinPolicePressure = 30,
+            Effect = new DistrictConditionEffect
+            {
+                TravelTimeMinutesModifier = 12,
+                WorkStressModifier = 3,
+                BoostedRandomEventIds = ["StreetVendorPermitSweep", "ImbabaNightPatrol"]
+            }
+        },
+        new()
+        {
+            Id = "downtown_cairo_tourist_surge",
+            District = DistrictId.DowntownCairo,
+            Title = "Tourist Surge",
+            BulletinText = "Tour groups and hotel shuttle buses crowd the streets around the square.",
+            GameplaySummary = "Work pays better with so many visitors around but crime draws more attention.",
+            MinDay = 1,
+            Weight = 3,
+            Effect = new DistrictConditionEffect
+            {
+                WorkPayModifier = 3,
+                CrimeDetectionRiskModifier = 5
+            }
+        },
+        new()
+        {
+            Id = "imbaba_fish_season",
+            District = DistrictId.Imbaba,
+            Title = "Fish Season",
+            BulletinText = "Nile season brings extra catch to the fish market and extra work to the quay.",
+            GameplaySummary = "Work pays a little more and food is cheaper with the fresh catch flowing in.",
+            MinDay = 1,
+            Weight = 3,
+            Effect = new DistrictConditionEffect
+            {
+                WorkPayModifier = 2,
+                FoodCostModifier = -1,
+                BoostedRandomEventIds = ["FishMarketCatch", "FishMarketScrap"]
+            }
+        },
+        new()
+        {
+            Id = "dokki_construction_week",
+            District = DistrictId.Dokki,
+            Title = "Construction Week",
+            BulletinText = "Building work on a new facade sends dust across the street and noise through every window.",
+            GameplaySummary = "Work is more stressful and travel through the district takes longer.",
+            MinDay = 2,
+            Weight = 3,
+            Effect = new DistrictConditionEffect
+            {
+                WorkStressModifier = 4,
+                TravelTimeMinutesModifier = 8
+            }
         }
     ];
 

@@ -16,6 +16,7 @@ public static class ConversationPoolRegistry
         NpcId.PharmacistMariam => GetMariamPool(context),
         NpcId.DispatcherSafaa => GetSafaaPool(context),
         NpcId.LaundryOwnerIman => GetImanPool(context),
+        NpcId.VendorTarek => GetTarekPool(context),
         _ => throw new ArgumentOutOfRangeException(nameof(npcId))
     };
 
@@ -74,6 +75,9 @@ public static class ConversationPoolRegistry
             NpcId.LaundryOwnerIman when currentMoney < 50 => ConversationContexts.Lean,
             NpcId.LaundryOwnerIman when relationship.Trust >= 15 => ConversationContexts.Warm,
             NpcId.LaundryOwnerIman => ConversationContexts.Default,
+            NpcId.VendorTarek when crimesCommitted >= 3 && relationship.Trust >= 15 => "streetwise",
+            NpcId.VendorTarek when relationship.Trust >= 15 => ConversationContexts.Warm,
+            NpcId.VendorTarek => ConversationContexts.Default,
             _ => ConversationContexts.Default
         };
     }
@@ -171,6 +175,13 @@ public static class ConversationPoolRegistry
         ConversationContexts.Lean => GeneratePool(ConversationPoolPrefixes.ImanLean, 100),
         ConversationContexts.Warm => GeneratePool(ConversationPoolPrefixes.ImanWarm, 100),
         _ => GeneratePool(ConversationPoolPrefixes.ImanDefault, 100)
+    };
+
+    private static List<string> GetTarekPool(string context) => context switch
+    {
+        ConversationContexts.Warm => GeneratePool(ConversationPoolPrefixes.TarekWarm, 100),
+        "streetwise" => GeneratePool(ConversationPoolPrefixes.TarekStreetwise, 100),
+        _ => GeneratePool(ConversationPoolPrefixes.TarekDefault, 100)
     };
 
     private static List<string> GeneratePool(string prefix, int count)

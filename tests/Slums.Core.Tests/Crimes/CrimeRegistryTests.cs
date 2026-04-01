@@ -134,4 +134,81 @@ internal sealed class CrimeRegistryTests
 
         crimes.Select(static attempt => attempt.Type).Should().Contain(CrimeType.Robbery);
     }
+
+    [Test]
+    public void GetAvailableCrimes_ShouldReturnBaseCrimes_ForArdAlLiwa()
+    {
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Workshop);
+        var relationships = new RelationshipState();
+        relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 20);
+
+        var crimes = CrimeRegistry.GetAvailableCrimes(location, relationships);
+
+        crimes.Select(c => c.Type).Should().Contain([CrimeType.PettyTheft, CrimeType.HashishTrade]);
+    }
+
+    [Test]
+    public void GetAvailableCrimes_ShouldUnlockWorkshopContraband_WhenAbuSamirTrustAndExPrisonerRepAreHigh()
+    {
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Workshop);
+        var relationships = new RelationshipState();
+        relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 15, 1);
+        relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 20);
+
+        var crimes = CrimeRegistry.GetAvailableCrimes(location, relationships);
+
+        crimes.Select(c => c.Type).Should().Contain(CrimeType.WorkshopContraband);
+    }
+
+    [Test]
+    public void GetAvailableCrimes_ShouldNotUnlockWorkshopContraband_WhenOnlyTrustIsHigh()
+    {
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Workshop);
+        var relationships = new RelationshipState();
+        relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 15, 1);
+        relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 5);
+
+        var crimes = CrimeRegistry.GetAvailableCrimes(location, relationships);
+
+        crimes.Select(c => c.Type).Should().NotContain(CrimeType.WorkshopContraband);
+    }
+
+    [Test]
+    public void GetAvailableCrimes_ShouldUnlockBulaqProtection_WhenSafaaTrustIsHigh()
+    {
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Depot);
+        var relationships = new RelationshipState();
+        relationships.SetNpcRelationship(NpcId.DispatcherSafaa, 15, 1);
+        relationships.SetFactionStanding(FactionId.ImbabaCrew, 20);
+
+        var crimes = CrimeRegistry.GetAvailableCrimes(location, relationships);
+
+        crimes.Select(c => c.Type).Should().Contain(CrimeType.BulaqProtectionRacket);
+    }
+
+    [Test]
+    public void GetCrimeOpportunityStatuses_ShouldShowBlockReason_ForWorkshopContraband()
+    {
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Workshop);
+        var relationships = new RelationshipState();
+
+        var statuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, relationships);
+
+        var contraband = statuses.FirstOrDefault(s => s.Attempt.Type == CrimeType.WorkshopContraband);
+        contraband.Should().NotBeNull();
+        contraband!.IsAvailable.Should().BeFalse();
+    }
+
+    [Test]
+    public void GetCrimeOpportunityStatuses_ShouldShowBlockReason_ForBulaqProtection()
+    {
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Depot);
+        var relationships = new RelationshipState();
+
+        var statuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, relationships);
+
+        var protection = statuses.FirstOrDefault(s => s.Attempt.Type == CrimeType.BulaqProtectionRacket);
+        protection.Should().NotBeNull();
+        protection!.IsAvailable.Should().BeFalse();
+    }
 }

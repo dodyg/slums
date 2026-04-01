@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Economy;
 using Slums.Core.Endings;
 using Slums.Core.State;
 using TUnit.Core;
@@ -145,5 +146,49 @@ internal sealed class EndingServiceTests
             await Assert.That(knotName).IsNotNull();
             await Assert.That(knotName.Length).IsGreaterThan(0);
         }
+    }
+
+    [Test]
+    public async Task CheckEndings_ShouldReturnDebtViolence_WhenLoanSharkDebtIsCritical()
+    {
+        using var state = new GameSession();
+        state.SetDaysSurvived(15);
+        state.Clock.SetTime(15, 8, 0);
+        state.PlayerDebts.AddDebt(new PlayerDebt
+        {
+            Source = DebtSource.LoanShark,
+            AmountOwed = 300,
+            DueDay = 1,
+            OriginDay = 1,
+            CreditorNpcId = (int)Slums.Core.Relationships.NpcId.FixerUmmKarim,
+            InterestWeeklyBasisPoints = 500,
+            CollectionState = DebtCollectionState.Critical
+        });
+
+        var ending = EndingService.CheckEndings(state);
+
+        await Assert.That(ending).IsEqualTo(EndingId.DebtViolence);
+    }
+
+    [Test]
+    public async Task CheckEndings_ShouldNotReturnDebtViolence_WhenDebtIsCurrent()
+    {
+        using var state = new GameSession();
+        state.SetDaysSurvived(15);
+        state.Clock.SetTime(15, 8, 0);
+        state.PlayerDebts.AddDebt(new PlayerDebt
+        {
+            Source = DebtSource.LoanShark,
+            AmountOwed = 100,
+            DueDay = 20,
+            OriginDay = 10,
+            CreditorNpcId = (int)Slums.Core.Relationships.NpcId.FixerUmmKarim,
+            InterestWeeklyBasisPoints = 500,
+            CollectionState = DebtCollectionState.Current
+        });
+
+        var ending = EndingService.CheckEndings(state);
+
+        await Assert.That(ending).IsNull();
     }
 }

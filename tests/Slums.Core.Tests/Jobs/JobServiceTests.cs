@@ -202,4 +202,128 @@ internal sealed class JobServiceTests
         preview.Job.Name.Should().Be("Bakery Oven Shift");
         preview.NextUnlockHint.Should().Contain("reliability 75");
     }
+
+    [Test]
+    public void GetAvailableJobs_ShouldReturnStreetVending_ForSquare()
+    {
+        var service = new JobService();
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Square);
+        var player = new PlayerCharacter();
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+
+        var jobs = service.GetAvailableJobs(location, player, relationships, progress).ToList();
+
+        jobs.Should().ContainSingle();
+        jobs[0].Type.Should().Be(JobType.StreetVending);
+    }
+
+    [Test]
+    public void GetAvailableJobs_ShouldReturnFishSorter_ForFishMarket()
+    {
+        var service = new JobService();
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.FishMarket);
+        var player = new PlayerCharacter();
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+
+        var jobs = service.GetAvailableJobs(location, player, relationships, progress).ToList();
+
+        jobs.Should().ContainSingle();
+        jobs[0].Type.Should().Be(JobType.FishSorter);
+    }
+
+    [Test]
+    public void GetAvailableJobs_ShouldReturnTwoJobs_ForMarket()
+    {
+        var service = new JobService();
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Market);
+        var player = new PlayerCharacter();
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+
+        var jobs = service.GetAvailableJobs(location, player, relationships, progress).ToList();
+
+        jobs.Should().HaveCount(2);
+        jobs.Select(j => j.Type).Should().Contain([JobType.HouseCleaning, JobType.MarketPorter]);
+    }
+
+    [Test]
+    public void GetAvailableJobs_ShouldUpgradeStreetVending_WhenReliabilityIsHigh()
+    {
+        var service = new JobService();
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Square);
+        var player = new PlayerCharacter();
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+        progress.RestoreTrack(JobType.StreetVending, reliability: 58, shiftsCompleted: 3, lockoutUntilDay: 0);
+
+        var jobs = service.GetAvailableJobs(location, player, relationships, progress).ToList();
+
+        jobs.Should().ContainSingle();
+        jobs[0].Name.Should().Be("Rush Hour Vending");
+    }
+
+    [Test]
+    public void GetAvailableJobs_ShouldUpgradeFishSorter_WhenPhysicalIsHigh()
+    {
+        var service = new JobService();
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.FishMarket);
+        var player = new PlayerCharacter();
+        player.Skills.SetLevel(SkillId.Physical, 2);
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+
+        var jobs = service.GetAvailableJobs(location, player, relationships, progress).ToList();
+
+        jobs.Should().ContainSingle();
+        jobs[0].Name.Should().Be("Ice Run Shift");
+    }
+
+    [Test]
+    public void GetAvailableJobs_ShouldUpgradeMarketPorter_WhenReliabilityIsHigh()
+    {
+        var service = new JobService();
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Market);
+        var player = new PlayerCharacter();
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+        progress.RestoreTrack(JobType.MarketPorter, reliability: 65, shiftsCompleted: 3, lockoutUntilDay: 0);
+
+        var jobs = service.GetAvailableJobs(location, player, relationships, progress).ToList();
+
+        var porter = jobs.First(j => j.Type == JobType.MarketPorter);
+        porter.Name.Should().Be("Steady Route Porter");
+    }
+
+    [Test]
+    public void CanPerformJob_ShouldRejectStreetVending_OutsideSquare()
+    {
+        var service = new JobService();
+        var player = new PlayerCharacter();
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Bakery);
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+
+        var canPerform = service.CanPerformJob(JobRegistry.StreetVending, player, location, relationships, progress, currentDay: 1, out var reason);
+
+        canPerform.Should().BeFalse();
+        reason.Should().Contain("not available");
+    }
+
+    [Test]
+    public void PerformJob_ShouldApplySudanesePenalty_ForStreetVending()
+    {
+        var service = new JobService();
+        var player = new PlayerCharacter();
+        player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Square);
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+
+        var result = service.PerformJob(JobRegistry.StreetVending, player, location, relationships, progress, currentDay: 1, new Random(5));
+
+        result.Success.Should().BeTrue();
+        result.MoneyEarned.Should().BeLessThan(JobRegistry.StreetVending.BasePay);
+    }
 }

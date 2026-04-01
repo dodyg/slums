@@ -56,6 +56,8 @@ public sealed class CrimeMenuStatusQuery
             CrimeType.DepotFareSkim => $"Safaa trust: {context.Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust} | Imbaba standing: {context.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}",
             CrimeType.ShubraBundleLift when !availableViaRegistry && IsLaundryWorkUnlock(context, location) => "Unlocked through reliable laundry work in Shubra.",
             CrimeType.ShubraBundleLift => $"Iman trust: {context.Relationships.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust} | Imbaba standing: {context.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}",
+            CrimeType.WorkshopContraband => $"Abu Samir trust: {context.Relationships.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust} | Ex-prisoner standing: {context.Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation}",
+            CrimeType.BulaqProtectionRacket => $"Safaa trust: {context.Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust} | Imbaba standing: {context.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}",
             _ when attempt.StreetRepRequired > 0 => $"Street rep: {districtStanding}/{attempt.StreetRepRequired}",
             _ => null
         };
@@ -163,6 +165,14 @@ public sealed class CrimeMenuStatusQuery
                 signals.Add($"Iman trust: {context.Relationships.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust}/10.");
                 signals.Add($"Imbaba standing: {context.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}/12.");
                 signals.Add($"Laundry reliability: {context.JobProgress.GetTrack(JobType.LaundryPressing).Reliability}/60.");
+                break;
+            case CrimeType.WorkshopContraband:
+                signals.Add($"Abu Samir trust: {context.Relationships.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust}/12.");
+                signals.Add($"Ex-prisoner standing: {context.Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation}/10.");
+                break;
+            case CrimeType.BulaqProtectionRacket:
+                signals.Add($"Safaa trust: {context.Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust}/12.");
+                signals.Add($"Imbaba standing: {context.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation}/15.");
                 break;
         }
 

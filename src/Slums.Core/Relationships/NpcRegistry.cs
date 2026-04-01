@@ -18,6 +18,7 @@ public static class NpcRegistry
         NpcId.PharmacistMariam => "Mariam",
         NpcId.DispatcherSafaa => "Safaa",
         NpcId.LaundryOwnerIman => "Iman",
+        NpcId.VendorTarek => "Tarek",
         _ => throw new ArgumentOutOfRangeException(nameof(npcId))
     };
 
@@ -59,6 +60,11 @@ public static class NpcRegistry
         if (locationId == LocationId.Square)
         {
             npcs.Add(NpcId.RunnerYoussef);
+        }
+
+        if (locationId == LocationId.Square)
+        {
+            npcs.Add(NpcId.VendorTarek);
         }
 
         if (locationId == LocationId.Pharmacy)

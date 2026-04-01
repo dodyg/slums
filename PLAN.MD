@@ -138,9 +138,21 @@ Expand content that reflects the systems already in place.
 
 ### 6. Content Breadth
 
+Status: **implemented**.
+
 Broaden the world through additional authored and systemic slices instead of more architecture churn.
 
-- add more location-specific jobs, crime routes, and relationship hooks
+ Added 3 new location-specific jobs (StreetVending at Dokki Square, FishSorter at Imbaba FishMarket, MarketPorter at Imbaba Market), 2 new crime routes in Ard al-Liwa (WorkshopContraband, and Bulaq (BulaqProtectionRacket)
+- Added 10 new random events ( total 30 across all districts, bringing total to 30
+- Added new NPC: VendorTarek at Dokki Square with conversation pools
+- Added 4 new district conditions for DowntownCairo protest/tourist surge, Imbaba fish season, Dokki construction
+ DowntownCairo crime detection
+ and more district conditions were boosted content of coverage and reach 30 events
+ reduced repetition in long runs
+ games.
+- Activated DebtViolence ending trigger ( any loan shark debt with Critical collection state, 14+ days overdue, triggers ending
+- Added 2 new NPC (Tarek, street vendor at Dokki Square) with conversation pools, discussion pools, and and crime connections to relationship hook, 
+- prefer content and UX improvements over another repo-wide refactor unless a new hotspot clearly appears
 - expand recurring-event variety so long runs feel less cyclical
 - add more endings or epilogue variants only where they reflect existing systems cleanly
 - prefer content and UX improvements over another repo-wide refactor unless a new hotspot clearly appears

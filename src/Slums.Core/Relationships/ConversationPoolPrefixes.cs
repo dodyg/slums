@@ -60,4 +60,8 @@ public static class ConversationPoolPrefixes
     public const string ImanLean = "iman_lean";
     public const string ImanWarm = "iman_warm";
     public const string ImanDefault = "iman_default";
+
+    public const string TarekDefault = "tarek_default";
+    public const string TarekWarm = "tarek_warm";
+    public const string TarekStreetwise = "tarek_streetwise";
 }

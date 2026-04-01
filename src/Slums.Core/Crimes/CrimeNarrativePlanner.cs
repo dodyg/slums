@@ -80,6 +80,22 @@ public static class CrimeNarrativePlanner
                 NarrativeKnots.CrimeImanBundleDetected,
                 StoryFlags.CrimeImanBundleFailureSeen,
                 NarrativeKnots.CrimeImanBundleFailure),
+            CrimeType.WorkshopContraband => BuildRouteTrigger(
+                result,
+                StoryFlags.CrimeWorkshopContrabandSuccessSeen,
+                NarrativeKnots.CrimeWorkshopContrabandSuccess,
+                StoryFlags.CrimeWorkshopContrabandDetectedSeen,
+                NarrativeKnots.CrimeWorkshopContrabandDetected,
+                StoryFlags.CrimeWorkshopContrabandFailureSeen,
+                NarrativeKnots.CrimeWorkshopContrabandFailure),
+            CrimeType.BulaqProtectionRacket => BuildRouteTrigger(
+                result,
+                StoryFlags.CrimeBulaqProtectionSuccessSeen,
+                NarrativeKnots.CrimeBulaqProtectionSuccess,
+                StoryFlags.CrimeBulaqProtectionDetectedSeen,
+                NarrativeKnots.CrimeBulaqProtectionDetected,
+                StoryFlags.CrimeBulaqProtectionFailureSeen,
+                NarrativeKnots.CrimeBulaqProtectionFailure),
             _ => null
         };
     }

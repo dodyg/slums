@@ -74,7 +74,7 @@ public sealed class WorldState
             Name = "Midan Al-Tahrir",
             Description = "The busy central square connecting districts.",
             District = DistrictId.Dokki,
-            HasJobOpportunities = false,
+            HasJobOpportunities = true,
             HasCrimeOpportunities = true,
             TravelTimeMinutes = 40,
             HasBar = true
@@ -99,7 +99,7 @@ public sealed class WorldState
             Description = "A noisy garment workshop with irons hissing and fabric dust in the air.",
             District = DistrictId.ArdAlLiwa,
             HasJobOpportunities = true,
-            HasCrimeOpportunities = false,
+            HasCrimeOpportunities = true,
             TravelTimeMinutes = 20
         },
         new Location
@@ -155,7 +155,7 @@ public sealed class WorldState
             Name = "Wikalet Al-Samak",
             Description = "A fish market where wet floors, shouted prices, and cloudy tanks crowd every step.",
             District = DistrictId.Imbaba,
-            HasJobOpportunities = false,
+            HasJobOpportunities = true,
             HasCrimeOpportunities = false,
             TravelTimeMinutes = 20
         },

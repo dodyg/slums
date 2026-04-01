@@ -30,6 +30,13 @@ public static class NarrativeKnots
     public const string CrimeImanBundleDetected = "crime_iman_bundle_detected";
     public const string CrimeImanBundleFailure = "crime_iman_bundle_failure";
 
+    public const string CrimeWorkshopContrabandSuccess = "crime_workshop_contraband_success";
+    public const string CrimeWorkshopContrabandDetected = "crime_workshop_contraband_detected";
+    public const string CrimeWorkshopContrabandFailure = "crime_workshop_contraband_failure";
+    public const string CrimeBulaqProtectionSuccess = "crime_bulaq_protection_success";
+    public const string CrimeBulaqProtectionDetected = "crime_bulaq_protection_detected";
+    public const string CrimeBulaqProtectionFailure = "crime_bulaq_protection_failure";
+
     public const string CrimeHananCover = "crime_hanan_cover";
     public const string CrimeHananSalvage = "crime_hanan_salvage";
     public const string CrimeYoussefTipoff = "crime_youssef_tipoff";

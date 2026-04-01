@@ -119,7 +119,46 @@ public static class JobRegistry
         PayVariance = 4
     };
 
-    private static IReadOnlyList<JobShift> _jobs = [DefaultBakeryWork, DefaultHouseCleaning, DefaultCallCenterWork, DefaultClinicReception, DefaultWorkshopSewing, DefaultCafeService, DefaultPharmacyStock, DefaultMicrobusDispatch, DefaultLaundryPressing];
+    private static readonly JobShift DefaultStreetVending = new()
+    {
+        Type = JobType.StreetVending,
+        Name = "Street Vendor Shift",
+        Description = "Set up a folding table outside Midan Al-Tahrir and sell phone cases, chargers, and cheap accessories to commuters.",
+        BasePay = 17,
+        EnergyCost = 22,
+        StressCost = 12,
+        DurationMinutes = 360,
+        MinEnergyRequired = 25,
+        PayVariance = 6
+    };
+
+    private static readonly JobShift DefaultFishSorter = new()
+    {
+        Type = JobType.FishSorter,
+        Name = "Fish Sorting Shift",
+        Description = "Gut, scale, and sort the morning catch at Wikalet Al-Samak before the ice melts and the fishwives lose patience.",
+        BasePay = 18,
+        EnergyCost = 28,
+        StressCost = 8,
+        DurationMinutes = 360,
+        MinEnergyRequired = 35,
+        PayVariance = 4
+    };
+
+    private static readonly JobShift DefaultMarketPorter = new()
+    {
+        Type = JobType.MarketPorter,
+        Name = "Market Porter Shift",
+        Description = "Haul crates, stack sacks, and carry what vendors cannot between the narrow market aisles.",
+        BasePay = 17,
+        EnergyCost = 30,
+        StressCost = 7,
+        DurationMinutes = 300,
+        MinEnergyRequired = 40,
+        PayVariance = 4
+    };
+
+    private static IReadOnlyList<JobShift> _jobs = [DefaultBakeryWork, DefaultHouseCleaning, DefaultCallCenterWork, DefaultClinicReception, DefaultWorkshopSewing, DefaultCafeService, DefaultPharmacyStock, DefaultMicrobusDispatch, DefaultLaundryPressing, DefaultStreetVending, DefaultFishSorter, DefaultMarketPorter];
 
     public static JobShift BakeryWork => GetJobByType(JobType.BakeryWork) ?? DefaultBakeryWork;
 
@@ -138,6 +177,12 @@ public static class JobRegistry
     public static JobShift MicrobusDispatch => GetJobByType(JobType.MicrobusDispatch) ?? DefaultMicrobusDispatch;
 
     public static JobShift LaundryPressing => GetJobByType(JobType.LaundryPressing) ?? DefaultLaundryPressing;
+
+    public static JobShift StreetVending => GetJobByType(JobType.StreetVending) ?? DefaultStreetVending;
+
+    public static JobShift FishSorter => GetJobByType(JobType.FishSorter) ?? DefaultFishSorter;
+
+    public static JobShift MarketPorter => GetJobByType(JobType.MarketPorter) ?? DefaultMarketPorter;
 
     public static IReadOnlyList<JobShift> AllJobs => _jobs;
 

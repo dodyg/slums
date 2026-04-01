@@ -31,6 +31,12 @@ public static class StoryFlags
     public const string CrimeImanBundleSuccessSeen = "crime_iman_bundle_success_seen";
     public const string CrimeImanBundleDetectedSeen = "crime_iman_bundle_detected_seen";
     public const string CrimeImanBundleFailureSeen = "crime_iman_bundle_failure_seen";
+    public const string CrimeWorkshopContrabandSuccessSeen = "crime_workshop_contraband_success_seen";
+    public const string CrimeWorkshopContrabandDetectedSeen = "crime_workshop_contraband_detected_seen";
+    public const string CrimeWorkshopContrabandFailureSeen = "crime_workshop_contraband_failure_seen";
+    public const string CrimeBulaqProtectionSuccessSeen = "crime_bulaq_protection_success_seen";
+    public const string CrimeBulaqProtectionDetectedSeen = "crime_bulaq_protection_detected_seen";
+    public const string CrimeBulaqProtectionFailureSeen = "crime_bulaq_protection_failure_seen";
     public const string CrimeHananCoverSeen = "crime_hanan_cover_seen";
     public const string CrimeHananSalvageSeen = "crime_hanan_salvage_seen";
     public const string CrimeYoussefTipoffSeen = "crime_youssef_tipoff_seen";
@@ -58,6 +64,8 @@ public static class StoryFlags
             CrimeType.NetworkErrand => [CrimeUmmKarimErrandSuccessSeen, CrimeUmmKarimErrandDetectedSeen, CrimeUmmKarimErrandFailureSeen],
             CrimeType.DepotFareSkim => [CrimeSafaaSkimSuccessSeen, CrimeSafaaSkimDetectedSeen, CrimeSafaaSkimFailureSeen],
             CrimeType.ShubraBundleLift => [CrimeImanBundleSuccessSeen, CrimeImanBundleDetectedSeen, CrimeImanBundleFailureSeen],
+            CrimeType.WorkshopContraband => [CrimeWorkshopContrabandSuccessSeen, CrimeWorkshopContrabandDetectedSeen, CrimeWorkshopContrabandFailureSeen],
+            CrimeType.BulaqProtectionRacket => [CrimeBulaqProtectionSuccessSeen, CrimeBulaqProtectionDetectedSeen, CrimeBulaqProtectionFailureSeen],
             _ => []
         };
     }

@@ -9,5 +9,7 @@ public enum CrimeType
     DokkiDrop,
     NetworkErrand,
     DepotFareSkim,
-    ShubraBundleLift
+    ShubraBundleLift,
+    WorkshopContraband,
+    BulaqProtectionRacket
 }

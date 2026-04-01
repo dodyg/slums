@@ -13,5 +13,6 @@ public enum NpcId
     RunnerYoussef,
     PharmacistMariam,
     DispatcherSafaa,
-    LaundryOwnerIman
+    LaundryOwnerIman,
+    VendorTarek
 }

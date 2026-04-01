@@ -13,6 +13,8 @@ public static class CrimeRegistry
     private static readonly CrimeAttempt UmmKarimNetworkErrand = new(CrimeType.NetworkErrand, 130, 50, 30, 0, 24);
     private static readonly CrimeAttempt SafaaFareSkimRoute = new(CrimeType.DepotFareSkim, 78, 28, 14, 0, 16);
     private static readonly CrimeAttempt ShubraBundleLiftRoute = new(CrimeType.ShubraBundleLift, 68, 24, 12, 0, 15);
+    private static readonly CrimeAttempt WorkshopContrabandRoute = new(CrimeType.WorkshopContraband, 85, 30, 18, 17, 0);
+    private static readonly CrimeAttempt BulaqProtectionRoute = new(CrimeType.BulaqProtectionRacket, 55, 22, 16, 13, 0);
 
     public static IReadOnlyList<CrimeAttempt> GetAvailableCrimes(Location location, RelationshipState relationshipState)
     {
@@ -30,6 +32,7 @@ public static class CrimeRegistry
             DistrictId.Dokki => GetDokkiCrimes(location, relationshipState),
             DistrictId.BulaqAlDakrour => GetBulaqCrimes(location, relationshipState),
             DistrictId.Shubra => GetShubraCrimes(location, relationshipState),
+            DistrictId.ArdAlLiwa => GetArdAlLiwaCrimes(location, relationshipState),
             _ => GetImbabaCrimes(location, relationshipState)
         };
 
@@ -53,6 +56,7 @@ public static class CrimeRegistry
             DistrictId.Dokki => GetDokkiCrimeStatuses(location, relationshipState, currentStreetRep),
             DistrictId.BulaqAlDakrour => GetBulaqCrimeStatuses(location, relationshipState, currentStreetRep),
             DistrictId.Shubra => GetShubraCrimeStatuses(location, relationshipState, currentStreetRep),
+            DistrictId.ArdAlLiwa => GetArdAlLiwaCrimeStatuses(location, relationshipState, currentStreetRep),
             _ => GetImbabaCrimeStatuses(location, relationshipState, currentStreetRep)
         };
     }
@@ -143,6 +147,30 @@ public static class CrimeRegistry
         if (location.Id == LocationId.Depot && (safaaTrust >= 10 || imbabaReputation >= 12))
         {
             crimes.Add(SafaaFareSkimRoute);
+        }
+
+        if (location.Id == LocationId.Depot && (safaaTrust >= 12 || imbabaReputation >= 15))
+        {
+            crimes.Add(BulaqProtectionRoute);
+        }
+
+        return crimes;
+    }
+
+    private static List<CrimeAttempt> GetArdAlLiwaCrimes(Location location, RelationshipState relationshipState)
+    {
+        var abuSamirTrust = relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust;
+        var exPrisonerRep = relationshipState.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation;
+
+        var crimes = new List<CrimeAttempt>
+        {
+            PettyTheftDefault with { BaseReward = 28, DetectionRisk = 22 },
+            HashishTradeDefault with { BaseReward = 50, DetectionRisk = 32, PolicePressureIncrease = 12 }
+        };
+
+        if (location.Id == LocationId.Workshop && abuSamirTrust >= 12 && exPrisonerRep >= 10)
+        {
+            crimes.Add(WorkshopContrabandRoute);
         }
 
         return crimes;
@@ -296,6 +324,14 @@ public static class CrimeRegistry
                     ? "Only runs out of the depot."
                     : safaaTrust < 10 && imbabaReputation < 12
                         ? $"Requires Safaa trust 10 or Imbaba standing 12. Current: {safaaTrust}/{imbabaReputation}."
+                        : null),
+            CreateStatus(
+                BulaqProtectionRoute,
+                currentStreetRep,
+                location.Id != LocationId.Depot
+                    ? "Only runs out of the depot."
+                    : safaaTrust < 12 && imbabaReputation < 15
+                        ? $"Requires Safaa trust 12 or Imbaba standing 15. Current: {safaaTrust}/{imbabaReputation}."
                         : null)
         ];
     }
@@ -330,6 +366,41 @@ public static class CrimeRegistry
                     : imanTrust < 10 && imbabaReputation < 12
                         ? $"Requires Iman trust 10 or Imbaba standing 12. Current: {imanTrust}/{imbabaReputation}."
                         : null)
+        ];
+    }
+
+    private static IReadOnlyList<CrimeOpportunityStatus> GetArdAlLiwaCrimeStatuses(Location location, RelationshipState relationshipState, int currentStreetRep)
+    {
+        var abuSamirTrust = relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust;
+        var exPrisonerRep = relationshipState.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation;
+
+        var pettyTheft = PettyTheftDefault with
+        {
+            BaseReward = 28,
+            DetectionRisk = 22
+        };
+
+        var hashishTrade = HashishTradeDefault with
+        {
+            BaseReward = 50,
+            DetectionRisk = 32,
+            PolicePressureIncrease = 12
+        };
+
+        return
+        [
+            CreateStatus(pettyTheft, currentStreetRep, null),
+            CreateStatus(hashishTrade, currentStreetRep, null),
+            CreateStatus(
+                WorkshopContrabandRoute,
+                currentStreetRep,
+                location.Id != LocationId.Workshop
+                    ? "Only runs out of the workshop."
+                    : abuSamirTrust < 12
+                        ? $"Requires Abu Samir trust 12. Current: {abuSamirTrust}."
+                        : exPrisonerRep < 10
+                            ? $"Requires ex-prisoner standing 10. Current: {exPrisonerRep}."
+                            : null)
         ];
     }
 

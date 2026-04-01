@@ -145,7 +145,77 @@ public static class RandomEventRegistry
             new RandomEventEffect { FoodChange = 1, StressChange = -3, InkKnot = "event_shubra_block_solidarity" },
             5,
             8,
-            static state => state.World.CurrentDistrict == DistrictId.Shubra && state.Player.Stats.Money < 120)
+            static state => state.World.CurrentDistrict == DistrictId.Shubra && state.Player.Stats.Money < 120),
+        new(
+            "FishMarketCatch",
+            "The early catch is plentiful and someone pays you to haul extra crates before the ice melts.",
+            new RandomEventEffect { MoneyChange = 15, EnergyChange = -6 },
+            3,
+            6,
+            static state => state.World.CurrentLocationId == LocationId.FishMarket),
+        new(
+            "StreetVendorPermitSweep",
+            "Police check permits along the square. Vendors scatter and the ones without papers pay in stress and bribes.",
+            new RandomEventEffect { StressChange = 6, MoneyChange = -10, InkKnot = "event_vendor_permit_sweep" },
+            4,
+            7,
+            static state => state.World.CurrentLocationId == LocationId.Square && state.PolicePressure >= 25),
+        new(
+            "HomeRoofLeak",
+            "Rain finds the cracks in the roof. Buckets, towels, and a long night of mopping.",
+            new RandomEventEffect { EnergyChange = -5, StressChange = 3, MoneyChange = -5, InkKnot = "event_home_roof_leak" },
+            3,
+            6,
+            static state => state.World.CurrentLocationId == LocationId.Home && state.Player.Stats.Money < 80),
+        new(
+            "MarketDiscountFind",
+            "A vendor at the market quietly marks down bruised fruit and day-old bread.",
+            new RandomEventEffect { FoodChange = 1, MoneyChange = -3 },
+            3,
+            7,
+            static state => state.World.CurrentLocationId == LocationId.Market),
+        new(
+            "WorkshopFabricLeftover",
+            "End-of-roll fabric gets passed around the workshop instead of hitting the scrap pile.",
+            new RandomEventEffect { MoneyChange = 6, StressChange = -2, InkKnot = "event_workshop_fabric_leftover" },
+            5,
+            6,
+            static state => state.World.CurrentLocationId == LocationId.Workshop && state.Player.Stats.Money < 100),
+        new(
+            "CafeBirthdayParty",
+            "A birthday party spills out of the cafe back room. Tea, clapping, and a small tip for carrying extra chairs.",
+            new RandomEventEffect { MoneyChange = 8, StressChange = -3, InkKnot = "event_cafe_birthday" },
+            4,
+            5,
+            static state => state.World.CurrentLocationId == LocationId.Cafe),
+        new(
+            "DepotMorningRush",
+            "The morning rush at the depot turns into overtime. More passengers, louder arguments, a little more cash.",
+            new RandomEventEffect { MoneyChange = 12, EnergyChange = -8, StressChange = 4, InkKnot = "event_depot_morning_rush" },
+            4,
+            7,
+            static state => state.World.CurrentLocationId == LocationId.Depot),
+        new(
+            "PharmacyGenericArrival",
+            "A batch of generic medicine arrives at the pharmacy, cheap enough to matter.",
+            new RandomEventEffect { MoneyChange = 4, StressChange = -2, InkKnot = "event_pharmacy_generic_arrival" },
+            4,
+            6,
+            static state => state.World.CurrentLocationId == LocationId.Pharmacy),
+        new(
+            "ImbabaNightPatrol",
+            "A night patrol sweeps through Imbaba. Everyone keeps their heads down and their voices low.",
+            new RandomEventEffect { StressChange = 5, PolicePressureChange = 4, InkKnot = "event_imbaba_night_patrol" },
+            5,
+            7,
+            static state => state.World.CurrentDistrict == DistrictId.Imbaba && state.PolicePressure >= 30),
+        new(
+            "FishMarketScrap",
+            "A fish vendor throws scrap and unsold catch to anyone willing to clean up.",
+            new RandomEventEffect { FoodChange = 1, EnergyChange = -4, InkKnot = "event_fish_market_scrap" },
+            3,
+            5,
+            static state => state.World.CurrentLocationId == LocationId.FishMarket && state.Player.Stats.Money < 60)
     ];
 
     private static IReadOnlyList<RandomEvent> _events = DefaultEvents;

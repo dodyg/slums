@@ -141,11 +141,11 @@ internal sealed class WorldStateTests
     }
 
     [Test]
-    public async Task SquareLocation_ShouldHaveCrimeButNoJobs()
+    public async Task SquareLocation_ShouldHaveCrimeAndJobs()
     {
         var square = WorldState.AllLocations.First(l => l.Id == LocationId.Square);
 
-        await Assert.That(square.HasJobOpportunities).IsFalse();
+        await Assert.That(square.HasJobOpportunities).IsTrue();
         await Assert.That(square.HasCrimeOpportunities).IsTrue();
     }
 
@@ -167,7 +167,7 @@ internal sealed class WorldStateTests
         var workshop = WorldState.AllLocations.First(l => l.Id == LocationId.Workshop);
 
         await Assert.That(workshop.HasJobOpportunities).IsTrue();
-        await Assert.That(workshop.HasCrimeOpportunities).IsFalse();
+        await Assert.That(workshop.HasCrimeOpportunities).IsTrue();
         await Assert.That(workshop.District).IsEqualTo(DistrictId.ArdAlLiwa);
     }
 
