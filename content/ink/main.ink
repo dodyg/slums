@@ -4,6 +4,10 @@ INCLUDE crime.ink
 INCLUDE events.ink
 INCLUDE npcs.ink
 INCLUDE endings.ink
+INCLUDE weather.ink
+INCLUDE seasons.ink
+INCLUDE community.ink
+INCLUDE debt.ink
 
 === intro_medical ===
 Three years of medical school.

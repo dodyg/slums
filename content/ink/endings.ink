@@ -100,6 +100,16 @@ The money finally arrives in amounts that change how people look at you. Doors o
 But every rung you climbed belongs to someone else too. The errands are bigger, the witnesses closer, the punishment for hesitation clearer. From the outside it looks like power. Up close it is only a better-lit cage, and Cairo knows exactly how to keep the key.
 -> DONE
 
+=== ending_debt_violence ===
+They come at night because night is when doors are weakest and neighbours are quietest. Two men. No weapons visible, but their hands are the kind of hands that do not need weapons to make a point. They explain the total. They explain the interest. They explain what happens to women who borrow money and then pretend the debt was a dream.
+
+Your mother watches from her mattress, and the look on her face is not fear. It is something worse: the slow recognition that the city has finally found the price of her daughter's survival, and the price is violence.
+
+You cannot pay. You cannot run. You cannot call for help because the people who answer phones in this neighborhood answer to the same men who are standing in your flat.
+
+The men leave. The door stays open. The debt remains. And something breaks in the space between what you were willing to do and what the city was willing to do to you.
+-> DONE
+
 === ending_buried_by_heat ===
 The city does not destroy you all at once. It narrows your options, speeds your pulse, stains your name, and teaches your body to live in the space between lookout and regret. By the time the heat settles permanently around you, there is no clean road left to call a return.
 -> DONE

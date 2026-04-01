@@ -2,15 +2,93 @@
 
 === crime_first_success ===
 The cash in your pocket feels warmer than it should. It smells faintly of sweat and street dust. Cairo rewards nerve, but it memorizes faces.
-# STRESS:5
-# MESSAGE:The first successful crime leaves your nerves rattling.
--> DONE
+
+*   [Hide the money and go home]
+    You fold the notes flat, press them deep in your pocket, and walk home by the longest route — through three different alleys, past four different ahwas, avoiding every face that might have been watching. The money is real. The fear is realer.
+    # STRESS:5
+    # MESSAGE:The first successful crime leaves your nerves rattling.
+    -> DONE
+
+*   [Buy something for your mother on the way home]
+    You stop at the pharmacy and pick up the heart medication she has been rationing for a week. The pharmacist does not ask where the money came from. In Cairo, pharmacies do not question the origin of cash any more than the buildings question the origin of rent.
+    # STRESS:3
+    # MONEY:-15
+    # MOTHER_HEALTH:5
+    # MESSAGE:Your first crime pays for your mother's medication. The math is ugly but it works.
+    -> DONE
+
+*   [Sit with the guilt for a while]
+    You find a bench near the bus station and hold the money in your hand like a question. It is not much. It is enough to matter. The city moves around you, indifferent and efficient, and you sit in the middle of it holding proof that the line you promised not to cross has already been crossed.
+    # STRESS:8
+    # FLAG:first_crime_reflected
+    # MESSAGE:You sit with the money and the guilt. The first crime changes something that cannot be changed back.
+    -> DONE
 
 === crime_warning ===
 By maghrib, the talk on the street has already turned. Men lower their voices when you pass. A kiosk boy looks at you too long. Too many questions are being asked in too casual a tone.
-# STRESS:8
-# MESSAGE:The street is starting to feel unsafe.
--> DONE
+
+*   [Lay low for a few days]
+    You change your route home, avoid the usual corners, and keep your eyes on the ground in the market. The street forgets quickly, but not instantly, and the difference between those two speeds is where the danger lives.
+    # STRESS:5
+    # MESSAGE:The street is watching. You keep your head down until the attention moves on.
+    -> DONE
+
+*   [Ask Umm Karim to gauge the heat]
+    Umm Karim listens without looking at you. She says the heat is real but not personal yet — they are watching the neighbourhood, not hunting one face. She tells you to stay off the main routes for two days and to stop looking nervous, because nervous is its own kind of confession.
+    # STRESS:4
+    # NPC_TRUST:FixerUmmKarim,2
+    # MESSAGE:Umm Karim reads the street for you. The heat is general, not specific — for now.
+    -> DONE
+
+*   [Push through — you cannot afford to lose days]
+    You refuse to let fear reorganize your life. The street watches, but the street always watches, and you have been visible before. You keep moving, keep working, keep your face set to the particular blankness that Cairo teaches its women as a first line of defense.
+    # STRESS:10
+    # MESSAGE:You refuse to hide. The street takes note of the defiance and files it alongside everything else.
+    -> DONE
+
+=== crime_police_encounter ===
+The patrol appears at the corner where the alley meets the main road. Two uniforms and a plainclothes officer who is watching faces with the patience of a man who has all day and no particular target. Your pulse spikes. You have done nothing wrong today, but in Cairo, "nothing wrong" is not the same as "nothing to hide."
+
+*   [Walk past normally]
+    You force your shoulders to relax, your pace to stay even, your eyes to look bored instead of frightened. The plainclothes officer glances at you, then past you, then back at the stream of faces. You round the corner and do not start breathing again until you are half a block away.
+    # STRESS:6
+    # MESSAGE:A police patrol scans the corner. You walk through it without breaking stride.
+    -> DONE
+
+*   [Take a detour through the side streets]
+    You duck into the nearest alley and navigate three blocks of back routes that add ten minutes to your walk but subtract the risk of being remembered. The detour takes you past the back of the ahwa where Nadia is dumping dishwater. She raises an eyebrow but says nothing.
+    # STRESS:4
+    # ENERGY:-3
+    # MESSAGE:You avoid the patrol through back alleys. The detour costs time but saves risk.
+    -> DONE
+
+=== crime_gang_retaliation ===
+The message is not written. It is left: your door scratched, a glass bottle shattered at your threshold, and the particular silence in the stairwell that means someone has been here who does not usually visit. The building holds its breath.
+
+Mona finds you in the morning and says three men were asking about you last night. They did not knock. They only stood at the bottom of the stairs and looked up.
+
+*   [Reach out to Umm Karim for protection]
+    You send word through the market chain — two intermediaries, no names, the standard protocol for asking a favour that cannot be asked directly. Umm Karim's reply comes back within the hour: she will speak to them, but the conversation has a price, and the price is not money.
+    # STRESS:6
+    # NPC_TRUST:FixerUmmKarim,3
+    # FACTION_REP:ImbabaCrew,5
+    # MESSAGE:Gang retaliation threatens your home. Umm Karim offers to negotiate — for a price.
+    -> DONE
+
+*   [Go to the gang directly]
+    You find the nearest Imbaba crew corner and ask to speak with whoever sent the men to your building. The conversation is short, tense, and conducted entirely in the language of implication. You agree to pay a percentage. They agree to call off the pressure. Neither of you trusts the other, but in Cairo, distrust is its own kind of contract.
+    # STRESS:8
+    # MONEY:-25
+    # FACTION_REP:ImbabaCrew,3
+    # MESSAGE:You confront the gang directly. The deal costs money and dignity but buys time.
+    -> DONE
+
+*   [Leave the apartment for a few nights]
+    You pack a bag, tell Mona you are staying with a cousin, and sleep on the floor of a friend's apartment two districts away. Your mother stays behind because she cannot travel, and the distance between you and the building is measured in worry as much as kilometers.
+    # STRESS:10
+    # ENERGY:-5
+    # MESSAGE:You flee the apartment for a few nights. Your mother stays behind, and the separation weighs on you.
+    -> DONE
 
 === crime_hanan_cover ===
 Hanan never admits she helped. She only mutters that market people survive by deciding what to notice and what to forget, then tells you not to make her spend that kind of effort twice in one week.

@@ -2,7 +2,31 @@
 
 === event_mother_health_scare ===
 Your mother tries to smile through the dizziness, but the way her hand clamps around the bedframe tells the truth faster than her face can hide it.
--> DONE
+
+*   [Rush to the clinic]
+    You half-carry her down the stairs, half-drag her onto the microbus, and arrive at the clinic out of breath and out of composure. The doctor sees her immediately, which is either a kindness or a bad sign.
+    # MONEY:-15
+    # STRESS:6
+    # MOTHER_HEALTH:5
+    # MESSAGE:You rush your mother to the clinic. The doctor stabilizes her, but the cost stings.
+    -> DONE
+
+*   [Use your medical knowledge to help her]
+    You check her pulse, her breathing, her temperature. The training comes back in fragments — enough to recognize that this is a bad hour, not a crisis. You raise her pillows, cool her forehead, and wait beside her until the dizziness passes.
+    # STRESS:4
+    # ENERGY:-5
+    # MOTHER_HEALTH:3
+    # MESSAGE:You use what medical training you remember. Your mother stabilizes, for now.
+    -> DONE
+
+*   [Borrow money from a neighbor for medicine]
+    You knock on Mona's door at an hour when neighbors should not knock. She opens without complaint, listens without judgment, and presses two twenty-pound notes into your hand with the quiet efficiency of a woman who has done this before.
+    # MONEY:40
+    # STRESS:5
+    # NPC_TRUST:NeighborMona,3
+    # DEBT:NeighborMona,true
+    # MESSAGE:Mona lends you money for your mother's medicine at an hour when the building should be asleep.
+    -> DONE
 
 === mother_clinic_first_visit ===
 The clinic walls are peeling, but the doctor's hands are clean. Your mother sits quiet on the examination table, her eyes tracing the water stain on the ceiling. She does not complain about the cost or the wait. She only thanks you twice, which is worse than any scolding.
@@ -87,7 +111,27 @@ Later, Mona leaves the warning in the shape of ordinary kindness: a delayed knoc
 
 === event_rent_final_warning ===
 When Hajj Mahmoud finally speaks plainly, humiliation becomes logistical. Two days. Two days before your things are exposed to the stairwell and everyone pretends not to watch. Cairo can make a woman desperate without ever raising its voice.
--> DONE
+
+*   [Beg him for three more days]
+    You stand in the stairwell with your hands clasped and ask for time you do not deserve from a man who has given you enough of it already. He listens, pulls his beard, and gives you three days. Not because he is kind. Because evicting a woman with a sick mother is bad for his reputation in a building where everyone watches everyone.
+    # STRESS:8
+    # NPC_TRUST:LandlordHajjMahmoud,-2
+    # MESSAGE:Hajj Mahmoud gives you three more days. The reprieve costs dignity it cannot afford to lose.
+    -> DONE
+
+*   [Promise to pay by tomorrow whatever it takes]
+    He nods once, the nod of a man who has heard this promise before from tenants who kept it and tenants who did not. You will have to find the money tonight, which means you will have to do something tonight that tomorrow-you will not want to think about.
+    # STRESS:10
+    # MESSAGE:You promise rent by tomorrow. The promise is a bridge you have not yet built.
+    -> DONE
+
+*   [Ask Mona if she can help]
+    Mona does not have much, but she knows people. She makes three phone calls from her phone, speaks in a dialect you cannot fully follow, and by evening, half the rent appears in an envelope slipped under your door with no name. You pay Hajj Mahmoud. He does not ask where it came from.
+    # STRESS:5
+    # NPC_TRUST:NeighborMona,4
+    # DEBT:NeighborMona,true
+    # MESSAGE:Mona rallies help for your rent. The building protects its own, but the debts multiply.
+    -> DONE
 
 === event_investment_suspension ===
 The message reaches you through three mouths before it reaches you as fact: the venture is not dead, only stalled, squeezed, and waiting for the city to look elsewhere for a week. In Cairo, that kind of pause can still feel like panic.
