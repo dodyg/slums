@@ -23,7 +23,7 @@ internal sealed class EndingConditionSimulationTests
     }
 
     [Test]
-    public async Task Ending_Priority_HealthBeforeDestitution()
+    public async Task Ending_Priority_HealthZeroFoldsIntoDestitution()
     {
         using var session = new GameStateBuilder()
             .WithHealth(0)
@@ -32,7 +32,7 @@ internal sealed class EndingConditionSimulationTests
             .Build();
 
         var ending = EndingService.CheckEndings(session);
-        ending.Should().Be(EndingId.CollapseFromExhaustion, "exhaustion should come before destitution");
+        ending.Should().Be(EndingId.Destitution, "health at zero should trigger destitution");
     }
 
     [Test]
@@ -109,7 +109,7 @@ internal sealed class EndingConditionSimulationTests
     }
 
     [Test]
-    public async Task Ending_LeavingCrime_RequiresRecentWork()
+    public async Task Ending_StabilityHonestWork_AllowsFormerCriminals()
     {
         using var session = new GameStateBuilder()
             .WithDaysSurvived(30)
@@ -120,7 +120,7 @@ internal sealed class EndingConditionSimulationTests
             .Build();
 
         var ending = EndingService.CheckEndings(session);
-        ending.Should().BeNull("old crimes without recent work should not trigger leaving crime");
+        ending.Should().BeNull("old crimes without recent work should not trigger stability");
 
         using var session2 = new GameStateBuilder()
             .WithDaysSurvived(30)
@@ -131,11 +131,11 @@ internal sealed class EndingConditionSimulationTests
             .Build();
 
         var ending2 = EndingService.CheckEndings(session2);
-        ending2.Should().Be(EndingId.LeavingCrime, "recent work with aging crimes should trigger leaving crime");
+        ending2.Should().Be(EndingId.StabilityHonestWork, "recent work with aging crimes should trigger stability");
     }
 
     [Test]
-    public async Task Ending_BuriedByHeat_RequiresSustainedPressure()
+    public async Task Ending_Arrested_IncludesBuriedByHeatScenario()
     {
         using var session = new GameStateBuilder()
             .WithDaysSurvived(30)
@@ -145,7 +145,7 @@ internal sealed class EndingConditionSimulationTests
             .Build();
 
         var ending = EndingService.CheckEndings(session);
-        ending.Should().BeNull("moderate pressure should not trigger buried by heat");
+        ending.Should().BeNull("moderate pressure should not trigger arrested");
 
         using var session2 = new GameStateBuilder()
             .WithDaysSurvived(30)
@@ -155,7 +155,7 @@ internal sealed class EndingConditionSimulationTests
             .Build();
 
         var ending2 = EndingService.CheckEndings(session2);
-        ending2.Should().Be(EndingId.BuriedByHeat, "high sustained pressure should trigger buried by heat");
+        ending2.Should().Be(EndingId.Arrested, "high sustained pressure should trigger arrested");
     }
 
     [Test]
@@ -212,11 +212,9 @@ internal sealed class EndingConditionSimulationTests
         var endings = new[]
         {
             EndingId.MotherDied,
-            EndingId.CollapseFromExhaustion,
             EndingId.Destitution,
             EndingId.Arrested,
-            EndingId.BuriedByHeat,
-            EndingId.LeavingCrime,
+            EndingId.Eviction,
             EndingId.NetworkShelter,
             EndingId.QuitTheLuxorDream,
             EndingId.StabilityHonestWork,

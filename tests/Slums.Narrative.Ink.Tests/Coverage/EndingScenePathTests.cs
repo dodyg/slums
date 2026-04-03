@@ -15,12 +15,9 @@ internal sealed class EndingScenePathTests
         var expectedEndingKnots = new[]
         {
             EndingKnotCatalog.MotherDied,
-            EndingKnotCatalog.CollapseFromExhaustion,
             EndingKnotCatalog.Destitution,
             EndingKnotCatalog.Arrested,
             EndingKnotCatalog.Eviction,
-            EndingKnotCatalog.BuriedByHeat,
-            EndingKnotCatalog.LeavingCrime,
             EndingKnotCatalog.NetworkShelter,
             EndingKnotCatalog.QuitTheLuxorDream,
             EndingKnotCatalog.StabilityHonestWork,
@@ -43,13 +40,6 @@ internal sealed class EndingScenePathTests
     }
 
     [Test]
-    public async Task Ending_CollapseExhaustion_ProducesText()
-    {
-        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.CollapseFromExhaustion, CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.CollapseFromExhaustion} should produce narrative text");
-    }
-
-    [Test]
     public async Task Ending_Destitution_ProducesText()
     {
         var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.Destitution, CreateDefaultSceneState());
@@ -68,20 +58,6 @@ internal sealed class EndingScenePathTests
     {
         var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.Eviction, CreateDefaultSceneState());
         result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.Eviction} should produce narrative text");
-    }
-
-    [Test]
-    public async Task Ending_BuriedHeat_ProducesText()
-    {
-        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.BuriedByHeat, CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.BuriedByHeat} should produce narrative text");
-    }
-
-    [Test]
-    public async Task Ending_LeavingCrime_ProducesText()
-    {
-        var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.LeavingCrime, CreateDefaultSceneState());
-        result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.LeavingCrime} should produce narrative text");
     }
 
     [Test]
@@ -145,11 +121,9 @@ internal sealed class EndingScenePathTests
         var badEndingKnots = new[]
         {
             EndingKnotCatalog.MotherDied,
-            EndingKnotCatalog.CollapseFromExhaustion,
             EndingKnotCatalog.Destitution,
             EndingKnotCatalog.Arrested,
-            EndingKnotCatalog.Eviction,
-            EndingKnotCatalog.BuriedByHeat
+            EndingKnotCatalog.Eviction
         };
 
         foreach (var knot in badEndingKnots)
@@ -167,7 +141,6 @@ internal sealed class EndingScenePathTests
     {
         var goodEndingKnots = new[]
         {
-            EndingKnotCatalog.LeavingCrime,
             EndingKnotCatalog.NetworkShelter,
             EndingKnotCatalog.QuitTheLuxorDream,
             EndingKnotCatalog.StabilityHonestWork

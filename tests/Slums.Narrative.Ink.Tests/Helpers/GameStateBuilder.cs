@@ -138,10 +138,6 @@ internal sealed class GameStateBuilder
                 .WithMotherHealth(0)
                 .Build(),
 
-            EndingId.CollapseFromExhaustion => new GameStateBuilder()
-                .WithHealth(0)
-                .Build(),
-
             EndingId.Destitution => new GameStateBuilder()
                 .WithMoney(0)
                 .WithHunger(10)
@@ -152,19 +148,7 @@ internal sealed class GameStateBuilder
                 .WithPolicePressure(100)
                 .Build(),
 
-            EndingId.BuriedByHeat => new GameStateBuilder()
-                .WithDaysSurvived(30)
-                .WithCrimeCounters(500, 7)
-                .WithPolicePressure(90)
-                .WithStress(75)
-                .Build(),
-
-            EndingId.LeavingCrime => new GameStateBuilder()
-                .WithDaysSurvived(30)
-                .WithPolicePressure(30)
-                .WithCrimeCounters(300, 5, lastCrimeDay: 25)
-                .WithWorkCounters(220, 6, 30, 30)
-                .OnDay(30)
+            EndingId.Eviction => new GameStateBuilder()
                 .Build(),
 
             EndingId.NetworkShelter => new GameStateBuilder()

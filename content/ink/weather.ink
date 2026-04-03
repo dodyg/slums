@@ -28,6 +28,7 @@ The khamsin does not bother you the way it bothers others. Prison taught you how
 Your mother watches you staring at the sealed window and asks what you are thinking. You say nothing. She does not push.
 # STRESS:5
 # MESSAGE:The khamsin carries you back to two years of dust and waiting.
+-> DONE
 
 === event_khamsin_sudanese ===
 The other Sudanese families gather in the largest apartment on the third floor. Someone has sealed the windows with plastic sheeting. Someone else has made tea despite the gas flame struggling against the wind pressure. The room smells of close bodies, cedar incense, and the particular patience of people who have already survived worse than weather.
@@ -36,6 +37,7 @@ Your mother sits with the older women and speaks Arabic with a Khartoum accent t
 # STRESS:-3
 # NPC_TRUST:PharmacistMariam,2
 # MESSAGE:The Sudanese community shelters together through the khamsin. The storm outside makes the room inside feel like home.
+-> DONE
 
 === event_rain_leak ===
 The rain starts as a murmur on the roof and builds to a roar. By the second hour, water finds the crack above the kitchen door and begins its patient work. A drip, then a stream, then a line of water tracing the wall like a map of somewhere you would rather be.
@@ -61,6 +63,7 @@ The rain hammers the roof, but the curtain upgrade does its job. No water reache
 Your mother listens to the rain and says it sounds like Khartoum in August, before the heat broke. For a moment, the flat is not in Cairo. It is anywhere it needs to be.
 # STRESS:-3
 # MESSAGE:The rain falls, but your home holds. The curtain earns its cost.
+-> DONE
 
 === event_rain_outside ===
 You are three blocks from home when the sky opens. The streets of Imbaba turn into rivers of grey water, trash, and the sandals of people running for cover. A microbus hydroplanes past, close enough to splash your gallabiya to the knee.
@@ -86,6 +89,7 @@ The rain on the roof sounds exactly like the rain on the cell block. The same rh
 Your mother puts her hand over yours. She does not say anything. She does not have to. Two years of rain and waiting live in the silence between your fingers and the wood.
 # STRESS:5
 # MESSAGE:The rain carries you back to the cell. Your mother's hand brings you back.
+-> DONE
 
 === event_heatwave ===
 The heat does not arrive. It was always there, waiting under the surface of the city like something buried and angry. By ten in the morning, the air in the flat is thick enough to chew. The fan pushes hot air from one corner to another without cooling anything.
@@ -115,6 +119,7 @@ You position your mother's mattress near the window, keep the air moving, mix sa
 # STRESS:-2
 # ENERGY:-5
 # MESSAGE:Your medical training turns a dangerous heatwave into a manageable crisis.
+-> DONE
 
 === event_cool_day ===
 The morning arrives with clouds that actually look like clouds instead of pollution with ambition. The air moves. It actually moves, carrying a breeze that does not feel like a hair dryer. The street is still loud, the rent is still due, and the city still grinds, but for one day the grinding produces less heat.
@@ -123,6 +128,7 @@ Your mother sits by the window and breathes without wheezing. The tea cools befo
 # STRESS:-5
 # ENERGY:5
 # MESSAGE:A cool day in Cairo. The city lets you breathe.
+-> DONE
 
 === event_windy_day ===
 The wind tears through Imbaba with the energy of a rumour. It flips awnings, sends plastic bags into elaborate flight patterns, and turns the market into a place where nobody's goods stay where they put them. The koshk owner curses as his chip display becomes a snack tornado.

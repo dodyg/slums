@@ -60,7 +60,7 @@ internal sealed class EndingServiceTests
     }
 
     [Test]
-    public async Task CheckEndings_ShouldReturnLeavingCrime_WhenCrimeStopsAndWorkCarriesYou()
+    public async Task CheckEndings_ShouldReturnStabilityHonestWork_WhenCrimeStopsAndWorkCarriesYou()
     {
         using var state = new GameSession();
         state.SetDaysSurvived(30);
@@ -72,11 +72,11 @@ internal sealed class EndingServiceTests
 
         var ending = EndingService.CheckEndings(state);
 
-        await Assert.That(ending).IsEqualTo(EndingId.LeavingCrime);
+        await Assert.That(ending).IsEqualTo(EndingId.StabilityHonestWork);
     }
 
     [Test]
-    public async Task CheckEndings_ShouldReturnBuriedByHeat_WhenCrimeAndPressureStayHigh()
+    public async Task CheckEndings_ShouldReturnArrested_WhenCrimeAndPressureStayHigh()
     {
         using var state = new GameSession();
         state.SetDaysSurvived(30);
@@ -86,7 +86,7 @@ internal sealed class EndingServiceTests
 
         var ending = EndingService.CheckEndings(state);
 
-        await Assert.That(ending).IsEqualTo(EndingId.BuriedByHeat);
+        await Assert.That(ending).IsEqualTo(EndingId.Arrested);
     }
 
     [Test]
@@ -101,16 +101,12 @@ internal sealed class EndingServiceTests
     }
 
     [Test]
-    public async Task GetInkKnot_ShouldUseBackgroundSpecificVariant_ForStabilityAndLeavingCrime()
+    public async Task GetInkKnot_ShouldUseBackgroundSpecificVariant_ForStability()
     {
         using var stabilityState = new GameSession();
         stabilityState.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
 
-        using var leavingCrimeState = new GameSession();
-        leavingCrimeState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
-
         await Assert.That(EndingService.GetInkKnot(stabilityState, EndingId.StabilityHonestWork)).IsEqualTo("ending_stability_sudanese");
-        await Assert.That(EndingService.GetInkKnot(leavingCrimeState, EndingId.LeavingCrime)).IsEqualTo("ending_leaving_crime_prisoner");
     }
 
     [Test]
@@ -149,7 +145,7 @@ internal sealed class EndingServiceTests
     }
 
     [Test]
-    public async Task CheckEndings_ShouldReturnDebtViolence_WhenLoanSharkDebtIsCritical()
+    public async Task CheckEndings_ShouldReturnDestitution_WhenLoanSharkDebtIsCritical()
     {
         using var state = new GameSession();
         state.SetDaysSurvived(15);
@@ -167,11 +163,11 @@ internal sealed class EndingServiceTests
 
         var ending = EndingService.CheckEndings(state);
 
-        await Assert.That(ending).IsEqualTo(EndingId.DebtViolence);
+        await Assert.That(ending).IsEqualTo(EndingId.Destitution);
     }
 
     [Test]
-    public async Task CheckEndings_ShouldNotReturnDebtViolence_WhenDebtIsCurrent()
+    public async Task CheckEndings_ShouldNotReturnDestitution_WhenDebtIsCurrent()
     {
         using var state = new GameSession();
         state.SetDaysSurvived(15);

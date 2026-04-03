@@ -3287,11 +3287,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
                 if (LoanSharkEscalation.ShouldTriggerViolence(debt, Clock.Day))
                 {
                     var before = CaptureStats();
-                    EndingId = Endings.EndingId.DebtViolence;
+                    EndingId = Endings.EndingId.Destitution;
                     IsGameOver = true;
                     GameOverReason = "The loan sharks come to collect. You cannot pay.";
-                    PendingEndingKnot = EndingKnotCatalog.DebtViolence;
-                    RecordMutation(MutationCategories.EndingTriggered, "ProcessDailyDebt", before, CaptureStats(), "DebtViolence ending triggered");
+                    PendingEndingKnot = EndingKnotCatalog.Destitution;
+                    RecordMutation(MutationCategories.EndingTriggered, "ProcessDailyDebt", before, CaptureStats(), "Destitution ending triggered by loan shark violence");
                     return;
                 }
             }

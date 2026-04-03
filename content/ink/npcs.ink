@@ -37642,3 +37642,2103 @@ Iman notices your hesitation around prices.
 	# STRESS:2
 	# NPC_TRUST:LaundryOwnerIman,4
 	-> DONE
+
+=== tarek_default_1 ===
+Tarek adjusts his cardboard display, glancing up as you pass. "You look like you need something. Or maybe you just need to stop walking for a minute."
+*   [Browse his goods]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_2 ===
+The afternoon sun beats down on Tarek's makeshift stall. He fans himself with a flattened cardboard box. "This heat will cook us before it cooks the merchandise."
+*   [Agree about the heat]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_3 ===
+Tarek counts small bills and stuffs them into his shirt pocket. "Twenty pounds profit today. Twenty. I used to make that in an hour."
+*   [Ask what changed]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_4 ===
+A customer walks past without stopping. Tarek watches them go. "See that? That's my whole business plan. People walking past."
+*   [Sympathize with the struggle]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_5 ===
+Tarek rearranges packets of tissues and lighters on his cloth. "You ever try selling anything? It's not as easy as standing here looking hungry."
+*   [Say you've thought about it]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_6 ===
+Tarek argues with a woman over the price of a phone charger. "Twenty-five is the final price, ya sit. I have children too."
+*   [Wait until the customer leaves]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_7 ===
+A police truck rolls slowly past Dokki Square. Tarek casually drags his cloth closer to the wall. "Nothing to see here, officer."
+*   [Ask why he moved]
+	# STRESS:4
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_8 ===
+Tarek unwraps a stale bread roll and takes a bite. "Lunch break. Don't tell anyone I'm not working."
+*   [Ask how business really is]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_9 ===
+"Taxes, rent, permits — everyone wants a cut." Tarek holds up his hands. "What cut is left for me?"
+*   [Listen without commenting]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_10 ===
+Tarek watches a rival vendor across the square. "Hassan over there? He sells the same things for two pounds less. How? Because his cousin supplies him direct."
+*   [Ask about the competition]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_11 ===
+"You know what Dokki Square smells like at six in the morning? Hope. By noon it smells like exhaust and regret."
+*   [Laugh at the joke]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_12 ===
+Tarek pulls out a small notebook. "Every sale, every expense. I write it all down. Doesn't change anything, but at least I know exactly how broke I am."
+*   [Ask to see the notebook]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_13 ===
+A tourist stops to photograph the square. Tarek waves. "Take my picture too, I'm part of the scenery."
+*   [Smile at his humor]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_14 ===
+Tarek rolls a cigarette between his fingers. "I used to have a proper shop in Mohandessin. Rents went up, landlords went crazy, and here I am."
+*   [Ask what happened]
+	# STRESS:4
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_15 ===
+"Tomatoes, onions, rice — everything costs more and people have less." Tarek shakes his head. "How are we supposed to eat?"
+*   [Say it's getting harder for everyone]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_16 ===
+Tarek stacks cheap sunglasses in a pyramid. "Presentation matters. Put these in a pile and they're junk. Put them in a pyramid and suddenly they're fashion."
+*   [Compliment the display]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_17 ===
+"I leave Giza at four-thirty every morning to get a good spot." Tarek yawns. "Been doing this eleven years. My body doesn't know what sleep is anymore."
+*   [Ask about his commute]
+	# STRESS:4
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_18 ===
+A car honks aggressively near the curb. Tarek doesn't flinch. "You stop noticing after the first year. Noise is just Dokki saying hello."
+*   [Admire his patience]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_19 ===
+Tarek scratches numbers on the wall behind him with a nail. "That's my inventory. Nobody can read it but me. Keeps the inspectors confused."
+*   [Ask who the inspectors are]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_20 ===
+"See that guy with the cart? Falafel Ahmed." Tarek points. "He's been here since before I was born. Says Dokki Square used to have trees."
+*   [Look around at the concrete]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_21 ===
+Tarek adjusts his cardboard display, wiping dust off his goods. "Another day, another fifty piastres at a time."
+*   [Browse his goods]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_22 ===
+The midday heat shimmers off the pavement near Tarek's spot. "At least the sun is free. Everything else costs money."
+*   [Agree about the heat]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_23 ===
+Tarek flips through his small bills again. "Fifteen pounds today. That won't even cover the microbus fare both ways."
+*   [Ask what changed from last week]
+	# STRESS:4
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_24 ===
+A group of students walk past, laughing. Tarek watches them. "Young people don't buy from street vendors. They want the shiny shops."
+*   [Sympathize with the struggle]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_25 ===
+Tarek picks up a broken lighter and tosses it. "You know the markup on these things? Four hundred percent. And I still can't make rent."
+*   [Say you've thought about vending]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_26 ===
+Tarek haggles with a man over batteries. "These are original, I swear on my mother. Fine, fifteen, take them."
+*   [Wait until the customer leaves]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_27 ===
+A municipal van slows near the square. Tarek pulls his cloth back a foot. "Just being cautious. They've been on a sweep lately."
+*   [Ask what kind of sweep]
+	# STRESS:5
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_28 ===
+Tarek opens a plastic container of ful. "My wife made this at five in the morning. Cold by now but still the best thing I'll eat today."
+*   [Ask how his family is doing]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_29 ===
+"Gas went up again. Bread went up again. The only thing going down is my patience." Tarek forces a smile.
+*   [Listen quietly]
+	# STRESS:4
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_30 ===
+Tarek watches a vendor two spots down undercut his own prices. "Gamal thinks he's smart. He'll burn through his stock by Thursday and have nothing left to sell."
+*   [Ask about vendor rivalry]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_31 ===
+"You know what I love about this spot? The shade moves across in the afternoon and I get exactly forty minutes of cool."
+*   [Laugh at the observation]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_32 ===
+Tarek shows you a cracked calculator. "This thing is my accountant. Cost me ten pounds three years ago. Best employee I ever had."
+*   [Ask about his record keeping]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_33 ===
+An old woman stops to buy tissues. Tarek gives her extra. "Umm Ali. Her husband died last year. I can't charge her full price."
+*   [Say that's kind of him]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_34 ===
+"I had a real lease once. A door that locked. A sign with my name." Tarek stares at nothing. "Now my sign is a piece of cardboard."
+*   [Ask what happened to the shop]
+	# STRESS:5
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_35 ===
+"Chicken is a luxury now. Lamb is a dream." Tarek gestures at his stock. "I sell lighters and phone cases. That's what the economy has come to."
+*   [Say things are hard everywhere]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_36 ===
+Tarek arranges phone cases in a neat line. "Colors sell. Doesn't matter which one, people just want something bright in their hand."
+*   [Ask what sells best]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_37 ===
+"The first microbus is always full. Second one too." Tarek stretches his back. "I stand for two hours every morning just to stand here all day."
+*   [Say that sounds exhausting]
+	# STRESS:4
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_38 ===
+A delivery motorcycle weaves through the square. Tarek steps back just in time. "That one almost got me last month too. Same guy."
+*   [Say he should be careful]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_39 ===
+Tarek nods at a man in a uniform across the street. "That's Officer Samir. He collects five hundred a month from every vendor on this block. For protection, he says."
+*   [Ask if that's normal]
+	# STRESS:5
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_40 ===
+"See the juice stand? Nader runs it. His brother has a connection at a wholesaler in Shubra." Tarek shrugs. "Connections are everything in this business."
+*   [Ask who his connections are]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_41 ===
+Tarek wipes down his display cloth. "Dust settles on everything in this city. Including dreams."
+*   [Browse his goods]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_42 ===
+The heat makes the air above Tarek's stall shimmer. "I keep a wet towel in my bag. Only luxury I allow myself."
+*   [Agree about the heat]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_43 ===
+Tarek counts coins into small piles. "Exact change matters. Nobody trusts a vendor who can't make change."
+*   [Ask about his profits today]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_44 ===
+A woman haggles aggressively over a phone case. Tarek gives in. "Fine, take it. I'm too tired to argue."
+*   [Tell him he should hold his prices]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_45 ===
+"You ever notice how people avoid eye contact when they don't want to buy?" Tarek waves at a passerby who ignores him. "That. That right there."
+*   [Say vending looks tough]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_46 ===
+Tarek argues with a teenager over headphone prices. "These are good quality, ya walad. I'm not selling you garbage."
+*   [Wait until he's done]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_47 ===
+A white Toyota parks at the curb. Tarek pulls his display back a meter. "Landlord's collector. Not today, inshallah."
+*   [Ask who that is]
+	# STRESS:4
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_48 ===
+Tarek drinks from a small water bottle. "I bring two bottles every day. By noon both are warm. By three they're hot. By five I'm drinking hot water."
+*   [Offer to buy him a cold drink]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_49 ===
+"Permit fees doubled this year. For what? The sidewalk is still broken and the trash piles up." Tarek kicks at a crack in the concrete.
+*   [Listen without commenting]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_50 ===
+Tarek keeps one eye on a vendor setting up nearby. "New guy. Trying to take the corner spot. I've been here three years — that's my corner."
+*   [Ask about the new competition]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_51 ===
+"You know what time the best customers come? Between five and seven. People coming home from work, too tired to go to a real shop."
+*   [Note the time]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_52 ===
+Tarek shows you a mark on the wall behind him. "I scratched a line for every day I've worked this spot. Stopped counting after a thousand."
+*   [Impressed, ask how long he's been here]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_53 ===
+A little girl stops to look at hair clips. Tarek crouches down. "Which one do you like, ya gamila? Take it, it's a gift."
+*   [Smile at the exchange]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_54 ===
+"My father sold vegetables in Imbaba. His father sold vegetables." Tarek gestures at his phone cases. "I upgraded to plastic."
+*   [Ask if his father is still around]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_55 ===
+"Tea used to be two pounds a glass. Now it's five and they give you less sugar." Tarek shakes his head slowly.
+*   [Say everything is getting expensive]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_56 ===
+Tarek holds up two identical chargers. "One is real, one is fake. I charge the same for both because I can't tell which is which anymore."
+*   [Ask which one he'd use]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_57 ===
+"Ramadan is the worst month for business. Everyone is fasting, nobody is shopping." Tarek leans against the wall. "But the night market after iftar, that's different."
+*   [Ask about the night market]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_58 ===
+A car splashes water near his display. Tarek barely reacts. "Happened three times last week. You get used to being invisible."
+*   [Say that's not right]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_59 ===
+Tarek points at a camera on a building. "New installation. Last month they put up three more. I don't know if they're watching us or the traffic."
+*   [Ask if it bothers him]
+	# STRESS:4
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_60 ===
+"The key to this business is consistency." Tarek adjusts his display. "Same spot, same hours, same face every day. People trust what they recognize."
+*   [Say that makes sense]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_61 ===
+Tarek pulls his cloth display taut. "Smooth surface means people stop. Wrinkled means cheap. Perception is everything."
+*   [Browse his goods]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_62 ===
+The evening call to prayer echoes across the square. Tarek unrolls his mat behind his stall. "Business can wait five minutes."
+*   [Wait respectfully]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_63 ===
+Tarek shakes his head at a customer walking away. "Wanted original Ray-Bans for fifty pounds. Where do these people think they are?"
+*   [Chuckle at the story]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_64 ===
+"Rain is bad for business but good for the soul." Tarek looks at the sky. "Doesn't rain enough in Cairo."
+*   [Agree]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_65 ===
+Tarek opens a small tin and takes out a handful of seeds. "Trade secret — keeps my hands busy when there are no customers. Can't look desperate."
+*   [Take a few seeds]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_66 ===
+A man in a suit stops to buy a phone charger. Tarek charges him double. "He can afford it. Look at those shoes."
+*   [Watch the transaction]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_67 ===
+Two officers walk through the square. Tarek is suddenly very interested in rearranging his stock. "Morning, ya gamal. Beautiful day."
+*   [Stay quiet]
+	# STRESS:5
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_68 ===
+Tarek checks his phone. "My daughter sent me a message. She got top marks in math." His face softens for a moment.
+*   [Congratulate him]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_69 ===
+"Every vendor has a story about the one big sale." Tarek leans in. "Mine was a tourist who bought eight scarves at once. Three hundred pounds in five minutes."
+*   [Ask if that happens often]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_70 ===
+Tarek's neighbour vendor starts playing music from a speaker. Tarek winces. "Same song. Every single day. I know every word now and I hate it."
+*   [Laugh]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_71 ===
+"You see that patch of wall? I claim that as my office." Tarek points at a section where his goods are stacked. "No lease, no contract. Just stubbornness."
+*   [Note the arrangement]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_72 ===
+Tarek pulls out a small photo. "My boys. Seven and nine. They think I own a shop." He puts it away quickly.
+*   [Say nothing]
+	# STRESS:4
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_73 ===
+A customer tries to return a broken lighter. Tarek shrugs. "You test it before you buy. That was the deal."
+*   [Watch the dispute]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_74 ===
+"Winter is actually worse than summer." Tarek wraps his jacket tighter. "People don't stop when it's cold. They walk faster."
+*   [Say you hadn't thought of that]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_75 ===
+Tarek counts his stock. "Twenty chargers, fifteen cables, thirty lighters. If I sell half, it's a good day."
+*   [Ask what a bad day looks like]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_76 ===
+"The best spot in the square is by the metro exit." Tarek gestures vaguely. "Someone has that locked down. Been there six years."
+*   [Ask who]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_77 ===
+Tarek cracks his knuckles and stretches. "Twelve hours standing. My doctor says I need to sit more. My wallet says otherwise."
+*   [Say that sounds painful]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_78 ===
+A bus blocks the view of his stall. Tarek waits. "Every thirty minutes, the 174 stops right here. I lose ten customers each time."
+*   [Sympathize]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_79 ===
+Tarek checks the sky. "Looks like khamsin weather next week. Sand in everything, nobody comes outside. Worst week of the year for vendors."
+*   [Ask how he handles it]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_80 ===
+"I keep a spare set of everything at home." Tarek taps his bag. "Rain, theft, municipal sweep — I can be back tomorrow with a full stock."
+*   [Note his preparation]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_81 ===
+Tarek adjusts his cardboard display, nodding at the passing crowd. "Another day in the square."
+*   [Browse his goods]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_82 ===
+The afternoon heat radiates off the asphalt. Tarek squints. "Three more hours until the shade reaches my spot."
+*   [Agree about the heat]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_83 ===
+Tarek fans a handful of bills. "Thirty pounds. Better than yesterday, worse than last week."
+*   [Ask what changed from last week]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_84 ===
+Two women walk past examining their phones. Tarek doesn't bother calling out. "They already ordered online. You can see it in their eyes."
+*   [Sympathize with the struggle]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_85 ===
+Tarek holds up a USB cable. "Three pounds wholesale, ten retail. That's the business. Volume and margins."
+*   [Say you've thought about vending]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_86 ===
+Tarek finishes a sale and pockets the money quickly. "Never let customers see where you keep the cash. First rule."
+*   [Wait until the customer leaves]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_87 ===
+A police car crawls past. Tarek whistles tunelessly and looks the other direction. "Just another beautiful day in Dokki."
+*   [Ask if the police bother him often]
+	# STRESS:4
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_88 ===
+Tarek takes a bite of a sandwich wrapped in foil. "My sister sends this from her kitchen. Says I'm too thin."
+*   [Ask about his family]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_89 ===
+"Electricity, water, school fees — it never stops." Tarek rubs his face. "I sell things people don't need so I can pay for things I do."
+*   [Listen quietly]
+	# STRESS:4
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_90 ===
+Tarek glances at the vendor next to him. "Said keeps his prices too low. He'll burn out by next month."
+*   [Ask about the vendor economy]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_91 ===
+"You notice things when you stand in one place all day." Tarek points at a window above. "That apartment has been empty for two years."
+*   [Follow his gaze]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_92 ===
+Tarek shows you his wholesale supplier's card. "Don't tell anyone. This guy gives me prices nobody else gets."
+*   [Keep the secret]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_93 ===
+An old man stops to buy batteries. Tarek hands him extra. "Uncle Hassan fought in '73. He gets whatever he needs."
+*   [Show respect]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_94 ===
+"Used to dream about having my own store again." Tarek's voice drops. "Now I dream about selling enough to cover tomorrow."
+*   [Say you understand hard times]
+	# STRESS:4
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_95 ===
+"Falafel went from three pounds to eight in two years." Tarek counts on his fingers. "Salad, tahini, bread — you can't eat for under twenty anymore."
+*   [Say prices are out of control]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_96 ===
+Tarek hangs a new phone case on a hook made from a bent paperclip. "Ingenuity, my friend. Wires and clips hold this whole operation together."
+*   [Admire the setup]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_97 ===
+"The microbus driver knows me now. Saves me a seat." Tarek smiles briefly. "Small victories."
+*   [Say every bit helps]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_default_98 ===
+A taxi mounts the curb near his stall. Tarek steps back calmly. "Tuesday. That taxi does this every Tuesday."
+*   [Ask how he knows]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,1
+	-> DONE
+
+=== tarek_default_99 ===
+Tarek taps a photo tucked into the wall behind him. "My spot. My wall. My square. Eleven years and I'm still invisible."
+*   [Tell him he's not invisible to you]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_default_100 ===
+"The thing about Dokki is, it used to have character." Tarek looks around. "Now it's just chains and traffic. Vendors like me are the last real thing here."
+*   [Agree with him]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,2
+	-> DONE
+
+=== tarek_warm_101 ===
+Tarek waves you over with a grin. "Ya sahbi! Come, I saved you a spot in the shade. Stand here before the sun moves."
+*   [Join him in the shade]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_102 ===
+"You're one of the few people who actually stops to talk." Tarek hands you a cold bottle of water. "I keep an extra one now. For you."
+*   [Thank him for the water]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_103 ===
+Tarek gestures at a spot near his display. "I talked to the guys — this corner is open in the mornings. Good foot traffic, nobody claims it until nine."
+*   [Ask about the vending spot]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_104 ===
+"Look what I got from the wholesale market." Tarek shows you a box of cables. "I'll split them with you. Half price. You can sell the rest."
+*   [Accept the deal gratefully]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_105 ===
+Tarek pulls out a small bag of roasted nuts. "My wife made extra. She asks about you, you know. Says you look like you need feeding."
+*   [Thank him and his wife]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_106 ===
+"I told Fatima about you helping me move stock last week." Tarek smiles. "She says you're welcome for dinner anytime."
+*   [Say you'd like that]
+	# STRESS:-4
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_107 ===
+Tarek shows you a route on his phone map. "Back alley from Tahrir to here. Cuts twenty minutes off the commute and avoids the checkpoint."
+*   [Save the route]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_108 ===
+"Hassan's selling his cart. Moving to Alexandria." Tarek leans in. "He'll let it go cheap if you're interested. I could vouch for you."
+*   [Ask how much]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_109 ===
+Tarek keeps watch while you catch your breath. "Long day? Sit behind the stall for a minute. Nobody will notice."
+*   [Rest for a moment]
+	# STRESS:-4
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_110 ===
+"I saved you a batch of the good chargers." Tarek pulls out a box from behind his display. "Not the cheap ones. These actually work."
+*   [Thank him]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_111 ===
+Tarek pours tea from a thermos into two small glasses. "I brought an extra glass today. Don't say I never gave you anything."
+*   [Accept the tea]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_112 ===
+"You know, I didn't trust anyone on this street for the first five years." Tarek looks at you. "You're different."
+*   [Say you appreciate that]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_113 ===
+Tarek shows you a notebook with names and numbers. "These are my regulars. People who buy every week. I'm sharing my list because you need a start."
+*   [Thank him for the trust]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_114 ===
+"My boys keep asking about you." Tarek grins. "They want to know if you can do a handstand. Apparently that's the measure of a person now."
+*   [Laugh and promise to visit]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_115 ===
+Tarek points at a spot across the square. "That space opens up after Maghrib prayer. The juice guy leaves and it's prime for an hour."
+*   [Note the timing]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_116 ===
+"I got a lead on wholesale batteries. Half what I usually pay." Tarek lowers his voice. "But I need someone to pick them up from Shubra. Interested in splitting the run?"
+*   [Say you're in]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_117 ===
+Tarek unwraps two sandwiches and offers one. "Foul and falafel. The falafel place on Gameat el-Dowal gives me extra because I send them customers."
+*   [Take the sandwich]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_118 ===
+"The other vendors ask me why I'm helping you." Tarek shrugs. "I tell them you stood with me when the municipal officers came. That means something."
+*   [Say you remember that day]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_119 ===
+Tarek pulls out a small umbrella. "I keep this for the afternoon sun. You can use it. I've got my hat."
+*   [Accept the umbrella]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_120 ===
+"I heard the city is repaving this section next month." Tarek marks a spot on his palm with a pen. "Good spot during construction. People slow down, they buy more."
+*   [Ask how he knows these things]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_121 ===
+Tarek waves you over. "Quick, before anyone sees. I held the corner near the bank entrance for you. Get there before eight tomorrow."
+*   [Promise to be there]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_122 ===
+"You look tired, ya sahbi." Tarek gestures at a crate behind his stall. "Sit. I'll watch for customers for both of us."
+*   [Sit down gratefully]
+	# STRESS:-4
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_123 ===
+Tarek pulls out a thermos. "My wife's karkadeh. Hibiscus tea, cold and sweet. She made a double batch because she knew you'd come by."
+*   [Drink deeply]
+	# STRESS:-4
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_124 ===
+"I talked to Uncle Anwar from the shoe stall." Tarek gestures at the old vendor. "He's retiring next year. His spot by the metro — he'll recommend you if I ask."
+*   [Say that would be incredible]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_125 ===
+Tarek shows you a message on his phone. "Wholesale supplier dropped prices on screen protectors. I'm ordering double. You want in?"
+*   [Say yes]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_126 ===
+"My daughter drew a picture of you." Tarek shows you a crayon drawing of two stick figures at a stall. "See? That's you next to me."
+*   [Say it's beautiful]
+	# STRESS:-4
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_127 ===
+Tarek points at a shortcut through an alley. "Cuts right to the metro. Police never patrol it. Use it when you need to move fast."
+*   [Memorize the route]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_128 ===
+"The vendor by the falafel stand owes me a favor." Tarek counts on his fingers. "I'll call it in. He'll hold a spot for you on Fridays."
+*   [Thank him for the favor]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_129 ===
+Tarek opens a container of lentil soup. "Cold but homemade. My mother's recipe. She'd be happy to know I'm sharing it."
+*   [Take a spoonful]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_130 ===
+"I don't say this to many people." Tarek's voice is quiet. "But you're the closest thing to a partner I have on this street."
+*   [Say the same about him]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_131 ===
+Tarek nods toward a nearby building. "The watchman there, Sayyid. He lets vendors use the bathroom. Tell him Tarek sent you."
+*   [Thank him for the tip]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_132 ===
+"I heard you had a rough week." Tarek hands you a small bag of dates. "Eat. Then we figure out next week."
+*   [Accept the food]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_133 ===
+Tarek arranges a space next to his own goods. "You can set up here when you need to. We'll split the traffic."
+*   [Accept the shared space]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_134 ===
+"You know what I like about you?" Tarek grins. "You don't pretend this city is easy. Most people lie to themselves. You don't."
+*   [Say honesty is all you have]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_135 ===
+Tarek shows you a scratch on the wall. "See this mark? I put it there the day we met. Good things should be remembered."
+*   [Touch the mark]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_136 ===
+"The rain last week destroyed half my stock." Tarek pulls out a tarp. "But I got a spare now. You gave me the idea to keep backups."
+*   [Glad to have helped]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_137 ===
+Tarek's wife appears at the corner, waving. "Fatima brought lunch." He waves back. "She made enough for three. Come eat with us."
+*   [Join them]
+	# STRESS:-4
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_138 ===
+"I used to eat alone on this corner." Tarek looks at the passing crowd. "Now I actually look forward to lunch."
+*   [Say the same]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_139 ===
+Tarek hands you a spare key. "Storage room around the corner. You can keep your stock there overnight. Safer than carrying everything home."
+*   [Accept the key carefully]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_140 ===
+"The vendor community looks out for each other." Tarek gestures at the row of stalls. "You're part of it now. They know I vouch for you."
+*   [Feel the belonging]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_141 ===
+Tarek waves you over enthusiastically. "Ya sahbi! I have something for you. A good spot opened up near the pharmacy."
+*   [Ask about the spot]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_142 ===
+"I got you a deal on phone cases." Tarek shows you a catalogue on his phone. "My supplier has a clearance. Quality stuff, half price."
+*   [Thank him for the hookup]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_143 ===
+Tarek pours two glasses of cold lemon with mint. "From the juice guy. He gives me the good stuff because I tip him in spare chargers."
+*   [Sip the juice]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_144 ===
+"My boys want to meet you properly." Tarek shows you a photo. "They said to bring you for football on Friday."
+*   [Promise to come]
+	# STRESS:-4
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_145 ===
+Tarek points at a spot near the metro exit. "I talked to the vendor who works mornings there. He finishes at noon — you can take the afternoon shift."
+*   [Say that's a great arrangement]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_146 ===
+"Word around the square is you're reliable." Tarek nods approvingly. "That's currency here. More valuable than money."
+*   [Accept the compliment]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_147 ===
+Tarek shows you a small collection of bills. "We take up a collection for vendors who have a bad week. You should contribute — and you're covered too."
+*   [Add what you can]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_148 ===
+"You know that argument I had with the municipal officer?" Tarek grins. "I won. Backed down because three other vendors stood with me. Including you."
+*   [Remember standing together]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_149 ===
+Tarek pulls out a spare hat. "Sun's brutal today. Here, take this. I've got my towel."
+*   [Put on the hat]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_150 ===
+"I heard a rumour the city wants to clean up this block." Tarek frowns slightly. "We'll handle it. Together. Like we always do."
+*   [Nod in agreement]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_151 ===
+Tarek saves you a seat on a nearby crate. "Rest your legs. I'll keep an eye on things."
+*   [Sit with a sigh of relief]
+	# STRESS:-4
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_152 ===
+"Fatima packed extra basbousa today." Tarek opens a tin of sweets. "She says it's because you mentioned you liked it last time."
+*   [Take a piece]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_153 ===
+Tarek draws a map on a napkin. "Best route from here to the wholesale market in Shubra. Avoid the main roads — too many checkpoints."
+*   [Pocket the map carefully]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_154 ===
+"You and me, we're like the falafel and the ful." Tarek laughs at his own joke. "Better together than apart."
+*   [Laugh with him]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_155 ===
+Tarek shows you a picture on his phone. "My niece's wedding next month. You're invited. Family only, but I'm making an exception."
+*   [Say you'd be honored]
+	# STRESS:-4
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_156 ===
+"The tea vendor on the corner gives me free refills because I recommended his blend to five people." Tarek sips. "Network, ya sahbi. Everything is network."
+*   [Appreciate the wisdom]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_157 ===
+Tarek splits his lunch without being asked. "Half for you. I wasn't going to eat it all anyway."
+*   [Share your food next time]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_158 ===
+"I told the other vendors you're solid." Tarek counts them on his fingers. "Said, Nader, Gamal, the tea guy. They all know your name now."
+*   [Feel grateful for the introduction]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_159 ===
+Tarek hands you a small hand fan. "Battery powered. My daughter picked it out. She said you'd like the colour."
+*   [Thank him and the daughter]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_160 ===
+"You know what I realized?" Tarek looks up from his display. "This street is less lonely since you started coming around."
+*   [Say the feeling is mutual]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_161 ===
+Tarek points at a parking spot near the pharmacy. "Empty from six to eight AM. Perfect for a morning setup. I'll keep it open for you."
+*   [Promise to try tomorrow]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_162 ===
+"I bartered with the juice guy. Two chargers for a week of free juice." Tarek hands you a cup. "This one's on the trade."
+*   [Enjoy the juice]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_163 ===
+Tarek shows you a message thread. "Vendor group chat. Thirty of us. I'm adding you. We share tips, warnings, deals."
+*   [Accept the invitation]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_164 ===
+"My mother wants to meet you." Tarek looks slightly embarrassed. "She says anyone who helps her son deserves a proper dinner."
+*   [Say you'll visit soon]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_165 ===
+Tarek shields you from a sudden gust of dust. "Khamsin came early this year. Get behind my stall — the wall blocks most of it."
+*   [Take cover together]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_166 ===
+"Business is better when you have someone watching your back." Tarek scans the square. "I watch yours, you watch mine. Fair?"
+*   [Agree it's fair]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_167 ===
+Tarek opens a bag of freshly baked bread. "The bakery on Tahrir Street gives me yesterday's bread for free. Still good. Here."
+*   [Break off a piece]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_168 ===
+"I heard you helped Gamal with his permit paperwork." Tarek nods approvingly. "That's the kind of thing that gets remembered on this street."
+*   [Say you were happy to help]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_169 ===
+Tarek adjusts a piece of cardboard over his stock. "Made this cover last night. Keeps the dust off. I'll make you one too."
+*   [Thank him]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_170 ===
+"You know what this street has?" Tarek looks around at the vendors. "Community. We fight, we argue over spots, but when it matters, we're family."
+*   [Feel the warmth of belonging]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_171 ===
+Tarek waves you over to his usual spot. "Come, ya sahbi. I kept the good spot next to the wall warm for you."
+*   [Join him]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_172 ===
+"I saved you some of the good stock." Tarek opens a box. "Screen protectors, the expensive kind. I'll give you wholesale price."
+*   [Pick through the box]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_173 ===
+Tarek offers a plate of leftover koshari. "From the restaurant around the corner. The owner is a friend. He always gives me extra."
+*   [Accept gratefully]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_174 ===
+"My youngest says you're his favourite." Tarek shows you a crayon drawing. "You're the tall one. I'm the one with the hat."
+*   [Chuckle at the drawing]
+	# STRESS:-4
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_175 ===
+Tarek points at a loading zone. "Delivery trucks leave at seven. The space opens up right after. You could have two hours of prime selling."
+*   [Set a reminder]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_176 ===
+"You know what I appreciate about our friendship?" Tarek counts on his fingers. "No drama. No asking for more than the other gives. Just mutual respect."
+*   [Agree completely]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_177 ===
+Tarek splits his winnings from a small bet on a football match. "Fifty pounds each. Don't tell Fatima I gamble."
+*   [Pocket the money]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_178 ===
+"The vendor association is meeting next Thursday." Tarek hands you a flyer. "You should come. I'll introduce you to everyone."
+*   [Say you'll be there]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_179 ===
+Tarek wipes off a chair for you. "Sit, sit. The afternoon rush is over. Time to rest."
+*   [Sit down]
+	# STRESS:-4
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_180 ===
+"I used to think this square was just a place to make money." Tarek looks around. "Now I think it's a place to make friends too."
+*   [Smile at the sentiment]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_181 ===
+Tarek waves from across the square. "Over here! I saved you a seat and a glass of tea."
+*   [Walk over]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_182 ===
+"You won't believe what happened." Tarek grins. "The wholesale guy gave me a discount because I brought a new customer — you. We both win."
+*   [Celebrate the small victory]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_183 ===
+Tarek hands you a small package. "Extra phone cases. I over-ordered. You can sell them or keep them — doesn't matter to me."
+*   [Thank him sincerely]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_184 ===
+"Friday market in the old quarter." Tarek lowers his voice. "Not the official one. The one behind the mosque. You should see it."
+*   [Ask for directions]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_185 ===
+Tarek opens a container of molokhia. "Fatima's recipe. She sends enough for both of us every Thursday. Says you need vegetables."
+*   [Eat thankfully]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_186 ===
+"I got word that a big shipment is coming through the port next week." Tarek glances around. "Could mean cheap electronics for anyone who knows the right person."
+*   [Ask who the right person is]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_187 ===
+Tarek pulls out a spare phone charger. "Yours looked frayed last time. Take this one. On the house."
+*   [Accept the charger]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_188 ===
+"The vendors on this block have an agreement." Tarek explains. "We don't undercut each other's prices. Keeps everyone afloat."
+*   [Agree it's smart]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_189 ===
+Tarek stretches and cracks his back. "Twelve years on this corner and my best year was the one where I stopped doing it alone."
+*   [Say partnership matters]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_190 ===
+"My father used to say, 'Find one person you can trust and hold on to them.'" Tarek looks at you. "I found that person."
+*   [Nod in quiet understanding]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_191 ===
+Tarek saves you the last glass of tea. "The thermos is almost empty, but this one's yours. I already had two."
+*   [Sip the tea]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_192 ===
+"I've been thinking about expanding." Tarek shows you a sketch on a napkin. "Two stalls, one at each end of the square. You'd run the other one."
+*   [Say you'd consider it]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_193 ===
+Tarek splits a fresh falafel sandwich. "From Ahmed's cart. He always gives me the fresh batch. Have half."
+*   [Take the sandwich]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_194 ===
+"You're the only person outside my family who knows my real name." Tarek smiles. "Everyone else calls me 'the charger guy.'"
+*   [Say you're honored]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_warm_195 ===
+Tarek points at the sunset over the square. "See that? Some people pay for that view. We get it for free."
+*   [Watch the sunset together]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_196 ===
+"I told my brother in Alexandria about you." Tarek scrolls through his phone. "He has a contact at a distributor. Might be useful someday."
+*   [Save the contact]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_197 ===
+Tarek hands you a small pouch of tea leaves. "From Upper Egypt. My cousin sends them. Real koshary tea, not the supermarket stuff."
+*   [Smell the tea]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_198 ===
+"When I finally get that shop again, you're getting a discount for life." Tarek grins. "That's a promise."
+*   [Hold him to it]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_199 ===
+Tarek looks at the evening crowd thinning out. "Another day done. Couldn't have managed the afternoon rush without you watching the stock."
+*   [Say any time]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_200 ===
+"Ya sahbi, this square used to be just concrete and noise." Tarek puts his hand on your shoulder. "Now it's home. You made it that way."
+*   [Walk home together]
+	# STRESS:-3
+	# NPC_TRUST:VendorTarek,6
+	-> DONE
+
+=== tarek_streetwise_201 ===
+Tarek glances both ways before leaning in. "You know who buys phones no questions asked? The guy behind the optician shop on Midan Tahrir. Ask for Hisham."
+*   [Memorize the name]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_202 ===
+"Word of advice — don't carry more than you can drop." Tarek keeps his voice low. "If things go sideways, you want empty hands."
+*   [Understand the implication]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_203 ===
+Tarek traces a path on his palm. "Police patrol goes through here at ten, two, and six. You learn the rhythm or you learn the inside of a van."
+*   [Ask how he knows the schedule]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_204 ===
+"See that guy in the grey galabeya?" Tarek nods subtly. "Informant. Works for the precinct. Buys tea from Nader every day at eleven."
+*   [Note the face]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_205 ===
+Tarek adjusts his display while speaking from the corner of his mouth. "The back alley behind the bank leads to a service road. No cameras. Remember that."
+*   [File the route away]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_206 ===
+"Fencing is an art." Tarek wraps a cable around his hand. "You don't sell where you found it. You move it three streets over minimum. Different neighbourhood, different buyers."
+*   [Ask for more details]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_207 ===
+"The guy at the mobile repair kiosk? Karim?" Tarek keeps stacking lighters. "He buys used phones. Doesn't check serial numbers. Cash only."
+*   [Ask where the kiosk is]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_208 ===
+Tarek suddenly changes the topic as a stranger walks past. After they leave: "Never talk business when someone is within earshot. Even if they look busy."
+*   [Nod in understanding]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_209 ===
+"The tunnels behind Dokki station — they connect to four different streets." Tarek draws in the dust on his display case. "Emergency exits, if you need them."
+*   [Study the crude map]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_210 ===
+"Old Salah got picked up last month." Tarek shakes his head. "Selling counterfeit phones right on the main street. Stupid. You don't fish where you sleep."
+*   [Ask what happened to Salah]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_211 ===
+Tarek shows you a burn phone. "Five hundred piastres. No ID, no contract. When you need to talk without being heard, use one of these."
+*   [Ask where to get one]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_212 ===
+"Market day at Bulaq — the cops send two cars, always parked at the north entrance." Tarek counts on his fingers. "South entrance is clear until three."
+*   [Note the timing]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_213 ===
+"You want to move something? Wrap it in bread." Tarek taps a paper bag. "Nobody searches a man carrying bread. It's invisible."
+*   [Absorb the tip]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_214 ===
+"The camera on the east side of the square has been broken for two months." Tarek points without looking. "Budget cuts. Don't count on it staying broken."
+*   [Check the camera]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_215 ===
+Tarek scratches his chin. "There's a taxi driver, Milad. Drives a blue Lada. He moves things across the river when you need quiet transport."
+*   [Ask how to find Milad]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_216 ===
+"You see the flower seller near the metro? Umm Magdy?" Tarek rearranges his stock casually. "Her flowers aren't the only thing she delivers."
+*   [Raise an eyebrow]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_217 ===
+"Don't ever go to the same fence twice in one week." Tarek's voice is flat. "They remember faces. Patterns get people caught."
+*   [Agree that's smart]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_218 ===
+"The new plainclothes officer walks with a limp." Tarek adjusts his hat. "Left leg. Tan jacket, dark shoes. He circles the square between one and three."
+*   [Scan the crowd]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_219 ===
+Tarek hands you a folded piece of paper. "Addresses. People who buy things without receipts. Don't lose it and don't show anyone."
+*   [Pocket it carefully]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_220 ===
+"You know what makes someone invisible on this street?" Tarek gestures at himself. "Being boring. Boring people don't get watched."
+*   [Take the lesson]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_221 ===
+Tarek checks his phone with a practiced motion. "Encrypted messaging. Everyone should use it. I'll show you which app."
+*   [Pull out your phone]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_222 ===
+"Rami from the electronics shop got raided last week." Tarek keeps his eyes on the square. "Someone talked. That's always how it happens."
+*   [Ask who talked]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_223 ===
+"The area behind the parking garage is a dead zone." Tarek points with his chin. "No cameras, no patrols. Useful if you need five minutes of privacy."
+*   [Note the location]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_224 ===
+"You want to know if someone's a cop?" Tarek watches a man across the square. "Look at the shoes. Plainclothes never change their shoes."
+*   [Follow his gaze]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_225 ===
+Tarek pulls out a small notepad. "I write down plate numbers. Any car that stops near my stall more than twice gets noted."
+*   [Appreciate the paranoia]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_226 ===
+"The parking lot under the overpass — that's where money changes hands." Tarek keeps his voice barely audible. "If you need to move cash, do it there."
+*   [Listen carefully]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_227 ===
+"Gamal in Shubra deals in small electronics." Tarek pretends to check his stock. "He pays sixty percent of market value. Fair for no questions."
+*   [Ask for Gamal's location]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_228 ===
+"Never meet a buyer at your own spot." Tarek zips his bag. "Always meet on neutral ground. Somewhere public but not your public."
+*   [Nod]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_229 ===
+Tarek suddenly starts talking about the weather. A minute later, after a woman passes: "Her brother works at the precinct. Always change subject when she walks by."
+*   [Appreciate the instinct]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_230 ===
+"The storage rooms behind the old cinema — the owner rents them by the hour." Tarek keeps his hands busy folding cloth. "No questions, cash upfront."
+*   [Ask for the address]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_231 ===
+Tarek glances at a parked car, then away. "That white sedan has been here three days. Either someone is visiting family or someone is watching."
+*   [Don't look directly]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_232 ===
+"Friday prayers — the square empties for an hour." Tarek adjusts his cap. "Best window for moving anything quietly. Everyone is at the mosque."
+*   [Mark the time]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_233 ===
+"You ever hear of the Dokki list?" Tarek taps the wall. "A list of every vendor who's been picked up. We share it in the group chat so people know the heat level."
+*   [Ask to see the list]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_234 ===
+"The woman who sells perfume near the metro — Dina." Tarek keeps his eyes forward. "She knows three guys in the precinct. She hears things before they happen."
+*   [Ask how to approach Dina]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_235 ===
+"If you ever need to disappear for an hour, use the back entrance of the barber shop." Tarek draws a line on his palm. "Bassem is the barber. Tell him Tarek sent you."
+*   [Memorize the route]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_236 ===
+"Watch how people walk." Tarek observes the crowd. "Purposeful means they're going somewhere. Slow means they're browsing. Staring means they're looking for someone."
+*   [Study the passersby]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_237 ===
+Tarek shows you a scar on his hand. "Got caught with counterfeit goods six years ago. Spent four days in a cell. Never again."
+*   [Ask what he learned]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_238 ===
+"The plumbing supply shop on the corner." Tarek nods in its direction. "Back room. The owner buys jewelry. Doesn't care where it came from."
+*   [File the information]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_239 ===
+"Word on the street is there's a new precinct captain." Tarek frowns. "Means they'll be aggressive for the first month. Making a name."
+*   [Ask when the month ends]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_240 ===
+"Three rules." Tarek holds up three fingers. "Don't be greedy. Don't be seen. Don't be stupid. Break one, you lose everything."
+*   [Repeat the rules silently]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_241 ===
+Tarek looks both ways before speaking. "There's a courier who works the Agouza bridge. Carries small packages across for a cut. Discreet."
+*   [Ask for the courier's name]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_242 ===
+"The vendor two spots down — Fawzy?" Tarek pretends to check his stock. "His cousin works customs. Gets things past the port. Not cheap but reliable."
+*   [Ask for an introduction]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_243 ===
+"You see that balcony on the third floor?" Tarek nods up. "Old lady there watches the street all day. She's not police, she's just nosy. But she talks to police."
+*   [Avoid looking up]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_244 ===
+"Never carry your real ID when you're working." Tarek taps his pocket. "They can't hold you if they don't know who you are. At least for a while."
+*   [Consider the advice]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_245 ===
+Tarek cracks his knuckles and scans the street. "The key to this life is information. Know more than the other guy and you'll always be one step ahead."
+*   [Agree that knowledge is survival]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_246 ===
+"The parking garage on the east side has no cameras on level three." Tarek speaks while pretending to check his phone. "Useful for private transactions."
+*   [Note the level number]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_247 ===
+"Amin the butcher in Bulaq — his cold storage is available for a fee." Tarek wipes his forehead. "Nobody checks a meat locker. Think about it."
+*   [Understand the implication]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_248 ===
+"The early morning shift change at the precinct is at six." Tarek counts on his fingers. "From six to six-thirty, the old shift is tired and the new shift is getting coffee. Window of opportunity."
+*   [Set a mental alarm]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_249 ===
+Tarek shows you a text message and deletes it immediately. "Warning from Dina. Sweep planned for Thursday. Stay off the main streets."
+*   [Adjust your plans]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_250 ===
+"The street economy has rules." Tarek counts them off. "Pay your debts, keep your mouth shut, and never steal from someone on your own block."
+*   [Commit the rules to memory]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_251 ===
+Tarek leans closer, voice barely a whisper. "The guy who runs the internet cafe on Tahrir Street — he clears browser history for a price. Good for research."
+*   [Ask what kind of research]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_252 ===
+"See that car? Different plates but same dent on the bumper." Tarek pretends to check his inventory. "Undercover. They rotate cars but they're lazy about dents."
+*   [Spot the dent]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_253 ===
+"The roof of the old movie theater has line of sight to three streets." Tarek draws in the air. "If you need to watch the square without being in it, that's your spot."
+*   [File the vantage point]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_254 ===
+"Wael from the mobile shop in Mohandessin." Tarek keeps stacking phone cases. "He reflashes phones. New IMEI, fresh start. Costs two hundred."
+*   [Ask for Wael's address]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_255 ===
+"You notice how I never stand in the same place twice?" Tarek shifts his weight. "Predictability gets you noticed. Noticed gets you caught."
+*   [Shift your own position]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_256 ===
+"The woman who cleans the bank lobby at night — Sohair." Tarek ties his shoe while speaking. "She hears conversations through the vents. Tells me everything for fifty pounds a week."
+*   [Consider the investment]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_257 ===
+"The area behind the construction site on the west side is blind to cameras." Tarek checks his watch. "At least until the building finishes. Month or two left."
+*   [Note the deadline]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_258 ===
+Tarek shows you a photo on a burner phone. "This is the guy who runs pickups in Doqqi. Goes by Abu Ziad. Mention my name for the first deal."
+*   [Save the face in memory]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_259 ===
+"Something I learned the hard way." Tarek rubs his jaw. "Don't trust anyone who's too eager to help. Real street people are cautious. Eager means setup."
+*   [Take it to heart]
+	# STRESS:2
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_260 ===
+"The service road behind the mosque connects to the main avenue." Tarek traces the route with his finger on his thigh. "Three left turns and you're invisible."
+*   [Trace the route mentally]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_261 ===
+Tarek glances at a delivery bike. "That rider, Sherif? He carries more than food. Small items, quick drops, no questions. His number is in the group chat."
+*   [Check the group chat]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_262 ===
+"Three vendors got picked up in Shubra last week." Tarek shakes his head slowly. "All from the same block. Someone is talking. Find out who before it spreads here."
+*   [Ask if he has leads]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_263 ===
+"The pawn shop near the train station — the owner is named Farouk." Tarek adjusts his cap. "He buys gold at forty percent. Low, but immediate cash."
+*   [Weigh the percentage]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_264 ===
+"You know what the best disguise is?" Tarek gestures at himself. "A plastic bag. Carry a bag from a real shop and you're just another customer."
+*   [Look at the bag he's holding]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_265 ===
+"The side street near the pharmacy has a gate that's been broken since October." Tarek speaks while looking at the sky. "Leads to the back of the market. Unlocked after hours."
+*   [Note the gate]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_266 ===
+Tarek's phone buzzes. He reads, deletes, and looks grim. "Ammar got picked up in Agouza. Selling out of his apartment. They found his stash."
+*   [Ask what Ammar did wrong]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_267 ===
+"The most valuable thing on this street isn't money." Tarek taps his temple. "It's knowing which doors are open and which ones are traps."
+*   [Agree]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_268 ===
+"The microbus drivers in Giza — they move things for a cut of the profit." Tarek names a stand. "Look for the driver with the green baseball cap. Tell him you know Tarek from Dokki."
+*   [Note the cap color]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_269 ===
+"You ever notice the same street dog follows me every afternoon?" Tarek grins slightly. "He's my early warning. Dogs sense trouble before people do."
+*   [Watch the dog]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_270 ===
+"The vendor network has a signal." Tarek adjusts his hat brim. "Hat backwards means clear. Hat sideways means caution. No hat means gone. Learn it."
+*   [Practice the signal]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_271 ===
+Tarek keeps his hands busy while talking. "The basement under the tea shop on Gameat el-Dowal — the owner rents it by the night. Dry, dark, private."
+*   [Ask the price]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_272 ===
+"Farida in Shubra al-Kheima runs a tailoring shop." Tarek folds a cloth. "She also modifies clothes with hidden pockets. Custom work, good prices."
+*   [Ask for Farida's address]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_273 ===
+"The precinct on the main road processes arrests between eight and ten PM." Tarek checks his watch. "If something goes wrong, that's when the paperwork happens. Gives you a window."
+*   [Understand the timeline]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_274 ===
+"You want to spot an undercover car?" Tarek counts on his fingers. "Too clean, no dents, antenna on the trunk, and always parked facing traffic."
+*   [Scan the street]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_275 ===
+Tarek hands you a cheap watch. "Set it to police shift times. Vibrate alarm. When it buzzes, you move. No thinking, just moving."
+*   [Set the watch]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_276 ===
+"The back exit of the supermarket leads to a loading dock." Tarek traces with his toe in the dust. "Loading dock connects to the alley. Alley connects to the main road. Three ways out."
+*   [Map the exits]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_277 ===
+"The used phone market in Bulaq runs on Tuesdays and Thursdays." Tarek lowers his voice further. "Cash only, no receipts, everyone minds their business."
+*   [Plan a visit]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_278 ===
+"Never use the same route two days in a row." Tarek shifts his weight. "Even for legitimate business. Patterns are what get people caught."
+*   [Vary your route]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_279 ===
+Tarek checks over his shoulder. "Hend, the vegetable seller, she watches the street in the mornings. If she puts her umbrella up when it's not raining, it means police are coming."
+*   [Look at Hend's umbrella]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_280 ===
+"Street rules are older than the law." Tarek meets your eyes. "The law changes. Street memory doesn't. If you burn someone, the street remembers for twenty years."
+*   [Understand the weight]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_281 ===
+Tarek keeps stacking goods while talking. "The taxi stand near the Nile has drivers who don't ask questions. Look for the old Peugeot. Driver's name is Medhat."
+*   [Remember the car model]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_282 ===
+"You know what's better than being fast?" Tarek pauses. "Being boring. No one remembers the boring person. The fast runner sticks in the memory."
+*   [Slow down deliberately]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_283 ===
+"The construction site on the north side has a gap in the fence." Tarek speaks while pretending to argue with a customer about nothing. "Big enough for a person. Leads to the river road."
+*   [Locate the gap mentally]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_284 ===
+"Mahmoud the electrician in Imbaba." Tarek keeps his voice neutral. "He rewires things. Electronics, mainly. Things that need to not be traced back to where they came from."
+*   [Ask for Mahmoud's number]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_285 ===
+"There's a rhythm to the street." Tarek listens to the ambient noise. "When it's too quiet, something's wrong. When it's too loud, someone's distracting. Normal noise is safe noise."
+*   [Listen to the street]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_286 ===
+"The alley between the pharmacy and the dry cleaner — there's a storage locker." Tarek counts bricks on the wall. "Combination is left-right-left, 7-14-7. You can use it."
+*   [Memorize the combination]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_287 ===
+"Samir from the watch repair — he resets serial numbers on watches." Tarek winds an imaginary watch. "Fifty pounds per piece. Quick turnaround."
+*   [Ask where Samir works]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_288 ===
+"Big mistake people make? Talking on the phone about specifics." Tarek shakes his head. "Say 'the thing' or 'the stuff.' Never name it. Walls have ears, signals have ears."
+*   [Agree about phone discipline]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_289 ===
+Tarek's jaw tightens as a patrol car rolls past. "That's the third time this week. They're mapping the area. Stay sharp."
+*   [Watch the car until it turns]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_290 ===
+"The underground economy isn't chaos." Tarek straightens up. "It has rules, credit systems, reputations. Break the rules and you're out. Worse than prison."
+*   [Respect the system]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_291 ===
+Tarek pulls out a crumpled receipt. "This is from a legitimate sale. Keep receipts like this — they're cover stories. 'Bought it from a vendor' works if you have paper."
+*   [Examine the receipt]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_292 ===
+"The man with the newspaper stand near the metro." Tarek points without pointing. "He's been there fifteen years. Sees everything, remembers faces. He owes me — ask him what he saw today."
+*   [Approach the newsstand later]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_293 ===
+"You want to know who's safe to deal with?" Tarek keeps rearranging goods. "Ask me. I know who's clean, who's hot, and who's working both sides."
+*   [Say you'll check first]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_294 ===
+"The dry cleaner on Zamalek side — he has a back room." Tarek checks his phone. "Nobody looks inside garment bags. Think about it."
+*   [Understand the method]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_295 ===
+Tarek scans the street one more time. "Information flows like water on this street. You just need to know where to stand to catch it."
+*   [Position yourself carefully]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_296 ===
+"The parking lot under the bridge has an attendant named Galal." Tarek hands you a token. "Show him this and he'll look the other way. One time use."
+*   [Pocket the token]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_297 ===
+"Reda in Agouza buys laptops. Doesn't ask about ownership." Tarek keeps his voice flat. "His shop is behind the gas station. Knock twice, then once."
+*   [Memorize the knock pattern]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_298 ===
+"The vendor grapevine is faster than any phone." Tarek grins despite himself. "By the time you hear about a raid, we've already rerouted."
+*   [Appreciate the network]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_299 ===
+"You've earned your place on this street." Tarek's voice is quiet but firm. "I trust you with information I wouldn't give my own brother. Don't make me regret it."
+*   [Promise to be careful]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_streetwise_300 ===
+Tarek looks out over the square one last time. "This street taught me everything — who to trust, who to avoid, when to run, when to stay." He turns to you. "Now it's teaching you too."
+*   [Take the lesson to heart]
+	# STRESS:0
+	# NPC_TRUST:VendorTarek,4
+	-> DONE

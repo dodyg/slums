@@ -2,16 +2,12 @@ namespace Slums.Core.Endings;
 
 public enum EndingId
 {
-    Destitution,
     MotherDied,
-    CollapseFromExhaustion,
+    Arrested,
+    Eviction,
+    Destitution,
     StabilityHonestWork,
     CrimeKingpin,
     QuitTheLuxorDream,
-    Arrested,
-    NetworkShelter,
-    LeavingCrime,
-    BuriedByHeat,
-    Eviction,
-    DebtViolence
+    NetworkShelter
 }

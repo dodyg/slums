@@ -48,6 +48,7 @@ Your mother closes her eyes when she tastes the tea. For the span of one meal, s
 # MOTHER_HEALTH:3
 # NPC_TRUST:PharmacistMariam,2
 # MESSAGE:The Sudanese community iftar tastes like home that no longer exists.
+-> DONE
 
 === event_eid_al_fitr ===
 Ramadan ends and the city explodes into celebration. Children in new clothes run through alleys that were quiet yesterday. Lanterns hang from windows. The bakery line wraps around the block twice because today is the day that even poor families find money for sweets.

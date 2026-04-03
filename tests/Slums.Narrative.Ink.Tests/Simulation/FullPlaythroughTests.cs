@@ -86,14 +86,14 @@ internal sealed class FullPlaythroughTests
     }
 
     [Test]
-    public async Task Playthrough_Exhaustion_TriggeredByZeroHealth()
+    public async Task Playthrough_HealthZeroFoldsIntoDestitution()
     {
         using var session = new GameStateBuilder()
             .WithHealth(0)
             .Build();
 
         var ending = EndingService.CheckEndings(session);
-        ending.Should().Be(EndingId.CollapseFromExhaustion, "zero health should trigger exhaustion ending");
+        ending.Should().Be(EndingId.Destitution, "zero health should trigger destitution ending");
     }
 
     [Test]
@@ -141,7 +141,7 @@ internal sealed class FullPlaythroughTests
     }
 
     [Test]
-    public async Task Playthrough_CrimeLeaving_RequiresRecentWorkAndOldCrimes()
+    public async Task Playthrough_FormerCriminal_ReachesStability()
     {
         using var session = new GameStateBuilder()
             .WithDaysSurvived(30)
@@ -152,11 +152,11 @@ internal sealed class FullPlaythroughTests
             .Build();
 
         var ending = EndingService.CheckEndings(session);
-        ending.Should().Be(EndingId.LeavingCrime, "transition from crime to work should trigger leaving crime ending");
+        ending.Should().Be(EndingId.StabilityHonestWork, "transition from crime to work should trigger stability ending");
     }
 
     [Test]
-    public async Task Playthrough_BuriedByHeat_RequiresSustainedCriminalActivity()
+    public async Task Playthrough_SustainedHeat_ReachesArrested()
     {
         using var session = new GameStateBuilder()
             .WithDaysSurvived(30)
@@ -166,7 +166,7 @@ internal sealed class FullPlaythroughTests
             .Build();
 
         var ending = EndingService.CheckEndings(session);
-        ending.Should().Be(EndingId.BuriedByHeat, "sustained criminal heat should trigger buried by heat ending");
+        ending.Should().Be(EndingId.Arrested, "sustained criminal heat should trigger arrested ending");
     }
 
     [Test]

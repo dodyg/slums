@@ -228,7 +228,7 @@ Mistakes cause:
 - FactionReputation: ImbabaCrew, DokkiThugs, ExPrisonerNetwork
 
 ### Conversation Pool System
-- Each NPC has 100+ unique dialogue knots per context
+- Each NPC has 30-40 unique dialogue knots per context
 - Context determined by: trust level, police pressure, money, mother health, double-life status, recent events
 - Example contexts: "broke_soft", "hot", "double_life", "debt_warm"
 - Seen knots are excluded, ensuring 100 days without repetition
@@ -266,19 +266,16 @@ GameSession maintains `_pendingNarrativeScenes` queue. Scenes are dequeued by th
 
 ## Ending Conditions (EndingService)
 
-11 endings checked in priority order:
+8 endings checked in priority order (consolidated from the original 12):
 
 1. **MotherDied**: Mother health reaches 0
-2. **CollapseFromExhaustion**: Player health reaches 0
-3. **Destitution**: Starving + Exhausted + No money
-4. **Arrested**: Police pressure reaches 100
-5. **Eviction**: 7 days of unpaid rent
-6. **BuriedByHeat**: 30+ days, 6+ crimes, pressure 85+, stress 70+
-7. **LeavingCrime**: 30+ days, crimes committed, 5+ days clean, some honest earnings
-8. **NetworkShelter**: 30+ days, high trust with support NPCs
-9. **QuitTheLuxorDream**: 30+ days, 500+ money, 3 or fewer crimes, mother healthy
-10. **StabilityHonestWork**: 30+ days, no crimes, 200+ money, low pressure
-11. **CrimeKingpin**: 1000+ crime earnings, Imbaba crew rep 50+
+2. **Arrested**: Police pressure reaches 100 (includes BuriedByHeat scenario)
+3. **Eviction**: 7 days of unpaid rent
+4. **Destitution**: Starving + exhausted + no money (includes CollapseFromExhaustion and DebtViolence scenarios)
+5. **StabilityHonestWork**: 30+ days, no crimes, 200+ money, low pressure (includes LeavingCrime transition)
+6. **NetworkShelter**: 30+ days, high trust with support NPCs
+7. **QuitTheLuxorDream**: 30+ days, 500+ money, 3 or fewer crimes, mother healthy
+8. **CrimeKingpin**: 1000+ crime earnings, Imbaba crew rep 50+
 
 Ending Ink knots have variants by background (e.g., `ending_stability_medical`) and strongest support contact.
 

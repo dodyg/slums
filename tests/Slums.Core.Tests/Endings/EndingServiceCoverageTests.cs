@@ -125,7 +125,7 @@ internal sealed class EndingServiceCoverageTests
     }
 
     [Test]
-    public async Task CheckEndings_CollapseTakesPriorityOverDestitution()
+    public async Task CheckEndings_HealthZeroFoldsIntoDestitution()
     {
         using var state = new GameSession();
         state.Player.Stats.SetHealth(0);
@@ -135,7 +135,7 @@ internal sealed class EndingServiceCoverageTests
 
         var ending = EndingService.CheckEndings(state);
 
-        await Assert.That(ending).IsEqualTo(EndingId.CollapseFromExhaustion);
+        await Assert.That(ending).IsEqualTo(EndingId.Destitution);
     }
 
     [Test]

@@ -30,7 +30,7 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - crime routes with contact-specific access, risk, aftermath, and police pressure behavior
 - small-business investments with location-based opportunities, weekly passive income, and risk events
 - recurring NPC interactions driven by trust, faction standing, and relationship memory
-- conversation pool system with 100+ unique dialogues per NPC context to prevent repeats for 100 days
+- conversation pool system with 30-40 unique dialogues per NPC context, context rotation prevents repeats for 100 days
 - district-specific random events with event-history-aware gating
 - save/load built around `GameSession` snapshots plus `LoadedGameSession` handoff
 - player-facing screen actions routed through application commands and menu/action queries
@@ -38,6 +38,67 @@ The game is already past the initial vertical-slice stage. The current repo supp
 - fail-fast bootstrap for repository-owned JSON content instead of silent fallback to default registries
 - multiple ending paths based on long-term behavior, pressure, and survival trajectory
 - world-enrichment mechanics planned: day-of-week rhythms, seasonal calendar, community solidarity events, weather, sleep quality, rumors, district-specific heat, territory dynamics, phone and async contacts, debt and NPC economy, information network (see dedicated sections below)
+
+## Design Philosophy
+
+These principles were established through a full feature review and should guide all future implementation and tuning decisions.
+
+### Core Loop
+
+- Target **5-8 meaningful decisions per 10-minute play session**.
+- Daily active core: (1) earn money, (2) feed family/household, (3) one relationship or event choice.
+- Everything else (weather, territory, rumors, investments, skills, phone, debt) ticks **passively** and only interrupts the player when something needs a response.
+- Deep simulation underneath, lean player-facing interaction on top.
+
+### Playthrough Pacing
+
+- Full playthrough target: **4-8 hours** (~1-3 minutes per in-game day).
+- 180-day playable span means spring/summer content is late-game territory for long survivors.
+
+### Economy Arc
+
+- Honest work is **desperate for the first 20-30 days**, then stabilizes for players who invest in skills, reliability, and relationships.
+- Crime offers 3-5x the money but with escalating risk. Crime becomes about ambition, not survival, after stability.
+- Only investments create real breathing room from the daily grind.
+
+### Ending Consolidation
+
+Consolidate to **8 endings** (4 bad, 4 good/ambiguous):
+
+| Ending | Type | Notes |
+|--------|------|-------|
+| MotherDied | Bad | Mother health reaches 0 |
+| Arrested | Bad | Global police pressure reaches 100 (includes BuriedByHeat scenario) |
+| Eviction | Bad | 7 days of unpaid rent |
+| Destitution | Bad | Starving + exhausted + no money (includes Collapse scenario) |
+| StabilityHonestWork | Good | 30+ days, no crimes, 200+ money, low pressure (includes LeavingCrime transition) |
+| CrimeKingpin | Ambiguous | 1000+ crime earnings, Imbaba crew rep 50+ |
+| QuitTheLuxorDream | Good | 30+ days, 500+ money, 3 or fewer crimes, mother healthy |
+| NetworkShelter | Good | 30+ days, high trust with support NPCs |
+
+DebtViolence ending is folded into Destitution (debt spiral leads to total collapse).
+
+### System Visibility Rules
+
+Systems communicate their effects through **narrative** (NPC behavior, event log, conversation), not dashboards of numbers:
+
+- **Phone**: passive notification channel. Messages appear in event log/HUD. Credit drains weekly. Player never opens a "phone app"; responding to a tip is the active part.
+- **Territory**: effect-driven. Honest players feel consequences (price changes, unavailable NPCs). Crime players see a simplified faction status indicator per district. No influence numbers or tension meters exposed to the player.
+- **Rumors**: hidden simulation surfaced through NPC warnings. No rumor screen. "Clear the Air" appears contextually when a trusted NPC warns the player.
+- **Debt/NPC Economy**: player borrowing and repayment is active. NPC economy ticks weekly in the background. Player learns about NPC financial states through conversations, not a ledger screen.
+- **District Heat**: crime preview shows detection chance. Travel screen warns about dangerous districts. No per-district heat numbers shown to the player.
+
+### Per-System Decisions
+
+- **Pets and plants**: set-and-forget with passive weekly costs. No daily feeding or watering actions. Weekly cost deducted automatically with event log entry. Missed payments pause the bonus (mother stress penalty) but nothing dies. Herb income is automatic.
+- **Skills**: passive gains from work and crime are the primary progression path (~70%). Active training supplements the remaining ~30%. A 30-day honest player should naturally reach skill level 4-5 without ever using the training system.
+- **Mother care**: active attention needed **2-3 times per week**, not daily. Daily food is part of normal household shopping. Active care (clinic, medicine, crisis response) is a weekly event. Stable days are quiet so emotional beats land harder.
+- **NPC dialogue**: target **30-40 knots per conversation context** (not 100+). Context rotation prevents repetition. 5 contexts x 35 knots = ~175 lines per NPC is sustainable for authoring and covers 100 days.
+- **Background balance**: Released Political Prisoner is intentional hard mode (slower heat decay, weaker economy). Sudanese Refugee and Medical School Dropout are comparable difficulty with different strengths.
+
+### Emotional Core
+
+The game is about the **balanced trinity** of moral choice, family duty, and community belonging. These three threads are equally weighted. The survival pressure is the engine, the moral choice is the steering wheel, and everything else is the road.
 
 ## Architecture Guardrails
 
@@ -1791,15 +1852,23 @@ After Active Skill Training, implement the world-enrichment mechanics in depende
 
 1. ~~**Day-of-Week Rhythms** (quick win, no dependencies)~~ **implemented**
 2. ~~**Sleep Quality** (quick win, standalone)~~ **implemented**
-3. **Seasonal Calendar** (depends on day-of-week pattern)
-4. **Community Solidarity Events** (depends on day-of-week, seasonal calendar)
-5. **Weather** (depends on seasonal calendar)
-6. **Rumors** (depends on relationship system)
-7. **District-Specific Heat** (foundational for territory and information network)
-8. **Territory Dynamics** (depends on factions, district-specific heat)
-9. **Phone and Asynchronous Contacts** (standalone core, enables information network)
-10. **Debt and NPC Economy** (depends on relationships)
-11. **Information Network** (depends on phone system, district-specific heat, relationships)
+3. ~~**Seasonal Calendar** (depends on day-of-week pattern)~~ **implemented**
+4. ~~**Community Solidarity Events** (depends on day-of-week, seasonal calendar)~~ **implemented**
+5. ~~**Weather** (depends on seasonal calendar)~~ **implemented**
+6. ~~**Rumors** (depends on relationship system)~~ **implemented**
+7. ~~**District-Specific Heat** (foundational for territory and information network)~~ **implemented**
+8. ~~**Territory Dynamics** (depends on factions, district-specific heat)~~ **implemented**
+9. ~~**Phone and Asynchronous Contacts** (standalone core, enables information network)~~ **implemented**
+10. ~~**Debt and NPC Economy** (depends on relationships)~~ **implemented**
+11. ~~**Information Network** (depends on phone system, district-specific heat, relationships)~~ **implemented**
+
+All world-enrichment mechanics are now implemented. Next focus areas should be:
+
+- Ending consolidation to 8 endings per the Design Philosophy section
+- Balance tuning per the economy arc (desperate 20-30 days, then stable)
+- Mother care rhythm adjustment (2-3x weekly active care, not daily)
+- Conversation pool reduction (30-40 knots per context)
+- Any remaining content breadth and authored reactivity
 
 ## Narrative Enhancement Pass
 

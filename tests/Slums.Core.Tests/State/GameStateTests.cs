@@ -723,9 +723,9 @@ internal sealed class GameStateTests
         state.EndDay();
 
         await Assert.That(state.IsGameOver).IsTrue();
-        await Assert.That(state.GameOverReason).Contains("health");
+        await Assert.That(state.GameOverReason).Contains("Destitution");
         await Assert.That(TryTakePendingEndingKnot(state, out var knotName)).IsTrue();
-        await Assert.That(knotName).IsEqualTo("ending_collapse");
+        await Assert.That(knotName).IsEqualTo("ending_destitution");
     }
 
     [Test]
