@@ -103,6 +103,21 @@ public sealed class HouseholdAssetsMenuQuery
                 PlantType: plant.Type,
                 PlantId: plant.Id));
         }
+
+        var fishTank = context.Assets.GetFishTank();
+        if (fishTank is not null)
+        {
+            var fishDefinition = PetRegistry.GetByType(PetType.Fish);
+            var fishCareState = fishTank.IsUpkeepPaidForWeek(context.CurrentWeek) ? "care covered" : "care due";
+            var fishUpgradeCount = fishTank.GetActiveUpgradeCount(context.CurrentWeek);
+            statuses.Add(new HouseholdAssetsMenuStatus(
+                HouseholdAssetActionType.ManageFishTank,
+                "Manage Fish Tank",
+                $"{fishCareState} | upgrades active {fishUpgradeCount}",
+                true,
+                BuildFishTankManageNote(fishDefinition, fishTank, context.CurrentWeek),
+                PetType.Fish));
+        }
     }
 
     private static string BuildPlantPurchaseNote(PlantDefinition definition, bool hasRoom)
@@ -130,6 +145,21 @@ public sealed class HouseholdAssetsMenuQuery
             if (plant.HasActiveUpgrade(upgradeType, currentWeek))
             {
                 activeUpgrades.Add(PlantUpgradeCatalog.GetName(upgradeType));
+            }
+        }
+
+        var activeSummary = activeUpgrades.Count == 0 ? "No upgrades active yet." : $"Active upgrades: {string.Join(", ", activeUpgrades)}.";
+        return $"{definition.Description} {activeSummary}";
+    }
+
+    private static string BuildFishTankManageNote(PetDefinition definition, OwnedPet fishTank, int currentWeek)
+    {
+        var activeUpgrades = new List<string>();
+        foreach (var upgradeType in Enum.GetValues<FishTankUpgradeType>())
+        {
+            if (fishTank.HasActiveUpgrade(upgradeType, currentWeek))
+            {
+                activeUpgrades.Add(FishTankUpgradeCatalog.GetName(upgradeType));
             }
         }
 

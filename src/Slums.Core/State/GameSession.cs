@@ -1949,6 +1949,45 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         return true;
     }
 
+    public bool UpgradeFishTank(FishTankUpgradeType upgradeType)
+    {
+        var before = CaptureStats();
+        if (World.CurrentLocationId != LocationId.Home)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "UpgradeFishTank", before, CaptureStats(), "Not at home");
+            RaiseEvent("You need to be home to work on the fish tank.");
+            return false;
+        }
+
+        var fishTank = Player.HouseholdAssets.GetFishTank();
+        if (fishTank is null)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "UpgradeFishTank", before, CaptureStats(), "No fish tank");
+            RaiseEvent("You don't have a fish tank to upgrade.");
+            return false;
+        }
+
+        var cost = FishTankUpgradeCatalog.GetCost(upgradeType);
+        if (Player.Stats.Money < cost)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "UpgradeFishTank", before, CaptureStats(), $"Not enough money (need {cost} LE, have {Player.Stats.Money} LE)");
+            RaiseEvent($"Not enough money. {FishTankUpgradeCatalog.GetName(upgradeType)} costs {cost} LE.");
+            return false;
+        }
+
+        if (!Player.HouseholdAssets.TryUpgradeFishTank(upgradeType, CurrentWeek))
+        {
+            RecordMutation(MutationCategories.GuardRejected, "UpgradeFishTank", before, CaptureStats(), $"{FishTankUpgradeCatalog.GetName(upgradeType)} already active");
+            RaiseEvent($"{FishTankUpgradeCatalog.GetName(upgradeType)} is already active for the fish tank.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-cost);
+        RaiseEvent($"Fish Tank: {FishTankUpgradeCatalog.GetName(upgradeType)} added for {cost} LE.");
+        RecordMutation(MutationCategories.HouseholdAsset, "UpgradeFishTank", before, CaptureStats(), $"Upgraded fish tank with {FishTankUpgradeCatalog.GetName(upgradeType)} for {cost} LE");
+        return true;
+    }
+
     public IReadOnlyList<NpcId> GetReachableNpcs()
     {
         return NpcRegistry.GetReachableNpcs(World.CurrentLocationId, PolicePressure);

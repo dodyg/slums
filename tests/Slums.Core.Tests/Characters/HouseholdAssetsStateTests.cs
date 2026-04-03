@@ -64,4 +64,61 @@ internal sealed class HouseholdAssetsStateTests
 
         assets.GetMotherDailyHealthBonus(1).Should().Be(6);
     }
+
+    [Test]
+    public void GetFishTank_ShouldReturnNull_WhenNoFishTankOwned()
+    {
+        var assets = new HouseholdAssetsState();
+        assets.GetFishTank().Should().BeNull();
+    }
+
+    [Test]
+    public void GetFishTank_ShouldReturnFishTank_WhenOwned()
+    {
+        var assets = new HouseholdAssetsState();
+        assets.BuyFishTank(1, 1);
+
+        var fishTank = assets.GetFishTank();
+        fishTank.Should().NotBeNull();
+        fishTank!.Type.Should().Be(PetType.Fish);
+    }
+
+    [Test]
+    public void TryUpgradeFishTank_ShouldFail_WhenNoFishTankOwned()
+    {
+        var assets = new HouseholdAssetsState();
+        assets.TryUpgradeFishTank(FishTankUpgradeType.BetterFilter, 1).Should().BeFalse();
+    }
+
+    [Test]
+    public void TryUpgradeFishTank_ShouldSucceed_WhenUpgradeAvailable()
+    {
+        var assets = new HouseholdAssetsState();
+        assets.BuyFishTank(1, 1);
+
+        assets.TryUpgradeFishTank(FishTankUpgradeType.BetterFilter, 1).Should().BeTrue();
+        assets.GetFishTank()!.HasBetterFilter.Should().BeTrue();
+    }
+
+    [Test]
+    public void TryUpgradeFishTank_ShouldFail_WhenAlreadyActive()
+    {
+        var assets = new HouseholdAssetsState();
+        assets.BuyFishTank(1, 1);
+        assets.TryUpgradeFishTank(FishTankUpgradeType.BetterFilter, 1).Should().BeTrue();
+
+        assets.TryUpgradeFishTank(FishTankUpgradeType.BetterFilter, 1).Should().BeFalse();
+    }
+
+    [Test]
+    public void GetMotherDailyHealthBonus_ShouldIncludeFishTankUpgradeBonus()
+    {
+        var assets = new HouseholdAssetsState();
+        assets.BuyFishTank(1, 1);
+        assets.GetFishTank()!.PurchaseUpgrade(FishTankUpgradeType.BetterFilter, 1);
+        assets.GetFishTank()!.PurchaseUpgrade(FishTankUpgradeType.Heater, 1);
+
+        var bonus = assets.GetMotherDailyHealthBonus(1);
+        bonus.Should().Be(4);
+    }
 }

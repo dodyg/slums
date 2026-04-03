@@ -19,6 +19,7 @@ public sealed class HouseholdAssetsCommand
             HouseholdAssetActionType.PayPetCare => gameSession.PayPetCare(),
             HouseholdAssetActionType.PayPlantCare => gameSession.PayPlantCare(),
             HouseholdAssetActionType.ManagePlant => true,
+            HouseholdAssetActionType.ManageFishTank => true,
             _ => throw new ArgumentOutOfRangeException(nameof(actionType), actionType, null)
         };
     }

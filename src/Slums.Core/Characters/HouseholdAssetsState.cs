@@ -27,6 +27,11 @@ public sealed class HouseholdAssetsState
 
     public bool CanBuyPlant => _plants.Count < MaxPlants;
 
+    public OwnedPet? GetFishTank()
+    {
+        return _pets.FirstOrDefault(static pet => pet.Type == PetType.Fish);
+    }
+
     public bool TryTriggerStreetCatEncounter(int currentDay)
     {
         if (HasStreetCatEncounter || LastStreetCatEncounterDay == currentDay || _pets.Count(static pet => pet.Type == PetType.Cat) >= MaxCats)
@@ -130,6 +135,18 @@ public sealed class HouseholdAssetsState
         return true;
     }
 
+    public bool TryUpgradeFishTank(FishTankUpgradeType upgradeType, int currentWeek)
+    {
+        var fishTank = GetFishTank();
+        if (fishTank is null || !fishTank.CanPurchaseUpgrade(upgradeType, currentWeek))
+        {
+            return false;
+        }
+
+        fishTank.PurchaseUpgrade(upgradeType, currentWeek);
+        return true;
+    }
+
     public int GetMotherDailyHealthBonus(int currentWeek)
     {
         var total = 0;
@@ -141,6 +158,11 @@ public sealed class HouseholdAssetsState
             if (pet.IsUpkeepPaidForWeek(currentWeek))
             {
                 total += definition.ActiveCareMotherHealthBonus;
+            }
+
+            if (pet.Type == PetType.Fish)
+            {
+                total += FishTankUpgradeCatalog.GetMotherHealthBonusPerUpgrade * pet.GetActiveUpgradeCount(currentWeek);
             }
         }
 

@@ -54,7 +54,7 @@ internal sealed class JsonSaveGameStoreTests
             gameSession.RecordEventHistory("DokkiCheckpointSweep", 2);
             gameSession.RestoreHouseholdAssetsState(
             [
-                OwnedPet.Restore(PetType.Cat, acquiredOnDay: 3, lastUpkeepPaidWeek: 2)
+                OwnedPet.Restore(PetType.Cat, acquiredOnDay: 3, lastUpkeepPaidWeek: 2, hasBetterFilter: false, hasHeater: false, decorationsPaidWeek: 0, waterConditionerPaidWeek: 0)
             ],
             [
                 OwnedPlant.Restore(Guid.Parse("11111111-1111-1111-1111-111111111111"), PlantType.Hibiscus, 4, 2, 11, hasBiggerPot: true, hasWindowPlacement: false, fertilizerPaidWeek: 2, irrigationPaidWeek: 0)

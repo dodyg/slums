@@ -124,6 +124,13 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface
             return;
         }
 
+        if (status.ActionType == HouseholdAssetActionType.ManageFishTank)
+        {
+            IsFocused = false;
+            GameHost.Instance.Screen = new FishTankUpgradeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, FishTankUpgradeMenuContext.Create(_gameState), this, _parentScreen);
+            return;
+        }
+
         if (!status.CanExecute)
         {
             return;
@@ -177,7 +184,7 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface
         {
             var locationId when locationId == LocationId.PlantShop => "Buy plants here. Weekly care and upgrades are handled from home.",
             var locationId when locationId == LocationId.FishMarket => "Buy a fish tank here. Weekly care is handled from home.",
-            _ => "Adopt cats, cover weekly care, and manage plant upgrades from home."
+            _ => "Adopt cats, cover weekly care, manage fish tank upgrades, and manage plant upgrades from home."
         };
     }
 
