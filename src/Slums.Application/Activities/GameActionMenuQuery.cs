@@ -10,10 +10,12 @@ public sealed class GameActionMenuQuery
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var actions = new List<GameAction>
+        var actions = new List<GameAction>();
+
+        if (context.IsAtHome)
         {
-            new(GameActionId.Rest, "Rest")
-        };
+            actions.Add(new GameAction(GameActionId.Rest, "Rest"));
+        }
 
         if (context.CurrentLocation?.HasJobOpportunities == true)
         {
