@@ -41,6 +41,16 @@ public sealed class InvestmentMenuQuery
             unlockRequirements.Add("Needs an active crime path.");
         }
 
+        if (definition.RequiredMedicalLevel is int medLevel)
+        {
+            unlockRequirements.Add($"Need medical knowledge (level {medLevel}+).");
+        }
+
+        if (definition.RequiredPhysicalLevel is int physLevel)
+        {
+            unlockRequirements.Add($"Need physical capability (level {physLevel}+).");
+        }
+
         if (unlockRequirements.Count == 0)
         {
             unlockRequirements.Add("No special unlock beyond the cash.");

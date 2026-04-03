@@ -3202,6 +3202,8 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             Relationships,
             TotalCrimeEarnings,
             Player.Skills.GetLevel(SkillId.StreetSmarts),
+            Player.Skills.GetLevel(SkillId.Medical),
+            Player.Skills.GetLevel(SkillId.Physical),
             Player.BackgroundType);
     }
 

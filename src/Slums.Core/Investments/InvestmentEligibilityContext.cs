@@ -12,4 +12,6 @@ public sealed record InvestmentEligibilityContext(
     RelationshipState Relationships,
     int TotalCrimeEarnings,
     int StreetSmartsLevel,
+    int MedicalLevel,
+    int PhysicalLevel,
     BackgroundType BackgroundType);

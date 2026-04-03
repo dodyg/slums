@@ -55,6 +55,16 @@ public static class InvestmentEligibilityEvaluator
             reasons.Add("Requires street smarts (level 2+) or ex-prisoner background.");
         }
 
+        if (definition.RequiredMedicalLevel is int medicalLevel && context.MedicalLevel < medicalLevel)
+        {
+            reasons.Add($"Requires medical knowledge (level {medicalLevel}+). Current: {context.MedicalLevel}.");
+        }
+
+        if (definition.RequiredPhysicalLevel is int physicalLevel && context.PhysicalLevel < physicalLevel)
+        {
+            reasons.Add($"Requires physical capability (level {physicalLevel}+). Current: {context.PhysicalLevel}.");
+        }
+
         return new InvestmentEligibility(reasons.Count == 0, reasons);
     }
 

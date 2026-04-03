@@ -37,6 +37,7 @@ internal sealed class InvestmentEligibilityTests
 
         var homeOpportunities = gameState.GetCurrentInvestmentOpportunities().Select(static definition => definition.Type).ToArray();
         homeOpportunities.Should().Contain(InvestmentType.FoulCart);
+        homeOpportunities.Should().Contain(InvestmentType.TeaCart);
         homeOpportunities.Should().NotContain(InvestmentType.Kiosk);
 
         gameState.World.TravelTo(LocationId.Market);

@@ -17,6 +17,8 @@ public sealed record InvestmentDefinition
     public int RequiredRelationshipTrust { get; init; }
     public bool RequiresCrimePath { get; init; }
     public bool RequiresStreetSmartsOrExPrisoner { get; init; }
+    public int? RequiredMedicalLevel { get; init; }
+    public int? RequiredPhysicalLevel { get; init; }
     public NpcId? OpportunityNpc { get; init; }
     public LocationId OpportunityLocationId { get; init; }
 }

@@ -25,6 +25,8 @@ internal sealed class InvestmentEligibilityEvaluatorTests
             Relationships: relationships,
             TotalCrimeEarnings: 0,
             StreetSmartsLevel: 0,
+            MedicalLevel: 0,
+            PhysicalLevel: 0,
             BackgroundType: BackgroundType.MedicalSchoolDropout);
 
         var eligibility = InvestmentEligibilityEvaluator.Evaluate(definition!, context);

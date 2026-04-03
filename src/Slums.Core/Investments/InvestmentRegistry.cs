@@ -95,6 +95,83 @@ public static class InvestmentRegistry
             RequiresCrimePath = true,
             OpportunityNpc = NpcId.FenceHanan,
             OpportunityLocationId = LocationId.Market
+        },
+        new InvestmentDefinition
+        {
+            Type = InvestmentType.TeaCart,
+            Name = "Tea Cart (Shay Cart)",
+            Description = "Set up a small tea cart in the building entrance for neighbors and passersby",
+            RiskLabel = "Low",
+            Cost = 100,
+            WeeklyIncomeMin = 5,
+            WeeklyIncomeMax = 8,
+            RiskProfile = CreateTeaCartRiskProfile(),
+            RequiredRelationshipNpc = NpcId.NeighborMona,
+            RequiredRelationshipTrust = 10,
+            OpportunityNpc = NpcId.NeighborMona,
+            OpportunityLocationId = LocationId.Home
+        },
+        new InvestmentDefinition
+        {
+            Type = InvestmentType.PhoneChargingStation,
+            Name = "Phone Charging Station",
+            Description = "Sell phone charges to microbus drivers and depot travelers",
+            RiskLabel = "Low-Medium",
+            Cost = 160,
+            WeeklyIncomeMin = 8,
+            WeeklyIncomeMax = 14,
+            RiskProfile = CreatePhoneChargingRiskProfile(),
+            RequiredRelationshipNpc = NpcId.DispatcherSafaa,
+            RequiredRelationshipTrust = 15,
+            OpportunityNpc = NpcId.DispatcherSafaa,
+            OpportunityLocationId = LocationId.Depot
+        },
+        new InvestmentDefinition
+        {
+            Type = InvestmentType.HerbalRemedyTrade,
+            Name = "Herbal Remedy Trade",
+            Description = "Prepare and sell traditional herbal remedies from the pharmacy counter",
+            RiskLabel = "Medium",
+            Cost = 180,
+            WeeklyIncomeMin = 10,
+            WeeklyIncomeMax = 16,
+            RiskProfile = CreateHerbalRemedyRiskProfile(),
+            RequiredRelationshipNpc = NpcId.PharmacistMariam,
+            RequiredRelationshipTrust = 15,
+            RequiredMedicalLevel = 2,
+            OpportunityNpc = NpcId.PharmacistMariam,
+            OpportunityLocationId = LocationId.Pharmacy
+        },
+        new InvestmentDefinition
+        {
+            Type = InvestmentType.SewingSideBusiness,
+            Name = "Sewing Side Business",
+            Description = "Use the workshop after hours for private tailoring and mending jobs",
+            RiskLabel = "Medium",
+            Cost = 220,
+            WeeklyIncomeMin = 14,
+            WeeklyIncomeMax = 20,
+            RiskProfile = CreateSewingSideBusinessRiskProfile(),
+            RequiredRelationshipNpc = NpcId.WorkshopBossAbuSamir,
+            RequiredRelationshipTrust = 20,
+            RequiredPhysicalLevel = 2,
+            OpportunityNpc = NpcId.WorkshopBossAbuSamir,
+            OpportunityLocationId = LocationId.Workshop
+        },
+        new InvestmentDefinition
+        {
+            Type = InvestmentType.CafeSupplyPartnership,
+            Name = "Cafe Supply Partnership",
+            Description = "Invest in the cafe's supply chain for a share of weekly profits",
+            RiskLabel = "Medium",
+            Cost = 250,
+            WeeklyIncomeMin = 16,
+            WeeklyIncomeMax = 24,
+            RiskProfile = CreateCafeSupplyRiskProfile(),
+            RequiredRelationshipNpc = NpcId.CafeOwnerNadia,
+            RequiredRelationshipTrust = 25,
+            OpportunityNpc = NpcId.CafeOwnerNadia,
+            OpportunityLocationId = LocationId.Cafe
         }
     ];
 
@@ -171,6 +248,56 @@ public static class InvestmentRegistry
         BetrayalChance = 0.08,
         ExtortionAmountMin = 18,
         ExtortionAmountMax = 35
+    };
+
+    private static InvestmentRiskProfile CreateTeaCartRiskProfile() => new()
+    {
+        WeeklyFailureChance = 0.01,
+        ExtortionChance = 0.0,
+        PoliceHeatChance = 0.0,
+        BetrayalChance = 0.01,
+        ExtortionAmountMin = 0,
+        ExtortionAmountMax = 0
+    };
+
+    private static InvestmentRiskProfile CreatePhoneChargingRiskProfile() => new()
+    {
+        WeeklyFailureChance = 0.02,
+        ExtortionChance = 0.02,
+        PoliceHeatChance = 0.01,
+        BetrayalChance = 0.02,
+        ExtortionAmountMin = 5,
+        ExtortionAmountMax = 10
+    };
+
+    private static InvestmentRiskProfile CreateHerbalRemedyRiskProfile() => new()
+    {
+        WeeklyFailureChance = 0.03,
+        ExtortionChance = 0.03,
+        PoliceHeatChance = 0.03,
+        BetrayalChance = 0.04,
+        ExtortionAmountMin = 8,
+        ExtortionAmountMax = 16
+    };
+
+    private static InvestmentRiskProfile CreateSewingSideBusinessRiskProfile() => new()
+    {
+        WeeklyFailureChance = 0.03,
+        ExtortionChance = 0.03,
+        PoliceHeatChance = 0.02,
+        BetrayalChance = 0.03,
+        ExtortionAmountMin = 10,
+        ExtortionAmountMax = 18
+    };
+
+    private static InvestmentRiskProfile CreateCafeSupplyRiskProfile() => new()
+    {
+        WeeklyFailureChance = 0.03,
+        ExtortionChance = 0.04,
+        PoliceHeatChance = 0.02,
+        BetrayalChance = 0.03,
+        ExtortionAmountMin = 12,
+        ExtortionAmountMax = 20
     };
 
     public static InvestmentDefinition? GetByType(InvestmentType type)

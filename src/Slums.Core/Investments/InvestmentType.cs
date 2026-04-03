@@ -7,5 +7,10 @@ public enum InvestmentType
     ScrapCollection,
     Kiosk,
     MarketStall,
-    HashishCourier
+    HashishCourier,
+    TeaCart,
+    PhoneChargingStation,
+    HerbalRemedyTrade,
+    SewingSideBusiness,
+    CafeSupplyPartnership
 }
