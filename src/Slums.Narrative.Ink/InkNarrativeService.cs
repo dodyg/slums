@@ -206,6 +206,11 @@ public sealed class InkNarrativeService : INarrativeService
         {
             TrySetGlobalVariable(story, "background", sceneState.Background);
         }
+
+        if (!string.IsNullOrWhiteSpace(sceneState.Gender))
+        {
+            TrySetGlobalVariable(story, "gender", sceneState.Gender);
+        }
     }
 
     private static void TrySetGlobalVariable(Story story, string variableName, object value)

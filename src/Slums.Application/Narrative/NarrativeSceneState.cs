@@ -11,7 +11,8 @@ public sealed record NarrativeSceneState(
     int MotherHealth,
     int FoodStockpile,
     int Day,
-    string? Background)
+    string? Background,
+    string? Gender)
 {
     public static NarrativeSceneState Create(GameSession gameSession)
     {
@@ -26,6 +27,7 @@ public sealed record NarrativeSceneState(
             gameSession.Player.Household.MotherHealth,
             gameSession.Player.Household.FoodStockpile,
             gameSession.Clock.Day,
-            gameSession.Player.Background?.Type.ToString());
+            gameSession.Player.Background?.Type.ToString(),
+            gameSession.Player.Gender == Slums.Core.Characters.Gender.Male ? "male" : "female");
     }
 }
