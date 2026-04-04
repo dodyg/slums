@@ -93,6 +93,7 @@ public sealed record GameSessionSnapshot
         try
         {
             gameSession.Player.ApplyBackground(BackgroundRegistry.GetByType(Player.BackgroundType));
+            gameSession.Player.ApplyGender(Player.Gender);
             gameSession.Player.Stats.SetMoney(Player.Money);
             gameSession.Player.Nutrition.SetSatiety(Player.Satiety);
             gameSession.Player.Nutrition.SetDaysUndereating(Player.DaysUndereating);

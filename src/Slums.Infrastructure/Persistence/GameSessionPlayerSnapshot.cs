@@ -8,6 +8,8 @@ public sealed record GameSessionPlayerSnapshot
 {
     public BackgroundType BackgroundType { get; init; }
 
+    public Gender Gender { get; init; }
+
     public int Money { get; init; }
 
     public int Satiety { get; init; }
@@ -35,6 +37,7 @@ public sealed record GameSessionPlayerSnapshot
         return new GameSessionPlayerSnapshot
         {
             BackgroundType = gameSession.Player.BackgroundType,
+            Gender = gameSession.Player.Gender,
             Money = gameSession.Player.Stats.Money,
             Satiety = gameSession.Player.Nutrition.Satiety,
             DaysUndereating = gameSession.Player.Nutrition.DaysUndereating,
