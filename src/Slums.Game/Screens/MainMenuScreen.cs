@@ -105,7 +105,7 @@ internal sealed class MainMenuScreen : ScreenSurface
                 IsFocused = false;
                 var newSession = new Slums.Core.State.GameSession(_runtime.RandomSource.SharedRandom);
                 _runtime.MutationLogger.Attach(newSession);
-                GameHost.Instance.Screen = new BackgroundSelectionScreen(
+                GameHost.Instance.Screen = new GenderSelectionScreen(
                     GameRuntime.ScreenWidth,
                     GameRuntime.ScreenHeight,
                     _runtime,
