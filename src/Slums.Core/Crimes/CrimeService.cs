@@ -13,8 +13,9 @@ public sealed class CrimeService
         ArgumentNullException.ThrowIfNull(player);
 
         var streetSmartsBonus = player.Skills.GetLevel(SkillId.StreetSmarts) >= 3 ? 10 : 0;
-        var detectionChance = Math.Clamp(attempt.DetectionRisk + (policePressure / 2) - streetSmartsBonus, 5, 95);
-        var successChance = Math.Clamp(90 - attempt.DetectionRisk - (policePressure / 3) + streetSmartsBonus, 10, 95);
+        var genderDetectionMod = GenderModifiers.CrimeDetectionModifier(player.Gender, attempt.Type);
+        var detectionChance = Math.Clamp(attempt.DetectionRisk + (policePressure / 2) - streetSmartsBonus + genderDetectionMod, 5, 95);
+        var successChance = Math.Clamp(90 - attempt.DetectionRisk - (policePressure / 3) + streetSmartsBonus - (genderDetectionMod / 2), 10, 95);
 
         return new CrimeResolutionPreview(
             detectionChance,

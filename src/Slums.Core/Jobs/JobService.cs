@@ -59,9 +59,20 @@ public sealed class JobService
             energyCost = Math.Max(0, energyCost - 5);
         }
 
+        var genderPayMod = GenderModifiers.JobPayModifier(player.Gender, resolvedJob.Type);
+        var genderStressMod = GenderModifiers.JobStressModifier(player.Gender, resolvedJob.Type);
+        var genderEnergyMod = GenderModifiers.PhysicalJobEnergyDrain(player.Gender);
+        if (genderEnergyMod > 0 && (resolvedJob.Type == JobType.BakeryWork || resolvedJob.Type == JobType.MarketPorter || resolvedJob.Type == JobType.FishSorter || resolvedJob.Type == JobType.MicrobusDispatch))
+        {
+            energyCost += genderEnergyMod;
+        }
+
+        pay += genderPayMod;
+        var totalStressCost = resolvedJob.StressCost + genderStressMod;
+
         player.Stats.ModifyMoney(pay);
         player.Stats.ModifyEnergy(-energyCost);
-        player.Stats.ModifyStress(resolvedJob.StressCost);
+        player.Stats.ModifyStress(totalStressCost);
 
         var reliabilityGain = GetReliabilityGain(resolvedJob.Type, jobProgressState.GetTrack(resolvedJob.Type));
         jobProgressState.RecordSuccessfulShift(resolvedJob.Type, reliabilityGain);
@@ -69,8 +80,8 @@ public sealed class JobService
         return JobResult.SuccessWork(
             pay,
             energyCost,
-            resolvedJob.StressCost,
-            $"Worked {resolvedJob.Name}. Earned {pay} LE. Reliability +{reliabilityGain}. (-{energyCost} Energy, +{resolvedJob.StressCost} Stress)",
+            totalStressCost,
+            $"Worked {resolvedJob.Name}. Earned {pay} LE. Reliability +{reliabilityGain}. (-{energyCost} Energy, +{totalStressCost} Stress)",
             reliabilityGain);
     }
 
@@ -625,6 +636,18 @@ public sealed class JobService
         if (player.BackgroundType == BackgroundType.MedicalSchoolDropout && resolvedJob.Type == JobType.PharmacyStock)
         {
             modifiers.Add("Medical-dropout background helps you read stock and scripts faster.");
+        }
+
+        var genderPayMod = GenderModifiers.JobPayModifier(player.Gender, resolvedJob.Type);
+        if (genderPayMod < 0)
+        {
+            modifiers.Add($"Gender friction reduces pay by {-genderPayMod} LE.");
+        }
+
+        var genderStressMod = GenderModifiers.JobStressModifier(player.Gender, resolvedJob.Type);
+        if (genderStressMod > 0)
+        {
+            modifiers.Add($"Gender friction increases stress by {genderStressMod}.");
         }
 
         return modifiers;

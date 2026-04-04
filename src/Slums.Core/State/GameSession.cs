@@ -361,6 +361,15 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             RaiseEvent("Your training makes it harder to ignore every sign your mother's health is slipping.");
         }
 
+        var genderDailyStress = GenderModifiers.DailyStressModifier(Player.Gender);
+        if (genderDailyStress != 0)
+        {
+            Player.Stats.ModifyStress(genderDailyStress);
+            RaiseEvent(genderDailyStress > 0
+                ? "The streets have their own weight today."
+                : "You move through the city a little easier today.");
+        }
+
         var herbIncome = Player.HouseholdAssets.ResolveSellablePlantIncome(Clock.Day, currentWeek);
         if (herbIncome > 0)
         {
@@ -1114,6 +1123,18 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         RaiseEvent(GetTrainingFlavorMessage(activity));
         RecordMutation(MutationCategories.Training, "TryPerformTraining", before, CaptureStats(), $"{activity.Name} ({activity.Skill} {oldLevel}->{newLevel})");
         return true;
+    }
+
+    public void ApplyGenderRelationshipModifiers()
+    {
+        foreach (var npcId in Enum.GetValues<NpcId>())
+        {
+            var modifier = GenderModifiers.NpcStartingTrustModifier(Player.Gender, npcId);
+            if (modifier != 0)
+            {
+                Relationships.ModifyNpcTrust(npcId, modifier);
+            }
+        }
     }
 
     public void RestoreTrainedSkillsToday(Dictionary<SkillId, bool> trainedSkillsToday)

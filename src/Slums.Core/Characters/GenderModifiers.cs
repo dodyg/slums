@@ -1,90 +1,94 @@
+using Slums.Core.Crimes;
+using Slums.Core.Jobs;
+using Slums.Core.Relationships;
+
 namespace Slums.Core.Characters;
 
 public static class GenderModifiers
 {
-    public static int JobPayModifier(Gender gender, string jobTypeName)
+    public static int JobPayModifier(Gender gender, JobType jobType)
     {
         return gender switch
         {
-            Gender.Female => jobTypeName switch
+            Gender.Female => jobType switch
             {
-                "MicrobusDispatch" => -4,
-                "MarketPorter" => -3,
+                JobType.MicrobusDispatch => -4,
+                JobType.MarketPorter => -3,
                 _ => 0
             },
-            Gender.Male => jobTypeName switch
+            Gender.Male => jobType switch
             {
-                "HouseCleaning" => -2,
-                "WorkshopSewing" => -2,
+                JobType.HouseCleaning => -2,
+                JobType.WorkshopSewing => -2,
                 _ => 0
             },
             _ => 0
         };
     }
 
-    public static int JobStressModifier(Gender gender, string jobTypeName)
+    public static int JobStressModifier(Gender gender, JobType jobType)
     {
         return gender switch
         {
-            Gender.Female => jobTypeName switch
+            Gender.Female => jobType switch
             {
-                "MicrobusDispatch" => 3,
-                "MarketPorter" => 2,
+                JobType.MicrobusDispatch => 3,
+                JobType.MarketPorter => 2,
                 _ => 0
             },
-            Gender.Male => jobTypeName switch
+            Gender.Male => jobType switch
             {
-                "HouseCleaning" => 2,
-                "WorkshopSewing" => 1,
+                JobType.HouseCleaning => 2,
+                JobType.WorkshopSewing => 1,
                 _ => 0
             },
             _ => 0
         };
     }
 
-    public static int CrimeDetectionModifier(Gender gender, string crimeTypeName)
+    public static int CrimeDetectionModifier(Gender gender, CrimeType crimeType)
     {
         return gender switch
         {
-            Gender.Female => crimeTypeName switch
+            Gender.Female => crimeType switch
             {
-                "BulaqProtectionRacket" => 8,
-                "PettyTheft" => -3,
+                CrimeType.BulaqProtectionRacket => 8,
+                CrimeType.PettyTheft => -3,
                 _ => 0
             },
-            Gender.Male => crimeTypeName switch
+            Gender.Male => crimeType switch
             {
-                "Robbery" => 3,
-                "NetworkErrand" => -3,
+                CrimeType.Robbery => 3,
+                CrimeType.NetworkErrand => -3,
                 _ => 0
             },
             _ => 0
         };
     }
 
-    public static int NpcStartingTrustModifier(Gender gender, string npcId)
+    public static int NpcStartingTrustModifier(Gender gender, NpcId npcId)
     {
         return gender switch
         {
             Gender.Female => npcId switch
             {
-                "NeighborMona" => 5,
-                "FixerUmmKarim" => 3,
-                "NurseSalma" => 3,
-                "DispatcherSafaa" => 5,
-                "LaundryOwnerIman" => 3,
-                "WorkshopBossAbuSamir" => -3,
-                "RunnerYoussef" => -3,
+                NpcId.NeighborMona => 5,
+                NpcId.FixerUmmKarim => 3,
+                NpcId.NurseSalma => 3,
+                NpcId.DispatcherSafaa => 5,
+                NpcId.LaundryOwnerIman => 3,
+                NpcId.WorkshopBossAbuSamir => -3,
+                NpcId.RunnerYoussef => -3,
                 _ => 0
             },
             Gender.Male => npcId switch
             {
-                "NeighborMona" => -5,
-                "FixerUmmKarim" => -3,
-                "DispatcherSafaa" => -3,
-                "LaundryOwnerIman" => -3,
-                "WorkshopBossAbuSamir" => 5,
-                "RunnerYoussef" => 5,
+                NpcId.NeighborMona => -5,
+                NpcId.FixerUmmKarim => -3,
+                NpcId.DispatcherSafaa => -3,
+                NpcId.LaundryOwnerIman => -3,
+                NpcId.WorkshopBossAbuSamir => 5,
+                NpcId.RunnerYoussef => 5,
                 _ => 0
             },
             _ => 0

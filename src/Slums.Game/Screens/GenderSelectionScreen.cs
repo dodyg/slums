@@ -135,6 +135,7 @@ internal sealed class GenderSelectionScreen : ScreenSurface
     private void ConfirmSelection()
     {
         _gameState.Player.ApplyGender(Options[_selectedIndex].Gender);
+        _gameState.ApplyGenderRelationshipModifiers();
         IsFocused = false;
         GameHost.Instance.Screen = new BackgroundSelectionScreen(
             GameRuntime.ScreenWidth,
