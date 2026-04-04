@@ -54,6 +54,12 @@ public sealed class PlayerCharacter
         private set => _identity.BackgroundType = value;
     }
 
+    public Gender Gender
+    {
+        get => _identity.Gender;
+        set => _identity.Gender = value;
+    }
+
     public Background? Background
     {
         get => _identity.Background;
@@ -74,6 +80,12 @@ public sealed class PlayerCharacter
     {
         get => _identity.HasSelectedBackground;
         private set => _identity.HasSelectedBackground = value;
+    }
+
+    public void ApplyGender(Gender gender)
+    {
+        Gender = gender;
+        Name = GenderModifiers.DefaultName(gender);
     }
 
     public void ApplyBackground(Background background)
