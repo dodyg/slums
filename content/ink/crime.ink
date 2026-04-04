@@ -41,7 +41,7 @@ By maghrib, the talk on the street has already turned. Men lower their voices wh
     -> DONE
 
 *   [Push through — you cannot afford to lose days]
-    You refuse to let fear reorganize your life. The street watches, but the street always watches, and you have been visible before. You keep moving, keep working, keep your face set to the particular blankness that Cairo teaches its women as a first line of defense.
+    You refuse to let fear reorganize your life. The street watches, but the street always watches, and you have been visible before. You keep moving, keep working, keep your face set to the particular blankness that Cairo teaches {gender == "male": its men | its women} as a first line of defense.
     # STRESS:10
     # MESSAGE:You refuse to hide. The street takes note of the defiance and files it alongside everything else.
     -> DONE
@@ -109,7 +109,7 @@ Later, Hanan presses a folded note into your palm and tells you not to ask which
 -> DONE
 
 === crime_youssef_escape ===
-Youssef keeps you moving until your breathing stops sounding guilty. Only then does he say that a woman who freezes in Dokki gets remembered by too many people at once.
+Youssef keeps you moving until your breathing stops sounding guilty. Only then does he say that {gender == "male": a man | a woman} who freezes in Dokki gets remembered by too many people at once.
 # STRESS:-2
 # MESSAGE:Youssef turns a bad night into a survivable one.
 -> DONE
@@ -145,7 +145,7 @@ The handoff lands, but a building guard watches one second too long and a patrol
 -> DONE
 
 === crime_youssef_drop_failure ===
-The timing slips. A door stays shut, a messenger never appears, and suddenly you are only a young woman standing in the wrong corridor with no story that sounds clean enough. Youssef mutters that Dokki punishes hesitation twice.
+The timing slips. A door stays shut, a messenger never appears, and suddenly you are only {gender == "male": a young man | a young woman} standing in the wrong corridor with no story that sounds clean enough. Youssef mutters that Dokki punishes hesitation twice.
 # STRESS:6
 # MESSAGE:The Dokki drop collapses when the timing turns against you.
 -> DONE

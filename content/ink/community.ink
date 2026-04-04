@@ -181,7 +181,7 @@ The old crew left overnight. Not dramatically — they simply stopped appearing 
 The market adjusts. Prices shift. The ahwa serves the same tea to different faces. Cairo does not pause for regime change, even the local kind. The city simply recalculates who matters and who does not, and you recalculate with it.
 
 *   [Adapt to the new order]
-    You learn the new faces, the new patterns, the new invisible boundaries. The city has always been a map that redraws itself, and you have always been a woman who learns to read the latest version. Survival is not loyalty. Survival is literacy.
+    You learn the new faces, the new patterns, the new invisible boundaries. The city has always been a map that redraws itself, and you have always been {gender == "male": a man | a woman} who learns to read the latest version. Survival is not loyalty. Survival is literacy.
     # STRESS:5
     # MESSAGE:The territory flips. You learn the new map and keep walking.
     -> DONE

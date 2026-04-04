@@ -29,7 +29,15 @@ Stability does not erase the file with your name on it or the years already take
 -> DONE
 
 === ending_stability_sudanese ===
-The life you build is still called temporary by people who have never watched years harden around a woman. Even so, the rent gets paid, your mother eats, and a future begins to exist in Cairo without apologizing for itself first.
+The life you build is still called temporary by people who have never watched years harden around a {gender == "male": man | woman}. Even so, the rent gets paid, your mother eats, and a future begins to exist in Cairo without apologizing for itself first.
+-> DONE
+
+=== ending_stability_location_dokki ===
+Dokki pays better and watches closer. You learn to navigate both, and after long enough the balance starts to feel almost normal.
+-> DONE
+
+=== ending_stability_location_shubra ===
+Shubra takes you in the way only a neighborhood can — not with welcome, but with the assumption that you will stay and that staying is enough.
 -> DONE
 
 === ending_luxor ===
@@ -45,17 +53,17 @@ Leaving for Luxor does not erase the state file with your name on it. It does so
 -> DONE
 
 === ending_luxor_sudanese ===
-The train south feels like moving toward air instead of scrutiny. Luxor is not free of paperwork, suspicion, or the vocabulary people use for women they still call temporary. But it gives your household room to become ordinary, and ordinary can feel almost holy after Cairo.
+The train south feels like moving toward air instead of scrutiny. Luxor is not free of paperwork, suspicion, or the vocabulary people use for {gender == "male": men | women} they still call temporary. But it gives your household room to become ordinary, and ordinary can feel almost holy after Cairo.
 -> DONE
 
 === ending_arrested ===
-The holding cell smells of heat, metal, and old fear. Somewhere above you, Cairo keeps bargaining, praying, hustling, and surviving without pausing long enough to notice one more woman disappear indoors.
+The holding cell smells of heat, metal, and old fear. Somewhere above you, Cairo keeps bargaining, praying, hustling, and surviving without pausing long enough to notice one more {gender == "male": man | woman} disappear indoors.
 -> DONE
 
 === ending_eviction ===
 Seven days behind on rent turns a home into a countdown. By the time Hajj Mahmoud stops knocking and starts ordering, the room has already become a pile of things that cannot protect you.
 
-You and your mother carry what you can into the stairwell while the building pretends not to watch. Cairo has many ways to make a woman poor. Being made visible in the wrong moment is one of the quickest.
+You and your mother carry what you can into the stairwell while the building pretends not to watch. Cairo has many ways to make a {gender == "male": man | woman} poor. Being made visible in the wrong moment is one of the quickest.
 -> DONE
 
 === ending_network_shelter ===
@@ -101,9 +109,9 @@ But every rung you climbed belongs to someone else too. The errands are bigger, 
 -> DONE
 
 === ending_debt_violence ===
-They come at night because night is when doors are weakest and neighbours are quietest. Two men. No weapons visible, but their hands are the kind of hands that do not need weapons to make a point. They explain the total. They explain the interest. They explain what happens to women who borrow money and then pretend the debt was a dream.
+They come at night because night is when doors are weakest and neighbours are quietest. Two men. No weapons visible, but their hands are the kind of hands that do not need weapons to make a point. They explain the total. They explain the interest. They explain what happens to {gender == "male": men | women} who borrow money and then pretend the debt was a dream.
 
-Your mother watches from her mattress, and the look on her face is not fear. It is something worse: the slow recognition that the city has finally found the price of her daughter's survival, and the price is violence.
+Your mother watches from her mattress, and the look on her face is not fear. It is something worse: the slow recognition that the city has finally found the price of {gender == "male": her son's | her daughter's} survival, and the price is violence.
 
 You cannot pay. You cannot run. You cannot call for help because the people who answer phones in this neighborhood answer to the same men who are standing in your flat.
 

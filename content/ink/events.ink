@@ -98,7 +98,7 @@ In Shubra, help arrives disguised as ordinary conversation: one woman naming a c
 -> DONE
 
 === event_public_work_heat ===
-You do the job correctly, maybe even well, but the room still reads the strain before the shift ends. When police heat follows a woman into public work, people stop hearing tiredness as tiredness. They start hearing explanation.
+You do the job correctly, maybe even well, but the room still reads the strain before the shift ends. When police heat follows {gender == "male": a man | a woman} into public work, people stop hearing tiredness as tiredness. They start hearing explanation.
 -> DONE
 
 === event_mother_wrong_money ===
@@ -110,10 +110,10 @@ Later, Mona leaves the warning in the shape of ordinary kindness: a delayed knoc
 -> DONE
 
 === event_rent_final_warning ===
-When Hajj Mahmoud finally speaks plainly, humiliation becomes logistical. Two days. Two days before your things are exposed to the stairwell and everyone pretends not to watch. Cairo can make a woman desperate without ever raising its voice.
+When Hajj Mahmoud finally speaks plainly, humiliation becomes logistical. Two days. Two days before your things are exposed to the stairwell and everyone pretends not to watch. Cairo can make {gender == "male": a man | a woman} desperate without ever raising its voice.
 
 *   [Beg him for three more days]
-    You stand in the stairwell with your hands clasped and ask for time you do not deserve from a man who has given you enough of it already. He listens, pulls his beard, and gives you three days. Not because he is kind. Because evicting a woman with a sick mother is bad for his reputation in a building where everyone watches everyone.
+    You stand in the stairwell with your hands clasped and ask for time you do not deserve from a man who has given you enough of it already. He listens, pulls his beard, and gives you three days. Not because he is kind. Because evicting {gender == "male": a man | a woman} with a sick mother is bad for his reputation in a building where everyone watches everyone.
     # STRESS:8
     # NPC_TRUST:LandlordHajjMahmoud,-2
     # MESSAGE:Hajj Mahmoud gives you three more days. The reprieve costs dignity it cannot afford to lose.

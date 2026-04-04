@@ -57,7 +57,7 @@ Two men this time. One stays by the stairwell, watching the neighbors find urgen
 He gives you forty-eight hours. He does not say what happens after. He does not have to. The building has already gone quiet, and when he leaves, the silence he takes with him is heavier than the silence he brought.
 
 *   [Swallow your pride and beg everyone you know]
-    You spend the next hour apologizing to people who have already given you enough, borrowing from trust you have not earned, and learning how many times a woman can say "please" before the word loses all meaning.
+    You spend the next hour apologizing to people who have already given you enough, borrowing from trust you have not earned, and learning how many times {gender == "male": a man | a woman} can say "please" before the word loses all meaning.
     # STRESS:12
     # MESSAGE:You beg for help across every contact you have. The debt shrinks, but so does something harder to name.
     -> DONE

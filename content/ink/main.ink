@@ -1,5 +1,7 @@
 # SLUMS - Main Ink Story
 
+VAR gender = "female"
+
 INCLUDE crime.ink
 INCLUDE events.ink
 INCLUDE npcs.ink
@@ -111,7 +113,7 @@ Cairo was supposed to be temporary. A station between one life and the next. But
     
     You remember your father before the shell took him. You remember neighbours who became family, friends who scattered to Egypt, to Ethiopia, to graves no one can visit.
     
-    Your Arabic still catches on certain words. "Ayna enti min?" people ask. Where are you from?
+    Your Arabic still catches on certain words. "Ayna {gender == "male": enta | enti} min?" people ask. Where are you from?
     
     The question never stops being complicated.
     
@@ -137,7 +139,7 @@ Cairo was supposed to be temporary. A station between one life and the next. But
 === intro_done ===
 Your story begins.
 
-The day stretches before you, one more day in a city that can hold twelve million people and still find ways to make one woman feel cornered.
+The day stretches before you, one more day in a city that can hold twelve million people and still find ways to make one {gender == "male": man | woman} feel cornered.
 
 Survive.
 -> DONE
