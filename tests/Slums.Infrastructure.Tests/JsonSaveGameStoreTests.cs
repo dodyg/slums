@@ -25,6 +25,7 @@ internal sealed class JsonSaveGameStoreTests
 
             using var gameSession = new Slums.Core.State.GameSession();
             var runId = Guid.NewGuid();
+            gameSession.Player.ApplyGender(Gender.Female);
             gameSession.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
             gameSession.Player.Stats.SetMoney(222);
             gameSession.Player.Nutrition.SetSatiety(41);
@@ -84,6 +85,8 @@ internal sealed class JsonSaveGameStoreTests
 
                 try
                 {
+                    restoredSession.Player.Gender.Should().Be(Gender.Female);
+                    restoredSession.Player.Name.Should().Be("Amira");
                     restoredSession.RunId.Should().Be(runId);
                     restoredSession.Player.Stats.Money.Should().Be(222);
                     restoredSession.Player.Nutrition.Satiety.Should().Be(41);
@@ -121,6 +124,45 @@ internal sealed class JsonSaveGameStoreTests
                     restoredSession.ActiveInvestments[0].WeeksActive.Should().Be(3);
                     restoredSession.TrainedSkillsToday.Should().ContainKey(SkillId.Physical);
                     restoredSession.Player.Skills.GetLevel(SkillId.Physical).Should().BeGreaterThan(0);
+                }
+                finally
+                {
+                    restoredSession.Dispose();
+                }
+            }
+        }
+        finally
+        {
+            DeleteDirectory(saveDirectory);
+        }
+    }
+
+    [Test]
+    public async Task SaveAndLoad_ShouldRoundTripMaleGender()
+    {
+        var saveDirectory = CreateTempDirectory("slums-save-tests");
+        try
+        {
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
+
+            using var gameSession = new Slums.Core.State.GameSession();
+            gameSession.Player.ApplyGender(Gender.Male);
+            gameSession.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+            gameSession.Player.Stats.SetMoney(50);
+
+            await store.SaveAsync(SaveGameRequest.Create(gameSession, null), "slot-male").ConfigureAwait(false);
+            var loaded = await store.LoadAsync("slot-male").ConfigureAwait(false);
+
+            loaded.Should().NotBeNull();
+            var loadedSession = loaded!;
+            using (loadedSession)
+            {
+                var restoredSession = loadedSession.TakeGameSession();
+                try
+                {
+                    restoredSession.Player.Gender.Should().Be(Gender.Male);
+                    restoredSession.Player.Name.Should().Be("Karim");
+                    restoredSession.Player.Stats.Money.Should().Be(50);
                 }
                 finally
                 {

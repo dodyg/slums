@@ -992,7 +992,7 @@ internal sealed class GameStateTests
         state.EndDay();
 
         await Assert.That(state.Player.Stats.Energy).IsEqualTo(70);
-        await Assert.That(state.Player.Stats.Stress).IsEqualTo(29);
+        await Assert.That(state.Player.Stats.Stress).IsEqualTo(30);
         await Assert.That(state.Player.Stats.Hunger).IsEqualTo(60);
     }
 
@@ -1030,7 +1030,7 @@ internal sealed class GameStateTests
 
         state.EndDay();
 
-        await Assert.That(state.Player.Stats.Stress).IsEqualTo(35);
+        await Assert.That(state.Player.Stats.Stress).IsEqualTo(36);
     }
 
     [Test]

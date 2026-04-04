@@ -57,7 +57,7 @@ internal sealed class CrimeServiceTests
 
         var preview = service.PreviewCrime(attempt, player, policePressure: 60);
 
-        preview.DetectionChance.Should().Be(40);
-        preview.SuccessChance.Should().Be(60);
+        preview.DetectionChance.Should().Be(37);
+        preview.SuccessChance.Should().Be(61);
     }
 }

@@ -104,6 +104,34 @@ internal sealed class PlayerCharacterTests
 
         await Assert.That(player.Name).IsEqualTo("Fatima");
     }
+
+    [Test]
+    public async Task ApplyGender_Male_ShouldSetNameToKarim()
+    {
+        var player = new PlayerCharacter();
+        player.ApplyGender(Gender.Male);
+
+        await Assert.That(player.Gender).IsEqualTo(Gender.Male);
+        await Assert.That(player.Name).IsEqualTo("Karim");
+    }
+
+    [Test]
+    public async Task ApplyGender_Female_ShouldSetNameToAmira()
+    {
+        var player = new PlayerCharacter();
+        player.ApplyGender(Gender.Female);
+
+        await Assert.That(player.Gender).IsEqualTo(Gender.Female);
+        await Assert.That(player.Name).IsEqualTo("Amira");
+    }
+
+    [Test]
+    public async Task Gender_DefaultIsFemale()
+    {
+        var player = new PlayerCharacter();
+
+        await Assert.That(player.Gender).IsEqualTo(Gender.Female);
+    }
 }
 
 internal sealed class BackgroundTests
