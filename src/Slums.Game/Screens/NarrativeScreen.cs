@@ -179,6 +179,11 @@ internal sealed class NarrativeScreen : ScreenSurface
             _narrativeService.ClearPendingOutcome();
         }
 
+        if (_nextScreen is GameScreen gameScreen)
+        {
+            gameScreen.SuppressActionKeysUntilRelease();
+        }
+
         IsFocused = false;
         _nextScreen.IsFocused = true;
         GameHost.Instance.Screen = _nextScreen;

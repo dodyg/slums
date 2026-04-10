@@ -98,6 +98,7 @@ internal sealed class PlantUpgradeScreen : ScreenSurface
         }
 
         _command.Execute(_gameState, _plantId, status.UpgradeType);
+        _rootParentScreen.SuppressActionKeysUntilRelease();
         _rootParentScreen.IsFocused = true;
         IsFocused = false;
         _parentScreen.IsFocused = false;

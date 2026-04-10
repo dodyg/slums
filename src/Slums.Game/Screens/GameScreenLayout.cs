@@ -14,7 +14,7 @@ internal static class GameScreenLayout
     internal const int EventLogY = 19;
     internal const int StatusPageX = 45;
     internal const int StatusPageY = 11;
-    internal const int MaxEventLogEntries = 6;
+    internal const int MaxEventLogEntries = 200;
 
     internal static int GetStatRowY(int screenHeight, int statOffset)
     {

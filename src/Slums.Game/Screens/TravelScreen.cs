@@ -17,6 +17,7 @@ internal sealed class TravelScreen : ScreenSurface
     private readonly TravelCommand _travelCommand = new();
     private readonly TipContextQuery _tipContextQuery = new();
     private int _selectedIndex;
+    private int _mouseSelectedIndex = -1;
 
     public TravelScreen(int width, int height, GameSession gameState, IReadOnlyList<Location> locations, GameScreen parentScreen) 
         : base(width, height)
@@ -37,7 +38,7 @@ internal sealed class TravelScreen : ScreenSurface
 
         var centerX = Surface.Width / 2;
         Surface.Print(centerX - 5, 2, "=== Travel ===", Color.Cyan);
-        Surface.Print(2, 4, "Select destination (Enter=travel, W=walk, Esc=cancel):", Color.Gray);
+        Surface.Print(2, 4, "Select destination (Enter=transport, W=walk, Esc=cancel):", Color.Gray);
         var visibleCount = TravelScreenLayout.GetMaxVisibleDestinations(Surface.Height);
         var firstVisibleIndex = TravelScreenLayout.GetFirstVisibleIndex(_selectedIndex, visibleCount, _locations.Count);
         var detailStartY = TravelScreenLayout.GetDetailStartY(Surface.Height);
@@ -128,8 +129,35 @@ internal sealed class TravelScreen : ScreenSurface
                 cellPosition.X >= TravelScreenLayout.DestinationStartX &&
                 cellPosition.X < Surface.Width - 2)
             {
-                _selectedIndex = firstVisibleIndex + rowIndex;
+                var clickedIndex = firstVisibleIndex + rowIndex;
+                if (_selectedIndex == clickedIndex)
+                {
+                    TravelToSelected();
+                }
+                else
+                {
+                    _selectedIndex = clickedIndex;
+                    _mouseSelectedIndex = clickedIndex;
+                }
+
+                return true;
+            }
+        }
+
+        var detailStartY = TravelScreenLayout.GetDetailStartY(Surface.Height);
+        if (cellPosition.Y == detailStartY + 2)
+        {
+            var transportLabel = "Transport:";
+            if (cellPosition.X >= 2 && cellPosition.X < 2 + transportLabel.Length + 10)
+            {
                 TravelToSelected();
+                return true;
+            }
+
+            var walkPrefix = $"Transport: {_gameState.GetTravelCost(_locations[_selectedIndex].Id)} LE / {_gameState.GetTravelTimeMinutes(_locations[_selectedIndex].Id)} min | ";
+            if (cellPosition.X >= 2 + walkPrefix.Length && cellPosition.X < 2 + walkPrefix.Length + 10)
+            {
+                WalkToSelected();
                 return true;
             }
         }
@@ -166,6 +194,7 @@ internal sealed class TravelScreen : ScreenSurface
     private void ReturnToParentScreen()
     {
         IsFocused = false;
+        _parentScreen.SuppressActionKeysUntilRelease();
         _parentScreen.IsFocused = true;
         GameHost.Instance.Screen = _parentScreen;
     }
@@ -203,7 +232,7 @@ internal sealed class TravelScreen : ScreenSurface
             Surface.Print(2, detailStartY + 1, TrimToFit(travelSummary, Surface.Width - 4), Color.DarkGray);
         }
 
-        Surface.Print(2, detailStartY + 2, $"Transport: {travelCost} LE / {travelMinutes} min | Walk: {walkMinutes} min (free, more energy)", Color.Yellow);
+        Surface.Print(2, detailStartY + 2, $"[Transport]: {travelCost} LE / {travelMinutes} min | [Walk]: {walkMinutes} min (free)", Color.Yellow);
 
         var currentMinutes = _gameState.Clock.Hour * 60 + _gameState.Clock.Minute;
         var arrivalHour = (currentMinutes + travelMinutes) / 60;

@@ -160,6 +160,7 @@ internal sealed class HomeUpgradeScreen : ScreenSurface
     private void ReturnToParentScreen()
     {
         IsFocused = false;
+        _parentScreen.SuppressActionKeysUntilRelease();
         _parentScreen.IsFocused = true;
         GameHost.Instance.Screen = _parentScreen;
     }

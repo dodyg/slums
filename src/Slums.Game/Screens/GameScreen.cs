@@ -4,9 +4,6 @@ using SadConsole.Input;
 using SadConsole.UI;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
-using Slums.Core.Characters;
-using Slums.Application.HouseholdAssets;
-using Slums.Application.Investments;
 using Slums.Application.Narrative;
 using Slums.Core.Clock;
 using Slums.Core.State;
@@ -20,22 +17,14 @@ internal sealed class GameScreen : ScreenSurface
     private static readonly TimeSpan RealTimePerGameMinute = TimeSpan.FromSeconds(1);
     private readonly GameRuntime _runtime;
     private readonly GameSession _gameState;
-    private readonly WorkMenuStatusQuery _workMenuStatusQuery = new();
-    private readonly CrimeMenuStatusQuery _crimeMenuStatusQuery = new();
     private readonly GameStatusPageQuery _statusPageQuery = new();
-    private readonly TalkNpcStatusQuery _talkNpcStatusQuery = new();
-    private readonly ClinicTravelMenuQuery _clinicTravelMenuQuery = new();
-    private readonly EntertainmentMenuQuery _entertainmentMenuQuery = new();
-    private readonly TrainingMenuQuery _trainingMenuQuery = new();
-    private readonly InvestmentMenuQuery _investmentMenuQuery = new();
-    private readonly HouseholdAssetsMenuQuery _householdAssetsMenuQuery = new();
     private readonly GameActionMenuQuery _gameActionMenuQuery = new();
-    private readonly CommunityEventMenuQuery _communityEventMenuQuery = new();
     private readonly GameActionCommand _gameActionCommand = new();
     private readonly AdvanceTimeCommand _advanceTimeCommand = new();
     private readonly AutomaticTimeAdvancer _automaticTimeAdvancer;
     private readonly ScreenActionKeyGate _actionKeyGate = new();
-    private readonly List<string> _eventLog = new(10);
+    private readonly List<string> _eventLog = new(GameScreenLayout.MaxEventLogEntries);
+    private readonly GameScreenNavigator _navigator;
     private int _selectedAction;
     private int _selectedStatusPage;
     private bool _hasLoggedGameOver;
@@ -46,6 +35,7 @@ internal sealed class GameScreen : ScreenSurface
         _gameState = gameState;
         _gameState.GameEvent += OnGameEvent;
         _automaticTimeAdvancer = new AutomaticTimeAdvancer(RealTimePerGameMinute);
+        _navigator = new GameScreenNavigator(runtime, gameState, this);
         Children.Add(new OverviewWindow(this));
         Children.Add(new StatusPageWindow(this));
         Children.Add(new EventLogWindow(this));
@@ -96,121 +86,8 @@ internal sealed class GameScreen : ScreenSurface
         Surface.Clear();
 
         var statusContext = GameStatusContext.Create(_gameState);
-        RenderHud(statusContext);
-        RenderActions();
-    }
-
-    private void RenderHud(GameStatusContext statusContext)
-    {
-        Surface.Print(0, 0, "=== SLUMS - Cairo Survival ===", Color.Yellow);
-        RenderStat("Energy", statusContext.Player.Stats.Energy, 100, GetStatColor(statusContext.Player.Stats.Energy));
-        RenderStat("Hunger", statusContext.Player.Stats.Hunger, 100, GetStatColor(statusContext.Player.Stats.Hunger));
-        RenderStat("Health", statusContext.Player.Stats.Health, 100, GetStatColor(statusContext.Player.Stats.Health));
-        RenderStat("Stress", statusContext.Player.Stats.Stress, 100, GetStressColor(statusContext.Player.Stats.Stress));
-        RenderStat("Mother Health", statusContext.Player.Household.MotherHealth, 100, GetMotherHealthColor(statusContext.Player.Household.MotherCondition));
-    }
-
-    private void RenderStat(string name, int value, int max, Color color)
-    {
-        const int barWidth = 10;
-        var filled = (int)((double)value / max * barWidth);
-        var bar = new string('#', filled) + new string('-', barWidth - filled);
-        Surface.Print(0, GameScreenLayout.GetStatRowY(Surface.Height, GetStatLineOffset(name)), $"{name}: [{bar}] {value}", color);
-    }
-
-    private static int GetStatLineOffset(string name) => name switch
-    {
-        "Hunger" => 0,
-        "Energy" => 1,
-        "Health" => 2,
-        "Stress" => 3,
-        "Mother Health" => 4,
-        _ => 0
-    };
-
-    private static Color GetStatColor(int value) => value switch
-    {
-        < 20 => Color.Red,
-        < 50 => Color.Orange,
-        _ => Color.Green
-    };
-
-    private static Color GetStressColor(int value) => value switch
-    {
-        > 80 => Color.Red,
-        > 50 => Color.Orange,
-        _ => Color.Green
-    };
-
-    private static Color GetMotherHealthColor(MotherCondition condition) => condition switch
-    {
-        MotherCondition.Crisis => Color.Red,
-        MotherCondition.Fragile => Color.Orange,
-        _ => Color.Green
-    };
-
-    private static string BuildRentOverviewText(GameStatusContext statusContext)
-    {
-        return statusContext.UnpaidRentDays > 0
-            ? $"Rent debt: {statusContext.AccumulatedRentDebt} LE ({statusContext.UnpaidRentDays}d)"
-            : $"Rent: {statusContext.RentCost} LE due today";
-    }
-
-    private static string TrimToWidth(string text, int maxLength)
-    {
-        return text.Length <= maxLength ? text : $"{text[..(maxLength - 3)]}...";
-    }
-
-    private void RenderActions()
-    {
-        var actions = GetActions();
-        Surface.Print(0, GameScreenLayout.GetActionHeaderY(Surface.Height), "--- Actions ---", Color.Cyan);
-        var actionListStartY = GameScreenLayout.GetActionListStartY(Surface.Height);
-
-        for (var i = 0; i < actions.Count; i++)
-        {
-            var prefix = i == _selectedAction ? "> " : "  ";
-            var color = i == _selectedAction ? Color.Cyan : Color.White;
-            Surface.Print(GameScreenLayout.ActionListX, actionListStartY + i, prefix + actions[i].Label, color);
-        }
-
-        var tabHintY = actionListStartY + actions.Count + 1;
-        if (tabHintY < GameScreenLayout.GetActionHeaderY(Surface.Height) + 14)
-        {
-            Surface.Print(GameScreenLayout.ActionListX, tabHintY, "Tab=status pages", Color.DarkGray);
-        }
-    }
-
-    private void RenderStatusPage(GameStatusContext statusContext)
-    {
-        const int x = GameScreenLayout.StatusPageX;
-        var y = GameScreenLayout.StatusPageY;
-        var pages = _statusPageQuery.GetPages(statusContext);
-        if (pages.Count == 0)
-        {
-            return;
-        }
-
-        if (_selectedStatusPage >= pages.Count)
-        {
-            _selectedStatusPage = 0;
-        }
-
-        var page = pages[_selectedStatusPage];
-        Surface.Print(x, y++, $"--- {page.Title} [{_selectedStatusPage + 1}/{pages.Count}] ---", Color.Cyan);
-
-            foreach (var line in page.Lines)
-            {
-                foreach (var wrappedLine in WrapText(line, GameScreenLayout.RightPanelWidth).Take(3))
-                {
-                    if (y >= GameScreenLayout.EventLogY - 1)
-                    {
-                        return;
-                    }
-
-                    Surface.Print(x, y++, wrappedLine, Color.White);
-                }
-            }
+        GameScreenHudRenderer.RenderHud(this, statusContext);
+        GameScreenHudRenderer.RenderActions(this, GetActions(), _selectedAction);
     }
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)
@@ -255,7 +132,7 @@ internal sealed class GameScreen : ScreenSurface
 
         if (keyboard.IsKeyPressed(Keys.T))
         {
-            ShowTravelMenu();
+            _navigator.ShowTravelMenu();
             return true;
         }
 
@@ -268,7 +145,13 @@ internal sealed class GameScreen : ScreenSurface
 
         if (keyboard.IsKeyPressed(Keys.P))
         {
-            ShowSaveMenu();
+            _navigator.ShowSaveMenu();
+            return true;
+        }
+
+        if (keyboard.IsKeyPressed(Keys.L))
+        {
+            _navigator.ShowEventLogViewer();
             return true;
         }
 
@@ -280,6 +163,16 @@ internal sealed class GameScreen : ScreenSurface
         _actionKeyGate.SuppressActionKeysUntilRelease();
     }
 
+    internal void AddEventLogEntry(string message)
+    {
+        _eventLog.Add(message);
+        while (_eventLog.Count > GameScreenLayout.MaxEventLogEntries)
+        {
+            _eventLog.RemoveAt(0);
+        }
+    }
+
+    internal IReadOnlyList<string> GetEventLogEntries() => _eventLog;
 
     private void ExecuteAction()
     {
@@ -294,235 +187,13 @@ internal sealed class GameScreen : ScreenSurface
             case GameActionId.EndDay:
                 _gameActionCommand.Execute(_gameState, action.Id, _runtime.RandomSource.SharedRandom);
                 break;
-            case GameActionId.Work:
-                ShowWorkMenu();
-                break;
-            case GameActionId.Crime:
-                ShowCrimeMenu();
-                break;
-            case GameActionId.Talk:
-                ShowTalkMenu();
-                break;
-            case GameActionId.Entertainment:
-                ShowEntertainmentMenu();
-                break;
-            case GameActionId.Train:
-                ShowTrainingMenu();
-                break;
-            case GameActionId.HomeImprovement:
-                ShowHomeUpgradeMenu();
-                break;
-            case GameActionId.CommunityEvent:
-                ShowCommunityEventMenu();
-                break;
-            case GameActionId.Invest:
-                ShowInvestmentMenu();
-                break;
-            case GameActionId.Shop:
-                ShowShopMenu();
-                break;
-            case GameActionId.HouseholdAssets:
-                ShowHouseholdAssetsMenu();
-                break;
-            case GameActionId.TakeMotherToClinic:
-                ShowClinicTravelMenu();
-                break;
-            case GameActionId.Travel:
-                ShowTravelMenu();
-                break;
-            case GameActionId.Phone:
-                ShowPhoneMenu();
-                break;
-            case GameActionId.SaveGame:
-                ShowSaveMenu();
-                break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(action));
+                _navigator.ShowMenu(action.Id);
+                break;
         }
 
         TryShowPendingNarrativeScene();
         AppendGameOverMessagesIfNeeded();
-    }
-
-    private void ShowWorkMenu()
-    {
-        var workContext = WorkMenuContext.Create(_gameState);
-        var jobs = _workMenuStatusQuery.GetStatuses(workContext).ToList();
-        if (jobs.Count == 0)
-        {
-            AddEventLogEntry("No work available here.");
-            return;
-        }
-
-        IsFocused = false;
-        GameHost.Instance.Screen = new WorkScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, workContext, jobs, this);
-    }
-
-    private void ShowCrimeMenu()
-    {
-        var crimeContext = CrimeMenuContext.Create(_gameState);
-        var crimes = _crimeMenuStatusQuery.GetStatuses(crimeContext).ToList();
-        if (crimes.Count == 0)
-        {
-            AddEventLogEntry("No crime opportunities here.");
-            return;
-        }
-
-        IsFocused = false;
-        GameHost.Instance.Screen = new CrimeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState, crimeContext, crimes, this);
-    }
-
-    private void ShowTalkMenu()
-    {
-        var talkContext = TalkNpcContext.Create(_gameState);
-        var npcStatuses = _talkNpcStatusQuery.GetStatuses(talkContext);
-        if (npcStatuses.Count == 0)
-        {
-            AddEventLogEntry("No one is available to talk.");
-            return;
-        }
-
-        IsFocused = false;
-        GameHost.Instance.Screen = new TalkScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState, talkContext, npcStatuses, this);
-    }
-
-    private void ShowShopMenu()
-    {
-        var shopContext = ShopMenuContext.Create(_gameState);
-        IsFocused = false;
-        GameHost.Instance.Screen = new ShopScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, shopContext, this);
-    }
-
-    private void ShowTravelMenu()
-    {
-        var locations = _gameState.World.GetTravelableLocations().ToList();
-        if (locations.Count == 0)
-        {
-            AddEventLogEntry("No travel destinations available");
-            return;
-        }
-
-        IsFocused = false;
-        GameHost.Instance.Screen = new TravelScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, locations, this);
-    }
-
-    private void ShowPhoneMenu()
-    {
-        var phoneContext = PhoneMenuContext.Create(_gameState);
-        IsFocused = false;
-        GameHost.Instance.Screen = new PhoneScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, phoneContext, this);
-    }
-
-    private void ShowSaveMenu()
-    {
-        IsFocused = false;
-        GameHost.Instance.Screen = new SaveGameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState, this);
-    }
-
-    private void ShowClinicTravelMenu()
-    {
-        var clinicContext = ClinicTravelMenuContext.Create(_gameState);
-        var clinics = _clinicTravelMenuQuery.GetStatuses(clinicContext).ToList();
-        if (clinics.Count == 0)
-        {
-            AddEventLogEntry("No clinics available.");
-            return;
-        }
-
-        IsFocused = false;
-        GameHost.Instance.Screen = new ClinicTravelScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, clinicContext, clinics, this);
-    }
-
-    private void ShowEntertainmentMenu()
-    {
-        var entertainmentContext = EntertainmentMenuContext.Create(_gameState);
-        var activities = _entertainmentMenuQuery.GetStatuses(entertainmentContext).ToList();
-        if (activities.Count == 0)
-        {
-            AddEventLogEntry("No entertainment available here.");
-            return;
-        }
-
-        IsFocused = false;
-        GameHost.Instance.Screen = new EntertainmentScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, entertainmentContext, activities, this);
-    }
-
-    private void ShowTrainingMenu()
-    {
-        var trainingContext = TrainingMenuContext.Create(_gameState);
-        var activities = _trainingMenuQuery.GetStatuses(trainingContext).ToList();
-        if (activities.Count == 0)
-        {
-            AddEventLogEntry("No training available right now.");
-            return;
-        }
-
-        IsFocused = false;
-        GameHost.Instance.Screen = new TrainingScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, trainingContext, activities, this);
-    }
-
-    private void ShowHomeUpgradeMenu()
-    {
-        var availableUpgrades = _gameState.GetAvailableHomeUpgrades();
-        if (availableUpgrades.Count == 0)
-        {
-            AddEventLogEntry("No home upgrades available.");
-            return;
-        }
-
-        IsFocused = false;
-        GameHost.Instance.Screen = new HomeUpgradeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, this);
-    }
-
-    private void ShowCommunityEventMenu()
-    {
-        var context = CommunityEventMenuContext.Create(_gameState);
-        var events = _communityEventMenuQuery.GetStatuses(context).ToList();
-        if (events.Count == 0)
-        {
-            AddEventLogEntry("No community events available right now.");
-            return;
-        }
-
-        IsFocused = false;
-        GameHost.Instance.Screen = new CommunityEventScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, context, events, this);
-    }
-
-    private void ShowInvestmentMenu()
-    {
-        var investmentContext = InvestmentMenuContext.Create(_gameState);
-        var investments = _investmentMenuQuery.GetStatuses(investmentContext).ToList();
-        if (investments.Count == 0)
-        {
-            AddEventLogEntry("No investment opportunities are being offered here.");
-            return;
-        }
-
-        IsFocused = false;
-        GameHost.Instance.Screen = new InvestmentMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, investmentContext, investments, this);
-    }
-
-    private void ShowHouseholdAssetsMenu()
-    {
-        var householdContext = HouseholdAssetsMenuContext.Create(_gameState);
-        var statuses = _householdAssetsMenuQuery.GetStatuses(householdContext).ToList();
-        if (statuses.Count == 0)
-        {
-            AddEventLogEntry("Nothing in the household-assets flow is available right now.");
-            return;
-        }
-
-        IsFocused = false;
-        GameHost.Instance.Screen = new HouseholdAssetsScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, householdContext, statuses, this);
-    }
-
-    internal void AddEventLogEntry(string message)
-    {
-        _eventLog.Add(message);
-        while (_eventLog.Count > GameScreenLayout.MaxEventLogEntries)
-        {
-            _eventLog.RemoveAt(0);
-        }
     }
 
     private void AppendGameOverMessagesIfNeeded()
@@ -591,41 +262,17 @@ internal sealed class GameScreen : ScreenSurface
         _selectedStatusPage = (_selectedStatusPage + 1) % pages.Count;
     }
 
-    private static IEnumerable<string> WrapText(string text, int maxWidth)
-    {
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var current = string.Empty;
-
-        foreach (var word in words)
-        {
-            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
-            if (candidate.Length > maxWidth && current.Length > 0)
-            {
-                yield return current;
-                current = word;
-            }
-            else
-            {
-                current = candidate;
-            }
-        }
-
-        if (current.Length > 0)
-        {
-            yield return current;
-        }
-    }
-
     private sealed class EventLogWindow : Window
     {
+        private const int VisibleEntries = 6;
         private readonly GameScreen _owner;
 
         public EventLogWindow(GameScreen owner)
-            : base(GameScreenLayout.RightPanelWidth, GameScreenLayout.MaxEventLogEntries + 2)
+            : base(GameScreenLayout.RightPanelWidth, VisibleEntries + 2)
         {
             _owner = owner;
             Position = new Point(GameScreenLayout.EventLogX, GameScreenLayout.EventLogY);
-            Title = " Event Log ";
+            Title = " Event Log (L=full) ";
             CanDrag = true;
             IsExclusiveMouse = true;
             IsFocused = true;
@@ -644,12 +291,15 @@ internal sealed class GameScreen : ScreenSurface
 
         public void RenderEventLog()
         {
-            const int y = 1;
+            var entries = _owner._eventLog;
+            var start = Math.Max(0, entries.Count - VisibleEntries);
+            var row = 1;
 
-            for (var i = _owner._eventLog.Count - 1; i >= 0; i--)
+            for (var i = entries.Count - 1; i >= start; i--)
             {
-                var text = TrimToWidth(_owner._eventLog[i], Surface.Width - 4);
-                Surface.Print(2, y + (_owner._eventLog.Count - 1 - i), text, Color.Gray);
+                var text = GameScreenHudRenderer.TrimToWidth(entries[i], Surface.Width - 4);
+                Surface.Print(2, row, text, Color.Gray);
+                row++;
             }
         }
     }
@@ -686,14 +336,14 @@ internal sealed class GameScreen : ScreenSurface
 
             var dayOfWeek = statusContext.Clock.DayOfWeek;
             var daySchedule = DayScheduleRegistry.GetModifiers(dayOfWeek);
-            Surface.Print(2, y++, TrimToWidth($"Day {statusContext.Clock.Day} ({daySchedule.DayName}) - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2} | {statusContext.SeasonName} | {statusContext.WeatherName}", width), Color.White);
-            Surface.Print(2, y++, TrimToWidth($"Location: {location}", width), Color.White);
-            Surface.Print(2, y++, TrimToWidth($"District: {districtName}", width), Color.White);
+            Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth($"Day {statusContext.Clock.Day} ({daySchedule.DayName}) - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2} | {statusContext.SeasonName} | {statusContext.WeatherName}", width), Color.White);
+            Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth($"Location: {location}", width), Color.White);
+            Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth($"District: {districtName}", width), Color.White);
             var policeColor = statusContext.PolicePressure >= 80 ? Color.Red
                 : statusContext.PolicePressure >= 50 ? Color.Orange
                 : Color.Green;
             var moneyPrefix = $"Money: {statusContext.Player.Stats.Money} LE | Police: ";
-            Surface.Print(2, y, TrimToWidth($"{moneyPrefix}{statusContext.PolicePressure}", width), Color.Gold);
+            Surface.Print(2, y, GameScreenHudRenderer.TrimToWidth($"{moneyPrefix}{statusContext.PolicePressure}", width), Color.Gold);
             Surface.Print(2 + moneyPrefix.Length, y, $"{statusContext.PolicePressure}", policeColor);
             y++;
 
@@ -702,13 +352,13 @@ internal sealed class GameScreen : ScreenSurface
                 : statusContext.UnpaidRentDays > 0 || statusContext.Player.Stats.Money < statusContext.RentCost
                     ? Color.Orange
                     : Color.Gray;
-            Surface.Print(2, y++, TrimToWidth(BuildRentOverviewText(statusContext), width), rentColor);
-            Surface.Print(2, y++, TrimToWidth($"Food: {household.FoodStockpile} | Med: {household.MedicineStock} | Buy food {statusContext.FoodCost} | Street {statusContext.StreetFoodCost} | Meds {statusContext.MedicineCost}", width), Color.White);
+            Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth(GameScreenHudRenderer.BuildRentOverviewText(statusContext), width), rentColor);
+            Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth($"Food: {household.FoodStockpile} | Med: {household.MedicineStock} | Buy food {statusContext.FoodCost} | Street {statusContext.StreetFoodCost} | Meds {statusContext.MedicineCost}", width), Color.White);
 
             var clinicText = statusContext.HasClinicServices
                 ? $"Clinic: {(statusContext.ClinicOpenToday ? "open" : "closed")} | visit {statusContext.ClinicVisitCost} LE"
                 : "Clinic: none here";
-            Surface.Print(2, y++, TrimToWidth(clinicText, width), statusContext.HasClinicServices ? Color.LightGreen : Color.Gray);
+            Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth(clinicText, width), statusContext.HasClinicServices ? Color.LightGreen : Color.Gray);
 
             var undeliveredTips = _owner._gameState.Tips.GetUndeliveredTips(statusContext.Clock.Day);
             if (undeliveredTips.Count > 0)
@@ -716,14 +366,14 @@ internal sealed class GameScreen : ScreenSurface
                 var tipText = undeliveredTips.Any(t => t.IsEmergency)
                     ? $"!! URGENT TIP ({undeliveredTips.Count} new)"
                     : $"New tip ({undeliveredTips.Count})";
-                Surface.Print(2, y++, TrimToWidth(tipText, width),
+                Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth(tipText, width),
                     undeliveredTips.Any(t => t.IsEmergency) ? Color.Red : Color.Yellow);
             }
 
             var districtBulletin = statusContext.CurrentDistrictCondition is null
                 ? "Today: no major district pressure."
                 : $"Today: {statusContext.CurrentDistrictCondition.Title} - {statusContext.CurrentDistrictCondition.GameplaySummary}";
-            Surface.Print(2, y, TrimToWidth(districtBulletin, width), Color.LightGray);
+            Surface.Print(2, y, GameScreenHudRenderer.TrimToWidth(districtBulletin, width), Color.LightGray);
         }
     }
 
@@ -775,7 +425,7 @@ internal sealed class GameScreen : ScreenSurface
 
             foreach (var line in page.Lines)
             {
-                foreach (var wrappedLine in WrapText(line, width).Take(3))
+                foreach (var wrappedLine in GameScreenHudRenderer.WrapText(line, width).Take(3))
                 {
                     if (y >= Surface.Height - 1)
                     {

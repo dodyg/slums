@@ -37,6 +37,48 @@ dotnet run --project .\tests\Slums.Infrastructure.Tests
 dotnet run --project .\tests\Slums.Narrative.Ink.Tests
 ```
 
+## Controls
+
+### Main game screen
+
+| Key | Action |
+|-----|--------|
+| Up/Down | Select action |
+| Enter | Confirm action |
+| Tab | Cycle status pages |
+| T | Open travel menu |
+| P | Save game |
+| L | Open full event log |
+| Esc | Return to main menu |
+
+### Modal screens (work, crime, shop, etc.)
+
+| Key | Action |
+|-----|--------|
+| Up/Down | Select item |
+| Enter | Confirm selection |
+| W | Walk (travel screen only) |
+| R | Refill credit / replace phone (phone screen only) |
+| I | Ignore message (phone screen only) |
+| Esc | Cancel / go back |
+
+### Narrative scenes
+
+| Key | Action |
+|-----|--------|
+| Up/Down | Scroll text / select choice |
+| 1-9 | Select choice directly |
+| Enter | Confirm choice / continue |
+
+### Event log viewer
+
+| Key | Action |
+|-----|--------|
+| Up/Down | Scroll one line |
+| PgUp/PgDn | Scroll one page |
+| Home/End | Jump to start/end |
+| Esc | Close viewer |
+
 ## Architecture notes
 
 - `GameSession` is the canonical runtime boundary and is backed internally by EntitiesDb.

@@ -95,6 +95,7 @@ internal sealed class FishTankUpgradeScreen : ScreenSurface
         }
 
         _command.Execute(_gameState, status.UpgradeType);
+        _rootParentScreen.SuppressActionKeysUntilRelease();
         _rootParentScreen.IsFocused = true;
         IsFocused = false;
         _parentScreen.IsFocused = false;
