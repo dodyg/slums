@@ -102,7 +102,7 @@ The game is about the **balanced trinity** of moral choice, family duty, and com
 
 ## Architecture Guardrails
 
-- `Slums.Core` owns simulation rules and the EntitiesDb-backed `GameSession` runtime boundary. It must not depend on SadConsole, Ink, or file IO.
+- `Slums.Core` owns simulation rules and the `GameSession` runtime boundary. It must not depend on SadConsole, Ink, or file IO.
 - `Slums.Application` owns contracts and orchestration, including the `LoadedGameSession` persistence handoff plus player-facing action commands and menu/action queries. It must not depend on SadConsole.
 - `Slums.Infrastructure` owns `GameSession` snapshot persistence, static content loading, and environment-specific adapters. Repo-owned JSON content should fail fast when it is missing or invalid.
 - `Slums.Narrative.Ink` owns Ink loading, variable sync, and narrative outcome mapping. Missing or invalid story content should fail fast rather than falling back.

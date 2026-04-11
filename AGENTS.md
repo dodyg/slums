@@ -67,7 +67,7 @@ Never put business rules directly in the UI project.
 
 Put these here:
 
-- the canonical `GameSession` runtime boundary backed by EntitiesDb
+- the canonical `GameSession` runtime boundary
 - survival rules
 - time progression
 - money/rent/food logic
@@ -253,7 +253,7 @@ If content touches those boundaries, choose implication and consequence over exp
 - Read existing files before creating new abstractions.
 - Reuse models and services instead of duplicating state.
 - Prefer feature-oriented folders within each project.
-- Keep `GameSession` as the canonical runtime boundary, with EntitiesDb as its backing runtime store.
+- Keep `GameSession` as the canonical runtime boundary.
 - When `GameSession` starts collecting orchestration-heavy logic, extract focused core planners/evaluators/calculators and keep the session as the state owner and integration surface.
 - Keep shared narrative signal rules and scene-trigger catalogs in `Slums.Core` when both `GameSession` and application queries need the same logic.
 - Route player-triggered gameplay mutations through `Slums.Application` commands/queries instead of calling `GameSession` directly from SadConsole screens.

@@ -38,7 +38,7 @@ Repo-owned JSON content in `content/data/` is authoritative during app bootstrap
 
 ### GameSession (src/Slums.Core/State/GameSession.cs)
 
-The canonical runtime boundary for an active run, backed internally by EntitiesDb. Key state groups:
+The canonical runtime boundary for an active run. Key state groups:
 
 - **Clock**: Day/hour/minute tracking, time-of-day, day-of-week, season, holiday state, Ramadan
 - **Player**: Stats (SurvivalStats), Nutrition, Household care, Household assets, Skills, Home upgrades

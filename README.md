@@ -81,7 +81,7 @@ dotnet run --project .\tests\Slums.Narrative.Ink.Tests
 
 ## Architecture notes
 
-- `GameSession` is the canonical runtime boundary and is backed internally by EntitiesDb.
+- `GameSession` is the canonical runtime boundary.
 - Player-facing screen actions flow through `Slums.Application` commands/queries rather than mutating `GameSession` directly from SadConsole screens.
 - `GameSession` keeps state ownership but delegates orchestration-heavy narrative/work/crime/investment logic to focused core helpers.
 - Save/load works through `GameSession` snapshots and `LoadedGameSession`.

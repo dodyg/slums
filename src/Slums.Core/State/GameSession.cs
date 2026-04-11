@@ -23,7 +23,7 @@ using Slums.Core.Economy;
 using Slums.Core.World;
 using Slums.Core.Phone;
 using Slums.Core.Information;
-using EntitiesDb;
+
 using Slums.Core.Diagnostics;
 using NarrativeStoryFlags = Slums.Core.Narrative.StoryFlags;
 
@@ -32,7 +32,6 @@ namespace Slums.Core.State;
 public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 {
     private const int EndOfDayHour = 22;
-    private readonly EntityDatabase _database;
     private readonly CrimeService _crimeService = new();
     private readonly RandomEventService _randomEventService = new();
     private readonly PlayerIdentityState _playerIdentity;
@@ -72,13 +71,6 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         _pendingNarrativeScenes = _narrativeState.PendingNarrativeScenes;
         _storyFlags = _narrativeState.StoryFlags;
         _randomEventHistory = _narrativeState.RandomEventHistory;
-        _database = new EntityDatabase(new EntityDatabaseOptions(16384, int.MaxValue, -1));
-        _database.Create(_playerIdentity, Player.Stats, Player.Nutrition, Player.Household, Player.HouseholdAssets, Player.Skills);
-        _database.Create(Clock, World);
-        _database.Create(Relationships, JobProgress);
-        _database.Create(_crimeState);
-        _database.Create(_workState);
-        _database.Create(_runState, _narrativeState);
         Territory.Initialize(_playerIdentity.BackgroundType);
         NpcEconomies.Initialize();
         if (_useDynamicDistrictConditions)
@@ -3245,7 +3237,6 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public void Dispose()
     {
-        _database.Dispose();
     }
 
     private void ResolveWeeklyEconomy(Random random)

@@ -4,8 +4,4 @@
     <RootNamespace>Slums.Core</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="EntitiesDb" />
-  </ItemGroup>
-
 </Project>
