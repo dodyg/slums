@@ -352,7 +352,7 @@ Skills also gain passively from work (~70% of progression) and crime activities.
 
 ## Investments
 
-6 investment types with weekly passive income:
+11 investment types with weekly passive income:
 
 | Investment | Cost | Risk | Income/Week | Access |
 |---|---|---|---|---|
@@ -361,7 +361,12 @@ Skills also gain passively from work (~70% of progression) and crime activities.
 | ScrapCollection | 180 LE | Medium | 15-22 LE | StreetSmarts/ExPrisoner |
 | Kiosk | 250 LE | Medium | 18-25 LE | UmmKarim trust 40 |
 | MarketStall | 220 LE | Medium-High | 20-30 LE | Youssef trust 25 |
-| HashishCourier | varies | High | varies | Crime route |
+| HashishCourier | 300 LE | High | 35-50 LE | Hanan trust 50, crime route |
+| TeaCart | 100 LE | Low | 5-8 LE | Mona trust 10 |
+| PhoneChargingStation | 160 LE | Low-Medium | 8-14 LE | Safaa trust 15 |
+| HerbalRemedyTrade | 180 LE | Medium | 10-16 LE | Mariam trust 15, Medical 2 |
+| SewingSideBusiness | 220 LE | Medium | 14-20 LE | AbuSamir trust 20, Physical 2 |
+| CafeSupplyPartnership | 250 LE | Medium | 16-24 LE | Nadia trust 25 |
 
 ## Random Events
 
@@ -389,15 +394,16 @@ Clinic locations: Rahma Clinic (ArdAlLiwa, 35 LE base), Saidaleya Pharmacy (Bula
 
 **Bad:**
 1. **MotherDied**: Mother health reaches 0
-2. **Arrested**: Global heat >=100, or (Day>=30 AND Crimes>=6 AND Heat>=85 AND Stress>=70)
-3. **Eviction**: 7 days of unpaid rent
-4. **Destitution**: Health<=0, or (starving + exhausted + no money), or loan shark critical debt
+2. **Destitution**: Health<=0, or (starving + exhausted + no money)
+3. **Arrested**: Global heat >=100, or (Day>=30 AND Crimes>=6 AND Heat>=85 AND Stress>=70)
+4. **Eviction**: 7 days of unpaid rent
+5. **Destitution** (loan shark): Critical loan shark debt (14+ days overdue)
 
 **Good/Ambiguous:**
-5. **StabilityHonestWork**: Day>=30, work earnings >=180, mother alive, heat<60, no recent crime
-6. **NetworkShelter**: Day>=30, network trust sum >=140, mother alive, money >=120
-7. **QuitTheLuxorDream**: Day>=30, money >500, crimes <=3, mother health >60
-8. **CrimeKingpin**: Crime earnings >=1000 AND ImbabaCrew rep >50
+6. **StabilityHonestWork**: Day>=30, work earnings >=180, mother alive, heat<60, no recent crime
+7. **NetworkShelter**: Day>=30, network trust sum >=140, mother alive, money >=120
+8. **QuitTheLuxorDream**: Day>=30, money >500, crimes <=3, mother health >60
+9. **CrimeKingpin**: Crime earnings >=1000 AND ImbabaCrew rep >50
 
 Ending Ink knots have variants by background and strongest support contact.
 
@@ -479,7 +485,7 @@ Per REQS.md:
 - Framework: TUnit
 - Assertions: FluentAssertions
 - Mocking: NSubstitute
-- 1,287 tests across 5 suites (969 Core + 121 Application + 8 Game + 31 Infrastructure + 158 Narrative.Ink)
+- 1,362 tests across 5 suites (1021 Core + 129 Application + 22 Game + 32 Infrastructure + 158 Narrative.Ink)
 - Validation workflow:
   1. `dotnet build ./Slums.slnx`
   2. `dotnet run --project tests/Slums.Core.Tests`

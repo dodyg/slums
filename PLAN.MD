@@ -71,7 +71,7 @@ Consolidate to **8 endings** (4 bad, 4 good/ambiguous):
 | Arrested | Bad | Global police pressure reaches 100 (includes BuriedByHeat scenario) |
 | Eviction | Bad | 7 days of unpaid rent |
 | Destitution | Bad | Starving + exhausted + no money (includes Collapse scenario) |
-| StabilityHonestWork | Good | 30+ days, no crimes, 200+ money, low pressure (includes LeavingCrime transition) |
+| StabilityHonestWork | Good | 30+ days, work earnings >=180, mother alive, heat<60, no recent crime (includes LeavingCrime transition) |
 | CrimeKingpin | Ambiguous | 1000+ crime earnings, Imbaba crew rep 50+ |
 | QuitTheLuxorDream | Good | 30+ days, 500+ money, 3 or fewer crimes, mother healthy |
 | NetworkShelter | Good | 30+ days, high trust with support NPCs |
@@ -93,7 +93,7 @@ Systems communicate their effects through **narrative** (NPC behavior, event log
 - **Pets and plants**: set-and-forget with passive weekly costs. No daily feeding or watering actions. Weekly cost deducted automatically with event log entry. Missed payments pause the bonus (mother stress penalty) but nothing dies. Herb income is automatic.
 - **Skills**: passive gains from work and crime are the primary progression path (~70%). Active training supplements the remaining ~30%. A 30-day honest player should naturally reach skill level 4-5 without ever using the training system.
 - **Mother care**: active attention needed **2-3 times per week**, not daily. Daily food is part of normal household shopping. Active care (clinic, medicine, crisis response) is a weekly event. Stable days are quiet so emotional beats land harder.
-- **NPC dialogue**: target **30-40 knots per conversation context** (not 100+). Context rotation prevents repetition. 5 contexts x 35 knots = ~175 lines per NPC is sustainable for authoring and covers 100 days.
+- **NPC dialogue**: target **100 knots per conversation context** using programmatic pool generation. Context rotation prevents repetition. 5 contexts x 100 knots = ~500 lines per NPC covers 100+ days without repeat.
 - **Background balance**: Released Political Prisoner is intentional hard mode (slower heat decay, weaker economy). Sudanese Refugee and Medical School Dropout are comparable difficulty with different strengths.
 
 ### Emotional Core
@@ -1069,11 +1069,11 @@ Create `src/Slums.Core/Heat/`:
    - `GetHighHeatDistricts(int threshold)` -> districts above threshold
 
 3. **`HeatDecayRates.cs`** -- static registry with per-district decay rates from REQS.md:
-   - Dokki: 5/day (fastest, better-policed)
-   - Imbaba: 3/day (moderate)
-   - Ard Al-Liwa: 2/day (slower)
-   - Bulaq Al-Dakrour: 2/day (slower)
-   - Shubra: 2/day (slower)
+   - Dokki: 6/day (fastest, better-policed)
+   - Imbaba: 4/day (moderate)
+   - Ard Al-Liwa: 3/day (slower)
+   - Bulaq Al-Dakrour: 3/day (slower)
+   - Shubra: 3/day (slower)
 
 4. **`HeatBleedOverTable.cs`** -- static registry defining bleed-over relationships:
    - Imbaba <-> Bulaq: 15% of difference (high proximity)
