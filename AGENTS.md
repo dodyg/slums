@@ -127,6 +127,13 @@ Put these here:
 - input mapping
 - state display
 - app startup and dependency wiring
+- screen transitions via `ScreenTransition` (uses `SadConsole.Transitions.FadeIn` from `SadConsole.Extended`)
+
+**Screen Navigation Convention:**
+
+- Use `ScreenTransition.FadeTo(screen)` for forward navigation (entering new screens, sub-menus, narrative scenes). This applies a smooth fade-in effect using `SadConsole.Transitions.FadeIn`.
+- Use `ScreenTransition.SwitchTo(screen)` for instant transitions (returning to parent screens, going back to menu).
+- Return-to-parent screens should still call `_parentScreen.SuppressActionKeysUntilRelease()` before switching to prevent key retriggering.
 
 ## Coding Standards
 
@@ -157,7 +164,7 @@ Use central package management. Prefer repo-wide shared settings instead of dupl
 
 ## Platform and Architecture Notes
 
-This project uses SadConsole with the SFML host, which depends on CSFML native libraries. Be aware of the following when switching between environments:
+This project uses SadConsole with the SFML host, which depends on CSFML native libraries. SadConsole v10.9.0 uses SFML 3.x (upgraded from 2.x), which includes a rewritten sprite batcher for improved rendering performance. Be aware of the following when switching between environments:
 
 **Windows (PowerShell/CMD):**
 - Builds and runs without issues on x86-64 Windows

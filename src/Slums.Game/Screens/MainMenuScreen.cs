@@ -102,18 +102,18 @@ internal sealed class MainMenuScreen : ScreenSurface
         switch (_selectedIndex)
         {
             case 0:
-                IsFocused = false;
-                var newSession = new Slums.Core.State.GameSession(_runtime.RandomSource.SharedRandom);
-                _runtime.MutationLogger.Attach(newSession);
-                GameHost.Instance.Screen = new GenderSelectionScreen(
-                    GameRuntime.ScreenWidth,
-                    GameRuntime.ScreenHeight,
-                    _runtime,
-                    newSession);
-                break;
+                {
+                    var newSession = new Slums.Core.State.GameSession(_runtime.RandomSource.SharedRandom);
+                    _runtime.MutationLogger.Attach(newSession);
+                    ScreenTransition.FadeTo(new GenderSelectionScreen(
+                        GameRuntime.ScreenWidth,
+                        GameRuntime.ScreenHeight,
+                        _runtime,
+                        newSession));
+                    break;
+                }
             case 1:
-                IsFocused = false;
-                GameHost.Instance.Screen = new LoadGameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime);
+                ScreenTransition.FadeTo(new LoadGameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime));
                 break;
             case 2:
                 Environment.Exit(0);

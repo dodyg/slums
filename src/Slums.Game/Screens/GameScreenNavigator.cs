@@ -231,6 +231,6 @@ internal sealed class GameScreenNavigator
     private void NavigateTo(ScreenSurface screen)
     {
         _parentScreen.IsFocused = false;
-        GameHost.Instance.Screen = screen;
+        ScreenTransition.FadeTo(screen);
     }
 }

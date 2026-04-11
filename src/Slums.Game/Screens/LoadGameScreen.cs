@@ -97,8 +97,7 @@ internal sealed class LoadGameScreen : ScreenSurface
                 _runtime.MutationLogger.Attach(gameSession);
                 try
                 {
-                    IsFocused = false;
-                    GameHost.Instance.Screen = new GameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, gameSession);
+                    ScreenTransition.FadeTo(new GameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, gameSession));
                 }
                 catch
                 {
@@ -127,7 +126,6 @@ internal sealed class LoadGameScreen : ScreenSurface
 
     private void ReturnToMainMenu()
     {
-        IsFocused = false;
-        GameHost.Instance.Screen = new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime);
+        ScreenTransition.SwitchTo(new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime));
     }
 }

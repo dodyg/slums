@@ -182,7 +182,7 @@ internal sealed class ShopScreen : ScreenSurface
         }
 
         IsFocused = false;
-        GameHost.Instance.Screen = new HouseholdAssetsScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, householdContext, statuses, _parentScreen);
+        ScreenTransition.FadeTo(new HouseholdAssetsScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, householdContext, statuses, _parentScreen));
     }
 
     private void ReturnToParentScreen()

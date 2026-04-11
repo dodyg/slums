@@ -141,8 +141,7 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
 
         if (keyboard.IsKeyPressed(Keys.Escape))
         {
-            IsFocused = false;
-            GameHost.Instance.Screen = new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime);
+            ScreenTransition.SwitchTo(new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime));
             return true;
         }
 
@@ -189,7 +188,6 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
         _gameState.Player.ApplyBackground(selectedBackground);
         var nextScreen = new GameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, _gameState);
         _runtime.NarrativeService.StartScene(selectedBackground.InkIntroKnot, NarrativeSceneState.Create(_gameState));
-        IsFocused = false;
-        GameHost.Instance.Screen = new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, nextScreen);
+        ScreenTransition.FadeTo(new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, nextScreen));
     }
 }

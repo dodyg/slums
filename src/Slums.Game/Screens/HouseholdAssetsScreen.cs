@@ -120,14 +120,14 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface
         if (status.ActionType == HouseholdAssetActionType.ManagePlant && status.PlantId is Guid plantId)
         {
             IsFocused = false;
-            GameHost.Instance.Screen = new PlantUpgradeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, PlantUpgradeMenuContext.Create(_gameState, plantId), plantId, this, _parentScreen);
+            ScreenTransition.FadeTo(new PlantUpgradeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, PlantUpgradeMenuContext.Create(_gameState, plantId), plantId, this, _parentScreen));
             return;
         }
 
         if (status.ActionType == HouseholdAssetActionType.ManageFishTank)
         {
             IsFocused = false;
-            GameHost.Instance.Screen = new FishTankUpgradeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, FishTankUpgradeMenuContext.Create(_gameState), this, _parentScreen);
+            ScreenTransition.FadeTo(new FishTankUpgradeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, FishTankUpgradeMenuContext.Create(_gameState), this, _parentScreen));
             return;
         }
 

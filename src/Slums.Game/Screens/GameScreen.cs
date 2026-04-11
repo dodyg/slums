@@ -96,8 +96,7 @@ internal sealed class GameScreen : ScreenSurface
         {
             if (_actionKeyGate.TryConsumeConfirm(keyboard.IsKeyPressed(Keys.Enter)))
             {
-                IsFocused = false;
-                GameHost.Instance.Screen = new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime);
+                ScreenTransition.SwitchTo(new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime));
             }
 
             _actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape));
@@ -138,8 +137,7 @@ internal sealed class GameScreen : ScreenSurface
 
         if (_actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape)))
         {
-            IsFocused = false;
-            GameHost.Instance.Screen = new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime);
+            ScreenTransition.SwitchTo(new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime));
             return true;
         }
 
@@ -228,7 +226,7 @@ internal sealed class GameScreen : ScreenSurface
 
         _runtime.NarrativeService.StartScene(knotName, NarrativeSceneState.Create(_gameState));
         IsFocused = false;
-        GameHost.Instance.Screen = new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, this);
+        ScreenTransition.FadeTo(new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, this));
         return true;
     }
 
@@ -241,12 +239,12 @@ internal sealed class GameScreen : ScreenSurface
 
         _runtime.NarrativeService.StartScene(knotName, NarrativeSceneState.Create(_gameState));
         IsFocused = false;
-        GameHost.Instance.Screen = new NarrativeScreen(
+        ScreenTransition.FadeTo(new NarrativeScreen(
             GameRuntime.ScreenWidth,
             GameRuntime.ScreenHeight,
             _runtime.NarrativeService,
             _gameState,
-            new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime));
+            new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime)));
 
         return true;
     }

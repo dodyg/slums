@@ -91,8 +91,7 @@ internal sealed class GenderSelectionScreen : ScreenSurface
 
         if (keyboard.IsKeyPressed(Keys.Escape))
         {
-            IsFocused = false;
-            GameHost.Instance.Screen = new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime);
+            ScreenTransition.SwitchTo(new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime));
             return true;
         }
 
@@ -136,12 +135,11 @@ internal sealed class GenderSelectionScreen : ScreenSurface
     {
         _gameState.Player.ApplyGender(Options[_selectedIndex].Gender);
         _gameState.ApplyGenderRelationshipModifiers();
-        IsFocused = false;
-        GameHost.Instance.Screen = new BackgroundSelectionScreen(
+        ScreenTransition.FadeTo(new BackgroundSelectionScreen(
             GameRuntime.ScreenWidth,
             GameRuntime.ScreenHeight,
             _runtime,
-            _gameState);
+            _gameState));
     }
 
     private static string[] WrapText(string text, int maxWidth)

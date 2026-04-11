@@ -184,9 +184,7 @@ internal sealed class NarrativeScreen : ScreenSurface
             gameScreen.SuppressActionKeysUntilRelease();
         }
 
-        IsFocused = false;
-        _nextScreen.IsFocused = true;
-        GameHost.Instance.Screen = _nextScreen;
+        ScreenTransition.SwitchTo(_nextScreen);
     }
 
     private static IEnumerable<string> WrapLine(string text, int maxWidth)
