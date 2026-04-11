@@ -227,3 +227,45 @@ The ticket numbers stop making sense, the wrong woman starts shouting, and every
 # STRESS:5
 # MESSAGE:The bundle lift fails when the tags refuse to line up.
 -> DONE
+
+=== crime_workshop_contraband_success ===
+The workshop swallows the contraband the way Bulaq swallows everything: without asking, without remembering, and without leaving a trail. The foreman pockets his share and tells you the floor has seen worse than what you brought. In the morning the goods are gone, distributed into a hundred different supply chains, and the money arrives folded inside a spare parts invoice.
+# STRESS:3
+# MESSAGE:The workshop absorbs the contraband cleanly. Bulaq's supply chains make things disappear.
+-> DONE
+
+=== crime_workshop_contraband_detected ===
+The goods move through the workshop, but a delivery boy asks the wrong question at the wrong time and the foreman's face changes from cooperation to calculation. He still takes the shipment, but the price goes up and his eyes say he will remember the trouble when he needs a favour later.
+# STRESS:6
+# MESSAGE:The workshop moves the contraband but the cost includes a debt that has no receipt.
+-> DONE
+
+=== crime_workshop_contraband_failure ===
+The foreman waves you off before you finish explaining. The workshop is being watched this week, he says, and Bulaq has enough problems without importing new ones. You carry the goods back out into the street, heavier than when you brought them in, and every glance from a passerby feels like an accusation.
+# STRESS:7
+# MESSAGE:The workshop refuses the shipment. The contraband stays in your hands and the anxiety compounds.
+-> DONE
+
+=== crime_bulaq_protection_success ===
+The shopkeeper hands over the money without meeting your eyes. He has done this before, with other faces, and the transaction carries the practiced efficiency of routine. The neighbourhood watches from doorways and upper windows, and nobody intervenes because in Bulaq, protection money is older than the buildings that collect it.
+# STRESS:4
+# MONEY:30
+# FACTION_REP:BulaqProtection,5
+# MESSAGE:The protection collection goes smooth. Bulaq pays what Bulaq always pays.
+-> DONE
+
+=== crime_bulaq_protection_detected ===
+The shopkeeper pays, but he pays slowly, and he makes sure two people on the street see the exchange happen. The money is real, but so is the witness report that will travel faster than you can walk home. In Bulaq, paying protection is normal — but being named as the one who collected it is not.
+# STRESS:8
+# MONEY:20
+# FACTION_REP:BulaqProtection,3
+# FLAG:bulaq_protection_detected
+# MESSAGE:The collection pays, but the shopkeeper makes sure the street knows your face.
+-> DONE
+
+=== crime_bulaq_protection_failure ===
+The shopkeeper does not shout. He simply looks at you with the particular patience of a man who has survived worse than you, then tells you that the building has already paid its arrangement this month and the person you should talk to about that is standing three doors down with a wrench in his hand. You leave quickly. The protection racket in Bulaq already has owners.
+# STRESS:9
+# FACTION_REP:BulaqProtection,-5
+# MESSAGE:The protection collection fails. The territory is already claimed and the claimants are not forgiving.
+-> DONE
