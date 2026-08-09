@@ -140,6 +140,26 @@ internal sealed class JsonContentRepositoryTests
     }
 
     [Test]
+    public void LoadLocations_FromRepositoryContent_ShouldEnableEveryConfiguredCrimeLocation()
+    {
+        var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, GetRepositoryContentDirectory());
+
+        var locations = repository.LoadLocations();
+
+        var crimeLocationIds = new[]
+        {
+            LocationId.Market,
+            LocationId.Square,
+            LocationId.Workshop,
+            LocationId.Depot,
+            LocationId.Laundry
+        };
+        locations.Where(location => crimeLocationIds.Contains(location.Id))
+            .Should().HaveCount(crimeLocationIds.Length)
+            .And.OnlyContain(static location => location.HasCrimeOpportunities);
+    }
+
+    [Test]
     public void LoadLocations_ShouldDeserializeClinicMetadata()
     {
         var contentDirectory = CreateTempDirectory();

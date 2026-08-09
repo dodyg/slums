@@ -26,13 +26,14 @@ public static class CrimeRegistry
             return [];
         }
 
-        var currentStreetRep = GetStreetReputation(location.District, relationshipState);
-        IReadOnlyList<CrimeAttempt> crimes = location.District switch
+        var currentStreetRep = GetStreetReputation(location, relationshipState);
+        IReadOnlyList<CrimeAttempt> crimes = location switch
         {
-            DistrictId.Dokki => GetDokkiCrimes(location, relationshipState),
-            DistrictId.BulaqAlDakrour => GetBulaqCrimes(location, relationshipState),
-            DistrictId.Shubra => GetShubraCrimes(location, relationshipState),
-            DistrictId.ArdAlLiwa => GetArdAlLiwaCrimes(location, relationshipState),
+            { Id: var id } when id == LocationId.Square => GetDokkiCrimes(location, relationshipState),
+            { District: DistrictId.Dokki } => GetDokkiCrimes(location, relationshipState),
+            { District: DistrictId.BulaqAlDakrour } => GetBulaqCrimes(location, relationshipState),
+            { District: DistrictId.Shubra } => GetShubraCrimes(location, relationshipState),
+            { District: DistrictId.ArdAlLiwa } => GetArdAlLiwaCrimes(location, relationshipState),
             _ => GetImbabaCrimes(location, relationshipState)
         };
 
@@ -49,14 +50,15 @@ public static class CrimeRegistry
             return [];
         }
 
-        var currentStreetRep = GetStreetReputation(location.District, relationshipState);
+        var currentStreetRep = GetStreetReputation(location, relationshipState);
 
-        return location.District switch
+        return location switch
         {
-            DistrictId.Dokki => GetDokkiCrimeStatuses(location, relationshipState, currentStreetRep),
-            DistrictId.BulaqAlDakrour => GetBulaqCrimeStatuses(location, relationshipState, currentStreetRep),
-            DistrictId.Shubra => GetShubraCrimeStatuses(location, relationshipState, currentStreetRep),
-            DistrictId.ArdAlLiwa => GetArdAlLiwaCrimeStatuses(location, relationshipState, currentStreetRep),
+            { Id: var id } when id == LocationId.Square => GetDokkiCrimeStatuses(location, relationshipState, currentStreetRep),
+            { District: DistrictId.Dokki } => GetDokkiCrimeStatuses(location, relationshipState, currentStreetRep),
+            { District: DistrictId.BulaqAlDakrour } => GetBulaqCrimeStatuses(location, relationshipState, currentStreetRep),
+            { District: DistrictId.Shubra } => GetShubraCrimeStatuses(location, relationshipState, currentStreetRep),
+            { District: DistrictId.ArdAlLiwa } => GetArdAlLiwaCrimeStatuses(location, relationshipState, currentStreetRep),
             _ => GetImbabaCrimeStatuses(location, relationshipState, currentStreetRep)
         };
     }
@@ -204,12 +206,13 @@ public static class CrimeRegistry
         return crimes;
     }
 
-    private static int GetStreetReputation(DistrictId districtId, RelationshipState relationshipState)
+    private static int GetStreetReputation(Location location, RelationshipState relationshipState)
     {
-        var factionId = districtId switch
+        var factionId = location switch
         {
-            DistrictId.Dokki => FactionId.DokkiThugs,
-            DistrictId.ArdAlLiwa => FactionId.ExPrisonerNetwork,
+            { Id: var id } when id == LocationId.Square => FactionId.DokkiThugs,
+            { District: DistrictId.Dokki } => FactionId.DokkiThugs,
+            { District: DistrictId.ArdAlLiwa } => FactionId.ExPrisonerNetwork,
             _ => FactionId.ImbabaCrew
         };
 

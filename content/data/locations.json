@@ -78,7 +78,7 @@
     "Description": "A noisy garment workshop with irons hissing and fabric dust in the air.",
     "District": "ArdAlLiwa",
     "HasJobOpportunities": true,
-    "HasCrimeOpportunities": false,
+    "HasCrimeOpportunities": true,
     "TravelTimeMinutes": 20
   },
   {

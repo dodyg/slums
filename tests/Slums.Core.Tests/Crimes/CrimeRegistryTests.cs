@@ -73,6 +73,25 @@ internal sealed class CrimeRegistryTests
     }
 
     [Test]
+    public void GetAvailableCrimes_ShouldUseDokkiNetwork_ForDowntownSquare()
+    {
+        var location = new Location
+        {
+            Id = LocationId.Square,
+            Name = "Midan Al-Tahrir",
+            District = DistrictId.DowntownCairo,
+            HasCrimeOpportunities = true
+        };
+        var relationships = new RelationshipState();
+        relationships.SetNpcRelationship(NpcId.RunnerYoussef, 15, 1);
+        relationships.SetFactionStanding(FactionId.DokkiThugs, 15);
+
+        var crimes = CrimeRegistry.GetAvailableCrimes(location, relationships);
+
+        crimes.Select(static attempt => attempt.Type).Should().Contain(CrimeType.DokkiDrop);
+    }
+
+    [Test]
     public void GetAvailableCrimes_ShouldUnlockUmmKarimNetworkErrand_WhenTrustAndImbabaRepAreHigh()
     {
         var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Market);
