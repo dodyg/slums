@@ -12,6 +12,8 @@ internal sealed class LoadGameScreen : ScreenSurface
     private IReadOnlyList<SaveSlotMetadata> _slots = [];
     private string? _statusMessage;
     private int _selectedIndex;
+    private Task<IReadOnlyList<SaveSlotMetadata>>? _pendingSlots;
+    private Task<LoadGameResult>? _pendingLoad;
 
     public LoadGameScreen(int width, int height, GameRuntime runtime)
         : base(width, height)
@@ -20,7 +22,44 @@ internal sealed class LoadGameScreen : ScreenSurface
         IsFocused = true;
         UseMouse = true;
         FocusOnMouseClick = true;
-        RefreshSlots();
+        RefreshSlotsAsync();
+    }
+
+    public override void Update(TimeSpan delta)
+    {
+        base.Update(delta);
+
+        if (_pendingSlots is { IsCompleted: true })
+        {
+            var task = _pendingSlots;
+            _pendingSlots = null;
+
+            if (task.IsFaulted)
+            {
+                _statusMessage = "Could not list save slots.";
+            }
+            else
+            {
+                _slots = task.GetAwaiter().GetResult();
+                _selectedIndex = Math.Clamp(_selectedIndex, 0, Math.Max(0, _slots.Count - 1));
+            }
+        }
+
+        if (_pendingLoad is { IsCompleted: true })
+        {
+            var task = _pendingLoad;
+            _pendingLoad = null;
+
+            if (task.IsFaulted)
+            {
+                _statusMessage = "Failed to load save.";
+                RefreshSlotsAsync();
+            }
+            else
+            {
+                HandleLoadResult(task.GetAwaiter().GetResult());
+            }
+        }
     }
 
     public override void Render(TimeSpan delta)
@@ -33,6 +72,7 @@ internal sealed class LoadGameScreen : ScreenSurface
         {
             Surface.Print(2, 5, "No save slots found.", Color.Orange);
             Surface.Print(2, Surface.Height - 2, "Press Escape to return", Color.DarkGray);
+            RenderStatus();
             return;
         }
 
@@ -46,16 +86,26 @@ internal sealed class LoadGameScreen : ScreenSurface
             Surface.Print(4, y++, $"{slot.CheckpointName} | {slot.LastPlayedUtc.LocalDateTime:g}", Color.Gray);
         }
 
-        if (!string.IsNullOrWhiteSpace(_statusMessage))
-        {
-            Surface.Print(2, Surface.Height - 4, _statusMessage, Color.Yellow);
-        }
+        RenderStatus();
 
         Surface.Print(2, Surface.Height - 2, "Arrow keys to select, Enter to load, Escape to cancel", Color.DarkGray);
     }
 
+    private void RenderStatus()
+    {
+        if (!string.IsNullOrWhiteSpace(_statusMessage))
+        {
+            Surface.Print(2, Surface.Height - 4, _statusMessage, Color.Yellow);
+        }
+    }
+
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)
     {
+        if (_pendingLoad is not null)
+        {
+            return true;
+        }
+
         if (_slots.Count == 0)
         {
             if (keyboard.IsKeyPressed(Keys.Escape))
@@ -82,30 +132,8 @@ internal sealed class LoadGameScreen : ScreenSurface
         if (keyboard.IsKeyPressed(Keys.Enter))
         {
             var slot = _slots[_selectedIndex];
-            var loadedGame = _runtime.LoadGameUseCase.ExecuteAsync(slot.Slot).GetAwaiter().GetResult();
-            if (loadedGame is null)
-            {
-                _statusMessage = "Failed to load save.";
-                RefreshSlots();
-                return true;
-            }
-
-            using (loadedGame)
-            {
-                _runtime.NarrativeService.RestoreProgress(loadedGame.LastKnot);
-                var gameSession = loadedGame.TakeGameSession();
-                _runtime.MutationLogger.Attach(gameSession);
-                try
-                {
-                    ScreenTransition.FadeTo(new GameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, gameSession));
-                }
-                catch
-                {
-                    gameSession.Dispose();
-                    throw;
-                }
-            }
-
+            _statusMessage = "Loading...";
+            _pendingLoad = _runtime.LoadGameUseCase.ExecuteAsync(slot.Slot);
             return true;
         }
 
@@ -118,10 +146,46 @@ internal sealed class LoadGameScreen : ScreenSurface
         return base.ProcessKeyboard(keyboard);
     }
 
-    private void RefreshSlots()
+    private void HandleLoadResult(LoadGameResult result)
     {
-        _slots = _runtime.SaveGameStore.ListSlotsAsync().GetAwaiter().GetResult();
-        _selectedIndex = Math.Clamp(_selectedIndex, 0, Math.Max(0, _slots.Count - 1));
+        switch (result.Kind)
+        {
+            case LoadGameResultKind.Loaded when result.Session is not null:
+                using (result.Session)
+                {
+                    _runtime.NarrativeService.RestoreProgress(result.Session.LastKnot);
+                    var gameSession = result.Session.TakeGameSession();
+                    _runtime.MutationLogger.Attach(gameSession);
+                    try
+                    {
+                        ScreenTransition.FadeTo(new GameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, gameSession));
+                    }
+                    catch
+                    {
+                        gameSession.Dispose();
+                        throw;
+                    }
+                }
+
+                break;
+            case LoadGameResultKind.Missing:
+                _statusMessage = "Save not found.";
+                RefreshSlotsAsync();
+                break;
+            case LoadGameResultKind.Corrupt:
+                _statusMessage = "Save is corrupted and could not be loaded.";
+                RefreshSlotsAsync();
+                break;
+            case LoadGameResultKind.Incompatible:
+                _statusMessage = result.Detail ?? "Save is from an incompatible version.";
+                RefreshSlotsAsync();
+                break;
+        }
+    }
+
+    private void RefreshSlotsAsync()
+    {
+        _pendingSlots = _runtime.SaveGameStore.ListSlotsAsync();
     }
 
     private void ReturnToMainMenu()

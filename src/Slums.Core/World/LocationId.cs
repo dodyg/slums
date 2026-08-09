@@ -15,4 +15,10 @@ public readonly record struct LocationId(string Value)
     public static readonly LocationId Laundry = new("laundry");
     public static readonly LocationId FishMarket = new("fish_market");
     public static readonly LocationId PlantShop = new("plant_shop");
+
+    /// <summary>Every declared location id, used for content and save validation.</summary>
+    public static readonly IReadOnlyList<LocationId> All =
+    [
+        Home, Market, Bakery, CallCenter, Square, Clinic, Workshop, Cafe, Pharmacy, Depot, Laundry, FishMarket, PlantShop
+    ];
 }

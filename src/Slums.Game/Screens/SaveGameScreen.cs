@@ -14,8 +14,11 @@ internal sealed class SaveGameScreen : ScreenSurface
     private readonly GameSession _gameState;
     private readonly GameScreen _parentScreen;
     private IReadOnlyList<SaveSlotMetadata> _existingSlots = [];
+    private string? _statusMessage;
     private bool _confirmingOverwrite;
     private int _selectedIndex;
+    private Task<IReadOnlyList<SaveSlotMetadata>>? _pendingSlots;
+    private Task? _pendingSave;
 
     public SaveGameScreen(int width, int height, GameRuntime runtime, GameSession gameState, GameScreen parentScreen)
         : base(width, height)
@@ -26,7 +29,39 @@ internal sealed class SaveGameScreen : ScreenSurface
         IsFocused = true;
         UseMouse = true;
         FocusOnMouseClick = true;
-        RefreshSlots();
+        RefreshSlotsAsync();
+    }
+
+    public override void Update(TimeSpan delta)
+    {
+        base.Update(delta);
+
+        if (_pendingSlots is { IsCompleted: true })
+        {
+            var task = _pendingSlots;
+            _pendingSlots = null;
+
+            if (!task.IsFaulted)
+            {
+                _existingSlots = task.GetAwaiter().GetResult();
+            }
+        }
+
+        if (_pendingSave is { IsCompleted: true })
+        {
+            var task = _pendingSave;
+            _pendingSave = null;
+
+            if (task.IsFaulted)
+            {
+                _statusMessage = "Failed to save the game.";
+            }
+            else
+            {
+                _gameState.AddEventMessage($"Saved game to {Slots[_selectedIndex]}.");
+                ReturnToParentScreen();
+            }
+        }
     }
 
     public override void Render(TimeSpan delta)
@@ -69,11 +104,21 @@ internal sealed class SaveGameScreen : ScreenSurface
             }
         }
 
+        if (!string.IsNullOrWhiteSpace(_statusMessage))
+        {
+            Surface.Print(2, Surface.Height - 4, _statusMessage, Color.Yellow);
+        }
+
         Surface.Print(2, Surface.Height - 2, "Arrow keys to select, Enter to save, Escape to cancel", Color.DarkGray);
     }
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)
     {
+        if (_pendingSave is not null)
+        {
+            return true;
+        }
+
         if (_confirmingOverwrite)
         {
             if (keyboard.IsKeyPressed(Keys.Enter))
@@ -132,14 +177,15 @@ internal sealed class SaveGameScreen : ScreenSurface
     private void PerformSave()
     {
         var slot = Slots[_selectedIndex];
-        _runtime.SaveGameUseCase.ExecuteAsync(SaveGameRequest.Create(_gameState, _runtime.NarrativeService.LastKnot), slot).GetAwaiter().GetResult();
-        _gameState.AddEventMessage($"Saved game to {slot}.");
-        ReturnToParentScreen();
+        _statusMessage = "Saving...";
+        _pendingSave = _runtime.SaveGameUseCase.ExecuteAsync(
+            SaveGameRequest.Create(_gameState, _runtime.NarrativeService.LastKnot),
+            slot);
     }
 
-    private void RefreshSlots()
+    private void RefreshSlotsAsync()
     {
-        _existingSlots = _runtime.SaveGameStore.ListSlotsAsync().GetAwaiter().GetResult();
+        _pendingSlots = _runtime.SaveGameStore.ListSlotsAsync();
     }
 
     private void ReturnToParentScreen()

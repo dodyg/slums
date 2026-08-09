@@ -74,10 +74,10 @@ internal sealed class JsonSaveGameStoreTests
                 new Dictionary<Slums.Core.Skills.SkillId, bool> { { Slums.Core.Skills.SkillId.Physical, true } });
 
             await store.SaveAsync(SaveGameRequest.Create(gameSession, "crime_warning"), "slot1").ConfigureAwait(false);
-            var loaded = await store.LoadAsync("slot1").ConfigureAwait(false);
+            var result = await store.LoadAsync("slot1").ConfigureAwait(false);
 
-            loaded.Should().NotBeNull();
-            var loadedSession = loaded!;
+            result.Kind.Should().Be(LoadGameResultKind.Loaded);
+            var loadedSession = result.Session!;
             using (loadedSession)
             {
                 loadedSession.LastKnot.Should().Be("crime_warning");
@@ -151,10 +151,10 @@ internal sealed class JsonSaveGameStoreTests
             gameSession.Player.Stats.SetMoney(50);
 
             await store.SaveAsync(SaveGameRequest.Create(gameSession, null), "slot-male").ConfigureAwait(false);
-            var loaded = await store.LoadAsync("slot-male").ConfigureAwait(false);
+            var result = await store.LoadAsync("slot-male").ConfigureAwait(false);
 
-            loaded.Should().NotBeNull();
-            var loadedSession = loaded!;
+            result.Kind.Should().Be(LoadGameResultKind.Loaded);
+            var loadedSession = result.Session!;
             using (loadedSession)
             {
                 var restoredSession = loadedSession.TakeGameSession();
@@ -252,9 +252,148 @@ internal sealed class JsonSaveGameStoreTests
             """).ConfigureAwait(false);
 
             var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
-            var loaded = await store.LoadAsync("slot1").ConfigureAwait(false);
+            var result = await store.LoadAsync("slot1").ConfigureAwait(false);
 
-            loaded.Should().BeNull();
+            result.Kind.Should().Be(LoadGameResultKind.Incompatible);
+            result.Detail.Should().Contain("999");
+        }
+        finally
+        {
+            DeleteDirectory(saveDirectory);
+        }
+    }
+
+    [Test]
+    public async Task LoadAsync_ShouldReturnMissing_WhenSaveDoesNotExist()
+    {
+        var saveDirectory = CreateTempDirectory("slums-save-tests");
+        try
+        {
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
+
+            var result = await store.LoadAsync("slot1").ConfigureAwait(false);
+
+            result.Kind.Should().Be(LoadGameResultKind.Missing);
+        }
+        finally
+        {
+            DeleteDirectory(saveDirectory);
+        }
+    }
+
+    [Test]
+    public async Task LoadAsync_ShouldReturnCorrupt_WhenSaveIsInvalidJson()
+    {
+        var saveDirectory = CreateTempDirectory("slums-save-tests");
+        try
+        {
+            await File.WriteAllTextAsync(Path.Combine(saveDirectory, "slot1.json"), "{ this is not json").ConfigureAwait(false);
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
+
+            var result = await store.LoadAsync("slot1").ConfigureAwait(false);
+
+            result.Kind.Should().Be(LoadGameResultKind.Corrupt);
+        }
+        finally
+        {
+            DeleteDirectory(saveDirectory);
+        }
+    }
+
+    [Test]
+    public async Task LoadAsync_ShouldReturnCorrupt_WhenSaveFailsValidation()
+    {
+        var saveDirectory = CreateTempDirectory("slums-save-tests");
+        try
+        {
+            var path = Path.Combine(saveDirectory, "slot1.json");
+            await File.WriteAllTextAsync(path, """
+            {
+              "SaveVersion": 2,
+              "CreatedUtc": "2026-03-11T00:00:00+00:00",
+              "LastPlayedUtc": "2026-03-11T00:00:00+00:00",
+              "CheckpointName": "bad",
+              "SessionSnapshot": {
+                "Clock": { "Day": 1, "Hour": 6, "Minute": 0 },
+                "Player": {
+                  "BackgroundType": "MedicalSchoolDropout",
+                  "Money": -50,
+                  "Satiety": 80,
+                  "DaysUndereating": 0,
+                  "Energy": 80,
+                  "Health": 100,
+                  "Stress": 20,
+                  "MotherHealth": 70,
+                  "FoodStockpile": 3,
+                  "MedicineStock": 0,
+                  "SkillLevels": {}
+                },
+                "World": { "CurrentLocationId": "home" },
+                "Relationships": { "Npcs": {}, "Factions": {} },
+                "JobProgress": { "Tracks": {} },
+                "Crime": { "PolicePressure": 0, "TotalCrimeEarnings": 0, "CrimesCommitted": 0, "LastCrimeDay": 0, "HasCrimeCommittedToday": false },
+                "Work": { "TotalHonestWorkEarnings": 0, "HonestShiftsCompleted": 0, "LastHonestWorkDay": 0, "LastPublicFacingWorkDay": 0 },
+                "Run": { "RunId": "00000000-0000-0000-0000-000000000001", "IsGameOver": false, "GameOverReason": null, "EndingId": null, "DaysSurvived": 0, "PendingEndingKnot": null },
+                "Narrative": { "StoryFlags": [], "RandomEventHistory": {}, "PendingNarrativeScenes": [] }
+              },
+              "NarrativeProgress": { "LastKnot": null }
+            }
+            """).ConfigureAwait(false);
+
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
+            var result = await store.LoadAsync("slot1").ConfigureAwait(false);
+
+            result.Kind.Should().Be(LoadGameResultKind.Corrupt);
+            result.Detail.Should().Contain("money -50 is negative");
+        }
+        finally
+        {
+            DeleteDirectory(saveDirectory);
+        }
+    }
+
+    [Test]
+    public async Task SaveAsync_ShouldRejectInvalidSlot()
+    {
+        var saveDirectory = CreateTempDirectory("slums-save-tests");
+        try
+        {
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
+            using var gameSession = new Slums.Core.State.GameSession();
+
+            var act = async () => await store.SaveAsync(SaveGameRequest.Create(gameSession, null), "../escape").ConfigureAwait(false);
+
+            await act.Should().ThrowAsync<ArgumentException>().ConfigureAwait(false);
+            Directory.EnumerateFiles(saveDirectory).Should().BeEmpty();
+        }
+        finally
+        {
+            DeleteDirectory(saveDirectory);
+        }
+    }
+
+    [Test]
+    public async Task Overwrite_ShouldRetainBackupOfPreviousSave()
+    {
+        var saveDirectory = CreateTempDirectory("slums-save-tests");
+        try
+        {
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
+            using var gameSession = new Slums.Core.State.GameSession();
+            gameSession.Player.Stats.SetMoney(100);
+
+            await store.SaveAsync(SaveGameRequest.Create(gameSession, "first"), "slot1").ConfigureAwait(false);
+            gameSession.Player.Stats.SetMoney(250);
+            await store.SaveAsync(SaveGameRequest.Create(gameSession, "second"), "slot1").ConfigureAwait(false);
+
+            File.Exists(Path.Combine(saveDirectory, "slot1.json")).Should().BeTrue();
+            File.Exists(Path.Combine(saveDirectory, "slot1.json.bak")).Should().BeTrue("an overwrite must retain the previous save as backup");
+            File.Exists(Path.Combine(saveDirectory, "slot1.json.tmp")).Should().BeFalse("the temporary file must be cleaned up");
+
+            var result = await store.LoadAsync("slot1").ConfigureAwait(false);
+            result.Kind.Should().Be(LoadGameResultKind.Loaded);
+            using var loadedSession = result.Session!;
+            loadedSession.GameSession.Player.Stats.Money.Should().Be(250);
         }
         finally
         {
@@ -267,9 +406,7 @@ internal sealed class JsonSaveGameStoreTests
         var path = Path.Combine(Path.GetTempPath(), $"{rootName}-{Guid.NewGuid():N}");
         Directory.CreateDirectory(path);
         return path;
-    }
-
-    private static void DeleteDirectory(string path)
+    }    private static void DeleteDirectory(string path)
     {
         if (Directory.Exists(path))
         {

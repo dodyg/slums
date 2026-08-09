@@ -4,15 +4,26 @@ using Slums.Application.Persistence;
 
 namespace Slums.Infrastructure.Persistence;
 
+/// <summary>
+/// Stores saves as JSON files. Slots are restricted to a safe identifier format, writes are
+/// atomic (temporary file + replace, retaining a backup), and loads return typed results so
+/// missing, corrupt, and incompatible saves are distinguishable.
+/// </summary>
 public sealed class JsonSaveGameStore : ISaveGameStore
 {
+    /// <summary>
+    /// Save compatibility policy: no migrations exist yet, so a save must carry exactly the
+    /// current version to load. Older or newer saves are reported as incompatible.
+    /// </summary>
     private const int CurrentSaveVersion = 2;
+
     private const int StreamBufferSize = 4096;
     private readonly ILogger<JsonSaveGameStore> _logger;
     private readonly string _saveDirectory;
 
     public JsonSaveGameStore(ILogger<JsonSaveGameStore> logger, string? saveDirectory = null)
     {
+        ArgumentNullException.ThrowIfNull(logger);
         _logger = logger;
         _saveDirectory = saveDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Slums", "saves");
     }
@@ -20,7 +31,7 @@ public sealed class JsonSaveGameStore : ISaveGameStore
     public async Task SaveAsync(SaveGameRequest request, string slot, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentException.ThrowIfNullOrWhiteSpace(slot);
+        SaveSlotRules.EnsureValidSlot(slot);
 
         Directory.CreateDirectory(_saveDirectory);
         var path = GetSlotPath(slot);
@@ -35,39 +46,69 @@ public sealed class JsonSaveGameStore : ISaveGameStore
             GameSessionSnapshot.Capture(request.GameSession),
             new NarrativeProgressSnapshot { LastKnot = request.LastKnot });
 
-        var stream = OpenWriteStream(path);
-        await using (stream.ConfigureAwait(false))
-        {
-            await JsonSerializer.SerializeAsync(stream, document, SaveGameJsonContext.Default.GameSessionSaveDocument, cancellationToken).ConfigureAwait(false);
-        }
+        await WriteAtomicAsync(path, document, cancellationToken).ConfigureAwait(false);
 
         LogSaveCompleted(_logger, slot);
     }
 
-    public async Task<LoadedGameSession?> LoadAsync(string slot, CancellationToken cancellationToken = default)
+    public async Task<LoadGameResult> LoadAsync(string slot, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(slot);
+        SaveSlotRules.EnsureValidSlot(slot);
 
         var path = GetSlotPath(slot);
-        var document = await ReadDocumentAsync(path, cancellationToken).ConfigureAwait(false);
+        if (!File.Exists(path))
+        {
+            return LoadGameResult.Missing();
+        }
+
+        GameSessionSaveDocument? document;
+        try
+        {
+            document = await ReadDocumentAsync(path, cancellationToken).ConfigureAwait(false);
+        }
+        catch (JsonException exception)
+        {
+            LogSaveReadJsonFailure(_logger, path, exception);
+            return LoadGameResult.Corrupt($"Save file is not valid JSON: {exception.Message}");
+        }
+        catch (IOException exception)
+        {
+            LogSaveReadIoFailure(_logger, path, exception);
+            return LoadGameResult.Corrupt($"Save file could not be read: {exception.Message}");
+        }
+
         if (document is null)
         {
-            return null;
+            return LoadGameResult.Corrupt("Save file is empty or could not be deserialized.");
         }
 
         if (document.SaveVersion != CurrentSaveVersion)
         {
             LogVersionMismatch(_logger, slot, document.SaveVersion, CurrentSaveVersion);
-            return null;
+            return LoadGameResult.Incompatible(document.SaveVersion, CurrentSaveVersion);
         }
 
-        return LoadedGameSession.Create(
+        try
+        {
+            SaveGameValidator.Validate(document.SessionSnapshot);
+        }
+        catch (InvalidDataException exception)
+        {
+            LogInvalidSaveData(_logger, path, exception);
+            return LoadGameResult.Corrupt(exception.Message);
+        }
+
+        // Ownership of the session transfers to the caller through LoadGameResult.
+#pragma warning disable CA2000
+        var loadedSession = LoadedGameSession.Create(
             slot,
             document.CheckpointName,
             document.CreatedUtc,
             document.LastPlayedUtc,
             document.NarrativeProgress.LastKnot,
             document.SessionSnapshot.Restore);
+#pragma warning restore CA2000
+        return LoadGameResult.Loaded(loadedSession);
     }
 
     public async Task<IReadOnlyList<SaveSlotMetadata>> ListSlotsAsync(CancellationToken cancellationToken = default)
@@ -80,7 +121,22 @@ public sealed class JsonSaveGameStore : ISaveGameStore
         var slots = new List<SaveSlotMetadata>();
         foreach (var filePath in Directory.EnumerateFiles(_saveDirectory, "*.json", SearchOption.TopDirectoryOnly))
         {
-            var document = await ReadDocumentAsync(filePath, cancellationToken).ConfigureAwait(false);
+            GameSessionSaveDocument? document;
+            try
+            {
+                document = await ReadDocumentAsync(filePath, cancellationToken).ConfigureAwait(false);
+            }
+            catch (JsonException exception)
+            {
+                LogSaveReadJsonFailure(_logger, filePath, exception);
+                continue;
+            }
+            catch (IOException exception)
+            {
+                LogSaveReadIoFailure(_logger, filePath, exception);
+                continue;
+            }
+
             if (document is null || document.SaveVersion != CurrentSaveVersion)
             {
                 continue;
@@ -94,30 +150,67 @@ public sealed class JsonSaveGameStore : ISaveGameStore
             .ToArray();
     }
 
-    private async Task<GameSessionSaveDocument?> ReadDocumentAsync(string path, CancellationToken cancellationToken)
+    private static async Task<GameSessionSaveDocument?> ReadDocumentAsync(string path, CancellationToken cancellationToken)
     {
         if (!File.Exists(path))
         {
             return null;
         }
 
+        var stream = OpenReadStream(path);
+        await using (stream.ConfigureAwait(false))
+        {
+            return await JsonSerializer.DeserializeAsync(stream, SaveGameJsonContext.Default.GameSessionSaveDocument, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private static async Task WriteAtomicAsync(string path, GameSessionSaveDocument document, CancellationToken cancellationToken)
+    {
+        var temporaryPath = path + ".tmp";
         try
         {
-            var stream = OpenReadStream(path);
+            var stream = OpenWriteStream(temporaryPath);
             await using (stream.ConfigureAwait(false))
             {
-                return await JsonSerializer.DeserializeAsync(stream, SaveGameJsonContext.Default.GameSessionSaveDocument, cancellationToken).ConfigureAwait(false);
+                await JsonSerializer.SerializeAsync(stream, document, SaveGameJsonContext.Default.GameSessionSaveDocument, cancellationToken).ConfigureAwait(false);
+                await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            if (File.Exists(path))
+            {
+                // Atomically replace the existing save, retaining the previous version as a backup.
+                var backupPath = path + ".bak";
+                if (File.Exists(backupPath))
+                {
+                    File.Delete(backupPath);
+                }
+
+                File.Replace(temporaryPath, path, backupPath);
+            }
+            else
+            {
+                File.Move(temporaryPath, path);
             }
         }
-        catch (JsonException exception)
+        catch
         {
-            LogSaveReadJsonFailure(_logger, path, exception);
-            return null;
+            TryDelete(temporaryPath);
+            throw;
         }
-        catch (IOException exception)
+    }
+
+    private static void TryDelete(string path)
+    {
+        try
         {
-            LogSaveReadIoFailure(_logger, path, exception);
-            return null;
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+        catch (IOException)
+        {
+            // Best-effort cleanup of the temporary file; the original save is untouched.
         }
     }
 
@@ -159,6 +252,9 @@ public sealed class JsonSaveGameStore : ISaveGameStore
     private static readonly Action<ILogger, string, Exception?> LogSaveReadIoFailureDelegate =
         LoggerMessage.Define<string>(LogLevel.Warning, new EventId(3, "SaveReadIoFailure"), "Failed to read save file {Path}.");
 
+    private static readonly Action<ILogger, string, Exception?> LogInvalidSaveDataDelegate =
+        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(5, "InvalidSaveData"), "Rejecting save file {Path} because it failed validation.");
+
     private static readonly Action<ILogger, string, Exception?> LogSaveCompletedDelegate =
         LoggerMessage.Define<string>(LogLevel.Debug, new EventId(4, "SaveCompleted"), "Save completed for slot {Slot}.");
 
@@ -170,6 +266,9 @@ public sealed class JsonSaveGameStore : ISaveGameStore
 
     private static void LogSaveReadIoFailure(ILogger logger, string path, Exception exception) =>
         LogSaveReadIoFailureDelegate(logger, path, exception);
+
+    private static void LogInvalidSaveData(ILogger logger, string path, Exception exception) =>
+        LogInvalidSaveDataDelegate(logger, path, exception);
 
     private static void LogSaveCompleted(ILogger logger, string slot) =>
         LogSaveCompletedDelegate(logger, slot, null);

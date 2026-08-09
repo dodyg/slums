@@ -1,4 +1,3 @@
-using System.Reflection;
 using Slums.Core.Characters;
 using Slums.Core.Events;
 using Slums.Core.Jobs;
@@ -137,7 +136,7 @@ public static class ContentCatalogValidator
             }
         }
 
-        var declaredIds = DeclaredLocationIds();
+        var declaredIds = LocationId.All;
         var missingIds = declaredIds.Where(id => !configuredIds.Contains(id)).ToArray();
         if (missingIds.Length > 0)
         {
@@ -379,15 +378,6 @@ public static class ContentCatalogValidator
         {
             problems.Add($"plants: missing types {string.Join(", ", missingTypes)}.");
         }
-    }
-
-    private static LocationId[] DeclaredLocationIds()
-    {
-        return typeof(LocationId)
-            .GetFields(BindingFlags.Public | BindingFlags.Static)
-            .Where(static field => field.FieldType == typeof(LocationId))
-            .Select(static field => (LocationId)field.GetValue(null)!)
-            .ToArray();
     }
 
     private static bool IsPercentage(int value) => value is >= 0 and <= 100;
