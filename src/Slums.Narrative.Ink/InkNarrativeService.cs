@@ -132,63 +132,141 @@ public sealed class InkNarrativeService : INarrativeService
         var key = parts[0].Trim().ToUpperInvariant();
         var valueStr = parts[1].Trim();
 
-        if (key == "FLAG")
+        switch (key)
         {
-            _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { SetFlag = valueStr });
-            return;
+            case "FLAG":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { SetFlag = valueStr });
+                return;
+
+            case "MESSAGE":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Message = valueStr });
+                return;
+
+            case "NPC_TRUST":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [ParseNpcTrustEffect(tag, valueStr)] });
+                return;
+
+            case "FACTION_REP":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [ParseFactionReputationEffect(tag, valueStr)] });
+                return;
+
+            case "FAVOR":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [new FavorEffect(ParseNpcTarget(tag, valueStr))] });
+                return;
+
+            case "REFUSAL":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [new RefusalEffect(ParseNpcTarget(tag, valueStr))] });
+                return;
+
+            case "DEBT":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [ParseDebtEffect(tag, valueStr)] });
+                return;
+
+            case "EMBARRASSED":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [ParseBoolStateEffect(tag, valueStr, static (npc, value) => new EmbarrassedEffect(npc, value))] });
+                return;
+
+            case "HELPED":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [ParseBoolStateEffect(tag, valueStr, static (npc, value) => new HelpedEffect(npc, value))] });
+                return;
+
+            case "MONEY":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { MoneyChange = ParseIntEffect(tag, valueStr) });
+                return;
+
+            case "HEALTH":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { HealthChange = ParseIntEffect(tag, valueStr) });
+                return;
+
+            case "ENERGY":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { EnergyChange = ParseIntEffect(tag, valueStr) });
+                return;
+
+            case "HUNGER":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { HungerChange = ParseIntEffect(tag, valueStr) });
+                return;
+
+            case "STRESS":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { StressChange = ParseIntEffect(tag, valueStr) });
+                return;
+
+            case "MOTHER_HEALTH":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { MotherHealthChange = ParseIntEffect(tag, valueStr) });
+                return;
+
+            case "FOOD":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { FoodChange = ParseIntEffect(tag, valueStr) });
+                return;
+
+            default:
+                // Not an effect tag; scene markers (e.g. weather/season tags) are ignored.
+                return;
         }
+    }
 
-        if (key == "MESSAGE")
-        {
-            _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Message = valueStr });
-            return;
-        }
-
-        if (key == "NPC_TRUST")
-        {
-            var trustParts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
-            if (trustParts.Length == 2 && Enum.TryParse<NpcId>(trustParts[0], out var npcId) && int.TryParse(trustParts[1], out var trustDelta))
-            {
-                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { NpcTrustTarget = npcId, NpcTrustChange = trustDelta });
-            }
-
-            return;
-        }
-
-        if (key == "FACTION_REP")
-        {
-            var factionParts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
-            if (factionParts.Length == 2 && Enum.TryParse<FactionId>(factionParts[0], out var factionId) && int.TryParse(factionParts[1], out var reputationDelta))
-            {
-                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { FactionTarget = factionId, FactionReputationChange = reputationDelta });
-            }
-
-            return;
-        }
-
-        if (TryProcessRelationshipMemoryTag(key, valueStr))
-        {
-            return;
-        }
-
+    private static int ParseIntEffect(string tag, string valueStr)
+    {
         if (!int.TryParse(valueStr, out var value))
         {
-            return;
+            throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected an integer value.");
         }
 
-        _pendingOutcome ??= new NarrativeOutcome();
+        return value;
+    }
 
-        _pendingOutcome = key switch
+    private static NpcId ParseNpcTarget(string tag, string valueStr)
+    {
+        var npc = valueStr.Split(',', StringSplitOptions.TrimEntries)[0];
+        if (!Enum.TryParse<NpcId>(npc, out var npcId))
         {
-            "MONEY" => _pendingOutcome with { MoneyChange = _pendingOutcome.MoneyChange + value },
-            "HEALTH" => _pendingOutcome with { HealthChange = _pendingOutcome.HealthChange + value },
-            "ENERGY" => _pendingOutcome with { EnergyChange = _pendingOutcome.EnergyChange + value },
-            "HUNGER" => _pendingOutcome with { HungerChange = _pendingOutcome.HungerChange + value },
-            "STRESS" => _pendingOutcome with { StressChange = _pendingOutcome.StressChange + value },
-            "MOTHER_HEALTH" => _pendingOutcome with { MotherHealthChange = _pendingOutcome.MotherHealthChange + value },
-            "FOOD" => _pendingOutcome with { FoodChange = _pendingOutcome.FoodChange + value },
-            _ => _pendingOutcome
-        };
+            throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': unknown NPC '{npc}'.");
+        }
+
+        return npcId;
+    }
+
+    private static NpcTrustEffect ParseNpcTrustEffect(string tag, string valueStr)
+    {
+        var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
+        if (parts.Length != 2 || !Enum.TryParse<NpcId>(parts[0], out var npcId) || !int.TryParse(parts[1], out var delta))
+        {
+            throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected 'NPC,delta'.");
+        }
+
+        return new NpcTrustEffect(npcId, delta);
+    }
+
+    private static FactionReputationEffect ParseFactionReputationEffect(string tag, string valueStr)
+    {
+        var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
+        if (parts.Length != 2 || !Enum.TryParse<FactionId>(parts[0], out var factionId) || !int.TryParse(parts[1], out var delta))
+        {
+            throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected 'Faction,delta'.");
+        }
+
+        return new FactionReputationEffect(factionId, delta);
+    }
+
+    private static DebtEffect ParseDebtEffect(string tag, string valueStr)
+    {
+        var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
+        if (parts.Length != 2 || !Enum.TryParse<NpcId>(parts[0], out var npcId) || !bool.TryParse(parts[1], out var debtState))
+        {
+            throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected 'NPC,true|false'.");
+        }
+
+        return new DebtEffect(npcId, debtState);
+    }
+
+    private static NarrativeEffect ParseBoolStateEffect(string tag, string valueStr, Func<NpcId, bool, NarrativeEffect> factory)
+    {
+        var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
+        if (parts.Length != 2 || !Enum.TryParse<NpcId>(parts[0], out var npcId) || !bool.TryParse(parts[1], out var state))
+        {
+            throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected 'NPC,true|false'.");
+        }
+
+        return factory(npcId, state);
     }
 
     private static void SyncVariablesToInk(Story story, NarrativeSceneState sceneState)
@@ -221,51 +299,6 @@ public sealed class InkNarrativeService : INarrativeService
         }
 
         story.variablesState[variableName] = value;
-    }
-
-    private bool TryProcessRelationshipMemoryTag(string key, string valueStr)
-    {
-        var npcParts = valueStr.Split(',', StringSplitOptions.TrimEntries);
-        if (npcParts.Length == 0 || !Enum.TryParse<NpcId>(npcParts[0], out var npcId))
-        {
-            return false;
-        }
-
-        switch (key)
-        {
-            case "FAVOR":
-                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { FavorTarget = npcId });
-                return true;
-            case "REFUSAL":
-                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { RefusalTarget = npcId });
-                return true;
-            case "DEBT":
-                if (npcParts.Length >= 2 && bool.TryParse(npcParts[1], out var debtState))
-                {
-                    _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { DebtTarget = npcId, DebtState = debtState });
-                    return true;
-                }
-
-                return false;
-            case "EMBARRASSED":
-                if (npcParts.Length >= 2 && bool.TryParse(npcParts[1], out var embarrassedState))
-                {
-                    _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { EmbarrassedTarget = npcId, EmbarrassedState = embarrassedState });
-                    return true;
-                }
-
-                return false;
-            case "HELPED":
-                if (npcParts.Length >= 2 && bool.TryParse(npcParts[1], out var helpedState))
-                {
-                    _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { HelpedTarget = npcId, HelpedState = helpedState });
-                    return true;
-                }
-
-                return false;
-            default:
-                return false;
-        }
     }
 
     private static string LoadStoryResource()
@@ -307,18 +340,7 @@ public sealed class InkNarrativeService : INarrativeService
             FoodChange = existing.FoodChange + next.FoodChange,
             SetFlag = next.SetFlag ?? existing.SetFlag,
             Message = string.IsNullOrWhiteSpace(existing.Message) ? next.Message : string.Join(" ", new[] { existing.Message, next.Message }.Where(static message => !string.IsNullOrWhiteSpace(message))),
-            NpcTrustTarget = next.NpcTrustTarget ?? existing.NpcTrustTarget,
-            NpcTrustChange = existing.NpcTrustChange + next.NpcTrustChange,
-            FactionTarget = next.FactionTarget ?? existing.FactionTarget,
-            FactionReputationChange = existing.FactionReputationChange + next.FactionReputationChange,
-            FavorTarget = next.FavorTarget ?? existing.FavorTarget,
-            RefusalTarget = next.RefusalTarget ?? existing.RefusalTarget,
-            DebtTarget = next.DebtTarget ?? existing.DebtTarget,
-            DebtState = next.DebtState ?? existing.DebtState,
-            EmbarrassedTarget = next.EmbarrassedTarget ?? existing.EmbarrassedTarget,
-            EmbarrassedState = next.EmbarrassedState ?? existing.EmbarrassedState,
-            HelpedTarget = next.HelpedTarget ?? existing.HelpedTarget,
-            HelpedState = next.HelpedState ?? existing.HelpedState
+            Effects = existing.Effects.Concat(next.Effects).ToArray()
         };
     }
 

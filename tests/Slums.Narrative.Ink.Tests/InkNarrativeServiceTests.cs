@@ -2,6 +2,7 @@ using Ink.Runtime;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Slums.Application.Narrative;
+using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
 
@@ -114,9 +115,33 @@ internal sealed class InkNarrativeServiceTests
 
         var outcome = service.GetPendingOutcome();
         outcome.Should().NotBeNull();
-        outcome!.NpcTrustTarget.Should().NotBeNull();
-        outcome.FactionReputationChange.Should().BeGreaterThan(0);
+        outcome!.Effects.OfType<NpcTrustEffect>().Where(effect => effect.Change > 0).Should().NotBeEmpty();
+        outcome.Effects.OfType<FactionReputationEffect>().Where(effect => effect.Change > 0).Should().NotBeEmpty();
         outcome.SetFlag.Should().Be("fixer_met");
+    }
+
+    [Test]
+    public void EventRamadanIftar_ShouldApplyTrustToBothNpcs()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        StartScene(service, "event_ramadan_iftar");
+        service.SelectChoice(0);
+
+        var outcome = service.GetPendingOutcome();
+        outcome.Should().NotBeNull();
+
+        outcome!.Effects.OfType<NpcTrustEffect>().Where(effect => effect.Npc == NpcId.NeighborMona && effect.Change == 2)
+            .Should().NotBeEmpty("the communal iftar should raise Neighbor Mona's trust");
+        outcome.Effects.OfType<NpcTrustEffect>().Where(effect => effect.Npc == NpcId.LandlordHajjMahmoud && effect.Change == 1)
+            .Should().NotBeEmpty("the communal iftar should raise Landlord Hajj Mahmoud's trust");
+
+        // Applying the outcome must change both NPCs, not just the last tag's target.
+        using var session = new GameSession();
+        session.ApplyOutcome(outcome);
+
+        session.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust.Should().Be(2);
+        session.Relationships.GetNpcRelationship(NpcId.LandlordHajjMahmoud).Trust.Should().Be(1);
     }
 
     [Test]

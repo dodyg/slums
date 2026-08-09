@@ -49,39 +49,34 @@ public static class NarrativeSceneExtensions
             state.SetStoryFlag(outcome.SetFlag);
         }
 
-        if (outcome.NpcTrustTarget is not null && outcome.NpcTrustChange != 0)
+        foreach (var effect in outcome.Effects)
         {
-            state.ModifyNpcTrust(outcome.NpcTrustTarget.Value, outcome.NpcTrustChange);
-        }
-
-        if (outcome.FavorTarget is not null)
-        {
-            state.RecordFavor(outcome.FavorTarget.Value, outcome.DebtState == true);
-        }
-
-        if (outcome.RefusalTarget is not null)
-        {
-            state.RecordRefusal(outcome.RefusalTarget.Value);
-        }
-
-        if (outcome.DebtTarget is not null && outcome.DebtState is not null)
-        {
-            state.SetDebtState(outcome.DebtTarget.Value, outcome.DebtState.Value);
-        }
-
-        if (outcome.EmbarrassedTarget is not null && outcome.EmbarrassedState is not null)
-        {
-            state.SetEmbarrassedState(outcome.EmbarrassedTarget.Value, outcome.EmbarrassedState.Value);
-        }
-
-        if (outcome.HelpedTarget is not null && outcome.HelpedState is not null)
-        {
-            state.SetHelpedState(outcome.HelpedTarget.Value, outcome.HelpedState.Value);
-        }
-
-        if (outcome.FactionTarget is not null && outcome.FactionReputationChange != 0)
-        {
-            state.ModifyFactionReputation(outcome.FactionTarget.Value, outcome.FactionReputationChange);
+            switch (effect)
+            {
+                case NpcTrustEffect trust:
+                    state.ModifyNpcTrust(trust.Npc, trust.Change);
+                    break;
+                case FactionReputationEffect reputation:
+                    state.ModifyFactionReputation(reputation.Faction, reputation.Change);
+                    break;
+                case FavorEffect favor:
+                    state.RecordFavor(favor.Npc, hasUnpaidDebt: false);
+                    break;
+                case RefusalEffect refusal:
+                    state.RecordRefusal(refusal.Npc);
+                    break;
+                case DebtEffect debt:
+                    state.SetDebtState(debt.Npc, debt.HasUnpaidDebt);
+                    break;
+                case EmbarrassedEffect embarrassed:
+                    state.SetEmbarrassedState(embarrassed.Npc, embarrassed.Value);
+                    break;
+                case HelpedEffect helped:
+                    state.SetHelpedState(helped.Npc, helped.Value);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unknown narrative effect type: {effect.GetType().Name}");
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(outcome.Message))

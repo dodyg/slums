@@ -19,6 +19,13 @@ public interface INarrativeService
     public void ClearPendingOutcome();
 }
 
+/// <summary>
+/// A single typed narrative effect targeting an NPC or faction, applied to the game state in
+/// the order the effects were produced. Multiple effects in one scene are preserved
+/// individually so every target receives its own change.
+/// </summary>
+public abstract record NarrativeEffect;
+
 public sealed record NarrativeOutcome
 {
     public int MoneyChange { get; init; }
@@ -30,16 +37,7 @@ public sealed record NarrativeOutcome
     public int FoodChange { get; init; }
     public string? SetFlag { get; init; }
     public string Message { get; init; } = string.Empty;
-    public NpcId? NpcTrustTarget { get; init; }
-    public int NpcTrustChange { get; init; }
-    public FactionId? FactionTarget { get; init; }
-    public int FactionReputationChange { get; init; }
-    public NpcId? FavorTarget { get; init; }
-    public NpcId? RefusalTarget { get; init; }
-    public NpcId? DebtTarget { get; init; }
-    public bool? DebtState { get; init; }
-    public NpcId? EmbarrassedTarget { get; init; }
-    public bool? EmbarrassedState { get; init; }
-    public NpcId? HelpedTarget { get; init; }
-    public bool? HelpedState { get; init; }
+
+    /// <summary>NPC/faction-targeted effects in the order they were produced.</summary>
+    public IReadOnlyList<NarrativeEffect> Effects { get; init; } = [];
 }

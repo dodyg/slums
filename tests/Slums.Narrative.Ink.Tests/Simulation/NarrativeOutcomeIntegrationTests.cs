@@ -99,13 +99,11 @@ internal sealed class NarrativeOutcomeIntegrationTests
     {
         var outcome = new NarrativeOutcome
         {
-            NpcTrustTarget = NpcId.NurseSalma,
-            NpcTrustChange = 15,
+            Effects = [new NpcTrustEffect(NpcId.NurseSalma, 15)],
             Message = "gained trust"
         };
 
-        outcome.NpcTrustTarget.Should().Be(NpcId.NurseSalma);
-        outcome.NpcTrustChange.Should().Be(15);
+        outcome.Effects.OfType<NpcTrustEffect>().Should().ContainSingle(effect => effect.Npc == NpcId.NurseSalma && effect.Change == 15);
     }
 
     [Test]
@@ -113,13 +111,11 @@ internal sealed class NarrativeOutcomeIntegrationTests
     {
         var outcome = new NarrativeOutcome
         {
-            FactionTarget = FactionId.ImbabaCrew,
-            FactionReputationChange = 10,
+            Effects = [new FactionReputationEffect(FactionId.ImbabaCrew, 10)],
             Message = "gained faction reputation"
         };
 
-        outcome.FactionTarget.Should().Be(FactionId.ImbabaCrew);
-        outcome.FactionReputationChange.Should().Be(10);
+        outcome.Effects.OfType<FactionReputationEffect>().Should().ContainSingle(effect => effect.Faction == FactionId.ImbabaCrew && effect.Change == 10);
     }
 
     [Test]
@@ -216,17 +212,53 @@ internal sealed class NarrativeOutcomeIntegrationTests
     }
 
     [Test]
+    public async Task Outcome_MultipleTargetedEffects_AllAppliedInOrder()
+    {
+        using var session = new GameStateBuilder()
+            .WithMoney(100)
+            .Build();
+
+        var outcome = new NarrativeOutcome
+        {
+            Effects =
+            [
+                new FavorEffect(NpcId.NurseSalma),
+                new DebtEffect(NpcId.NurseSalma, true),
+                new NpcTrustEffect(NpcId.NeighborMona, 2),
+                new NpcTrustEffect(NpcId.LandlordHajjMahmoud, 1),
+                new FactionReputationEffect(FactionId.ImbabaCrew, 10),
+                new EmbarrassedEffect(NpcId.WorkshopBossAbuSamir, true),
+                new HelpedEffect(NpcId.CafeOwnerNadia, true),
+                new RefusalEffect(NpcId.RunnerYoussef)
+            ]
+        };
+
+        session.ApplyOutcome(outcome);
+
+        session.Relationships.GetNpcRelationship(NpcId.NurseSalma).LastFavorDay.Should().BeGreaterThan(0);
+        session.Relationships.GetNpcRelationship(NpcId.NurseSalma).HasUnpaidDebt.Should().BeTrue();
+        session.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust.Should().Be(2);
+        session.Relationships.GetNpcRelationship(NpcId.LandlordHajjMahmoud).Trust.Should().Be(1);
+        session.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation.Should().Be(10);
+        session.Relationships.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).WasEmbarrassed.Should().BeTrue();
+        session.Relationships.GetNpcRelationship(NpcId.CafeOwnerNadia).WasHelped.Should().BeTrue();
+        session.Relationships.GetNpcRelationship(NpcId.RunnerYoussef).LastRefusalDay.Should().BeGreaterThan(0);
+    }
+
+    [Test]
     public async Task Outcome_FavorDebt_TracksState()
     {
         var outcome = new NarrativeOutcome
         {
-            FavorTarget = NpcId.NurseSalma,
-            DebtTarget = NpcId.NurseSalma,
-            DebtState = true
+            Effects =
+            [
+                new FavorEffect(NpcId.NurseSalma),
+                new DebtEffect(NpcId.NurseSalma, true)
+            ]
         };
 
-        outcome.FavorTarget.Should().Be(NpcId.NurseSalma);
-        outcome.DebtState.Should().BeTrue();
+        outcome.Effects.OfType<FavorEffect>().Should().ContainSingle(effect => effect.Npc == NpcId.NurseSalma);
+        outcome.Effects.OfType<DebtEffect>().Should().ContainSingle(effect => effect.Npc == NpcId.NurseSalma && effect.HasUnpaidDebt);
     }
 
     [Test]
@@ -234,11 +266,9 @@ internal sealed class NarrativeOutcomeIntegrationTests
     {
         var outcome = new NarrativeOutcome
         {
-            EmbarrassedTarget = NpcId.WorkshopBossAbuSamir,
-            EmbarrassedState = true
+            Effects = [new EmbarrassedEffect(NpcId.WorkshopBossAbuSamir, true)]
         };
 
-        outcome.EmbarrassedTarget.Should().Be(NpcId.WorkshopBossAbuSamir);
-        outcome.EmbarrassedState.Should().BeTrue();
+        outcome.Effects.OfType<EmbarrassedEffect>().Should().ContainSingle(effect => effect.Npc == NpcId.WorkshopBossAbuSamir && effect.Value);
     }
 }
