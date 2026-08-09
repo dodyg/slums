@@ -478,7 +478,7 @@ internal sealed class JsonContentRepositoryTests
 
     private static string CreateTempDirectory()
     {
-        var path = Path.Combine(Path.GetTempPath(), "slums-content-tests", Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(Path.GetTempPath(), $"slums-content-tests-{Guid.NewGuid():N}");
         Directory.CreateDirectory(path);
         return path;
     }

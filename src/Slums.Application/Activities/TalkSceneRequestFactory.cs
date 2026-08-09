@@ -5,7 +5,7 @@ namespace Slums.Application.Activities;
 public sealed class TalkSceneRequestFactory
 {
 #pragma warning disable CA1822
-    public TalkSceneRequest Create(TalkNpcContext context, NpcId npcId)
+    public TalkSceneRequest Create(TalkNpcContext context, NpcId npcId, Random? random = null)
 #pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -20,7 +20,8 @@ public sealed class TalkSceneRequestFactory
             context.HonestShiftsCompleted,
             context.CrimesCommitted,
             context.Player.Stats.Money,
-            context.Player.Household.MotherHealth);
+            context.Player.Household.MotherHealth,
+            random);
 
         context.Relationships.RecordSeenConversation(npcId, knotName);
         return new TalkSceneRequest(knotName, context.SceneState);

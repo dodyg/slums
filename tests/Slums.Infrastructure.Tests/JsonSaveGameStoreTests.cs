@@ -264,7 +264,7 @@ internal sealed class JsonSaveGameStoreTests
 
     private static string CreateTempDirectory(string rootName)
     {
-        var path = Path.Combine(Path.GetTempPath(), rootName, Guid.NewGuid().ToString("N"));
+        var path = Path.Combine(Path.GetTempPath(), $"{rootName}-{Guid.NewGuid():N}");
         Directory.CreateDirectory(path);
         return path;
     }

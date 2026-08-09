@@ -183,7 +183,7 @@ internal sealed class GameScreen : ScreenSurface
             case GameActionId.CheckOnMother:
             case GameActionId.GiveMotherMedicine:
             case GameActionId.EndDay:
-                _gameActionCommand.Execute(_gameState, action.Id, _runtime.RandomSource.SharedRandom);
+                _gameActionCommand.Execute(_gameState, action.Id);
                 break;
             default:
                 _navigator.ShowMenu(action.Id);

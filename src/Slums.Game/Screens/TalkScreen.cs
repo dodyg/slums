@@ -85,7 +85,7 @@ internal sealed class TalkScreen : ScreenSurface
         if (keyboard.IsKeyPressed(Keys.Enter))
         {
             var npcId = _npcs[_selectedIndex].NpcId;
-            var talkScene = _talkSceneRequestFactory.Create(_context, npcId);
+            var talkScene = _talkSceneRequestFactory.Create(_context, npcId, _gameState.SharedRandom);
             _runtime.NarrativeService.StartScene(talkScene.KnotName, talkScene.SceneState);
             IsFocused = false;
             ScreenTransition.FadeTo(new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, _parentScreen));

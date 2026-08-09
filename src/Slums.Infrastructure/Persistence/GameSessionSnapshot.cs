@@ -3,6 +3,7 @@ using Slums.Core.Home;
 using Slums.Core.Investments;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
+using Slums.Core.Randomness;
 using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.Weather;
@@ -56,6 +57,15 @@ public sealed record GameSessionSnapshot
 
     public GameSessionTipSnapshot Tips { get; init; } = new();
 
+    public IReadOnlyList<RumorSnapshot> Rumors { get; init; } = [];
+
+    /// <summary>
+    /// Serializable state of the session's shared random source. Restoring it lets a continued
+    /// session reproduce the exact same weather, events, economy, and outcomes as the
+    /// uninterrupted run. <c>null</c> only for sessions that never used a <see cref="GameRandom"/>.
+    /// </summary>
+    public GameRandomState? RandomState { get; init; }
+
     public static GameSessionSnapshot Capture(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
@@ -83,13 +93,35 @@ public sealed record GameSessionSnapshot
             Territory = GameSessionTerritorySnapshot.Capture(gameSession),
             Economy = GameSessionEconomySnapshot.Capture(gameSession),
             Phone = GameSessionPhoneSnapshot.Capture(gameSession),
-            Tips = GameSessionTipSnapshot.Capture(gameSession)
+            Tips = GameSessionTipSnapshot.Capture(gameSession),
+            Rumors = gameSession.Rumors.ActiveRumors.Select(RumorSnapshot.Capture).ToArray(),
+            RandomState = gameSession.RandomState
         };
+    }
+
+    private static GameRandom CreateFallbackRandom()
+    {
+#pragma warning disable CA5394 // Gameplay randomness does not require cryptographic strength
+        return new GameRandom((ulong)Random.Shared.NextInt64());
+#pragma warning restore CA5394
     }
 
     public GameSession Restore()
     {
-        var gameSession = new GameSession(new Random());
+        var restoredRandom = RandomState is not null
+            ? new GameRandom(RandomState)
+            : CreateFallbackRandom();
+
+        var gameSession = new GameSession(restoredRandom);
+
+        // The constructor rolls district conditions (consuming draws) and Restore() overwrites
+        // them with the saved conditions below. Rewind the random stream to the saved state so
+        // gameplay continues the exact sequence of the original run.
+        if (RandomState is not null)
+        {
+            gameSession.RestoreRandomState(RandomState);
+        }
+
         try
         {
             gameSession.Player.ApplyBackground(BackgroundRegistry.GetByType(Player.BackgroundType));
@@ -183,6 +215,12 @@ public sealed record GameSessionSnapshot
             Economy.Restore(gameSession);
             Phone.Restore(gameSession);
             Tips.Restore(gameSession);
+
+            gameSession.Rumors.Clear();
+            foreach (var rumorSnapshot in Rumors)
+            {
+                gameSession.Rumors.AddRumor(rumorSnapshot.Restore());
+            }
 
             foreach (var npcId in Enum.GetValues<NpcId>())
             {

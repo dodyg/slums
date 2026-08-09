@@ -24,6 +24,7 @@ using Slums.Core.World;
 using Slums.Core.Phone;
 using Slums.Core.Information;
 
+using Slums.Core.Randomness;
 using Slums.Core.Diagnostics;
 using NarrativeStoryFlags = Slums.Core.Narrative.StoryFlags;
 
@@ -41,7 +42,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     private readonly GameNarrativeState _narrativeState;
     private readonly GameInvestmentState _investmentState;
     private readonly RentState _rentState;
-    private readonly Random _sharedRandom;
+    private Random _sharedRandom;
     private readonly LocationPricingService _locationPricingService;
     private readonly Queue<string> _pendingNarrativeScenes;
     private readonly HashSet<string> _storyFlags;
@@ -66,7 +67,9 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         _investmentState = new GameInvestmentState();
         _rentState = new RentState();
         _useDynamicDistrictConditions = sharedRandom is not null;
-        _sharedRandom = sharedRandom ?? new Random();
+#pragma warning disable CA5394 // Gameplay randomness does not require cryptographic strength
+        _sharedRandom = sharedRandom ?? new GameRandom((ulong)Random.Shared.NextInt64());
+#pragma warning restore CA5394
         _locationPricingService = new LocationPricingService();
         _pendingNarrativeScenes = _narrativeState.PendingNarrativeScenes;
         _storyFlags = _narrativeState.StoryFlags;
@@ -84,6 +87,23 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
     }
 
     public Guid RunId { get => _runState.RunId; private set => _runState.RunId = value; }
+
+    /// <summary>The session-owned random source; all gameplay randomness flows through it.</summary>
+    public Random SharedRandom => _sharedRandom;
+
+    /// <summary>
+    /// Serializable state of the shared random source, or <c>null</c> when the source is not a
+    /// <see cref="GameRandom"/> (e.g. a session constructed with an external plain <see cref="Random"/>).
+    /// </summary>
+    public GameRandomState? RandomState => (_sharedRandom as GameRandom)?.CaptureState();
+
+    /// <summary>Restores the shared random source to an exact captured state.</summary>
+    public void RestoreRandomState(GameRandomState state)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        _sharedRandom = new GameRandom(state);
+    }
+
     public GameClock Clock { get; }
     public PlayerCharacter Player { get; }
     public WorldState World { get; }
@@ -903,7 +923,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
 
         var before = CaptureStats();
-        random ??= Random.Shared;
+        random ??= _sharedRandom;
 
         var available = GetAvailableCommunityEvents();
         if (available.All(e => e.Id != eventId))

@@ -170,7 +170,7 @@ internal sealed class CrimeScreen : ScreenSurface
             return;
         }
 
-        _crimeCommand.Execute(_gameState, selected.Attempt, _runtime.RandomSource.SharedRandom);
+        _crimeCommand.Execute(_gameState, selected.Attempt);
         ReturnToParentScreen();
     }
 

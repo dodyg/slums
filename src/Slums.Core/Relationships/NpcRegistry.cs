@@ -95,7 +95,7 @@ public static class NpcRegistry
         return GetConversationKnot(npcId, relationshipState, policePressure, currentDay: 0, honestShiftsCompleted: 0, crimesCommitted: 0, currentMoney: 100, motherHealth: 70);
     }
 
-    public static string GetConversationKnot(NpcId npcId, RelationshipState relationshipState, int policePressure, int currentDay, int honestShiftsCompleted, int crimesCommitted, int currentMoney = 100, int motherHealth = 70)
+    public static string GetConversationKnot(NpcId npcId, RelationshipState relationshipState, int policePressure, int currentDay, int honestShiftsCompleted, int crimesCommitted, int currentMoney = 100, int motherHealth = 70, Random? random = null)
     {
         ArgumentNullException.ThrowIfNull(relationshipState);
 
@@ -104,11 +104,12 @@ public static class NpcRegistry
         var pool = ConversationPoolRegistry.GetConversationPool(npcId, context);
         var seenKnots = relationship.SeenConversationKnots;
         var available = pool.Where(k => !seenKnots.Contains(k)).ToList();
+        var rng = random ?? Random.Shared;
 
 #pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
         return available.Count > 0
-            ? available[Random.Shared.Next(available.Count)]
-            : pool[Random.Shared.Next(pool.Count)];
+            ? available[rng.Next(available.Count)]
+            : pool[rng.Next(pool.Count)];
 #pragma warning restore CA5394
     }
 }
