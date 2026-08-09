@@ -5,6 +5,9 @@ public sealed class PhoneState
     private const int DefaultCreditDays = 7;
     private const int DefaultCreditCost = 5;
 
+    /// <summary>LE cost to replace a lost phone (includes credit refill).</summary>
+    public const int ReplacementCost = 30;
+
     public bool HasPhone { get; private set; } = true;
     public int CreditRemaining { get; private set; } = DefaultCreditDays;
     public int CreditWeekCost { get; } = DefaultCreditCost;

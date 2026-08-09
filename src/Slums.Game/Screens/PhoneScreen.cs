@@ -15,7 +15,7 @@ internal sealed class PhoneScreen : ScreenSurface
     private const int ListY = 7;
     private const int ListRowHeight = 2;
     private const int DetailX = 38;
-    private readonly PhoneMenuContext _context;
+    private PhoneMenuContext _context;
     private readonly GameSession _gameState;
     private readonly PhoneMenuQuery _phoneMenuQuery = new();
     private readonly GameScreen _parentScreen;
@@ -46,7 +46,7 @@ internal sealed class PhoneScreen : ScreenSurface
         if (_context.PhoneLost)
         {
             Surface.Print(ListX, 4, "Your phone is lost. You need to replace it.", Color.Orange);
-            Surface.Print(2, Surface.Height - 3, "R = Replace phone (25 LE) | Escape to cancel", Color.DarkGray);
+            Surface.Print(2, Surface.Height - 3, $"R = Replace phone ({_context.PhoneReplacementCost} LE) | Escape to cancel", Color.DarkGray);
             return;
         }
 
@@ -239,7 +239,7 @@ internal sealed class PhoneScreen : ScreenSurface
             var (success, message) = _gameState.ReplacePhone();
             if (success)
             {
-                _parentScreen.AddEventLogEntry("Phone replaced for 25 LE.");
+                _parentScreen.AddEventLogEntry($"Phone replaced for {_context.PhoneReplacementCost} LE.");
             }
             else
             {
@@ -264,8 +264,8 @@ internal sealed class PhoneScreen : ScreenSurface
 
     private void RefreshStatus()
     {
-        var newContext = PhoneMenuContext.Create(_gameState);
-        _status = _phoneMenuQuery.GetStatus(newContext);
+        _context = PhoneMenuContext.Create(_gameState);
+        _status = _phoneMenuQuery.GetStatus(_context);
 
         if (_selectedIndex >= _status.Entries.Count)
         {

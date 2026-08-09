@@ -26,6 +26,61 @@ internal sealed class PhoneMenuQueryTests
     }
 
     [Test]
+    public void PhoneMenuContext_ExposesCentralizedReplacementCost()
+    {
+        var gameState = new GameSession();
+
+        var context = PhoneMenuContext.Create(gameState);
+
+        context.PhoneReplacementCost.Should().Be(PhoneState.ReplacementCost,
+            "the UI must render the domain price, not a duplicated constant");
+    }
+
+    [Test]
+    public void PhoneMenuContext_ReflectsLostPhone()
+    {
+        var gameState = new GameSession();
+        gameState.Phone.LosePhone(3);
+
+        var context = PhoneMenuContext.Create(gameState);
+
+        context.PhoneLost.Should().BeTrue();
+        context.PhoneOperational.Should().BeFalse();
+    }
+
+    [Test]
+    public void ReplacePhone_ThenFreshContext_ShowsRestoredPhone()
+    {
+        var gameState = new GameSession();
+        gameState.Phone.LosePhone(3);
+        gameState.Player.Stats.SetMoney(100);
+
+        var replace = gameState.ReplacePhone();
+
+        replace.Success.Should().BeTrue();
+        var context = PhoneMenuContext.Create(gameState);
+        context.PhoneLost.Should().BeFalse();
+        context.PhoneOperational.Should().BeTrue();
+        gameState.Player.Stats.Money.Should().Be(100 - PhoneState.ReplacementCost);
+    }
+
+    [Test]
+    public void RefillCredit_ThenFreshContext_ShowsOperationalPhone()
+    {
+        var gameState = new GameSession();
+        gameState.RestorePhoneState(hasPhone: true, creditRemaining: 0, daysSinceCreditRefill: 7, phoneLost: false, phoneLostDay: null, phoneRecovered: false);
+
+        PhoneMenuContext.Create(gameState).PhoneOperational.Should().BeFalse();
+
+        var refill = gameState.RefillPhoneCredit();
+
+        refill.Success.Should().BeTrue();
+        var context = PhoneMenuContext.Create(gameState);
+        context.PhoneOperational.Should().BeTrue();
+        context.CreditRemaining.Should().Be(7);
+    }
+
+    [Test]
     public void GetStatus_ShouldIncludeUndeliveredTips()
     {
         var query = new PhoneMenuQuery();

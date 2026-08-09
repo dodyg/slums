@@ -3914,7 +3914,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
             return (false, "Your phone is not lost.");
         }
 
-        const int replacementCost = 30;
+        const int replacementCost = PhoneState.ReplacementCost;
         if (Player.Stats.Money < replacementCost)
         {
             return (false, $"Not enough money (need {replacementCost} LE for replacement + credit).");
