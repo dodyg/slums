@@ -5,14 +5,15 @@ Slums is a text-driven RPG about survival in Cairo, built with SadConsole, Ink, 
 The current project includes:
 
 - a playable SadConsole game loop
-- multiple districts across Imbaba, Dokki, and Ard al-Liwa
+- two preset protagonist identities and three life backgrounds
+- 13 locations across six Cairo districts
 - honest work tracks with progression, reliability, and lockouts
 - contact-specific crime routes and relationship-driven aftermath
 - NPC conversations with trust and memory-based variation
 - district-specific random events
 - background-specific advantages and vulnerabilities
 - save/load support
-- multiple ending paths shaped by behavior over time
+- eight ending paths shaped by behavior over time
 
 ## Running the game
 

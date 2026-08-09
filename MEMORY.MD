@@ -4,7 +4,7 @@ This document explains the game architecture and simulation mechanics for future
 
 ## Project Overview
 
-**Slums** is a text-driven survival RPG set in contemporary Cairo slums. The player controls a young woman (20-29) who must balance survival needs, care for her widowed mother, and navigate moral choices between honest underpaid work and risky criminal activity.
+**Slums** is a text-driven survival RPG set in contemporary Cairo slums. The player chooses Amira, a young woman, or Karim, a young man (both 20-29), then selects a life background. The protagonist must balance survival needs, care for a widowed mother, and navigate moral choices between honest underpaid work and risky criminal activity.
 
 ## Solution Architecture
 
@@ -82,6 +82,12 @@ The canonical runtime boundary for an active run. Key state groups:
 
 ### Player Character
 
+**Identity and gender**:
+- Preset identities: Amira (`Female`) and Karim (`Male`)
+- Identity is selected before background and is persisted in snapshots
+- Gender modifiers affect selected work costs/pay, crime detection, starting NPC trust, daily stress, and Ink conditionals
+- Background remains an independent choice among the three life histories below
+
 **SurvivalStats** (0-100 scale):
 - Money (can go to 0, tracks earnings)
 - Hunger (mapped from NutritionState.Satiety)
@@ -130,11 +136,11 @@ Defined in `content/data/backgrounds.json`:
 
 ### Districts (6)
 - **Imbaba**: Home district, market, bakery, fish market
-- **Dokki**: Call center, square, cafe, plant shop - more expensive, refugee stress
+- **Dokki**: Call center, cafe, plant shop - more expensive, refugee stress
 - **ArdAlLiwa**: Clinic, workshop - informal settlement
 - **BulaqAlDakrour**: Pharmacy, microbus depot
 - **Shubra**: Laundry - crowded northern district
-- **DowntownCairo**: No current locations, referenced for events
+- **DowntownCairo**: Midan Al-Tahrir; its underworld contacts use Dokki faction standing
 
 ### Locations (13)
 | Location | District | Key Facilities |
@@ -144,7 +150,7 @@ Defined in `content/data/backgrounds.json`:
 | Bakery (Al-Forn Al-Baladi) | Imbaba | BakeryWork job |
 | FishMarket (Wikalet Al-Samak) | Imbaba | FishSorter job |
 | CallCenter (TechConnect Office) | Dokki | CallCenterWork job |
-| Square (Midan Al-Tahrir) | Dokki | HasBar, crime (Youssef), VendorTarek |
+| Square (Midan Al-Tahrir) | DowntownCairo | StreetVending job, HasBar, crime (Youssef), VendorTarek |
 | Cafe (Ahwa El-Galaa) | Dokki | CafeService job, HasCafe, entertainment |
 | PlantShop (Mashrabiya Stall) | Dokki | Buy plants |
 | Clinic (Rahma Clinic) | ArdAlLiwa | Mother treatment, ClinicReception job |
@@ -294,7 +300,7 @@ Player has a basic mobile phone (`PhoneState`) with weekly prepaid credit (7 day
 - **LoanShark**: 100-300 LE, 20-30% weekly interest, 7-day due. Critical state triggers Destitution ending.
 - **CommunityMutualAid**: Community-based lending
 
-Loan shark escalation: daily stress/health penalties, violence ending at critical state (14+ days overdue).
+Loan shark escalation: daily stress/health penalties; critical collection state (14+ days overdue) contributes to the Destitution ending.
 
 ### NPC Economy (`NpcEconomyState`)
 Per-NPC wealth tracking (Struggling/Poor/Stable/Comfortable). Weekly resolution: NPCs with financial hardship affect player. Player can lend to NPCs for trust gain.
@@ -394,16 +400,14 @@ Clinic locations: Rahma Clinic (ArdAlLiwa, 35 LE base), Saidaleya Pharmacy (Bula
 
 **Bad:**
 1. **MotherDied**: Mother health reaches 0
-2. **Destitution**: Health<=0, or (starving + exhausted + no money)
+2. **Destitution**: Health<=0, (starving + exhausted + no money), or critical loan-shark debt (14+ days overdue)
 3. **Arrested**: Global heat >=100, or (Day>=30 AND Crimes>=6 AND Heat>=85 AND Stress>=70)
 4. **Eviction**: 7 days of unpaid rent
-5. **Destitution** (loan shark): Critical loan shark debt (14+ days overdue)
-
 **Good/Ambiguous:**
-6. **StabilityHonestWork**: Day>=30, work earnings >=180, mother alive, heat<60, no recent crime
-7. **NetworkShelter**: Day>=30, network trust sum >=140, mother alive, money >=120
-8. **QuitTheLuxorDream**: Day>=30, money >500, crimes <=3, mother health >60
-9. **CrimeKingpin**: Crime earnings >=1000 AND ImbabaCrew rep >50
+5. **StabilityHonestWork**: Day>=30, work earnings >=180, mother alive, heat<60, no recent crime
+6. **NetworkShelter**: Day>=30, network trust sum >=140, mother alive, money >=120
+7. **QuitTheLuxorDream**: Day>=30, money >500, crimes <=3, mother health >60
+8. **CrimeKingpin**: Crime earnings >=1000 AND ImbabaCrew rep >50
 
 Ending Ink knots have variants by background and strongest support contact.
 
@@ -424,7 +428,7 @@ Every significant game state change records a `GameMutationRecord` with RunId, t
 
 ### Ink Integration (InkNarrativeService)
 - Loads compiled `content/ink/main.json`
-- Syncs game state variables to Ink: money, health, energy, hunger, stress, mother_health, food_stockpile, day, background
+- Syncs game state variables to Ink: money, health, energy, hunger, stress, mother_health, food_stockpile, day, background, gender
 - Processes tags for outcomes: MONEY, HEALTH, ENERGY, HUNGER, STRESS, MOTHER_HEALTH, FOOD, FLAG, MESSAGE, NPC_TRUST, FACTION_REP
 - Fails fast if compiled Ink story cannot be loaded; no fallback narrative runtime
 
@@ -485,7 +489,7 @@ Per REQS.md:
 - Framework: TUnit
 - Assertions: FluentAssertions
 - Mocking: NSubstitute
-- 1,362 tests across 5 suites (1021 Core + 129 Application + 22 Game + 32 Infrastructure + 158 Narrative.Ink)
+- Test counts change frequently; use the five executable suite summaries as the source of truth.
 - Validation workflow:
   1. `dotnet build ./Slums.slnx`
   2. `dotnet run --project tests/Slums.Core.Tests`
