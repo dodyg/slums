@@ -32,7 +32,10 @@ public sealed class JsonContentRepository : IContentRepository
 
     public IReadOnlyList<JobShift> LoadJobs()
     {
-        return Load(Path.Combine(_contentDirectory, "jobs.json"), ContentJsonContext.Default.ListJobShift);
+        var path = Path.Combine(_contentDirectory, "jobs.json");
+        var jobs = Load(path, ContentJsonContext.Default.ListJobShift);
+        ValidateCompleteJobCatalog(jobs, path);
+        return jobs;
     }
 
     public IReadOnlyList<RandomEvent> LoadRandomEvents()
@@ -102,6 +105,26 @@ public sealed class JsonContentRepository : IContentRepository
             definition.MinDay,
             definition.Weight,
             CreateCondition(definition.ConditionId));
+    }
+
+    private static void ValidateCompleteJobCatalog(IReadOnlyCollection<JobShift> jobs, string path)
+    {
+        var duplicateTypes = jobs
+            .GroupBy(static job => job.Type)
+            .Where(static group => group.Count() > 1)
+            .Select(static group => group.Key)
+            .ToArray();
+        if (duplicateTypes.Length > 0)
+        {
+            throw new ContentLoadException($"Content file {path} defines duplicate jobs: {string.Join(", ", duplicateTypes)}.");
+        }
+
+        var configuredTypes = jobs.Select(static job => job.Type).ToHashSet();
+        var missingTypes = Enum.GetValues<JobType>().Where(type => !configuredTypes.Contains(type)).ToArray();
+        if (missingTypes.Length > 0)
+        {
+            throw new ContentLoadException($"Content file {path} is missing jobs: {string.Join(", ", missingTypes)}.");
+        }
     }
 
     private static Func<GameSession, bool>? CreateCondition(string? conditionId)

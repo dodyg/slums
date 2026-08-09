@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Slums.Core.Characters;
+using Slums.Core.Jobs;
 using Slums.Core.World;
 using Slums.Infrastructure.Content;
 using TUnit.Core;
@@ -81,6 +82,61 @@ internal sealed class JsonContentRepositoryTests
         {
             DeleteDirectory(contentDirectory);
         }
+    }
+
+    [Test]
+    public void LoadJobs_ShouldThrow_WhenCatalogIsIncomplete()
+    {
+        var contentDirectory = CreateTempDirectory();
+        try
+        {
+            File.WriteAllText(Path.Combine(contentDirectory, "jobs.json"), "[]");
+            var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
+
+            var act = () => repository.LoadJobs();
+
+            act.Should().Throw<ContentLoadException>().WithMessage("*missing jobs*");
+        }
+        finally
+        {
+            DeleteDirectory(contentDirectory);
+        }
+    }
+
+    [Test]
+    public void LoadJobs_FromRepositoryContent_ShouldContainEveryJobType()
+    {
+        var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, GetRepositoryContentDirectory());
+
+        var jobs = repository.LoadJobs();
+
+        jobs.Select(static job => job.Type).Should().BeEquivalentTo(Enum.GetValues<JobType>());
+    }
+
+    [Test]
+    public void LoadLocations_FromRepositoryContent_ShouldEnableEveryConfiguredJobLocation()
+    {
+        var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, GetRepositoryContentDirectory());
+
+        var locations = repository.LoadLocations();
+
+        var jobLocationIds = new[]
+        {
+            LocationId.Market,
+            LocationId.Bakery,
+            LocationId.CallCenter,
+            LocationId.Square,
+            LocationId.Clinic,
+            LocationId.Workshop,
+            LocationId.Cafe,
+            LocationId.Pharmacy,
+            LocationId.Depot,
+            LocationId.Laundry,
+            LocationId.FishMarket
+        };
+        locations.Where(location => jobLocationIds.Contains(location.Id))
+            .Should().HaveCount(jobLocationIds.Length)
+            .And.OnlyContain(static location => location.HasJobOpportunities);
     }
 
     [Test]

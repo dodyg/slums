@@ -51,7 +51,7 @@
     "Name": "Midan Al-Tahrir",
     "Description": "The busy central square connecting districts.",
     "District": "DowntownCairo",
-    "HasJobOpportunities": false,
+    "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,
     "TravelTimeMinutes": 40,
     "HasBar": true
@@ -139,7 +139,7 @@
     "Name": "Wikalet Al-Samak",
     "Description": "A fish market where wet floors, shouted prices, and cloudy tanks crowd every step.",
     "District": "Imbaba",
-    "HasJobOpportunities": false,
+    "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
     "TravelTimeMinutes": 20
   },

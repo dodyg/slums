@@ -97,5 +97,38 @@
     "DurationMinutes": 420,
     "MinEnergyRequired": 30,
     "PayVariance": 4
+  },
+  {
+    "Type": "StreetVending",
+    "Name": "Street Vendor Shift",
+    "Description": "Set up a folding table outside Midan Al-Tahrir and sell phone cases, chargers, and cheap accessories to commuters.",
+    "BasePay": 19,
+    "EnergyCost": 22,
+    "StressCost": 10,
+    "DurationMinutes": 360,
+    "MinEnergyRequired": 25,
+    "PayVariance": 6
+  },
+  {
+    "Type": "FishSorter",
+    "Name": "Fish Sorting Shift",
+    "Description": "Gut, scale, and sort the morning catch at Wikalet Al-Samak before the ice melts and the fishwives lose patience.",
+    "BasePay": 20,
+    "EnergyCost": 28,
+    "StressCost": 6,
+    "DurationMinutes": 360,
+    "MinEnergyRequired": 35,
+    "PayVariance": 4
+  },
+  {
+    "Type": "MarketPorter",
+    "Name": "Market Porter Shift",
+    "Description": "Haul crates, stack sacks, and carry what vendors cannot between the narrow market aisles.",
+    "BasePay": 19,
+    "EnergyCost": 30,
+    "StressCost": 5,
+    "DurationMinutes": 300,
+    "MinEnergyRequired": 40,
+    "PayVariance": 4
   }
 ]
