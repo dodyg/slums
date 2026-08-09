@@ -15,7 +15,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldReturnEmpty_WhenNoMessagesOrTips()
     {
         var query = new PhoneMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         var context = PhoneMenuContext.Create(gameState);
 
         var status = query.GetStatus(context);
@@ -29,7 +29,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldIncludeUndeliveredTips()
     {
         var query = new PhoneMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.PoliceTip,
@@ -53,7 +53,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldIncludeActiveMessages()
     {
         var query = new PhoneMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.PhoneMessages.AddMessage(new PhoneMessage
         {
             Type = PhoneMessageType.Opportunity,
@@ -75,7 +75,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldSkipRespondedAndIgnoredMessages()
     {
         var query = new PhoneMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.PhoneMessages.AddMessage(new PhoneMessage
         {
             Type = PhoneMessageType.Opportunity,
@@ -103,7 +103,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldMarkEmergencyTips()
     {
         var query = new PhoneMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.CrimeWarning,
@@ -126,7 +126,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldComputeDaysUntilExpiry()
     {
         var query = new PhoneMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.JobLead,
@@ -147,7 +147,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldIncludeBothTipsAndMessages()
     {
         var query = new PhoneMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.JobLead,
@@ -177,7 +177,7 @@ internal sealed class PhoneMenuQueryTests
     [Test]
     public void PhoneMenuContext_Create_ShouldCapturePhoneState()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Phone.LosePhone(1);
 
         var context = PhoneMenuContext.Create(gameState);
@@ -189,7 +189,7 @@ internal sealed class PhoneMenuQueryTests
     [Test]
     public void PhoneMenuContext_Create_ShouldCaptureCreditInfo()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
 
         var context = PhoneMenuContext.Create(gameState);
 

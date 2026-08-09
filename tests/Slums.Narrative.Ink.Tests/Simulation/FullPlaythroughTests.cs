@@ -14,7 +14,7 @@ internal sealed class FullPlaythroughTests
     [Test]
     public async Task Playthrough_IntroToGame_CompletesWithoutError()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithBackground(BackgroundType.MedicalSchoolDropout)
             .WithMoney(50)
             .WithHealth(80)
@@ -30,7 +30,7 @@ internal sealed class FullPlaythroughTests
     [Test]
     public async Task Playthrough_HonestWorkPath_ReachesStability()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithBackground(BackgroundType.MedicalSchoolDropout)
             .WithDaysSurvived(30)
             .WithMoney(250)
@@ -51,7 +51,7 @@ internal sealed class FullPlaythroughTests
     [Test]
     public async Task Playthrough_CrimePath_CanReachKingpin()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithCrimeCounters(1100, 20)
             .WithFactionReputation(FactionId.ImbabaCrew, 55)
             .Build();
@@ -66,7 +66,7 @@ internal sealed class FullPlaythroughTests
     [Test]
     public async Task Playthrough_HighPressure_ReachesArrested()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithPolicePressure(100)
             .Build();
 
@@ -77,7 +77,7 @@ internal sealed class FullPlaythroughTests
     [Test]
     public async Task Playthrough_MotherDeath_TriggeredByZeroHealth()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithMotherHealth(0)
             .Build();
 
@@ -88,7 +88,7 @@ internal sealed class FullPlaythroughTests
     [Test]
     public async Task Playthrough_HealthZeroFoldsIntoDestitution()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithHealth(0)
             .Build();
 
@@ -99,7 +99,7 @@ internal sealed class FullPlaythroughTests
     [Test]
     public async Task Playthrough_NetworkShelter_RequiresHighTrust()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithMoney(150)
             .WithNpcTrust(NpcId.NeighborMona, 45)
@@ -131,7 +131,7 @@ internal sealed class FullPlaythroughTests
 
         for (var i = 0; i < backgrounds.Length; i++)
         {
-            using var session = GameStateBuilder.BuildForBackground(backgrounds[i]);
+            var session = GameStateBuilder.BuildForBackground(backgrounds[i]);
             var sceneState = NarrativeSceneState.Create(session);
             var result = StoryTraversalHelper.ExplorePath(introKnots[i], sceneState);
 
@@ -143,7 +143,7 @@ internal sealed class FullPlaythroughTests
     [Test]
     public async Task Playthrough_FormerCriminal_ReachesStability()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithPolicePressure(30)
             .WithCrimeCounters(300, 5, lastCrimeDay: 25)
@@ -158,7 +158,7 @@ internal sealed class FullPlaythroughTests
     [Test]
     public async Task Playthrough_SustainedHeat_ReachesArrested()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithCrimeCounters(500, 7)
             .WithPolicePressure(90)
@@ -172,7 +172,7 @@ internal sealed class FullPlaythroughTests
     [Test]
     public async Task Playthrough_LuxorDream_RequiresEscape()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithMoney(550)
             .WithCrimeCounters(0, 2)

@@ -30,7 +30,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Friday_ShouldBlockBakeryCallCenterAndCafe()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 8, 0);
 
         var schedule = state.GetCurrentSchedule();
@@ -42,7 +42,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Friday_BlockedJobsShouldNotAppearInAvailableJobs()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 8, 0);
         state.World.TravelTo(LocationId.Bakery);
         var jobs = state.GetAvailableJobs();
@@ -52,7 +52,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task NonFriday_BakeryShouldBeAvailable()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(2, 8, 0);
         state.World.TravelTo(LocationId.Bakery);
         var jobs = state.GetAvailableJobs();
@@ -62,7 +62,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Saturday_ShouldReduceFoodCostBy2()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.FoodCostModifier).IsEqualTo(-2);
         await Assert.That(state.GetFoodCost()).IsEqualTo(13);
@@ -71,7 +71,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Sunday_ShouldHaveNoFoodCostModifier()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(2, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.FoodCostModifier).IsEqualTo(0);
@@ -80,7 +80,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Monday_ClinicCostShouldBeLowerThanSunday()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Clinic);
 
         state.Clock.SetTime(2, 8, 0);
@@ -98,7 +98,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Monday_ClinicDiscountShouldBeDoubledForMedicalDropout()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
         state.World.TravelTo(LocationId.Clinic);
 
@@ -113,7 +113,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task NonMonday_ShouldNotApplyClinicDiscount()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(2, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.ClinicDiscount).IsFalse();
@@ -122,7 +122,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Friday_ShouldReduceCrimeDetection()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.CrimeDetectionModifier).IsEqualTo(-10);
@@ -131,7 +131,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Friday_PrayerGatheringShouldBeAvailable()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.PrayerGatheringAvailable).IsTrue();
@@ -140,7 +140,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task NonFriday_PrayerGatheringShouldNotBeAvailable()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(2, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.PrayerGatheringAvailable).IsFalse();
@@ -149,7 +149,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Wednesday_ShouldHaveInvestmentRevenueModifier()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(5, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.InvestmentRevenueModifier).IsEqualTo(1);
@@ -158,7 +158,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task SudaneseRefugee_ShouldGetExtraFoodDiscountOnSaturday()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
         await Assert.That(state.GetFoodCost()).IsEqualTo(12);
     }
@@ -166,7 +166,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task NonSaturday_SudaneseRefugeeShouldGetNoExtraFoodDiscount()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
         state.Clock.SetTime(2, 8, 0);
         await Assert.That(state.GetFoodCost()).IsEqualTo(15);
@@ -175,7 +175,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Saturday_StreetFoodCostShouldAlsoBeReduced()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.CallCenter);
         await Assert.That(state.GetStreetFoodCost()).IsEqualTo(8);
     }
@@ -183,7 +183,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Friday_ShouldMarketsClosed()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.MarketsClosed).IsTrue();
@@ -217,7 +217,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task GetCurrentSchedule_ShouldReturnScheduleForCurrentDay()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.Day).IsEqualTo(GameDayOfWeek.Saturday);
         await Assert.That(schedule.DayName).IsEqualTo("Saturday");
@@ -226,7 +226,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task ClinicOpenCheck_ShouldUseSystemDayOfWeek()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(3, 8, 0);
         state.World.TravelTo(LocationId.Clinic);
         var clinicStatus = state.GetCurrentLocationClinicStatus();
@@ -238,7 +238,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Saturday_LaundryPressingShouldHaveExtraPay()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var schedule = DayScheduleRegistry.GetModifiers(GameDayOfWeek.Saturday);
         await Assert.That(schedule.JobPayOverrides.ContainsKey(nameof(JobType.LaundryPressing))).IsTrue();
         await Assert.That(schedule.JobPayOverrides[nameof(JobType.LaundryPressing)]).IsEqualTo(2);
@@ -247,7 +247,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Saturday_LaundryPressingJobPreviewShouldShowHigherPay()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Laundry);
         var preview = state.PreviewJob(JobType.LaundryPressing);
         await Assert.That(preview.ActiveModifiers.Any(m => m.Contains("Saturday", StringComparison.Ordinal) && m.Contains("LaundryPressing", StringComparison.Ordinal))).IsTrue();
@@ -256,7 +256,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task NonSaturday_LaundryPressingShouldHaveNormalPay()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(2, 8, 0);
         state.World.TravelTo(LocationId.Laundry);
         var preview = state.PreviewJob(JobType.LaundryPressing);

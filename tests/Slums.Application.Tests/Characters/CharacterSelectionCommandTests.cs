@@ -13,7 +13,7 @@ internal sealed class CharacterSelectionCommandTests
     public void SelectGender_AppliesGenderAndRelationshipModifiers()
     {
         var command = new SelectGenderCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
 
         command.Execute(session, Gender.Female);
 
@@ -27,7 +27,7 @@ internal sealed class CharacterSelectionCommandTests
     public void SelectBackground_AppliesStartingConditions()
     {
         var command = new SelectBackgroundCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         var background = BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee);
 
         command.Execute(session, background);

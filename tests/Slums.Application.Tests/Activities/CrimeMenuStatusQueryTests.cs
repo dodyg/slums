@@ -18,7 +18,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExposeBlockedContactRouteReason()
     {
         var query = new CrimeMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Market);
 
         var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
@@ -36,7 +36,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldMarkDokkiDropAvailable_WhenReliableWorkUnlockApplies()
     {
         var query = new CrimeMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Square);
         gameState.JobProgress.RestoreTrack(JobType.CallCenterWork, reliability: 60, shiftsCompleted: 3, lockoutUntilDay: 0);
 
@@ -52,7 +52,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldMarkNetworkErrandAvailable_WhenExPrisonerUnlockApplies()
     {
         var query = new CrimeMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Market);
         gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
         gameState.Relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 10);
@@ -68,7 +68,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldMarkDepotFareSkimAvailable_WhenReliableDepotWorkUnlockApplies()
     {
         var query = new CrimeMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Depot);
         gameState.JobProgress.RestoreTrack(JobType.MicrobusDispatch, reliability: 60, shiftsCompleted: 3, lockoutUntilDay: 0);
 
@@ -83,7 +83,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldMarkShubraBundleLiftAvailable_WhenReliableLaundryWorkUnlockApplies()
     {
         var query = new CrimeMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Laundry);
         gameState.JobProgress.RestoreTrack(JobType.LaundryPressing, reliability: 60, shiftsCompleted: 3, lockoutUntilDay: 0);
 
@@ -98,7 +98,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExposeEffectiveCrimeModifiers()
     {
         var query = new CrimeMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Square);
         gameState.SetPolicePressure(70);
         gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
@@ -121,7 +121,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExposeNarrativeSignals_ForHomeSuspicionAndMonaWarning()
     {
         var query = new CrimeMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Square);
         gameState.SetCrimeCounters(120, 1);
         gameState.Player.Household.SetMotherHealth(50);
@@ -140,7 +140,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExposeDistrictCrimePressure()
     {
         var query = new CrimeMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Square);
         gameState.World.SetActiveDistrictConditions(
         [
@@ -158,7 +158,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExplainWeatherWideCrimeClosure()
     {
         var query = new CrimeMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Market);
         gameState.RestoreWeather(WeatherType.Khamsin);
 

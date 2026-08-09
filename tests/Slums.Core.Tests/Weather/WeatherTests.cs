@@ -134,7 +134,7 @@ internal sealed class WeatherTests
     [Test]
     public async Task GameSession_DefaultWeather_IsClear()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         await Assert.That(state.CurrentWeather.Type).IsEqualTo(WeatherType.Clear);
     }
@@ -143,7 +143,7 @@ internal sealed class WeatherTests
     public async Task GameSession_EndDay_RollsNewWeather()
     {
         var rng = new Random(42);
-        using var state = new GameSession(rng);
+        var state = new GameSession(rng);
         state.Player.Nutrition.Eat(MealQuality.Basic);
 
         var weatherBefore = state.CurrentWeather.Type;
@@ -156,7 +156,7 @@ internal sealed class WeatherTests
     [Test]
     public async Task GameSession_RestoreWeather_PreservesState()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.RestoreWeather(WeatherType.Khamsin);
 
         await Assert.That(state.CurrentWeather.Type).IsEqualTo(WeatherType.Khamsin);
@@ -179,7 +179,7 @@ internal sealed class WeatherTests
     [Test]
     public async Task Khamsin_ShouldIncreaseTransportCost()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var clearCost = state.GetTravelCost(LocationId.CallCenter);
 
         state.RestoreWeather(WeatherType.Khamsin);
@@ -191,7 +191,7 @@ internal sealed class WeatherTests
     [Test]
     public async Task Rain_ShouldBlockPaidAndWalkingTravelToFloodProneDistricts()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.RestoreWeather(WeatherType.Rain);
         var moneyBefore = state.Player.Stats.Money;
         var energyBefore = state.Player.Stats.Energy;
@@ -209,7 +209,7 @@ internal sealed class WeatherTests
     [Test]
     public async Task Rain_ShouldStillAllowTravelToNonFloodProneDistricts()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.RestoreWeather(WeatherType.Rain);
 
         var result = state.TryTravelTo(LocationId.Market);
@@ -221,7 +221,7 @@ internal sealed class WeatherTests
     [Test]
     public async Task Heatwave_ShouldRejectOutdoorWorkWithoutApplyingOutcome()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.RestoreWeather(WeatherType.Heatwave);
         state.World.TravelTo(LocationId.FishMarket);
         var shift = new JobShift
@@ -246,7 +246,7 @@ internal sealed class WeatherTests
     [Test]
     public async Task Khamsin_ShouldBlockCrimeAtQueryAndCommandBoundaries()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Market);
         state.RestoreWeather(WeatherType.Khamsin);
         var moneyBefore = state.Player.Stats.Money;
@@ -266,7 +266,7 @@ internal sealed class WeatherTests
     [Test]
     public async Task WeatherCrimeDetectionModifier_ShouldReachCrimePreview()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var attempt = new CrimeAttempt(CrimeType.PettyTheft, 30, 30, 10, 0, 5);
         var clearPreview = state.PreviewCrime(attempt);
 

@@ -12,13 +12,13 @@ internal sealed class EventJournalSnapshotTests
     [Test]
     public async Task CaptureAndRestore_PreservesJournalEntries()
     {
-        using var session = new GameSession(new GameRandom(42));
+        var session = new GameSession(new GameRandom(42));
         session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
         session.EndDay();
         session.EndDay();
 
         var snapshot = GameSessionSnapshot.Capture(session);
-        using var restored = snapshot.Restore();
+        var restored = snapshot.Restore();
 
         restored.EventJournal.Entries.Should().HaveCount(session.EventJournal.Entries.Count);
         restored.EventJournal.Entries.Should().Equal(session.EventJournal.Entries,

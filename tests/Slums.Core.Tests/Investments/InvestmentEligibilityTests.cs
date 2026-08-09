@@ -12,7 +12,7 @@ internal sealed class InvestmentEligibilityTests
     [Test]
     public void CheckInvestmentEligibility_ShouldRequireTrustForFoulCart()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(200);
         var definition = InvestmentRegistry.GetByType(InvestmentType.FoulCart);
         definition.Should().NotBeNull();
@@ -33,7 +33,7 @@ internal sealed class InvestmentEligibilityTests
     [Test]
     public void GetCurrentInvestmentOpportunities_ShouldReflectCurrentLocationContacts()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
 
         var homeOpportunities = gameState.GetCurrentInvestmentOpportunities().Select(static definition => definition.Type).ToArray();
         homeOpportunities.Should().Contain(InvestmentType.FoulCart);

@@ -17,7 +17,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task BaseRecovery_ShouldBe30WithNoModifiers()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
             state.UnpaidRentDays, state.HomeUpgrades);
@@ -27,7 +27,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task StressAbove60_ShouldReduceBy5()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         state.Player.Stats.SetStress(65);
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
@@ -38,7 +38,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task StressAbove80_ShouldReduceBy10()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         state.Player.Stats.SetStress(85);
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
@@ -49,7 +49,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task StressAbove80_ShouldReplaceAbove60Modifier()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         state.Player.Stats.SetStress(90);
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
@@ -60,7 +60,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task DidNotEatToday_ShouldReduceBy5()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
             state.UnpaidRentDays, state.HomeUpgrades);
@@ -70,7 +70,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task DaysUndereatingAbove2_ShouldReduceBy5()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         state.Player.Nutrition.SetDaysUndereating(3);
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
@@ -81,7 +81,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task MotherHealthInCrisis_ShouldReduceBy5()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         state.Player.Household.SetMotherHealth(20);
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
@@ -92,7 +92,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task RentUnpaidMoreThan3Days_ShouldReduceBy3()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
             4, state.HomeUpgrades);
@@ -102,7 +102,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task CleanBedding_ShouldAdd2()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         state.HomeUpgrades.Purchase(HomeUpgrade.CleanBedding);
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
@@ -113,7 +113,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task FanNotSummer_ShouldAdd1()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         state.HomeUpgrades.Purchase(HomeUpgrade.Fan);
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
@@ -124,7 +124,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task WindowScreen_ShouldAdd1()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         state.HomeUpgrades.Purchase(HomeUpgrade.WindowScreen);
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
@@ -135,7 +135,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task Curtain_ShouldAdd1()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         state.HomeUpgrades.Purchase(HomeUpgrade.Curtain);
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
@@ -146,7 +146,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task MultipleUpgrades_ShouldStackAdditively()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         state.HomeUpgrades.Purchase(HomeUpgrade.CleanBedding);
         state.HomeUpgrades.Purchase(HomeUpgrade.Fan);
         state.HomeUpgrades.Purchase(HomeUpgrade.WindowScreen);
@@ -160,7 +160,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task MinimumRecovery_ShouldBe10()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetStress(90);
         state.Player.Nutrition.SetDaysUndereating(3);
         state.Player.Household.SetMotherHealth(20);
@@ -173,7 +173,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task OvernightRecovery_BaseShouldBe15()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         var recovery = SleepQualityCalculator.CalculateOvernightRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
             state.UnpaidRentDays, state.HomeUpgrades);
@@ -183,7 +183,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task OvernightRecovery_MinimumShouldBe5()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetStress(90);
         state.Player.Nutrition.SetDaysUndereating(3);
         state.Player.Household.SetMotherHealth(20);
@@ -196,7 +196,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task BuildRecoveryBreakdown_ShouldIncludeBaseAndRecovery()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
             state.UnpaidRentDays, state.HomeUpgrades);
@@ -210,7 +210,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task BuildRecoveryBreakdown_WithStress_ShouldShowStressModifier()
     {
-        using var state = CreateSessionWithEaten();
+        var state = CreateSessionWithEaten();
         state.Player.Stats.SetStress(65);
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,

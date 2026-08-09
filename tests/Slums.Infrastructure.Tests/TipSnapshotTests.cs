@@ -14,7 +14,7 @@ internal sealed class TipSnapshotTests
     [Test]
     public async Task TipSnapshot_Capture_CapturesTips()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         session.Tips.AddTip(new Tip
         {
             Type = TipType.PoliceTip,
@@ -37,7 +37,7 @@ internal sealed class TipSnapshotTests
     [Test]
     public async Task TipSnapshot_Restore_RestoresTips()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         session.Tips.AddTip(new Tip
         {
             Type = TipType.PoliceTip,
@@ -50,7 +50,7 @@ internal sealed class TipSnapshotTests
 
         var snapshot = GameSessionTipSnapshot.Capture(session);
 
-        using var restored = new GameSession(new Random(2));
+        var restored = new GameSession(new Random(2));
         snapshot.Restore(restored);
 
         await Assert.That(restored.Tips.AllTips).Count().IsEqualTo(1);
@@ -61,7 +61,7 @@ internal sealed class TipSnapshotTests
     [Test]
     public async Task TipSnapshot_Roundtrip_PreservesState()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.MedicalSchoolDropout));
         session.Tips.AddTip(new Tip
         {
@@ -85,7 +85,7 @@ internal sealed class TipSnapshotTests
 
         var snapshot = GameSessionTipSnapshot.Capture(session);
 
-        using var restored = new GameSession(new Random(2));
+        var restored = new GameSession(new Random(2));
         snapshot.Restore(restored);
 
         await Assert.That(restored.Tips.AllTips).Count().IsEqualTo(2);
@@ -96,12 +96,12 @@ internal sealed class TipSnapshotTests
     [Test]
     public async Task TipSnapshot_Empty_CapturesAndRestoresCleanly()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         var snapshot = GameSessionTipSnapshot.Capture(session);
 
         await Assert.That(snapshot.Tips).Count().IsEqualTo(0);
 
-        using var restored = new GameSession(new Random(2));
+        var restored = new GameSession(new Random(2));
         snapshot.Restore(restored);
         await Assert.That(restored.Tips.AllTips).Count().IsEqualTo(0);
     }

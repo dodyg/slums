@@ -58,7 +58,7 @@ internal sealed class EventJournalTests
     [Test]
     public async Task GameSession_RaiseEvent_JournalizesStructuredEntry()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
 
         session.EndDay();
 

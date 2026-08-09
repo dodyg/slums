@@ -14,7 +14,7 @@ internal sealed class TipIntegrationTests
     [Test]
     public async Task GameSession_EndDay_GeneratesTips()
     {
-        using var session = new GameSession(new Random(42));
+        var session = new GameSession(new Random(42));
         session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.MedicalSchoolDropout));
         session.Relationships.SetNpcRelationship(NpcId.OfficerKhalid, 25, 0);
         session.DistrictHeat.SetHeat(DistrictId.Imbaba, 50);
@@ -22,7 +22,7 @@ internal sealed class TipIntegrationTests
         var found = false;
         for (var i = 0; i < 20; i++)
         {
-            using var s = new GameSession(new Random(i));
+            var s = new GameSession(new Random(i));
             s.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.MedicalSchoolDropout));
             s.Relationships.SetNpcRelationship(NpcId.OfficerKhalid, 25, 0);
             s.DistrictHeat.SetHeat(DistrictId.Imbaba, 50);
@@ -42,7 +42,7 @@ internal sealed class TipIntegrationTests
     [Test]
     public async Task GameSession_AcknowledgeTip_MarksTipAcknowledged()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         session.Tips.AddTip(new Tip
         {
             Type = TipType.PoliceTip,
@@ -62,7 +62,7 @@ internal sealed class TipIntegrationTests
     [Test]
     public async Task GameSession_IgnoreTipAction_MarksTipIgnored()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         session.Tips.AddTip(new Tip
         {
             Type = TipType.PoliceTip,
@@ -82,7 +82,7 @@ internal sealed class TipIntegrationTests
     [Test]
     public async Task GameSession_IgnoreTip_ThreeOrMoreTimesErodesTrust()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         session.Relationships.SetNpcRelationship(NpcId.OfficerKhalid, 15, 0);
 
         for (var i = 0; i < 4; i++)
@@ -106,7 +106,7 @@ internal sealed class TipIntegrationTests
     [Test]
     public async Task GameSession_IgnoreTip_LowTrustNoErosion()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         session.Relationships.SetNpcRelationship(NpcId.OfficerKhalid, 5, 0);
 
         for (var i = 0; i < 4; i++)
@@ -130,7 +130,7 @@ internal sealed class TipIntegrationTests
     [Test]
     public async Task GameSession_EndDay_ExpiredTipsRemoved()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         session.Tips.AddTip(new Tip
         {
             Type = TipType.PoliceTip,
@@ -151,7 +151,7 @@ internal sealed class TipIntegrationTests
     [Test]
     public async Task GameSession_PhoneDelivery_DeliveredAsPhoneMessage()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.MedicalSchoolDropout));
         session.Relationships.SetNpcRelationship(NpcId.OfficerKhalid, 25, 0);
         session.DistrictHeat.SetHeat(DistrictId.Dokki, 50);
@@ -159,7 +159,7 @@ internal sealed class TipIntegrationTests
         var found = false;
         for (var i = 0; i < 50; i++)
         {
-            using var s = new GameSession(new Random(i));
+            var s = new GameSession(new Random(i));
             s.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.MedicalSchoolDropout));
             s.Relationships.SetNpcRelationship(NpcId.OfficerKhalid, 25, 0);
             s.DistrictHeat.SetHeat(DistrictId.Dokki, 50);
@@ -181,7 +181,7 @@ internal sealed class TipIntegrationTests
     [Test]
     public async Task GameSession_NoPhone_NoTipDelivery()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         session.Phone.LosePhone(1);
 
         session.Tips.AddTip(new Tip
@@ -202,7 +202,7 @@ internal sealed class TipIntegrationTests
     [Test]
     public async Task GameSession_AcknowledgeTip_NotFound_ReturnsFalse()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         var (success, _) = session.AcknowledgeTip("nonexistent");
         await Assert.That(success).IsFalse();
     }
@@ -210,7 +210,7 @@ internal sealed class TipIntegrationTests
     [Test]
     public async Task GameSession_IgnoreTipAction_NotFound_ReturnsFalse()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         var (success, _, _) = session.IgnoreTipAction("nonexistent");
         await Assert.That(success).IsFalse();
     }
@@ -218,7 +218,7 @@ internal sealed class TipIntegrationTests
     [Test]
     public async Task GameSession_RestoreTips_RestoresCorrectly()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         var tips = new List<Tip>
         {
             new() { Type = TipType.PoliceTip, Source = NpcId.OfficerKhalid, Content = "Restored", DayGenerated = 1, ExpiresAfterDay = 5 }
@@ -234,7 +234,7 @@ internal sealed class TipIntegrationTests
     [Test]
     public async Task GameSession_EndDay_AppliesIgnoreErosion()
     {
-        using var session = new GameSession(new Random(1));
+        var session = new GameSession(new Random(1));
         session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.MedicalSchoolDropout));
         session.Relationships.SetNpcRelationship(NpcId.OfficerKhalid, 15, 0);
 

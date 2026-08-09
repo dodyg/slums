@@ -11,7 +11,7 @@ internal sealed class CommunityEventMenuQueryTests
     [Test]
     public void GetStatuses_ShouldIncludeCurrentMinuteWhenCheckingRemainingTime()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Clock.SetTime(day: 7, hour: 20, minute: 30);
         var query = new CommunityEventMenuQuery();
 

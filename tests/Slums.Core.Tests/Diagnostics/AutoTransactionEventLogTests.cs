@@ -14,7 +14,7 @@ internal sealed class AutoTransactionEventLogTests
     [Test]
     public void EndDay_ShouldRaiseAutoTransactionEvent_WhenRentIsPaid()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         var events = new List<string>();
         session.GameEvent += (_, e) => events.Add(e.Message);
 
@@ -29,7 +29,7 @@ internal sealed class AutoTransactionEventLogTests
     [Test]
     public void EndDay_ShouldRaiseAutoTransactionEvent_WhenRentCannotBePaid()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Stats.SetMoney(0);
         var events = new List<string>();
         session.GameEvent += (_, e) => events.Add(e.Message);
@@ -44,7 +44,7 @@ internal sealed class AutoTransactionEventLogTests
     [Test]
     public void EndDay_ShouldRaiseAutoTransactionEvent_WhenHerbsAreSold()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.World.TravelTo(LocationId.PlantShop);
         session.Player.Stats.SetMoney(1000);
         session.BuyPlant(PlantType.Chamomile);
@@ -69,7 +69,7 @@ internal sealed class AutoTransactionEventLogTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldRaiseAutoTransactionEvent_PerInvestmentIncome()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Stats.SetMoney(300);
         session.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 30, 1);
         session.MakeInvestment(InvestmentType.FoulCart);
@@ -91,7 +91,7 @@ internal sealed class AutoTransactionEventLogTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldRaiseAutoTransactionEvent_ForWeeklySummary()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Stats.SetMoney(300);
         session.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 30, 1);
         session.MakeInvestment(InvestmentType.FoulCart);
@@ -112,7 +112,7 @@ internal sealed class AutoTransactionEventLogTests
     [Test]
     public void EndDay_ShouldRaiseAutoTransactionEvent_ForInvestmentResolutionOnMonday()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Stats.SetMoney(500);
         session.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 30, 1);
         session.MakeInvestment(InvestmentType.FoulCart);
@@ -131,7 +131,7 @@ internal sealed class AutoTransactionEventLogTests
     [Test]
     public void AutoTransactionEvents_ShouldIncludeCorrectDayNumber()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         var events = new List<string>();
         session.GameEvent += (_, e) => events.Add(e.Message);
 

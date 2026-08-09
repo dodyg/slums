@@ -123,7 +123,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void TeaCart_ShouldBeEligible_WhenAtHomeWithMonaTrust10AndMoney()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(100);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 10, 1);
 
@@ -136,7 +136,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void TeaCart_ShouldBeBlocked_WhenMonaTrustTooLow()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(100);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 5, 1);
 
@@ -150,7 +150,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void TeaCart_ShouldBeAvailableAtHome()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
 
         var types = gameState.GetCurrentInvestmentOpportunities().Select(static d => d.Type).ToArray();
 
@@ -160,7 +160,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void PhoneChargingStation_ShouldBeAvailableAtDepot()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Depot);
 
         var types = gameState.GetCurrentInvestmentOpportunities().Select(static d => d.Type).ToArray();
@@ -171,7 +171,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void PhoneChargingStation_ShouldNotBeAvailableAtHome()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
 
         var types = gameState.GetCurrentInvestmentOpportunities().Select(static d => d.Type).ToArray();
 
@@ -181,7 +181,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void HerbalRemedyTrade_ShouldRequireMedicalSkill()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(200);
         gameState.World.TravelTo(LocationId.Pharmacy);
         gameState.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 15, 1);
@@ -201,7 +201,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void SewingSideBusiness_ShouldRequirePhysicalSkill()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(250);
         gameState.World.TravelTo(LocationId.Workshop);
         gameState.Relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 20, 1);
@@ -221,7 +221,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void CafeSupplyPartnership_ShouldBeAvailableAtCafe()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Cafe);
 
         var types = gameState.GetCurrentInvestmentOpportunities().Select(static d => d.Type).ToArray();
@@ -232,7 +232,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void CafeSupplyPartnership_ShouldRequireNadiaTrust25()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(300);
         gameState.World.TravelTo(LocationId.Cafe);
         gameState.Relationships.SetNpcRelationship(NpcId.CafeOwnerNadia, 20, 1);
@@ -252,7 +252,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void MakeInvestment_ShouldSucceedForTeaCart()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(100);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 10, 1);
 
@@ -268,7 +268,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void MakeInvestment_ShouldSucceedForPhoneChargingStation()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(200);
         gameState.World.TravelTo(LocationId.Depot);
         gameState.Relationships.SetNpcRelationship(NpcId.DispatcherSafaa, 15, 1);
@@ -284,7 +284,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldPayTeaCartIncome()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(100);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 10, 1);
 
@@ -302,7 +302,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldPayHerbalRemedyIncome()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(200);
         gameState.Player.Skills.SetLevel(SkillId.Medical, 2);
         gameState.World.TravelTo(LocationId.Pharmacy);
@@ -322,7 +322,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldPaySewingSideBusinessIncome()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(250);
         gameState.Player.Skills.SetLevel(SkillId.Physical, 2);
         gameState.World.TravelTo(LocationId.Workshop);
@@ -341,7 +341,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldPayCafeSupplyPartnershipIncome()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(300);
         gameState.World.TravelTo(LocationId.Cafe);
         gameState.Relationships.SetNpcRelationship(NpcId.CafeOwnerNadia, 25, 1);
@@ -465,7 +465,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void InvestmentsAtNewLocations_ShouldNotAppearAtWrongLocations()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
 
         var homeTypes = gameState.GetCurrentInvestmentOpportunities().Select(static d => d.Type).ToHashSet();
         homeTypes.Should().NotContain(InvestmentType.PhoneChargingStation);

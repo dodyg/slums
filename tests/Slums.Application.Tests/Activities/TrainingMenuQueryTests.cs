@@ -12,7 +12,7 @@ internal sealed class TrainingMenuQueryTests
     [Test]
     public void GetStatuses_ShouldReturnAllAvailableActivities()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var context = TrainingMenuContext.Create(state);
         var query = new TrainingMenuQuery();
 
@@ -24,7 +24,7 @@ internal sealed class TrainingMenuQueryTests
     [Test]
     public void GetStatuses_ShouldShowActivityUnavailable_WhenWrongTime()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(1, 10, 0);
         var context = TrainingMenuContext.Create(state);
         var query = new TrainingMenuQuery();
@@ -41,7 +41,7 @@ internal sealed class TrainingMenuQueryTests
     [Test]
     public void GetStatuses_ShouldShowActivityAvailable_WhenEveningAndEnoughResources()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 19, 0);
         var context = TrainingMenuContext.Create(state);
@@ -58,7 +58,7 @@ internal sealed class TrainingMenuQueryTests
     [Test]
     public void GetStatuses_ShouldShowActivityUnavailable_WhenEnergyTooLow()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(5);
         state.Clock.SetTime(1, 19, 0);
         var context = TrainingMenuContext.Create(state);
@@ -76,7 +76,7 @@ internal sealed class TrainingMenuQueryTests
     [Test]
     public void GetStatuses_ShouldShowUnavailabilityReason_WhenWrongTime()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 10, 0);
         var context = TrainingMenuContext.Create(state);
@@ -93,7 +93,7 @@ internal sealed class TrainingMenuQueryTests
     [Test]
     public void GetStatuses_ShouldReflectTrainedTodayState()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 18, 0);
 

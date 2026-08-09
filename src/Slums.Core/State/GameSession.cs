@@ -30,7 +30,7 @@ using NarrativeStoryFlags = Slums.Core.Narrative.StoryFlags;
 
 namespace Slums.Core.State;
 
-public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
+public sealed class GameSession : INarrativeOutcomeTarget
 {
     private const int EndOfDayHour = 22;
     private readonly CrimeService _crimeService = new();
@@ -3355,10 +3355,6 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             $"Stress: {Player.Stats.Stress}%",
             $"Location: {World.GetCurrentLocation()?.Name ?? "Unknown"}"
         ];
-    }
-
-    public void Dispose()
-    {
     }
 
     private void ResolveWeeklyEconomy(Random random)

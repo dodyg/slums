@@ -16,7 +16,7 @@ internal sealed class WorkMenuStatusQueryTests
     public void GetStatuses_ShouldExposeResolvedVariant_AndTrackProgress()
     {
         var query = new WorkMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Clinic);
         gameState.Relationships.SetNpcRelationship(NpcId.NurseSalma, 12, 1);
         gameState.JobProgress.RestoreTrack(JobType.ClinicReception, reliability: 58, shiftsCompleted: 4, lockoutUntilDay: 0);
@@ -39,7 +39,7 @@ internal sealed class WorkMenuStatusQueryTests
     public void GetStatuses_ShouldExposeLockoutReason_WhenTrackIsBlocked()
     {
         var query = new WorkMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.CallCenter);
         gameState.JobProgress.RestoreTrack(JobType.CallCenterWork, reliability: 41, shiftsCompleted: 2, lockoutUntilDay: 3);
 
@@ -56,7 +56,7 @@ internal sealed class WorkMenuStatusQueryTests
     public void GetStatuses_ShouldExposeActiveModifiers_AndRiskWarnings()
     {
         var query = new WorkMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Bakery);
         gameState.Player.Skills.SetLevel(SkillId.Physical, 3);
         gameState.Player.Stats.ModifyEnergy(-75);
@@ -73,7 +73,7 @@ internal sealed class WorkMenuStatusQueryTests
     public void GetStatuses_ShouldExposeNarrativeSignals_ForHeatAndClinicHooks()
     {
         var query = new WorkMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Clinic);
         gameState.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
         gameState.Relationships.SetNpcRelationship(NpcId.NurseSalma, 12, 1);
@@ -94,7 +94,7 @@ internal sealed class WorkMenuStatusQueryTests
     public void GetStatuses_ShouldExposeDistrictConditionModifiers()
     {
         var query = new WorkMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Clinic);
         gameState.World.SetActiveDistrictConditions(
         [

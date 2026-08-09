@@ -209,7 +209,7 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_GetCurrentSeason_Day1_ReturnsAutumn()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var season = state.GetCurrentSeason();
 
@@ -219,7 +219,7 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_GetCurrentSeasonModifiers_Day1_ReturnsAutumnModifiers()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var modifiers = state.GetCurrentSeasonModifiers();
 
@@ -230,12 +230,12 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_EndDay_SummerAppliesMoreEnergyDrainThanAutumn()
     {
-        using var autumn = new GameSession();
+        var autumn = new GameSession();
         autumn.Player.Stats.SetEnergy(70);
         autumn.Player.Stats.SetStress(10);
         autumn.Player.Nutrition.Eat(MealQuality.Basic);
 
-        using var summer = new GameSession();
+        var summer = new GameSession();
         summer.Clock.SetTime(244, 6, 0);
         summer.Player.Stats.SetEnergy(70);
         summer.Player.Stats.SetStress(10);
@@ -250,12 +250,12 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_EndDay_SummerAppliesMoreStressThanAutumn()
     {
-        using var autumn = new GameSession();
+        var autumn = new GameSession();
         autumn.Player.Stats.SetEnergy(70);
         autumn.Player.Stats.SetStress(10);
         autumn.Player.Nutrition.Eat(MealQuality.Basic);
 
-        using var summer = new GameSession();
+        var summer = new GameSession();
         summer.Clock.SetTime(244, 6, 0);
         summer.Player.Stats.SetEnergy(70);
         summer.Player.Stats.SetStress(10);
@@ -270,12 +270,12 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_EndDay_WinterAppliesExtraRestRecovery()
     {
-        using var autumn = new GameSession(new Random(42));
+        var autumn = new GameSession(new Random(42));
         autumn.Player.Stats.SetEnergy(30);
         autumn.Player.Nutrition.Eat(MealQuality.Basic);
         autumn.RestoreWeather(WeatherType.Clear);
 
-        using var winter = new GameSession(new Random(42));
+        var winter = new GameSession(new Random(42));
         winter.Clock.SetTime(64, 6, 0);
         winter.Player.Stats.SetEnergy(30);
         winter.Player.Nutrition.Eat(MealQuality.Basic);
@@ -290,14 +290,12 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_GetFoodCost_WinterAppliesNegativeModifier()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(64, 6, 0);
 
         int autumnCost;
-        using (var autumn = new GameSession())
-        {
-            autumnCost = autumn.GetFoodCost();
-        }
+        var autumn = new GameSession();
+        autumnCost = autumn.GetFoodCost();
 
         state.Player.Stats.SetMoney(100);
         var winterCost = state.GetFoodCost();
@@ -308,14 +306,12 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_GetFoodCost_SpringAppliesPositiveModifier()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(152, 6, 0);
 
         int autumnCost;
-        using (var autumn = new GameSession())
-        {
-            autumnCost = autumn.GetFoodCost();
-        }
+        var autumn = new GameSession();
+        autumnCost = autumn.GetFoodCost();
 
         state.Player.Stats.SetMoney(100);
         var springCost = state.GetFoodCost();

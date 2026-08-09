@@ -40,16 +40,7 @@ public sealed class LoadedGameSession : IDisposable
         GameSession? gameSession = gameSessionFactory();
         ArgumentNullException.ThrowIfNull(gameSession);
 
-        try
-        {
-            var loadedGameSession = new LoadedGameSession(slot, checkpointName, createdUtc, lastPlayedUtc, lastKnot, gameSession);
-            gameSession = null;
-            return loadedGameSession;
-        }
-        finally
-        {
-            gameSession?.Dispose();
-        }
+        return new LoadedGameSession(slot, checkpointName, createdUtc, lastPlayedUtc, lastKnot, gameSession);
     }
 
     public string Slot { get; }
@@ -92,7 +83,6 @@ public sealed class LoadedGameSession : IDisposable
             return;
         }
 
-        _gameSession?.Dispose();
         _gameSession = null;
         _disposed = true;
         GC.SuppressFinalize(this);

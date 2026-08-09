@@ -209,7 +209,7 @@ internal sealed class RumorTests
     [Test]
     public async Task GameSession_EndDay_GeneratesRumorOnSkips()
     {
-        using var state = new GameSession(new Random(42));
+        var state = new GameSession(new Random(42));
         state.Player.Nutrition.Eat(MealQuality.Basic);
         state.RestoreWeather(WeatherType.Clear);
 

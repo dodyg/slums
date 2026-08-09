@@ -256,7 +256,7 @@ internal sealed class DistrictHeatTests
     [Test]
     public async Task GameSession_PolicePressure_IsComputedFromDistrictHeat()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         state.DistrictHeat.AddHeat(DistrictId.Imbaba, 40);
         state.DistrictHeat.AddHeat(DistrictId.Dokki, 60);
@@ -267,7 +267,7 @@ internal sealed class DistrictHeatTests
     [Test]
     public async Task GameSession_SetPolicePressure_SetsAllDistricts()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         state.SetPolicePressure(70);
 
@@ -279,7 +279,7 @@ internal sealed class DistrictHeatTests
     [Test]
     public async Task GameSession_CommitCrime_AddsHeatToCurrentDistrict()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
         state.World.TravelTo(LocationId.Market);
         state.Player.Nutrition.Eat(MealQuality.Basic);
@@ -296,7 +296,7 @@ internal sealed class DistrictHeatTests
     [Test]
     public async Task GameSession_EndDay_AppliesDistrictHeatDecay()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.DistrictHeat.AddHeat(DistrictId.Dokki, 30);
         state.DistrictHeat.AddHeat(DistrictId.Imbaba, 30);
 
@@ -309,7 +309,7 @@ internal sealed class DistrictHeatTests
     [Test]
     public async Task GameSession_EndDay_AppliesBleedOver()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.DistrictHeat.AddHeat(DistrictId.Imbaba, 100);
         state.DistrictHeat.AddHeat(DistrictId.BulaqAlDakrour, 0);
 
@@ -321,7 +321,7 @@ internal sealed class DistrictHeatTests
     [Test]
     public async Task GameSession_EndDay_RefugeeBackground_SetsDokkiBaseline()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
         state.DistrictHeat.SetHeatAll(0);
 
@@ -335,8 +335,8 @@ internal sealed class DistrictHeatTests
     [Test]
     public async Task GameSession_EndDay_PrisonerBackground_HalvesDecayRate()
     {
-        using var state = new GameSession();
-        using var control = new GameSession();
+        var state = new GameSession();
+        var control = new GameSession();
         state.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
         control.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
         state.DistrictHeat.SetHeatAll(50);

@@ -21,7 +21,7 @@ internal sealed class TravelCommandTests
     public void Execute_ShouldThrow_WhenInvalidTravelMode()
     {
         var command = new TravelCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
 
         var act = () => command.Execute(session, LocationId.CallCenter, (TravelMode)999);
 
@@ -32,7 +32,7 @@ internal sealed class TravelCommandTests
     public void Execute_Transport_CallsTryTravelTo()
     {
         var command = new TravelCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Stats.SetMoney(10);
         session.Player.Stats.SetEnergy(50);
 
@@ -45,7 +45,7 @@ internal sealed class TravelCommandTests
     public void Execute_Walk_CallsTryWalkTo()
     {
         var command = new TravelCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Stats.SetEnergy(50);
 
         var result = command.Execute(session, LocationId.CallCenter, TravelMode.Walk);
@@ -57,7 +57,7 @@ internal sealed class TravelCommandTests
     public void Execute_WalkFails_WhenNotEnoughEnergy()
     {
         var command = new TravelCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Stats.SetEnergy(1);
 
         var result = command.Execute(session, LocationId.CallCenter, TravelMode.Walk);

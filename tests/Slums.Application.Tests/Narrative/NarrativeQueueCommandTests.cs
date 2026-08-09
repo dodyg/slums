@@ -11,7 +11,7 @@ internal sealed class NarrativeQueueCommandTests
     public void TryDequeueScene_ConsumesQueuedScene()
     {
         var command = new NarrativeQueueCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         session.QueueNarrativeScene("event_test_scene");
 
         var found = command.TryDequeueScene(session, out var knotName);
@@ -25,7 +25,7 @@ internal sealed class NarrativeQueueCommandTests
     public void TryTakeEndingKnot_ConsumesPendingEnding()
     {
         var command = new NarrativeQueueCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         session.RestoreRunState(Guid.NewGuid(), daysSurvived: 1, isGameOver: false, gameOverReason: null, endingId: null, pendingEndingKnot: "ending_test");
 
         var found = command.TryTakeEndingKnot(session, out var knotName);
@@ -39,7 +39,7 @@ internal sealed class NarrativeQueueCommandTests
     public void TryDequeueScene_ReturnsFalse_WhenQueueEmpty()
     {
         var command = new NarrativeQueueCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
 
         command.TryDequeueScene(session, out _).Should().BeFalse();
     }

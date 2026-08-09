@@ -12,7 +12,7 @@ internal sealed class InkNarrativeServiceTests
 {
     private static void StartScene(Slums.Narrative.Ink.InkNarrativeService service, string knotName)
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         service.StartScene(knotName, NarrativeSceneState.Create(state));
     }
 
@@ -20,7 +20,7 @@ internal sealed class InkNarrativeServiceTests
     public void StartScene_ShouldLoadMedicalIntroText()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
-        using var state = new GameSession();
+        var state = new GameSession();
 
         service.StartScene("intro_medical", NarrativeSceneState.Create(state));
 
@@ -33,7 +33,7 @@ internal sealed class InkNarrativeServiceTests
     public void SelectChoice_ShouldAdvanceMedicalIntroScene()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
-        using var state = new GameSession();
+        var state = new GameSession();
         service.StartScene("intro_medical", NarrativeSceneState.Create(state));
 
         service.SelectChoice(0);
@@ -47,7 +47,7 @@ internal sealed class InkNarrativeServiceTests
     public void StartScene_ShouldEndScene_WhenKnotDoesNotExist()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
-        using var state = new GameSession();
+        var state = new GameSession();
 
         FluentActions.Invoking(() => service.StartScene("missing_knot", NarrativeSceneState.Create(state)))
             .Should()
@@ -137,7 +137,7 @@ internal sealed class InkNarrativeServiceTests
             .Should().NotBeEmpty("the communal iftar should raise Landlord Hajj Mahmoud's trust");
 
         // Applying the outcome must change both NPCs, not just the last tag's target.
-        using var session = new GameSession();
+        var session = new GameSession();
         session.ApplyOutcome(outcome);
 
         session.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust.Should().Be(2);

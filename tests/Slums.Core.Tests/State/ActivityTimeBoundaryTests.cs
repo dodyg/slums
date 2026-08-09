@@ -11,7 +11,7 @@ internal sealed class ActivityTimeBoundaryTests
     [Test]
     public async Task TravelAcrossEndOfDay_ShouldFinishAtHomeAfterNightlyReset()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Clock.SetTime(day: 1, hour: 21, minute: 50);
 
         var result = session.TryTravelTo(LocationId.CallCenter);
@@ -26,7 +26,7 @@ internal sealed class ActivityTimeBoundaryTests
     [Test]
     public async Task WorkAcrossEndOfDay_ShouldApplyTerritoryImpactToWorkDistrict()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Clock.SetTime(day: 1, hour: 20, minute: 0);
         session.World.TravelTo(LocationId.CallCenter);
 
@@ -41,7 +41,7 @@ internal sealed class ActivityTimeBoundaryTests
     [Test]
     public async Task PhoneResponse_ShouldNotChargeMissedCallWhenThereIsNotEnoughTime()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Clock.SetTime(day: 1, hour: 21, minute: 30);
         var message = new PhoneMessage
         {
@@ -64,7 +64,7 @@ internal sealed class ActivityTimeBoundaryTests
     [Test]
     public async Task PhoneResponse_ShouldValidateCombinedMissedCallAndResponseCostAtomically()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Stats.ModifyMoney(-95);
         var message = new PhoneMessage
         {

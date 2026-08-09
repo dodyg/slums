@@ -15,7 +15,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldExposeBlockingReasons_ForCurrentLocationOpportunity()
     {
         var query = new InvestmentMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
 
         var statuses = query.GetStatuses(InvestmentMenuContext.Create(gameState));
 
@@ -33,7 +33,7 @@ internal sealed class InvestmentMenuQueryTests
     public void Execute_ShouldPurchaseInvestment_WhenEligible()
     {
         var command = new MakeInvestmentCommand();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(200);
         gameState.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 30, 1);
 
@@ -75,7 +75,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldExposeTeaCartAtHome()
     {
         var query = new InvestmentMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
 
         var statuses = query.GetStatuses(InvestmentMenuContext.Create(gameState));
 
@@ -90,7 +90,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldExposePhoneChargingAtDepot()
     {
         var query = new InvestmentMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Depot);
 
         var statuses = query.GetStatuses(InvestmentMenuContext.Create(gameState));
@@ -104,7 +104,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldExposeHerbalRemedyAtPharmacy_WithSkillRequirement()
     {
         var query = new InvestmentMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Pharmacy);
 
         var statuses = query.GetStatuses(InvestmentMenuContext.Create(gameState));
@@ -119,7 +119,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldExposeSewingSideBusinessAtWorkshop_WithSkillRequirement()
     {
         var query = new InvestmentMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Workshop);
 
         var statuses = query.GetStatuses(InvestmentMenuContext.Create(gameState));
@@ -134,7 +134,7 @@ internal sealed class InvestmentMenuQueryTests
     public void Execute_ShouldPurchaseTeaCart_WhenEligible()
     {
         var command = new MakeInvestmentCommand();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(100);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 10, 1);
 
@@ -151,7 +151,7 @@ internal sealed class InvestmentMenuQueryTests
     public void Execute_ShouldPurchaseCafeSupplyPartnership_WhenEligible()
     {
         var command = new MakeInvestmentCommand();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(300);
         gameState.World.TravelTo(LocationId.Cafe);
         gameState.Relationships.SetNpcRelationship(NpcId.CafeOwnerNadia, 25, 1);
@@ -167,7 +167,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldBlockHerbalRemedy_WhenMedicalSkillTooLow()
     {
         var query = new InvestmentMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(200);
         gameState.World.TravelTo(LocationId.Pharmacy);
         gameState.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 15, 1);
@@ -183,7 +183,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldAllowHerbalRemedy_WhenMedicalSkillMet()
     {
         var query = new InvestmentMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(200);
         gameState.World.TravelTo(LocationId.Pharmacy);
         gameState.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 15, 1);

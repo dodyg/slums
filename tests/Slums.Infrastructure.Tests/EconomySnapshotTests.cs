@@ -12,7 +12,7 @@ internal sealed class EconomySnapshotTests
     [Test]
     public async Task EconomySnapshot_CaptureAndRestore_PreservesNpcEconomies()
     {
-        using var session = new GameSession(new Random(42));
+        var session = new GameSession(new Random(42));
         session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
         session.NpcEconomies.SetWealthLevel(NpcId.LandlordHajjMahmoud, NpcWealthLevel.Poor);
         session.NpcEconomies.SetWealthLevel(NpcId.NeighborMona, NpcWealthLevel.Comfortable);
@@ -21,7 +21,7 @@ internal sealed class EconomySnapshotTests
 
         await Assert.That(snapshot.NpcEconomies).IsNotEmpty();
 
-        using var restored = new GameSession(new Random(42));
+        var restored = new GameSession(new Random(42));
         restored.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
         snapshot.Restore(restored);
 
@@ -32,7 +32,7 @@ internal sealed class EconomySnapshotTests
     [Test]
     public async Task EconomySnapshot_CaptureAndRestore_PreservesPlayerDebts()
     {
-        using var session = new GameSession(new Random(42));
+        var session = new GameSession(new Random(42));
         session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
         session.PlayerDebts.AddDebt(new PlayerDebt
         {
@@ -46,7 +46,7 @@ internal sealed class EconomySnapshotTests
 
         var snapshot = GameSessionEconomySnapshot.Capture(session);
 
-        using var restored = new GameSession(new Random(42));
+        var restored = new GameSession(new Random(42));
         restored.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
         snapshot.Restore(restored);
 
@@ -59,7 +59,7 @@ internal sealed class EconomySnapshotTests
     [Test]
     public async Task EconomySnapshot_CaptureAndRestore_PreservesNpcToNpcDebt()
     {
-        using var session = new GameSession(new Random(42));
+        var session = new GameSession(new Random(42));
         session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
         var from = DebtorId.FromNpc(NpcId.NeighborMona);
         var to = DebtorId.FromNpc(NpcId.LandlordHajjMahmoud);
@@ -67,7 +67,7 @@ internal sealed class EconomySnapshotTests
 
         var snapshot = GameSessionEconomySnapshot.Capture(session);
 
-        using var restored = new GameSession(new Random(42));
+        var restored = new GameSession(new Random(42));
         restored.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
         snapshot.Restore(restored);
 
@@ -78,7 +78,7 @@ internal sealed class EconomySnapshotTests
     [Test]
     public async Task EconomySnapshot_CaptureAndRestore_FullRoundTrip()
     {
-        using var session = new GameSession(new Random(42));
+        var session = new GameSession(new Random(42));
         session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
         session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 15, 0);
         session.TryBorrowFromNpc(NpcId.NeighborMona, 30);
@@ -86,7 +86,7 @@ internal sealed class EconomySnapshotTests
 
         var fullSnapshot = GameSessionSnapshot.Capture(session);
 
-        using var restored = fullSnapshot.Restore();
+        var restored = fullSnapshot.Restore();
 
         await Assert.That(restored.NpcEconomies.GetEconomy(NpcId.FixerUmmKarim).WealthLevel).IsEqualTo(NpcWealthLevel.Comfortable);
         await Assert.That(restored.PlayerDebts.Debts).Count().IsEqualTo(1);
@@ -97,7 +97,7 @@ internal sealed class EconomySnapshotTests
     public async Task EconomySnapshot_EmptySnapshot_RestoresGracefully()
     {
         var snapshot = new GameSessionEconomySnapshot();
-        using var session = new GameSession(new Random(42));
+        var session = new GameSession(new Random(42));
         session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
 
         snapshot.Restore(session);

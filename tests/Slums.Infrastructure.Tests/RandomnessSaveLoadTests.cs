@@ -13,7 +13,7 @@ internal sealed class RandomnessSaveLoadTests
     [Test]
     public async Task RestoredSession_ContinuesIdenticalOutcomes()
     {
-        using var original = CreateSeededSession();
+        var original = CreateSeededSession();
 
         // Original run: three days, then save.
         EndDays(original, 3);
@@ -21,7 +21,7 @@ internal sealed class RandomnessSaveLoadTests
         var originalAtSave = CaptureComparableState(original);
 
         // Restored session must match the original exactly at the save point.
-        using var restored = save.Restore();
+        var restored = save.Restore();
         var restoredAtSave = CaptureComparableState(restored);
 
         var savePointDifferences = originalAtSave
@@ -52,7 +52,7 @@ internal sealed class RandomnessSaveLoadTests
     [Test]
     public async Task Capture_IncludesRandomState_ForGameRandomBackedSession()
     {
-        using var session = CreateSeededSession();
+        var session = CreateSeededSession();
         session.EndDay();
         session.EndDay();
 
@@ -64,7 +64,7 @@ internal sealed class RandomnessSaveLoadTests
     [Test]
     public async Task RestoredSession_RandomStream_MatchesOriginalAtSavePoint()
     {
-        using var original = CreateSeededSession();
+        var original = CreateSeededSession();
         EndDays(original, 2);
         var save = GameSessionSnapshot.Capture(original);
 
@@ -73,7 +73,7 @@ internal sealed class RandomnessSaveLoadTests
         var originalDraws = Enumerable.Range(0, 50).Select(_ => original.SharedRandom.Next(1000)).ToArray();
 #pragma warning restore CA5394
 
-        using var restored = save.Restore();
+        var restored = save.Restore();
 #pragma warning disable CA5394 // Gameplay randomness does not require cryptographic strength
         var restoredDraws = Enumerable.Range(0, 50).Select(_ => restored.SharedRandom.Next(1000)).ToArray();
 #pragma warning restore CA5394
@@ -84,11 +84,11 @@ internal sealed class RandomnessSaveLoadTests
     [Test]
     public async Task RestoredSession_PreservesDistrictConditionsRolledAtConstruction()
     {
-        using var original = CreateSeededSession();
+        var original = CreateSeededSession();
         var originalConditions = original.World.ActiveDistrictConditions.Select(static c => c.District.ToString()).OrderBy(static d => d).ToArray();
 
         var save = GameSessionSnapshot.Capture(original);
-        using var restored = save.Restore();
+        var restored = save.Restore();
         var restoredConditions = restored.World.ActiveDistrictConditions.Select(static c => c.District.ToString()).OrderBy(static d => d).ToArray();
 
         restoredConditions.Should().Equal(originalConditions);

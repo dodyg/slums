@@ -15,7 +15,7 @@ internal sealed class ShopMenuStatusQueryTests
     public void GetStatuses_ShouldUseDynamicDistrictPrices()
     {
         var query = new ShopMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Clock.SetTime(2, 8, 0);
         gameState.World.TravelTo(LocationId.CallCenter);
         gameState.Player.Stats.SetMoney(59);
@@ -37,9 +37,9 @@ internal sealed class ShopMenuStatusQueryTests
     public void GetStatuses_ShouldIncludeClinicOption_OnlyWhereClinicServicesExist()
     {
         var query = new ShopMenuStatusQuery();
-        using var marketState = new GameSession();
+        var marketState = new GameSession();
         marketState.World.TravelTo(LocationId.Market);
-        using var clinicState = new GameSession();
+        var clinicState = new GameSession();
         clinicState.World.TravelTo(LocationId.Clinic);
 
         var marketStatuses = query.GetStatuses(ShopMenuContext.Create(marketState));
@@ -57,7 +57,7 @@ internal sealed class ShopMenuStatusQueryTests
     public void GetStatuses_ShouldSurfacePlantPurchases_InShopMenuAtPlantShop()
     {
         var query = new ShopMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.PlantShop);
 
         var statuses = query.GetStatuses(ShopMenuContext.Create(gameState));
@@ -73,7 +73,7 @@ internal sealed class ShopMenuStatusQueryTests
     public void GetStatuses_ShouldSurfaceFishTankPurchase_InShopMenuAtFishMarket()
     {
         var query = new ShopMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.FishMarket);
 
         var statuses = query.GetStatuses(ShopMenuContext.Create(gameState));
@@ -88,7 +88,7 @@ internal sealed class ShopMenuStatusQueryTests
     public void GetStatuses_ShouldSurfaceHomePetsAndPlants_WhenHouseholdManagementExists()
     {
         var query = new ShopMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.HouseholdAssets.BuyPlant(PlantType.Basil, 1, 1);
 
         var statuses = query.GetStatuses(ShopMenuContext.Create(gameState));
@@ -103,7 +103,7 @@ internal sealed class ShopMenuStatusQueryTests
     public void GetStatuses_ShouldDisableClinicOption_WhenClosedToday()
     {
         var query = new ShopMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Clock.SetTime(day: 4, hour: 10, minute: 0);
         gameState.World.TravelTo(LocationId.Clinic);
 
@@ -118,7 +118,7 @@ internal sealed class ShopMenuStatusQueryTests
     public void GetStatuses_ShouldReflectMedicineDiscounts_AndAffordability()
     {
         var query = new ShopMenuStatusQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Pharmacy);
         gameState.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 12, 0);
         gameState.Player.Skills.SetLevel(SkillId.Medical, 3);

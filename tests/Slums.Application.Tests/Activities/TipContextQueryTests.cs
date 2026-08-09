@@ -14,7 +14,7 @@ internal sealed class TipContextQueryTests
     public void GetCrimeHints_ShouldReturnEmpty_WhenNoRelevantTips()
     {
         var query = new TipContextQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
 
         var hints = query.GetCrimeHints(gameState);
 
@@ -25,7 +25,7 @@ internal sealed class TipContextQueryTests
     public void GetCrimeHints_ShouldIncludeCrimeWarnings()
     {
         var query = new TipContextQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.CrimeWarning,
@@ -46,7 +46,7 @@ internal sealed class TipContextQueryTests
     public void GetCrimeHints_ShouldIncludePoliceTipsWithDistrict()
     {
         var query = new TipContextQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.PoliceTip,
@@ -67,7 +67,7 @@ internal sealed class TipContextQueryTests
     public void GetCrimeHints_ShouldSkipIgnoredTips()
     {
         var query = new TipContextQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.CrimeWarning,
@@ -87,7 +87,7 @@ internal sealed class TipContextQueryTests
     public void GetCrimeHints_ShouldNotIncludeOtherTipTypes()
     {
         var query = new TipContextQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.JobLead,
@@ -106,7 +106,7 @@ internal sealed class TipContextQueryTests
     public void GetWorkHints_ShouldIncludeJobLeads()
     {
         var query = new TipContextQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.JobLead,
@@ -126,7 +126,7 @@ internal sealed class TipContextQueryTests
     public void GetWorkHints_ShouldIncludeMarketIntel()
     {
         var query = new TipContextQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.MarketIntel,
@@ -145,7 +145,7 @@ internal sealed class TipContextQueryTests
     public void GetTravelHints_ShouldIncludePoliceTipsWithDistrict()
     {
         var query = new TipContextQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.PoliceTip,
@@ -166,7 +166,7 @@ internal sealed class TipContextQueryTests
     public void GetTravelHints_ShouldSkipPoliceTipsWithoutDistrict()
     {
         var query = new TipContextQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.PoliceTip,
@@ -186,7 +186,7 @@ internal sealed class TipContextQueryTests
     public void GetCrimeHints_ShouldMarkEmergencyTips()
     {
         var query = new TipContextQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.CrimeWarning,

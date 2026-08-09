@@ -13,7 +13,7 @@ internal sealed class HouseholdAssetsMenuQueryTests
     public void GetStatuses_ShouldExposePlantShopCatalog()
     {
         var query = new HouseholdAssetsMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.PlantShop);
 
         var statuses = query.GetStatuses(HouseholdAssetsMenuContext.Create(gameState));
@@ -27,7 +27,7 @@ internal sealed class HouseholdAssetsMenuQueryTests
     public void GetStatuses_ShouldExposeHomeManagement_WhenAssetsExist()
     {
         var query = new HouseholdAssetsMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.HouseholdAssets.TryTriggerStreetCatEncounter(1);
         gameState.Player.HouseholdAssets.BuyPlant(PlantType.AloeVera, 1, 1);
 
@@ -42,7 +42,7 @@ internal sealed class HouseholdAssetsMenuQueryTests
     public void GetStatuses_ShouldShowManageFishTank_WhenFishTankOwned()
     {
         var query = new HouseholdAssetsMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.HouseholdAssets.BuyFishTank(1, 1);
 
         var statuses = query.GetStatuses(HouseholdAssetsMenuContext.Create(gameState));
@@ -54,7 +54,7 @@ internal sealed class HouseholdAssetsMenuQueryTests
     public void GetStatuses_ShouldNotShowManageFishTank_WhenNoFishTankOwned()
     {
         var query = new HouseholdAssetsMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
 
         var statuses = query.GetStatuses(HouseholdAssetsMenuContext.Create(gameState));
 

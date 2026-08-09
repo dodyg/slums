@@ -20,7 +20,7 @@ internal sealed class ShopCommandTests
     public void Execute_ShouldThrow_WhenInvalidOptionId()
     {
         var command = new ShopCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
 
         var act = () => command.Execute(session, (ShopOptionId)999);
 
@@ -31,7 +31,7 @@ internal sealed class ShopCommandTests
     public void Execute_OpenHouseholdAssets_ReturnsTrueWithoutMutation()
     {
         var command = new ShopCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         var moneyBefore = session.Player.Stats.Money;
 
         var result = command.Execute(session, ShopOptionId.OpenHouseholdAssets);
@@ -44,7 +44,7 @@ internal sealed class ShopCommandTests
     public void Execute_BuyFood_CallsBuyFood()
     {
         var command = new ShopCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Stats.SetMoney(50);
 
         var result = command.Execute(session, ShopOptionId.BuyFood);
@@ -56,7 +56,7 @@ internal sealed class ShopCommandTests
     public void Execute_BuyMedicine_CallsBuyMedicine()
     {
         var command = new ShopCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Stats.SetMoney(100);
 
         var result = command.Execute(session, ShopOptionId.BuyMedicine);

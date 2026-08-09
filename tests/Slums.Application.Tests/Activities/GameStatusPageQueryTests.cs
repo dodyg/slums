@@ -16,7 +16,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeExpectedPageSet()
     {
         var query = new GameStatusPageQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
 
         var pages = query.GetPages(GameStatusContext.Create(gameState));
 
@@ -27,7 +27,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeSkillAndNetworkDetails()
     {
         var query = new GameStatusPageQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
         gameState.Player.Skills.SetLevel(SkillId.Persuasion, 4);
         gameState.Relationships.SetFactionStanding(FactionId.ImbabaCrew, 22);
@@ -48,7 +48,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeDebtAndRelationshipMemorySignals()
     {
         var query = new GameStatusPageQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.RestoreRentState(unpaidRentDays: 5, accumulatedRentDebt: 100, firstWarningGiven: true, finalWarningGiven: true);
         gameState.Relationships.SetNpcRelationship(NpcId.NurseSalma, 12, 2);
         gameState.Relationships.SetNpcRelationshipMemory(
@@ -76,7 +76,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldAvoidRepeatingOverviewFields_OnStatusPages()
     {
         var query = new GameStatusPageQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Clinic);
         gameState.SetPolicePressure(65);
         gameState.RestoreRentState(unpaidRentDays: 3, accumulatedRentDebt: 60, firstWarningGiven: true, finalWarningGiven: false);
@@ -98,7 +98,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeDailyCityBulletins()
     {
         var query = new GameStatusPageQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.SetActiveDistrictConditions(
         [
             new ActiveDistrictCondition { District = DistrictId.Imbaba, ConditionId = "imbaba_market_crackdown" },
@@ -117,7 +117,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeHouseholdAssets_OnHouseholdPage()
     {
         var query = new GameStatusPageQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.HouseholdAssets.TryTriggerStreetCatEncounter(1);
         gameState.Player.HouseholdAssets.BuyFishTank(1, 1);
         gameState.Player.HouseholdAssets.BuyPlant(PlantType.Chamomile, 1, 1);
@@ -135,7 +135,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeProgressTrajectoryHints()
     {
         var query = new GameStatusPageQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.SetDaysSurvived(30);
         gameState.SetCrimeCounters(totalCrimeEarnings: 1050, crimesCommitted: 2);
         gameState.SetPolicePressure(10);
@@ -155,7 +155,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldIncludeSignalsPage_WithActiveNarrativeHooks()
     {
         var query = new GameStatusPageQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Clinic);
         gameState.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
         gameState.SetPolicePressure(65);
@@ -178,7 +178,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeHeatPagePressureAndDistrictSignals()
     {
         var query = new GameStatusPageQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Square);
         gameState.SetPolicePressure(65);
         gameState.SetCrimeCounters(totalCrimeEarnings: 120, crimesCommitted: 2, lastCrimeDay: 1);
@@ -197,7 +197,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeInvestmentProgress_OnInvestmentPage()
     {
         var query = new GameStatusPageQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.RestoreInvestmentState(
         [
             new InvestmentSnapshot(InvestmentType.FoulCart, 150, 8, 12, 2, false)

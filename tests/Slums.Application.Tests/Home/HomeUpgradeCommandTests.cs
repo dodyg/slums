@@ -13,7 +13,7 @@ internal sealed class HomeUpgradeCommandTests
     public void Execute_PurchasesUpgrade_WhenAtHomeWithMoney()
     {
         var command = new HomeUpgradeCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         session.World.TravelTo(LocationId.Home);
         session.Player.Stats.SetMoney(100);
 
@@ -28,7 +28,7 @@ internal sealed class HomeUpgradeCommandTests
     public void Execute_ReturnsFalse_WhenNotAtHome()
     {
         var command = new HomeUpgradeCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         session.World.TravelTo(LocationId.Market);
         session.Player.Stats.SetMoney(100);
 
@@ -42,7 +42,7 @@ internal sealed class HomeUpgradeCommandTests
     public void Execute_ReturnsFalse_WhenUnaffordable()
     {
         var command = new HomeUpgradeCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         session.World.TravelTo(LocationId.Home);
         session.Player.Stats.SetMoney(5);
 

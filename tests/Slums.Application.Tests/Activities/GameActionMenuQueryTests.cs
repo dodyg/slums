@@ -13,7 +13,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldExposeHomeActionSet()
     {
         var query = new GameActionMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
 
@@ -35,7 +35,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldExposeLocationSpecificActions_AwayFromHome()
     {
         var query = new GameActionMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.Depot);
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
@@ -53,7 +53,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldExposeHouseholdAction_AtFishMarket()
     {
         var query = new GameActionMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.FishMarket);
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
@@ -66,7 +66,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldExposePlantPurchaseAction_AtPlantShop()
     {
         var query = new GameActionMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.World.TravelTo(LocationId.PlantShop);
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
@@ -79,7 +79,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldShowTrainAction_WhenTrainingAvailable()
     {
         var query = new GameActionMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
 
@@ -90,7 +90,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldUsePetsAndPlantsLabel_AtHomeWhenManagementIsAvailable()
     {
         var query = new GameActionMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.HouseholdAssets.BuyPlant(PlantType.Basil, 1, 1);
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));

@@ -34,7 +34,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task FridayGathering_IsOnlyAvailableOnFriday()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         state.Clock.SetTime(1, 6, 0);
         var day1Events = state.GetAvailableCommunityEvents();
@@ -51,7 +51,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task RamadanIftar_IsOnlyAvailableDuringRamadan()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var beforeRamadan = state.GetAvailableCommunityEvents();
         var hasIftar = beforeRamadan.Any(e => e.Id == CommunityEventId.RamadanIftarSharing);
@@ -61,7 +61,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task TeaCircle_RequiresNpcInvitation()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var withoutInvite = state.GetAvailableCommunityEvents();
         var hasTea = withoutInvite.Any(e => e.Id == CommunityEventId.RooftopTeaCircle);
@@ -76,7 +76,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task AttendCommunityEvent_FridayGathering_ReducesStress()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 6, 0);
         state.Player.Stats.SetStress(50);
 
@@ -89,7 +89,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task AttendCommunityEvent_FridayGathering_GrantsTrust()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 6, 0);
 
         var trustBefore = state.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust;
@@ -102,7 +102,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task AttendCommunityEvent_AdvancesTime()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 6, 0);
         var hourBefore = state.Clock.Hour;
 
@@ -114,7 +114,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task AttendCommunityEvent_RequiresMoney()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 6, 0);
         state.Player.Stats.SetMoney(0);
 
@@ -127,7 +127,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task AttendCommunityEvent_DeductsMoney()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 6, 0);
         state.Player.Stats.SetMoney(100);
         state.EventAttendance.HasTeaCircleInvitation = true;
@@ -145,7 +145,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task AttendCommunityEvent_RecordsAttendance()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 6, 0);
 
         await Assert.That(state.EventAttendance.TotalAttended).IsEqualTo(0);
@@ -159,7 +159,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task AttendCommunityEvent_CannotAttendTwiceInSameWeek()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 6, 0);
         state.Player.Stats.SetMoney(200);
 
@@ -174,7 +174,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task AttendCommunityEvent_ProvidesFood_WhenEventHasFoodAccess()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(7, 6, 0);
         state.Player.Stats.SetMoney(50);
         state.Player.Nutrition.Eat(MealQuality.None);
@@ -232,7 +232,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task EndDay_IncrementsConsecutiveSkips_WhenNoEventAttended()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Nutrition.Eat(MealQuality.Basic);
 
         await Assert.That(state.EventAttendance.ConsecutiveSkips).IsEqualTo(0);
@@ -245,7 +245,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task NeighborhoodCleanup_IsAlwaysAvailable()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var events = state.GetAvailableCommunityEvents();
         var hasCleanup = events.Any(e => e.Id == CommunityEventId.NeighborhoodCleanup);
@@ -256,7 +256,7 @@ internal sealed class CommunityEventTests
     [Test]
     public async Task RestoreCommunityEventAttendance_PreservesState()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.EventAttendance.RecordAttendance(CommunityEventId.FridayRooftopGathering, 5);
         state.EventAttendance.RecordSkip();
         state.EventAttendance.HasTeaCircleInvitation = true;

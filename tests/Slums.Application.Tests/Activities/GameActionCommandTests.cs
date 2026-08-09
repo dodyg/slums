@@ -21,7 +21,7 @@ internal sealed class GameActionCommandTests
     public void Execute_ShouldThrow_WhenActionIdRequiresDedicatedUI()
     {
         var command = new GameActionCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
 
         var act = () => command.Execute(session, GameActionId.Work);
 
@@ -32,7 +32,7 @@ internal sealed class GameActionCommandTests
     public void Execute_Rest_CallsRestAtHome()
     {
         var command = new GameActionCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         session.World.TravelTo(LocationId.Home);
         session.Player.Stats.SetEnergy(50);
 
@@ -46,7 +46,7 @@ internal sealed class GameActionCommandTests
     public void Execute_CheckOnMother_ReturnsTrue()
     {
         var command = new GameActionCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
 
         var result = command.Execute(session, GameActionId.CheckOnMother);
 
@@ -57,7 +57,7 @@ internal sealed class GameActionCommandTests
     public void Execute_EndDay_ReturnsTrue()
     {
         var command = new GameActionCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
 
         var result = command.Execute(session, GameActionId.EndDay, new Random(42));
 

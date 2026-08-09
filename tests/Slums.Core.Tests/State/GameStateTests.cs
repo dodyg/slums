@@ -13,7 +13,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task Constructor_ShouldInitializeWithDefaultValues()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         await Assert.That(state.RunId).IsNotEqualTo(Guid.Empty);
         await Assert.That(state.Clock.Day).IsEqualTo(1);
@@ -26,7 +26,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EndDay_ShouldDeductRentFromMoney()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         state.EndDay();
 
@@ -36,7 +36,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EatAtHome_ShouldFeedPlayerAndMother()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var result = state.EatAtHome();
 
@@ -50,7 +50,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EndDay_ShouldAdvanceToNextDay()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.AdvanceHours(10);
 
         state.EndDay();
@@ -62,7 +62,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EndDay_ShouldReturnPlayerHome()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Market);
 
         state.EndDay(new Random(1));
@@ -73,7 +73,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EatAtHome_WithoutStaples_ShouldFail()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Household.SetFoodStockpile(0);
 
         var result = state.EatAtHome();
@@ -86,7 +86,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EatStreetFood_ShouldCostMoneyAndFeedOnlyPlayer()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(2, 8, 0);
 
         var result = state.EatStreetFood();
@@ -100,7 +100,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EatStreetFood_ShouldCostMoreInDokkiThanAtHome()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(2, 8, 0);
         state.TryTravelTo(LocationId.CallCenter);
         var moneyBefore = state.Player.Stats.Money;
@@ -114,7 +114,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task BuyMedicine_ShouldIncreaseMedicineStock()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var result = state.BuyMedicine();
 
@@ -126,7 +126,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task BuyMedicine_ShouldBeCheaperInArdAlLiwaThanImbaba()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Clinic);
 
         var result = state.BuyMedicine();
@@ -138,7 +138,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task GetMedicineCost_ShouldUseMariamDiscount_AtPharmacy()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Pharmacy);
         state.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 12, 1);
 
@@ -148,7 +148,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task GetFoodCost_ShouldReflectCurrentDistrictCondition()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(2, 8, 0);
         state.World.SetActiveDistrictConditions(
         [
@@ -161,7 +161,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task GetTravelTimeMinutes_ShouldReflectDestinationDistrictCondition()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.SetActiveDistrictConditions(
         [
             new ActiveDistrictCondition { District = DistrictId.Dokki, ConditionId = "dokki_checkpoint_sweep" }
@@ -173,7 +173,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task GiveMotherMedicine_ShouldConsumeMedicineStock()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Household.SetMedicineStock(2);
 
         var result = state.GiveMotherMedicine();
@@ -186,7 +186,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TakeMotherToClinic_ShouldFail_WhenLocationHasNoClinic()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Market);
 
         var result = state.TakeMotherToClinic();
@@ -199,7 +199,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TakeMotherToClinic_ShouldFail_WhenClinicIsClosedToday()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(day: 4, hour: 10, minute: 0);
         state.World.TravelTo(LocationId.Clinic);
 
@@ -213,7 +213,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TakeMotherToClinic_ShouldImproveMotherHealth_AndChargeLocationPrice()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Clinic);
         state.Player.Household.SetMotherHealth(50);
 
@@ -229,7 +229,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TakeMotherToClinic_ShouldUseDifferentClinicPrice_ByLocation()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Pharmacy);
 
         var status = state.GetCurrentLocationClinicStatus();
@@ -241,7 +241,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task RestAtHome_ShouldRestoreEnergyAndAdvanceTime()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         state.RestAtHome();
 
@@ -252,7 +252,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task RestAtHome_ShouldTriggerEndDayWhenRestPassesCurfew()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.AdvanceHours(12);
 
         state.RestAtHome();
@@ -265,7 +265,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryTravelTo_ShouldSucceedWithEnoughMoney()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var result = state.TryTravelTo(LocationId.Market);
 
@@ -277,7 +277,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryTravelTo_ShouldFailWithInsufficientMoney()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.ModifyMoney(-99);
 
         var result = state.TryTravelTo(LocationId.CallCenter);
@@ -289,7 +289,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryTravelTo_ShouldAdvanceTimeByTravelDuration()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         state.TryTravelTo(LocationId.Market);
 
@@ -299,7 +299,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryTravelTo_ShouldUseSafaaRouteHelp_ForBulaqTravel()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Relationships.SetNpcRelationship(NpcId.DispatcherSafaa, 12, 1);
 
         var result = state.TryTravelTo(LocationId.Depot);
@@ -312,7 +312,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryTravelTo_CurrentLocation_ShouldFailWithoutChargingMoney()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var result = state.TryTravelTo(LocationId.Home);
 
@@ -324,7 +324,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryTravelTo_ShouldTriggerEndDayWhenTravelPassesCurfew()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.AdvanceHours(15);
         state.Clock.AdvanceMinutes(50);
 
@@ -339,7 +339,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryWalkTo_ShouldSucceedWithoutSpendingMoney()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.ModifyMoney(-99);
 
         var result = state.TryWalkTo(LocationId.Market);
@@ -352,7 +352,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryWalkTo_ShouldCostMoreEnergyThanTravel()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var energyBefore = state.Player.Stats.Energy;
 
         var result = state.TryWalkTo(LocationId.Market);
@@ -364,7 +364,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryWalkTo_ShouldTakeTripleTime()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var result = state.TryWalkTo(LocationId.Market);
 
@@ -375,7 +375,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryWalkTo_ShouldIncreaseStress()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var stressBefore = state.Player.Stats.Stress;
 
         var result = state.TryWalkTo(LocationId.Market);
@@ -387,7 +387,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryWalkTo_ShouldFailIfTooExhausted()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(14);
 
         var result = state.TryWalkTo(LocationId.CallCenter);
@@ -399,7 +399,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryWalkTo_CurrentLocation_ShouldFail()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var result = state.TryWalkTo(LocationId.Home);
 
@@ -409,7 +409,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryWalkTo_ShouldIncreaseStress_ForSudaneseBackground_InDokki()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(Slums.Core.Characters.BackgroundRegistry.SudaneseRefugee);
         var stressBefore = state.Player.Stats.Stress;
 
@@ -422,7 +422,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task CanAffordTravel_ShouldReturnTrue_WhenPlayerHasEnoughMoney()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var result = state.CanAffordTravel(LocationId.Market);
 
@@ -432,7 +432,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task CanAffordTravel_ShouldReturnFalse_WhenPlayerLacksMoney()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.ModifyMoney(-99);
 
         var result = state.CanAffordTravel(LocationId.Market);
@@ -443,7 +443,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task WorkJob_ShouldTriggerEndDayWhenShiftPassesCurfew()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Bakery);
         state.Clock.AdvanceHours(14);
 
@@ -458,7 +458,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task WorkJob_ShouldImproveEmployerTrust_OnCleanClinicShift()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Clinic);
         state.Relationships.SetNpcRelationship(NpcId.NurseSalma, 12, 1);
 
@@ -473,7 +473,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task WorkJob_ShouldApplyLockoutAndTrustPenalty_OnCallCenterMistake()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.CallCenter);
         state.Player.Stats.SetStress(65);
 
@@ -487,7 +487,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task WorkJob_ShouldMarkAbuSamirEmbarrassed_WhenWorkshopMistakeFollowsCrimeHeat()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Workshop);
         state.SetPolicePressure(70);
         state.SetCrimeCounters(0, 0, lastCrimeDay: 1);
@@ -503,7 +503,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task WorkJob_ShouldAdvanceWorkLedgerWithoutMutatingCrimeLedger()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.SetCrimeCounters(70, 2, lastCrimeDay: 1);
         state.SetPolicePressure(25);
         state.World.TravelTo(LocationId.Bakery);
@@ -523,7 +523,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task CommitCrime_ShouldUsePublicFacingWorkAsAnAlibi_SameDay()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Cafe);
         state.WorkJob(state.GetAvailableJobs().Single());
         state.World.TravelTo(LocationId.Square);
@@ -538,7 +538,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task CommitCrime_ShouldAdvanceCrimeLedgerWithoutMutatingWorkLedger()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.SetWorkCounters(totalHonestWorkEarnings: 140, honestShiftsCompleted: 4, lastHonestWorkDay: 7, lastPublicFacingWorkDay: 7);
         state.World.TravelTo(LocationId.Market);
 
@@ -559,7 +559,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task WorkJob_ShouldQueuePublicWorkHeatScene_WhenPublicFacingShiftFollowsCrimeHeat()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Clinic);
         state.SetPolicePressure(70);
         state.SetCrimeCounters(0, 0, lastCrimeDay: 1);
@@ -574,7 +574,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task BuyFood_ShouldGrantExtraStaples_ForSudaneseBackground()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(Slums.Core.Characters.BackgroundRegistry.SudaneseRefugee);
         var before = state.Player.Household.FoodStockpile;
 
@@ -587,7 +587,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task BuyFood_ShouldCostMoreInShubraThanImbaba()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(2, 8, 0);
         state.World.TravelTo(LocationId.Laundry);
 
@@ -600,7 +600,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TryTravelTo_ShouldIncreaseStress_ForSudaneseBackground_InDokki()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(Slums.Core.Characters.BackgroundRegistry.SudaneseRefugee);
         var before = state.Player.Stats.Stress;
 
@@ -613,7 +613,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EndDay_ShouldDecayPressureMoreSlowly_ForReleasedPrisoner()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(Slums.Core.Characters.BackgroundRegistry.ReleasedPoliticalPrisoner);
         state.SetPolicePressure(25);
 
@@ -630,7 +630,7 @@ internal sealed class GameStateTests
 
         for (var seed = 0; seed < seedLimit; seed++)
         {
-            using var state = new GameSession();
+            var state = new GameSession();
             state.World.TravelTo(LocationId.Market);
             state.Player.Household.SetMotherHealth(50);
             state.SetCrimeCounters(140, 1);
@@ -659,7 +659,7 @@ internal sealed class GameStateTests
 
         for (var seed = 0; seed < seedLimit; seed++)
         {
-            using var state = new GameSession();
+            var state = new GameSession();
             state.World.TravelTo(LocationId.Market);
             state.SetPolicePressure(60);
             state.Relationships.SetNpcRelationship(NpcId.NeighborMona, 18, 1);
@@ -682,7 +682,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task RelationshipMemory_ShouldRecordDebtState_InCore()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Relationships.RecordFavor(NpcId.NurseSalma, state.Clock.Day, hasUnpaidDebt: true);
 
         await Assert.That(state.Relationships.GetNpcRelationship(NpcId.NurseSalma).HasUnpaidDebt).IsTrue();
@@ -692,7 +692,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task ApplyRandomEvent_ShouldRecordEventHistory_WhenDayEnds()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(5, 6, 0);
         state.World.TravelTo(LocationId.CallCenter);
         state.SetPolicePressure(60);
@@ -705,7 +705,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EndDay_ShouldQueueRentFinalWarningScene_WhenFinalWarningHits()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.RestoreRentState(unpaidRentDays: 4, accumulatedRentDebt: 80, firstWarningGiven: true, finalWarningGiven: false);
         state.Player.Stats.SetMoney(0);
 
@@ -717,7 +717,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task IsGameOver_ShouldBeTrueWhenHealthIsZero()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.ModifyHealth(-100);
 
         state.EndDay();
@@ -731,7 +731,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task GameEvent_ShouldBeRaisedForActions()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var events = new List<string>();
         state.GameEvent += (_, e) => events.Add(e.Message);
 
@@ -743,7 +743,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task CommitCrime_ShouldApplyMoneyEnergyAndPressureChanges()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var initialMoney = state.Player.Stats.Money;
         var initialEnergy = state.Player.Stats.Energy;
 
@@ -769,14 +769,14 @@ internal sealed class GameStateTests
 
         for (var seed = 0; seed < seedLimit; seed++)
         {
-            using var baseline = CreateCrimeState(LocationId.Market);
+            var baseline = CreateCrimeState(LocationId.Market);
             var baselineResult = baseline.CommitCrime(attempt, new Random(seed));
             if (!baselineResult.Detected)
             {
                 continue;
             }
 
-            using var trusted = CreateCrimeState(LocationId.Market);
+            var trusted = CreateCrimeState(LocationId.Market);
             trusted.Relationships.SetNpcRelationship(NpcId.FenceHanan, 20, 1);
             var trustedResult = trusted.CommitCrime(attempt, new Random(seed));
 
@@ -797,14 +797,14 @@ internal sealed class GameStateTests
 
         for (var seed = 0; seed < seedLimit; seed++)
         {
-            using var baseline = CreateCrimeState(LocationId.Square);
+            var baseline = CreateCrimeState(LocationId.Square);
             var baselineResult = baseline.CommitCrime(attempt, new Random(seed));
             if (!baselineResult.Detected)
             {
                 continue;
             }
 
-            using var trusted = CreateCrimeState(LocationId.Square);
+            var trusted = CreateCrimeState(LocationId.Square);
             trusted.Relationships.SetNpcRelationship(NpcId.RunnerYoussef, 20, 1);
             var trustedResult = trusted.CommitCrime(attempt, new Random(seed));
 
@@ -825,14 +825,14 @@ internal sealed class GameStateTests
 
         for (var seed = 0; seed < seedLimit; seed++)
         {
-            using var baseline = CreateCrimeState(LocationId.Market);
+            var baseline = CreateCrimeState(LocationId.Market);
             var baselineResult = baseline.CommitCrime(attempt, new Random(seed));
             if (baselineResult.Success || !baselineResult.Detected)
             {
                 continue;
             }
 
-            using var trusted = CreateCrimeState(LocationId.Market);
+            var trusted = CreateCrimeState(LocationId.Market);
             trusted.Relationships.SetNpcRelationship(NpcId.FenceHanan, 20, 1);
             var trustedMoney = trusted.Player.Stats.Money;
             var trustedResult = trusted.CommitCrime(attempt, new Random(seed));
@@ -857,14 +857,14 @@ internal sealed class GameStateTests
 
         for (var seed = 0; seed < seedLimit; seed++)
         {
-            using var baseline = CreateCrimeState(LocationId.Square);
+            var baseline = CreateCrimeState(LocationId.Square);
             var baselineResult = baseline.CommitCrime(attempt, new Random(seed));
             if (baselineResult.Success || !baselineResult.Detected)
             {
                 continue;
             }
 
-            using var trusted = CreateCrimeState(LocationId.Square);
+            var trusted = CreateCrimeState(LocationId.Square);
             trusted.Relationships.SetNpcRelationship(NpcId.RunnerYoussef, 20, 1);
             var trustedResult = trusted.CommitCrime(attempt, new Random(seed));
 
@@ -886,7 +886,7 @@ internal sealed class GameStateTests
 
         for (var seed = 0; seed < seedLimit; seed++)
         {
-            using var state = CreateCrimeState(LocationId.Market);
+            var state = CreateCrimeState(LocationId.Market);
             state.SetStoryFlag("crime_first_success");
             var result = state.CommitCrime(attempt, new Random(seed));
             if (!result.Success || result.Detected)
@@ -910,7 +910,7 @@ internal sealed class GameStateTests
 
         for (var seed = 0; seed < seedLimit; seed++)
         {
-            using var state = CreateCrimeState(LocationId.Square);
+            var state = CreateCrimeState(LocationId.Square);
             state.SetStoryFlag("crime_first_success");
             var result = state.CommitCrime(attempt, new Random(seed));
             if (!result.Success || !result.Detected)
@@ -934,7 +934,7 @@ internal sealed class GameStateTests
 
         for (var seed = 0; seed < seedLimit; seed++)
         {
-            using var state = CreateCrimeState(LocationId.Market);
+            var state = CreateCrimeState(LocationId.Market);
             var result = state.CommitCrime(attempt, new Random(seed));
             if (result.Success)
             {
@@ -957,7 +957,7 @@ internal sealed class GameStateTests
 
         for (var seed = 0; seed < seedLimit; seed++)
         {
-            using var state = CreateCrimeState(LocationId.Depot);
+            var state = CreateCrimeState(LocationId.Depot);
             state.SetStoryFlag("crime_first_success");
             var result = state.CommitCrime(attempt, new Random(seed));
             if (!result.Success || result.Detected)
@@ -976,7 +976,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EndDay_ShouldDecayPolicePressure_OnCleanDay()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.SetPolicePressure(25);
 
         state.EndDay(new Random(2));
@@ -987,7 +987,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EndDay_PlayerWithoutMeal_ShouldLoseEnergyAndGainStress()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         state.EndDay();
 
@@ -999,7 +999,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EndDay_PlayerUnderfedForTwoDays_ShouldLoseHealth()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Nutrition.SetDaysUndereating(1);
 
         state.EndDay();
@@ -1010,7 +1010,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EndDay_MotherFragileWithoutMedicine_ShouldLoseHealth()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Household.SetMotherHealth(45);
         state.Player.Household.FeedMother();
 
@@ -1022,7 +1022,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EndDay_MotherInCrisisWithoutCheck_ShouldIncreasePlayerStress()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Household.SetMotherHealth(20);
         state.Player.Household.FeedMother();
         state.Player.Household.SetMedicineStock(1);
@@ -1036,7 +1036,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EndDay_ShouldResetNutritionAndCareFlagsForNextDay()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.EatAtHome();
         state.Player.Household.SetMedicineStock(1);
         state.GiveMotherMedicine();
@@ -1053,7 +1053,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task EndDay_ShouldTriggerGameOver_WhenMotherHealthFallsToZero()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Household.SetMotherHealth(1);
 
         state.EndDay();
@@ -1067,7 +1067,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task GetStatusSummary_ShouldReturnCurrentStatus()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var summary = state.GetStatusSummary();
 
@@ -1079,7 +1079,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task GetClinicLocations_ShouldReturnAllClinics()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var clinics = state.GetClinicLocations();
 
@@ -1091,7 +1091,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task GetClinicTravelOption_ShouldReturnValidOption_ForClinicLocation()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var option = state.GetClinicTravelOption(LocationId.Clinic);
 
@@ -1106,7 +1106,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task GetClinicTravelOption_ShouldReturnInvalidOption_ForNonClinicLocation()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var option = state.GetClinicTravelOption(LocationId.Market);
 
@@ -1116,7 +1116,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TravelAndTakeMotherToClinic_ShouldSucceed_FromHome()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Household.SetMotherHealth(50);
         var initialMoney = state.Player.Stats.Money;
 
@@ -1132,7 +1132,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TravelAndTakeMotherToClinic_ShouldFail_WhenClinicClosed()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Clock.SetTime(day: 4, hour: 10, minute: 0);
 
         var result = state.TravelAndTakeMotherToClinic(LocationId.Clinic);
@@ -1144,7 +1144,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TravelAndTakeMotherToClinic_ShouldFail_WhenInsufficientMoney()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.ModifyMoney(-99);
 
         var result = state.TravelAndTakeMotherToClinic(LocationId.Clinic);
@@ -1157,7 +1157,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TravelAndTakeMotherToClinic_ShouldAdvanceTime()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var result = state.TravelAndTakeMotherToClinic(LocationId.Clinic);
 
@@ -1168,7 +1168,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task TravelAndTakeMotherToClinic_ShouldConsumeTravelEnergy()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var initialEnergy = state.Player.Stats.Energy;
 
         var result = state.TravelAndTakeMotherToClinic(LocationId.Clinic);
@@ -1180,7 +1180,7 @@ internal sealed class GameStateTests
     [Test]
     public async Task ResolveWeeklyInvestments_ShouldQueueSuspensionScene_WhenExtortionCannotBePaid()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetMoney(0);
         state.RestoreInvestmentState(
         [

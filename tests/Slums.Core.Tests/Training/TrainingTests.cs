@@ -32,7 +32,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_GetAvailableTrainingActivities_ShouldReturnExerciseAtHome()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var activities = state.GetAvailableTrainingActivities();
 
@@ -42,7 +42,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_GetAvailableTrainingActivities_ShouldRequireNpcTrust()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var medicalTraining = TrainingRegistry.AllActivities.First(a => a.Type == TrainingActivityType.StudyMedical);
         await Assert.That(medicalTraining).IsNotNull();
@@ -54,7 +54,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_GetAvailableTrainingActivities_ShouldShowMedicalWithEnoughTrust()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Relationships.SetNpcRelationship(NpcId.NurseSalma, 15, 0);
 
         var available = state.GetAvailableTrainingActivities();
@@ -64,7 +64,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldSucceedAndGrantSkill()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 19, 0);
 
@@ -81,7 +81,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldFailWhenEnergyTooLow()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(5);
         state.Clock.SetTime(1, 19, 0);
 
@@ -94,7 +94,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldFailWhenMoneyTooLow()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(100);
         state.Player.Stats.SetMoney(0);
         state.Clock.SetTime(1, 19, 0);
@@ -107,7 +107,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldFailOutsideEveningHours()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 10, 0);
 
@@ -120,7 +120,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldFailWhenSkillAtCap()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(100);
         state.Player.Skills.SetLevel(SkillId.Physical, 10);
         state.Clock.SetTime(1, 19, 0);
@@ -134,7 +134,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldFailWhenAlreadyTrainedToday()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 19, 0);
 
@@ -151,7 +151,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldFailWhenNotAtHome()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Market);
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 19, 0);
@@ -165,7 +165,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_EndDay_ShouldResetTrainingTracker()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(100);
         state.Player.Stats.SetMoney(1000);
         state.Clock.SetTime(1, 19, 0);
@@ -183,7 +183,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_BackgroundMedicalDropout_ShouldReduceStressOnStudyMedical()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
         state.Relationships.SetNpcRelationship(NpcId.NurseSalma, 15, 0);
         state.Player.Stats.SetEnergy(100);
@@ -200,7 +200,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_BackgroundRefugee_ShouldReduceEnergyOnExercise()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 18, 0);
@@ -217,7 +217,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_BackgroundPrisoner_ShouldReduceEnergyOnStreetDice()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
         state.Relationships.SetNpcRelationship(NpcId.RunnerYoussef, 10, 0);
         state.Player.Stats.SetEnergy(100);
@@ -235,7 +235,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldRecordMutation()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 19, 0);
 
@@ -250,7 +250,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldDeductTimeAndEnergy()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 18, 0);
 

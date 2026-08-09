@@ -8,7 +8,7 @@ internal sealed class PhoneSnapshotTests
     [Test]
     public async Task PhoneSnapshot_CaptureAndRestore_PreservesState()
     {
-        using var session = new Slums.Core.State.GameSession();
+        var session = new Slums.Core.State.GameSession();
         session.Phone.LosePhone(5);
         session.PhoneMessages.AddMessage(new Slums.Core.Phone.PhoneMessage
         {
@@ -36,7 +36,7 @@ internal sealed class PhoneSnapshotTests
     [Test]
     public async Task PhoneSnapshot_Restore_PreservesState()
     {
-        using var original = new Slums.Core.State.GameSession(new Random(42));
+        var original = new Slums.Core.State.GameSession(new Random(42));
         original.Player.ApplyBackground(Slums.Core.Characters.BackgroundRegistry.GetByType(Slums.Core.Characters.BackgroundType.MedicalSchoolDropout));
         original.Player.Stats.SetMoney(100);
         original.Phone.LosePhone(3);
@@ -55,7 +55,7 @@ internal sealed class PhoneSnapshotTests
         });
 
         var snapshot = GameSessionSnapshot.Capture(original);
-        using var restored = snapshot.Restore();
+        var restored = snapshot.Restore();
 
         await Assert.That(restored.Phone.PhoneLost).IsTrue();
         await Assert.That(restored.Phone.PhoneLostDay).IsEqualTo(3);
@@ -68,7 +68,7 @@ internal sealed class PhoneSnapshotTests
     [Test]
     public async Task PhoneSnapshot_FullRoundtrip_PreservesAllFields()
     {
-        using var original = new Slums.Core.State.GameSession(new Random(42));
+        var original = new Slums.Core.State.GameSession(new Random(42));
         original.Player.ApplyBackground(Slums.Core.Characters.BackgroundRegistry.GetByType(Slums.Core.Characters.BackgroundType.SudaneseRefugee));
         original.Player.Stats.SetMoney(200);
 
@@ -92,7 +92,7 @@ internal sealed class PhoneSnapshotTests
         });
 
         var snapshot = GameSessionSnapshot.Capture(original);
-        using var restored = snapshot.Restore();
+        var restored = snapshot.Restore();
 
         await Assert.That(restored.Phone.CreditRemaining).IsEqualTo(original.Phone.CreditRemaining);
         await Assert.That(restored.Phone.DaysSinceCreditRefill).IsEqualTo(original.Phone.DaysSinceCreditRefill);
@@ -104,12 +104,12 @@ internal sealed class PhoneSnapshotTests
     [Test]
     public async Task PhoneSnapshot_EmptySnapshot_RestoresDefaults()
     {
-        using var original = new Slums.Core.State.GameSession(new Random(42));
+        var original = new Slums.Core.State.GameSession(new Random(42));
         original.Player.ApplyBackground(Slums.Core.Characters.BackgroundRegistry.GetByType(Slums.Core.Characters.BackgroundType.MedicalSchoolDropout));
         original.Player.Stats.SetMoney(100);
 
         var snapshot = GameSessionSnapshot.Capture(original);
-        using var restored = snapshot.Restore();
+        var restored = snapshot.Restore();
 
         await Assert.That(restored.Phone.HasPhone).IsTrue();
         await Assert.That(restored.Phone.PhoneLost).IsFalse();

@@ -280,7 +280,7 @@ internal sealed class JsonContentRepositoryTests
             """);
 
             var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
-            using var state = new Slums.Core.State.GameSession();
+            var state = new Slums.Core.State.GameSession();
             state.World.TravelTo(Slums.Core.World.LocationId.Clinic);
 
             var events = repository.LoadRandomEvents();
@@ -316,7 +316,7 @@ internal sealed class JsonContentRepositoryTests
             """);
 
             var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
-            using var state = new Slums.Core.State.GameSession();
+            var state = new Slums.Core.State.GameSession();
             state.World.TravelTo(Slums.Core.World.LocationId.CallCenter);
 
             var events = repository.LoadRandomEvents();
@@ -360,9 +360,9 @@ internal sealed class JsonContentRepositoryTests
             """);
 
             var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
-            using var bulaqState = new Slums.Core.State.GameSession();
+            var bulaqState = new Slums.Core.State.GameSession();
             bulaqState.World.TravelTo(Slums.Core.World.LocationId.Pharmacy);
-            using var shubraState = new Slums.Core.State.GameSession();
+            var shubraState = new Slums.Core.State.GameSession();
             shubraState.World.TravelTo(Slums.Core.World.LocationId.Laundry);
             shubraState.Player.Stats.ModifyMoney(-10);
 

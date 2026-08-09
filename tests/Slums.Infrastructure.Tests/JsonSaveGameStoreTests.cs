@@ -23,7 +23,7 @@ internal sealed class JsonSaveGameStoreTests
         {
             var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
 
-            using var gameSession = new Slums.Core.State.GameSession();
+            var gameSession = new Slums.Core.State.GameSession();
             var runId = Guid.NewGuid();
             gameSession.Player.ApplyGender(Gender.Female);
             gameSession.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
@@ -83,7 +83,6 @@ internal sealed class JsonSaveGameStoreTests
                 loadedSession.LastKnot.Should().Be("crime_warning");
                 var restoredSession = loadedSession.TakeGameSession();
 
-                try
                 {
                     restoredSession.Player.Gender.Should().Be(Gender.Female);
                     restoredSession.Player.Name.Should().Be("Amira");
@@ -125,10 +124,6 @@ internal sealed class JsonSaveGameStoreTests
                     restoredSession.TrainedSkillsToday.Should().ContainKey(SkillId.Physical);
                     restoredSession.Player.Skills.GetLevel(SkillId.Physical).Should().BeGreaterThan(0);
                 }
-                finally
-                {
-                    restoredSession.Dispose();
-                }
             }
         }
         finally
@@ -145,7 +140,7 @@ internal sealed class JsonSaveGameStoreTests
         {
             var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
 
-            using var gameSession = new Slums.Core.State.GameSession();
+            var gameSession = new Slums.Core.State.GameSession();
             gameSession.Player.ApplyGender(Gender.Male);
             gameSession.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
             gameSession.Player.Stats.SetMoney(50);
@@ -158,15 +153,10 @@ internal sealed class JsonSaveGameStoreTests
             using (loadedSession)
             {
                 var restoredSession = loadedSession.TakeGameSession();
-                try
                 {
                     restoredSession.Player.Gender.Should().Be(Gender.Male);
                     restoredSession.Player.Name.Should().Be("Karim");
                     restoredSession.Player.Stats.Money.Should().Be(50);
-                }
-                finally
-                {
-                    restoredSession.Dispose();
                 }
             }
         }
@@ -359,7 +349,7 @@ internal sealed class JsonSaveGameStoreTests
         try
         {
             var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
-            using var gameSession = new Slums.Core.State.GameSession();
+            var gameSession = new Slums.Core.State.GameSession();
 
             var act = async () => await store.SaveAsync(SaveGameRequest.Create(gameSession, null), "../escape").ConfigureAwait(false);
 
@@ -379,7 +369,7 @@ internal sealed class JsonSaveGameStoreTests
         try
         {
             var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
-            using var gameSession = new Slums.Core.State.GameSession();
+            var gameSession = new Slums.Core.State.GameSession();
             gameSession.Player.Stats.SetMoney(100);
 
             await store.SaveAsync(SaveGameRequest.Create(gameSession, "first"), "slot1").ConfigureAwait(false);

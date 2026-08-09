@@ -126,9 +126,7 @@ public sealed record GameSessionSnapshot
             gameSession.RestoreRandomState(RandomState);
         }
 
-        try
-        {
-            gameSession.Player.ApplyBackground(BackgroundRegistry.GetByType(Player.BackgroundType));
+        gameSession.Player.ApplyBackground(BackgroundRegistry.GetByType(Player.BackgroundType));
             gameSession.Player.ApplyGender(Player.Gender);
             gameSession.Player.Stats.SetMoney(Player.Money);
             gameSession.Player.Nutrition.SetSatiety(Player.Satiety);
@@ -255,11 +253,5 @@ public sealed record GameSessionSnapshot
             }
 
             return gameSession;
-        }
-        catch
-        {
-            gameSession.Dispose();
-            throw;
-        }
     }
 }

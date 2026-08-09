@@ -151,7 +151,7 @@ internal sealed class NpcConversationPathTests
 
             private static NarrativeSceneState CreateDefaultSceneState()
             {
-                using var session = new GameStateBuilder().Build();
+                var session = new GameStateBuilder().Build();
                 return NarrativeSceneState.Create(session);
             }
         }

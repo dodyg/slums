@@ -11,7 +11,7 @@ internal sealed class NarrativeFollowUpPlannerTests
     [Test]
     public void GetEndOfDayTriggers_ShouldReturnBothKnownCrimeFollowUps_WhenSignalsArePending()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Household.SetMotherHealth(50);
         session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 18, session.Clock.Day);
 

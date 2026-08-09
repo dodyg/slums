@@ -12,7 +12,7 @@ internal sealed class PlantUpgradeMenuQueryTests
     public void GetStatuses_ShouldExposeAllFourUpgradePaths()
     {
         var query = new PlantUpgradeMenuQuery();
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.HouseholdAssets.BuyPlant(PlantType.Hibiscus, 1, 1);
         var plant = gameState.Player.HouseholdAssets.Plants.Should().ContainSingle().Subject;
 

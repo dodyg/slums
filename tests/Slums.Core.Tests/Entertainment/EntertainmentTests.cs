@@ -58,7 +58,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_GetAvailableEntertainmentActivities_ShouldReturnEmptyAtHome()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var activities = state.GetAvailableEntertainmentActivities();
 
@@ -68,7 +68,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_GetAvailableEntertainmentActivities_ShouldReturnCafeActivitiesAtCafe()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Cafe);
 
         var activities = state.GetAvailableEntertainmentActivities();
@@ -80,7 +80,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_GetAvailableEntertainmentActivities_ShouldReturnBarActivitiesAtSquare()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Square);
 
         var activities = state.GetAvailableEntertainmentActivities();
@@ -91,7 +91,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_ShouldReduceStress()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Cafe);
         state.Player.Stats.SetStress(50);
         var coffee = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Coffee);
@@ -105,7 +105,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_ShouldCostMoney()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Cafe);
         var moneyBefore = state.Player.Stats.Money;
         var coffee = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Coffee);
@@ -119,7 +119,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_ShouldAdvanceTime()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Cafe);
         var coffee = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Coffee);
 
@@ -132,7 +132,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_ShouldFailIfNotEnoughMoney()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Cafe);
         state.Player.Stats.ModifyMoney(-100);
         var coffee = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Coffee);
@@ -145,7 +145,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_ShouldFailIfNotEnoughEnergy()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Cafe);
         state.Player.Stats.SetEnergy(0);
         var shisha = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Shisha);
@@ -158,7 +158,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_ShouldFailIfActivityNotAvailableAtLocation()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         var coffee = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Coffee);
 
         var result = state.TryPerformEntertainment(coffee);
@@ -169,7 +169,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_BilliardsShouldCostEnergy()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.World.TravelTo(LocationId.Depot);
         var energyBefore = state.Player.Stats.Energy;
         var billiards = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Billiards);

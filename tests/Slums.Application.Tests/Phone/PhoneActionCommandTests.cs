@@ -13,7 +13,7 @@ internal sealed class PhoneActionCommandTests
     public void Execute_AcknowledgesTip()
     {
         var command = new PhoneActionCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         var tip = new Tip
         {
             Type = TipType.CrimeWarning,
@@ -33,7 +33,7 @@ internal sealed class PhoneActionCommandTests
     public void Execute_RespondsToMessage()
     {
         var command = new PhoneActionCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
         var message = new PhoneMessage
         {
             Type = PhoneMessageType.Warning,
@@ -54,7 +54,7 @@ internal sealed class PhoneActionCommandTests
     public void Execute_ReturnsFailure_ForUnknownEntry()
     {
         var command = new PhoneActionCommand();
-        using var session = new GameSession();
+        var session = new GameSession();
 
         var (success, message) = command.Execute(session, "missing-id", isTip: false);
 

@@ -12,7 +12,7 @@ internal sealed class InvestmentResolutionTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldAddIncome_WhenRisksDoNotTrigger()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(300);
         gameState.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 30, 1);
 
@@ -35,7 +35,7 @@ internal sealed class InvestmentResolutionTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldSuspendOperation_WhenExtortionCannotBePaid()
     {
-        using var gameState = new GameSession();
+        var gameState = new GameSession();
         gameState.Player.Stats.SetMoney(250);
         gameState.World.TravelTo(LocationId.Market);
         gameState.Relationships.SetNpcRelationship(NpcId.FixerUmmKarim, 40, 1);

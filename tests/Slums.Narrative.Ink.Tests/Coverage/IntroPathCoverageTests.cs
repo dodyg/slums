@@ -140,7 +140,7 @@ internal sealed class IntroPathCoverageTests
 
     private static NarrativeSceneState CreateSceneState(BackgroundType backgroundType)
     {
-        using var session = GameStateBuilder.BuildForBackground(backgroundType);
+        var session = GameStateBuilder.BuildForBackground(backgroundType);
         return NarrativeSceneState.Create(session);
     }
 }

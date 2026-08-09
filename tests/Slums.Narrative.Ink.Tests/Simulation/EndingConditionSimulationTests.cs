@@ -12,7 +12,7 @@ internal sealed class EndingConditionSimulationTests
     [Test]
     public async Task Ending_Priority_MotherDeathComesFirst()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithMotherHealth(0)
             .WithHealth(0)
             .WithMoney(0)
@@ -25,7 +25,7 @@ internal sealed class EndingConditionSimulationTests
     [Test]
     public async Task Ending_Priority_HealthZeroFoldsIntoDestitution()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithHealth(0)
             .WithMoney(0)
             .WithHunger(10)
@@ -38,7 +38,7 @@ internal sealed class EndingConditionSimulationTests
     [Test]
     public async Task Ending_Priority_ArrestedBeforeOthers()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithPolicePressure(100)
             .WithMoney(500)
             .WithDaysSurvived(30)
@@ -51,7 +51,7 @@ internal sealed class EndingConditionSimulationTests
     [Test]
     public async Task Ending_NoEnding_WhenConditionsNotMet()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithMotherHealth(50)
             .WithHealth(60)
             .WithMoney(100)
@@ -66,7 +66,7 @@ internal sealed class EndingConditionSimulationTests
     [Test]
     public async Task Ending_CrimeKingpin_RequiresHighEarnings()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithCrimeCounters(500, 10)
             .WithFactionReputation(FactionId.ImbabaCrew, 30)
             .Build();
@@ -74,7 +74,7 @@ internal sealed class EndingConditionSimulationTests
         var ending = EndingService.CheckEndings(session);
         ending.Should().BeNull("intermediate crime earnings should not trigger kingpin");
 
-        using var session2 = new GameStateBuilder()
+        var session2 = new GameStateBuilder()
             .WithCrimeCounters(1100, 20)
             .WithFactionReputation(FactionId.ImbabaCrew, 55)
             .Build();
@@ -86,7 +86,7 @@ internal sealed class EndingConditionSimulationTests
     [Test]
     public async Task Ending_NetworkShelter_RequiresMultipleHighTrust()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithMoney(100)
             .WithNpcTrust(NpcId.NeighborMona, 20)
@@ -95,7 +95,7 @@ internal sealed class EndingConditionSimulationTests
         var ending = EndingService.CheckEndings(session);
         ending.Should().BeNull("low trust with one NPC should not trigger network shelter");
 
-        using var session2 = new GameStateBuilder()
+        var session2 = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithMoney(150)
             .WithNpcTrust(NpcId.NeighborMona, 45)
@@ -111,7 +111,7 @@ internal sealed class EndingConditionSimulationTests
     [Test]
     public async Task Ending_StabilityHonestWork_AllowsFormerCriminals()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithPolicePressure(30)
             .WithCrimeCounters(300, 5, lastCrimeDay: 10)
@@ -122,7 +122,7 @@ internal sealed class EndingConditionSimulationTests
         var ending = EndingService.CheckEndings(session);
         ending.Should().BeNull("old crimes without recent work should not trigger stability");
 
-        using var session2 = new GameStateBuilder()
+        var session2 = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithPolicePressure(30)
             .WithCrimeCounters(300, 5, lastCrimeDay: 25)
@@ -137,7 +137,7 @@ internal sealed class EndingConditionSimulationTests
     [Test]
     public async Task Ending_Arrested_IncludesBuriedByHeatScenario()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithCrimeCounters(500, 7)
             .WithPolicePressure(70)
@@ -147,7 +147,7 @@ internal sealed class EndingConditionSimulationTests
         var ending = EndingService.CheckEndings(session);
         ending.Should().BeNull("moderate pressure should not trigger arrested");
 
-        using var session2 = new GameStateBuilder()
+        var session2 = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithCrimeCounters(500, 7)
             .WithPolicePressure(90)
@@ -161,7 +161,7 @@ internal sealed class EndingConditionSimulationTests
     [Test]
     public async Task Ending_LuxorDream_RequiresLowCrime()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithMoney(550)
             .WithCrimeCounters(400, 8)
@@ -171,7 +171,7 @@ internal sealed class EndingConditionSimulationTests
         var ending = EndingService.CheckEndings(session);
         ending.Should().BeNull("high crime should prevent Luxor dream");
 
-        using var session2 = new GameStateBuilder()
+        var session2 = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithMoney(550)
             .WithCrimeCounters(0, 2)
@@ -185,7 +185,7 @@ internal sealed class EndingConditionSimulationTests
     [Test]
     public async Task Ending_Stability_RequiresWork()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithMoney(250)
             .WithPolicePressure(10)
@@ -195,7 +195,7 @@ internal sealed class EndingConditionSimulationTests
         var ending = EndingService.CheckEndings(session);
         ending.Should().BeNull("insufficient work should not trigger stability");
 
-        using var session2 = new GameStateBuilder()
+        var session2 = new GameStateBuilder()
             .WithDaysSurvived(30)
             .WithMoney(250)
             .WithPolicePressure(10)
@@ -221,7 +221,7 @@ internal sealed class EndingConditionSimulationTests
             EndingId.CrimeKingpin
         };
 
-        using var session = new GameStateBuilder().Build();
+        var session = new GameStateBuilder().Build();
 
         foreach (var endingId in endings)
         {

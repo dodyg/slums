@@ -232,13 +232,13 @@ internal sealed class CrimeOutcomePathTests
 
     private static NarrativeSceneState CreateDefaultSceneState()
     {
-        using var session = new GameStateBuilder().Build();
+        var session = new GameStateBuilder().Build();
         return NarrativeSceneState.Create(session);
     }
 
     private static NarrativeSceneState CreateSceneState(BackgroundType backgroundType)
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithBackground(backgroundType)
             .Build();
         return NarrativeSceneState.Create(session);

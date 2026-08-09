@@ -16,7 +16,7 @@ internal sealed class SaveGameUseCaseTests
         var store = Substitute.For<ISaveGameStore>();
         var logger = NullLogger<SaveGameUseCase>.Instance;
         var useCase = new SaveGameUseCase(store, logger);
-        using var gameSession = new GameSession();
+        var gameSession = new GameSession();
         var request = SaveGameRequest.Create(gameSession, "intro_medical");
 
         await useCase.ExecuteAsync(request, "slot1").ConfigureAwait(false);
@@ -42,7 +42,7 @@ internal sealed class SaveGameUseCaseTests
     [Test]
     public void Create_ShouldCaptureCheckpointNameAndNarrativeProgress()
     {
-        using var gameSession = new GameSession();
+        var gameSession = new GameSession();
         gameSession.Player.Name = "Aya";
 
         var request = SaveGameRequest.Create(gameSession, "intro_medical");

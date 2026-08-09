@@ -156,15 +156,7 @@ internal sealed class LoadGameScreen : ScreenSurface
                     _runtime.NarrativeService.RestoreProgress(result.Session.LastKnot);
                     var gameSession = result.Session.TakeGameSession();
                     _runtime.MutationLogger.Attach(gameSession);
-                    try
-                    {
-                        ScreenTransition.FadeTo(new GameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, gameSession));
-                    }
-                    catch
-                    {
-                        gameSession.Dispose();
-                        throw;
-                    }
+                    ScreenTransition.FadeTo(new GameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime, gameSession));
                 }
 
                 break;

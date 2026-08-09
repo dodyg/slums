@@ -132,7 +132,7 @@ internal sealed class NarrativeOutcomeIntegrationTests
     [Test]
     public async Task Outcome_MultipleOutcomes_AppliedInOrder()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithMoney(100)
             .WithHealth(80)
             .WithEnergy(60)
@@ -150,7 +150,7 @@ internal sealed class NarrativeOutcomeIntegrationTests
     [Test]
     public async Task Outcome_NpcTrust_UpdatesRelationship()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithNpcTrust(NpcId.NurseSalma, 10)
             .Build();
 
@@ -163,7 +163,7 @@ internal sealed class NarrativeOutcomeIntegrationTests
     [Test]
     public async Task Outcome_FactionRep_UpdatesStanding()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithFactionReputation(FactionId.ImbabaCrew, 20)
             .Build();
 
@@ -176,7 +176,7 @@ internal sealed class NarrativeOutcomeIntegrationTests
     [Test]
     public async Task Outcome_StoryFlag_CanBeChecked()
     {
-        using var session = new GameStateBuilder().Build();
+        var session = new GameStateBuilder().Build();
 
         session.HasStoryFlag("test_flag").Should().BeFalse();
 
@@ -188,7 +188,7 @@ internal sealed class NarrativeOutcomeIntegrationTests
     [Test]
     public async Task Outcome_MotherHealth_ClampsToValidRange()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithMotherHealth(50)
             .Build();
 
@@ -202,7 +202,7 @@ internal sealed class NarrativeOutcomeIntegrationTests
     [Test]
     public async Task Outcome_PolicePressure_ClampsToValidRange()
     {
-        using var session = new GameStateBuilder().Build();
+        var session = new GameStateBuilder().Build();
 
         session.SetPolicePressure(150);
         session.PolicePressure.Should().Be(100);
@@ -214,7 +214,7 @@ internal sealed class NarrativeOutcomeIntegrationTests
     [Test]
     public async Task Outcome_MultipleTargetedEffects_AllAppliedInOrder()
     {
-        using var session = new GameStateBuilder()
+        var session = new GameStateBuilder()
             .WithMoney(100)
             .Build();
 

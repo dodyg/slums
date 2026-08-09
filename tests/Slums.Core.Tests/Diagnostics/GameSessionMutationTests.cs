@@ -12,7 +12,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void Mutations_ShouldBeEmptyOnNewSession()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
 
         session.Mutations.Should().BeEmpty();
     }
@@ -20,7 +20,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void RestAtHome_ShouldRecordMutation_WhenSuccessful()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.World.TravelTo(LocationId.Home);
 
         var result = session.RestAtHome();
@@ -34,7 +34,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void RestAtHome_ShouldRecordGuardRejection_WhenNotAtHome()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.World.TravelTo(LocationId.Market);
 
         var result = session.RestAtHome();
@@ -49,7 +49,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void BuyFood_ShouldRecordMutation_WhenSuccessful()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.World.TravelTo(LocationId.Home);
         session.Player.Stats.ModifyMoney(1000);
 
@@ -64,7 +64,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void BuyFood_ShouldRecordGuardRejection_WhenNotEnoughMoney()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Stats.SetMoney(0);
 
         var result = session.BuyFood();
@@ -79,7 +79,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void EatAtHome_ShouldRecordGuardRejection_WhenNoFood()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         session.Player.Household.SetStaplesUnits(0);
 
         var result = session.EatAtHome();
@@ -94,7 +94,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void EndDay_ShouldRecordDayTransitionMutation()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
 
         session.EndDay();
 
@@ -106,7 +106,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void MutationRecords_ShouldCarryRunId()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
 
         session.EndDay();
 
@@ -116,7 +116,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void MutationRecords_ShouldCaptureBeforeAndAfterStats()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
 
         session.EndDay();
 
@@ -132,7 +132,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void MutationRecorded_ShouldFire_WhenMutationIsRecorded()
     {
-        using var session = new GameSession();
+        var session = new GameSession();
         var eventCount = 0;
         GameMutationEventArgs? capturedArgs = null;
         session.MutationRecorded += (_, e) =>

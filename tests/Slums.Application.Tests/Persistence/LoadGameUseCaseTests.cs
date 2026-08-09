@@ -69,19 +69,12 @@ internal sealed class LoadGameUseCaseTests
 
         var gameSession = loadedSession.TakeGameSession();
 
-        try
-        {
-            loadedSession.Invoking(static session => session.GameSession)
-                .Should()
-                .Throw<InvalidOperationException>();
-            loadedSession.Invoking(static session => session.TakeGameSession())
-                .Should()
-                .Throw<InvalidOperationException>();
-        }
-        finally
-        {
-            gameSession.Dispose();
-        }
+        loadedSession.Invoking(static session => session.GameSession)
+            .Should()
+            .Throw<InvalidOperationException>();
+        loadedSession.Invoking(static session => session.TakeGameSession())
+            .Should()
+            .Throw<InvalidOperationException>();
     }
 
     [Test]

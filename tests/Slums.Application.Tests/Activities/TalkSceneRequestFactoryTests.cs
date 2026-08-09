@@ -12,7 +12,7 @@ internal sealed class TalkSceneRequestFactoryTests
     [Test]
     public void Create_ShouldRecordContactAndConversationHistory()
     {
-        using var gameSession = new GameSession();
+        var gameSession = new GameSession();
         gameSession.World.TravelTo(LocationId.Home);
 
         var context = TalkNpcContext.Create(gameSession);

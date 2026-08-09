@@ -11,7 +11,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnStabilityHonestWork_WhenCriteriaMet()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.Stats.SetMoney(250);
         state.SetDaysSurvived(30);
         state.SetPolicePressure(10);
@@ -25,7 +25,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnNull_WhenCriteriaAreNotMet()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         var ending = EndingService.CheckEndings(state);
 
@@ -35,7 +35,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnArrested_WhenPolicePressureHitsMaximum()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.SetPolicePressure(100);
 
         var ending = EndingService.CheckEndings(state);
@@ -46,7 +46,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnNetworkShelter_WhenCommunityTrustIsHigh()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.SetDaysSurvived(30);
         state.Player.Stats.SetMoney(140);
         state.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.NeighborMona, 40, 1);
@@ -62,7 +62,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnStabilityHonestWork_WhenCrimeStopsAndWorkCarriesYou()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.SetDaysSurvived(30);
         state.SetPolicePressure(30);
         state.SetCrimeCounters(300, 5);
@@ -78,7 +78,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnArrested_WhenCrimeAndPressureStayHigh()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.SetDaysSurvived(30);
         state.SetCrimeCounters(500, 7);
         state.SetPolicePressure(90);
@@ -92,7 +92,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnEviction_WhenUnpaidRentDaysReachesThreshold()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.RestoreRentState(unpaidRentDays: 7, accumulatedRentDebt: 140, firstWarningGiven: true, finalWarningGiven: true);
 
         var ending = EndingService.CheckEndings(state);
@@ -103,7 +103,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task GetInkKnot_ShouldUseBackgroundSpecificVariant_ForStability()
     {
-        using var stabilityState = new GameSession();
+        var stabilityState = new GameSession();
         stabilityState.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
 
         await Assert.That(EndingService.GetInkKnot(stabilityState, EndingId.StabilityHonestWork)).IsEqualTo("ending_stability_sudanese");
@@ -112,7 +112,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task GetInkKnot_ShouldUseBackgroundSpecificVariant_ForLuxorEnding()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
 
         await Assert.That(EndingService.GetInkKnot(state, EndingId.QuitTheLuxorDream)).IsEqualTo("ending_luxor_medical");
@@ -121,7 +121,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task GetInkKnot_ShouldUseStrongestSupportContact_ForNetworkShelter()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.NeighborMona, 20, 1);
         state.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.NurseSalma, 35, 1);
         state.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.CafeOwnerNadia, 22, 1);
@@ -133,7 +133,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task GetInkKnot_ShouldReturnNarrativeScene_ForEveryEnding()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
 
         foreach (var endingId in Enum.GetValues<EndingId>())
         {
@@ -147,7 +147,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldReturnDestitution_WhenLoanSharkDebtIsCritical()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.SetDaysSurvived(15);
         state.Clock.SetTime(15, 8, 0);
         state.PlayerDebts.AddDebt(new PlayerDebt
@@ -169,7 +169,7 @@ internal sealed class EndingServiceTests
     [Test]
     public async Task CheckEndings_ShouldNotReturnDestitution_WhenDebtIsCurrent()
     {
-        using var state = new GameSession();
+        var state = new GameSession();
         state.SetDaysSurvived(15);
         state.Clock.SetTime(15, 8, 0);
         state.PlayerDebts.AddDebt(new PlayerDebt
