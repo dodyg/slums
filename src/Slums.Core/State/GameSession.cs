@@ -1257,7 +1257,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public IReadOnlyList<CrimeAttempt> GetAvailableCrimes()
     {
-        if (CurrentWeather.BlocksCrime)
+        if (GetCrimeBlockReason() is not null)
         {
             return [];
         }
@@ -1299,19 +1299,18 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             crimes.Add(new CrimeAttempt(CrimeType.ShubraBundleLift, 68, 24, 12, 0, 15));
         }
 
-        if (TerritoryDynamicsCalculator.IsCrimeBlocked(Territory, World.CurrentDistrict))
-        {
-            crimes.RemoveAll(static _ => true);
-            RaiseEvent("The streets are too dangerous for any criminal activity right now.");
-        }
-
         return crimes;
     }
 
     public string? GetCrimeBlockReason()
     {
-        return CurrentWeather.BlocksCrime
-            ? WeatherActivityRules.GetCrimeBlockReason(CurrentWeather)
+        if (CurrentWeather.BlocksCrime)
+        {
+            return WeatherActivityRules.GetCrimeBlockReason(CurrentWeather);
+        }
+
+        return TerritoryDynamicsCalculator.IsCrimeBlocked(Territory, World.CurrentDistrict)
+            ? "The streets are too dangerous for any criminal activity right now."
             : null;
     }
 
@@ -1320,12 +1319,12 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         ArgumentNullException.ThrowIfNull(attempt);
 
         var before = CaptureStats();
-        if (CurrentWeather.BlocksCrime)
+        var blockReason = GetCrimeBlockReason();
+        if (blockReason is not null)
         {
-            var reason = WeatherActivityRules.GetCrimeBlockReason(CurrentWeather);
-            var blockedResult = new CrimeResult { Message = reason };
-            RecordMutation(MutationCategories.GuardRejected, "CommitCrime", before, CaptureStats(), reason);
-            RaiseEvent(reason);
+            var blockedResult = new CrimeResult { Message = blockReason };
+            RecordMutation(MutationCategories.GuardRejected, "CommitCrime", before, CaptureStats(), blockReason);
+            RaiseEvent(blockReason);
             return blockedResult;
         }
 

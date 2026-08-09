@@ -103,6 +103,41 @@ internal sealed class TerritoryIntegrationTests
     }
 
     [Test]
+    public async Task GameSession_GetAvailableCrimes_DoesNotRaiseEvent_WhenDangerousTension()
+    {
+        using var session = new GameSession(new Random(42));
+        session.World.TravelTo(LocationId.Market);
+        session.Territory.ModifyTension(DistrictId.Imbaba, 60);
+        var eventsRaised = 0;
+        session.GameEvent += (_, _) => eventsRaised++;
+
+        _ = session.GetAvailableCrimes();
+        _ = session.GetAvailableCrimes();
+
+        await Assert.That(eventsRaised).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task GameSession_CommitCrime_RejectsDirectAttempt_WhenDangerousTension()
+    {
+        using var session = new GameSession(new Random(42));
+        session.World.TravelTo(LocationId.Market);
+        session.Territory.ModifyTension(DistrictId.Imbaba, 60);
+        var moneyBefore = session.Player.Stats.Money;
+        var energyBefore = session.Player.Stats.Energy;
+        var crimesBefore = session.CrimesCommitted;
+        var attempt = new CrimeAttempt(CrimeType.PettyTheft, 30, 20, 10, 0, 5);
+
+        var result = session.CommitCrime(attempt, new Random(1));
+
+        await Assert.That(result.Success).IsFalse();
+        await Assert.That(result.Message).Contains("too dangerous");
+        await Assert.That(session.Player.Stats.Money).IsEqualTo(moneyBefore);
+        await Assert.That(session.Player.Stats.Energy).IsEqualTo(energyBefore);
+        await Assert.That(session.CrimesCommitted).IsEqualTo(crimesBefore);
+    }
+
+    [Test]
     public async Task GameSession_CommitCrime_IncreasesTension()
     {
         using var session = new GameSession(new Random(42));
