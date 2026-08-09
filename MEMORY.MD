@@ -50,6 +50,8 @@ The canonical runtime boundary for an active run. Key state groups:
 - **Progress**: Job progress, event history, story flags, community event attendance, training
 - **Narrative**: Pending scene queue, ending knot
 - **Diagnostics**: Mutation record list with GameMutationRecord entries
+- **EventJournal**: Structured day/source/message journal of events and auto-transactions, persisted with saves and rendered by the UI log
+- **Randomness**: All gameplay randomness flows through the session-owned `GameRandom` (serializable xoshiro256**); save files persist its state so restored runs continue the exact same sequence
 
 ### Time Flow
 

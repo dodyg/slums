@@ -186,6 +186,9 @@ This project uses SadConsole with the SFML host, which depends on CSFML native l
 - On ARM64 Linux, you cannot run `inklecate` directly to compile `.ink` files to `.json`
 - Use the local `inkjs` compiler instead: from `src/Slums.Game`, run `npm run compile-ink`
 - The compiled output is `content/ink/main.json`; if you modify `.ink` source files, regenerate it before building or testing
+- `inkjs` is pinned to `2.4.0` (see `src/Slums.Game/package.json`); its inkVersion 21 output is loaded by `Qyl27.Ink.Engine 1.2.0`
+- `Story` construction is serialized through `InkStoryFactory`: the runtime initializes its static native-function registry non-thread-safely on first construction, so parallel construction can fail with "Failed to convert token to runtime object: =="
+- `StoryArtifactValidationTests` loads the checked-in artifact and traverses every authored knot as a build validation step
 
 ## Testing Expectations
 
