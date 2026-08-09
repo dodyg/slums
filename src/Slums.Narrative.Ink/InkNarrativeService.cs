@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text;
 using Ink.Runtime;
 using Microsoft.Extensions.Logging;
@@ -31,7 +30,7 @@ public sealed class InkNarrativeService : INarrativeService
         LastKnot = knotName;
         _pendingOutcome = null;
         _currentStory = null;
-        var story = InkStoryFactory.Create(LoadStoryResource());
+        var story = InkStoryFactory.Create(InkStoryLoader.LoadStoryJson());
         SyncVariablesToInk(story, sceneState);
         story.ChoosePathString(knotName);
         _currentStory = story;
@@ -299,27 +298,6 @@ public sealed class InkNarrativeService : INarrativeService
         }
 
         story.variablesState[variableName] = value;
-    }
-
-    private static string LoadStoryResource()
-    {
-        var filesystemPath = System.IO.Path.Combine("content", "ink", "main.json");
-        if (File.Exists(filesystemPath))
-        {
-            return File.ReadAllText(filesystemPath);
-        }
-
-        var assembly = Assembly.GetExecutingAssembly();
-        const string resourceName = "Slums.Narrative.Ink.Content.main.json";
-
-        using var stream = assembly.GetManifestResourceStream(resourceName);
-        if (stream is null)
-        {
-            throw new InvalidOperationException($"Could not find Ink story at {filesystemPath} or as embedded resource: {resourceName}");
-        }
-
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
     }
 
     private static NarrativeOutcome MergeOutcome(NarrativeOutcome? existing, NarrativeOutcome next)

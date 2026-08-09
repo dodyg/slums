@@ -77,10 +77,12 @@ public static class PlantRegistry
         ArgumentNullException.ThrowIfNull(definitions);
 
         var configuredDefinitions = definitions.Where(static definition => definition is not null).ToArray();
-        if (configuredDefinitions.Length > 0)
+        if (configuredDefinitions.Length == 0)
         {
-            _definitions = configuredDefinitions;
+            throw new InvalidOperationException("At least one plant definition must be configured.");
         }
+
+        _definitions = configuredDefinitions;
     }
 
     public static PlantDefinition GetByType(PlantType type)

@@ -73,7 +73,7 @@ public sealed class WorldState
             Id = LocationId.Square,
             Name = "Midan Al-Tahrir",
             Description = "The busy central square connecting districts.",
-            District = DistrictId.Dokki,
+            District = DistrictId.DowntownCairo,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
             TravelTimeMinutes = 40,

@@ -80,9 +80,15 @@ public static class BackgroundRegistry
 
     public static Background GetByType(BackgroundType type) => type switch
     {
-        BackgroundType.MedicalSchoolDropout => _backgrounds.FirstOrDefault(static background => background.Type == BackgroundType.MedicalSchoolDropout) ?? DefaultMedicalSchoolDropout,
-        BackgroundType.ReleasedPoliticalPrisoner => _backgrounds.FirstOrDefault(static background => background.Type == BackgroundType.ReleasedPoliticalPrisoner) ?? DefaultReleasedPoliticalPrisoner,
-        BackgroundType.SudaneseRefugee => _backgrounds.FirstOrDefault(static background => background.Type == BackgroundType.SudaneseRefugee) ?? DefaultSudaneseRefugee,
+        BackgroundType.MedicalSchoolDropout => GetConfigured(BackgroundType.MedicalSchoolDropout),
+        BackgroundType.ReleasedPoliticalPrisoner => GetConfigured(BackgroundType.ReleasedPoliticalPrisoner),
+        BackgroundType.SudaneseRefugee => GetConfigured(BackgroundType.SudaneseRefugee),
         _ => throw new ArgumentOutOfRangeException(nameof(type))
     };
+
+    private static Background GetConfigured(BackgroundType type)
+    {
+        return _backgrounds.FirstOrDefault(background => background.Type == type)
+            ?? throw new InvalidOperationException($"No background configured for {type}.");
+    }
 }

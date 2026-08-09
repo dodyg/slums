@@ -184,10 +184,12 @@ public static class InvestmentRegistry
         ArgumentNullException.ThrowIfNull(definitions);
 
         var configuredDefinitions = definitions.Where(static definition => definition is not null).ToArray();
-        if (configuredDefinitions.Length > 0)
+        if (configuredDefinitions.Length == 0)
         {
-            _definitions = configuredDefinitions;
+            throw new InvalidOperationException("At least one investment definition must be configured.");
         }
+
+        _definitions = configuredDefinitions;
     }
 
     private static InvestmentRiskProfile CreateFoulCartRiskProfile() => new()

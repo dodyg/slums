@@ -144,13 +144,13 @@ internal sealed class CrimeMenuStatusQueryTests
         gameState.World.TravelTo(LocationId.Square);
         gameState.World.SetActiveDistrictConditions(
         [
-            new ActiveDistrictCondition { District = DistrictId.Dokki, ConditionId = "dokki_checkpoint_sweep" }
+            new ActiveDistrictCondition { District = DistrictId.DowntownCairo, ConditionId = "downtown_cairo_tourist_surge" }
         ]);
 
         var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
 
         var pettyTheft = statuses.Single(static status => status.Attempt.Type == CrimeType.PettyTheft);
-        pettyTheft.ActiveModifiers.Should().Contain(static text => text.Contains("Checkpoint Sweep", StringComparison.Ordinal));
+        pettyTheft.ActiveModifiers.Should().Contain(static text => text.Contains("Tourist Surge", StringComparison.Ordinal));
         pettyTheft.EffectiveDetectionRisk.Should().BeGreaterThan(25);
     }
 

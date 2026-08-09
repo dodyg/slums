@@ -88,7 +88,7 @@ internal sealed class WorldStateTests
 
         var locations = world.GetLocationsInCurrentDistrict();
 
-        locations.Should().HaveCount(4);
+        locations.Should().HaveCount(3);
         locations.All(l => l.District == DistrictId.Dokki).Should().BeTrue();
     }
 
