@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
+using Slums.Application.Characters;
 using Slums.Core.Characters;
 using Slums.Core.State;
 
@@ -133,8 +134,7 @@ internal sealed class GenderSelectionScreen : ScreenSurface
 
     private void ConfirmSelection()
     {
-        _gameState.Player.ApplyGender(Options[_selectedIndex].Gender);
-        _gameState.ApplyGenderRelationshipModifiers();
+        new SelectGenderCommand().Execute(_gameState, Options[_selectedIndex].Gender);
         ScreenTransition.FadeTo(new BackgroundSelectionScreen(
             GameRuntime.ScreenWidth,
             GameRuntime.ScreenHeight,

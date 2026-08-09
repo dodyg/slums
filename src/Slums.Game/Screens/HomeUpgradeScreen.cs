@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
+using Slums.Application.Home;
 using Slums.Core.Home;
 using Slums.Core.State;
 
@@ -153,7 +154,7 @@ internal sealed class HomeUpgradeScreen : ScreenSurface
         }
 
         var upgrade = availableUpgrades[_selectedIndex];
-        _gameState.TryPurchaseHomeUpgrade(upgrade);
+        new HomeUpgradeCommand().Execute(_gameState, upgrade);
         ReturnToParentScreen();
     }
 

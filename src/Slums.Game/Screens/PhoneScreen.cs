@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
+using Slums.Application.Phone;
 using Slums.Core.State;
 using Slums.Game.Input;
 
@@ -190,22 +191,10 @@ internal sealed class PhoneScreen : ScreenSurface
         }
 
         var entry = _status.Entries[_selectedIndex];
-
-        if (entry.IsTip)
+        var (success, message) = new PhoneActionCommand().Execute(_gameState, entry.Id, entry.IsTip);
+        if (success)
         {
-            var (success, message) = _gameState.AcknowledgeTip(entry.Id);
-            if (success)
-            {
-                _parentScreen.AddEventLogEntry($"Tip acknowledged: {message}");
-            }
-        }
-        else
-        {
-            var (success, message) = _gameState.RespondToMessage(entry.Id);
-            if (success)
-            {
-                _parentScreen.AddEventLogEntry($"Responded to message: {message}");
-            }
+            _parentScreen.AddEventLogEntry(entry.IsTip ? $"Tip acknowledged: {message}" : $"Responded to message: {message}");
         }
 
         RefreshStatus();

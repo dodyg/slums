@@ -219,7 +219,7 @@ internal sealed class GameScreen : ScreenSurface
 
     private bool TryShowPendingNarrativeScene()
     {
-        if (!_gameState.TryDequeueNarrativeScene(out var knotName))
+        if (!new NarrativeQueueCommand().TryDequeueScene(_gameState, out var knotName))
         {
             return false;
         }
@@ -232,7 +232,7 @@ internal sealed class GameScreen : ScreenSurface
 
     private bool TryShowEndingScene()
     {
-        if (!_gameState.TryTakePendingEndingKnot(out var knotName))
+        if (!new NarrativeQueueCommand().TryTakeEndingKnot(_gameState, out var knotName))
         {
             return false;
         }
