@@ -29,14 +29,14 @@ public static class RumorGenerator
     public static Rumor OnExpensivePurchase(DistrictId district, int cost, int day)
     {
         var intensity = cost > 100 ? 7 : 5;
-        return CreateRumor(RumorId.ExpensivePurchase, "Where did she get that money?",
+        return CreateRumor(RumorId.ExpensivePurchase, "Where did that money come from?",
             district, day, intensity, isPositive: false,
             GetNpcsInDistrict(district), trustModifier: -2);
     }
 
     public static Rumor OnSkippingCommunityEvents(int consecutiveSkips, int day)
     {
-        return CreateRumor(RumorId.SkippingCommunityEvents, "She thinks she's too good for the neighborhood",
+        return CreateRumor(RumorId.SkippingCommunityEvents, "Too good for the neighborhood",
             DistrictId.Imbaba, day, intensity: 4, isPositive: false,
             GetNpcsInDistrict(DistrictId.Imbaba), trustModifier: -2);
     }

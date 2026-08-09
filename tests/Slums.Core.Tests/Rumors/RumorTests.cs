@@ -148,6 +148,16 @@ internal sealed class RumorTests
     }
 
     [Test]
+    public async Task RumorGenerator_PlayerRumors_UseIdentityNeutralDescriptions()
+    {
+        var purchase = RumorGenerator.OnExpensivePurchase(DistrictId.Imbaba, 80, 1);
+        var skippedEvents = RumorGenerator.OnSkippingCommunityEvents(3, 1);
+
+        await Assert.That(purchase.SourceAction).IsEqualTo("Where did that money come from?");
+        await Assert.That(skippedEvents.SourceAction).IsEqualTo("Too good for the neighborhood");
+    }
+
+    [Test]
     public async Task RumorPropagator_SpreadsToNpcsOnDay1()
     {
         var rumorState = new RumorState();
