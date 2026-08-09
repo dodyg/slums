@@ -656,6 +656,14 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             return false;
         }
 
+        if (WeatherActivityRules.BlocksTravelTo(CurrentWeather, location.District))
+        {
+            var reason = WeatherActivityRules.GetTravelBlockReason(CurrentWeather, location.District);
+            RecordMutation(MutationCategories.GuardRejected, "TryTravelTo", before, CaptureStats(), reason);
+            RaiseEvent(reason);
+            return false;
+        }
+
         var travelCost = GetTravelCost(location);
         var travelEnergyCost = GetTravelEnergyCost(location);
 
@@ -707,6 +715,14 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         {
             RecordMutation(MutationCategories.GuardRejected, "TryWalkTo", before, CaptureStats(), $"Already at {location.Name}");
             RaiseEvent($"You are already at {location.Name}.");
+            return false;
+        }
+
+        if (WeatherActivityRules.BlocksTravelTo(CurrentWeather, location.District))
+        {
+            var reason = WeatherActivityRules.GetTravelBlockReason(CurrentWeather, location.District);
+            RecordMutation(MutationCategories.GuardRejected, "TryWalkTo", before, CaptureStats(), reason);
+            RaiseEvent(reason);
             return false;
         }
 
@@ -1171,6 +1187,14 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         ArgumentNullException.ThrowIfNull(job);
 
         var before = CaptureStats();
+        if (WeatherActivityRules.BlocksJob(CurrentWeather, job.Type))
+        {
+            var reason = WeatherActivityRules.GetJobBlockReason(CurrentWeather);
+            RecordMutation(MutationCategories.GuardRejected, "WorkJob", before, CaptureStats(), reason);
+            RaiseEvent(reason);
+            return JobResult.Failed(reason);
+        }
+
         var location = World.GetCurrentLocation();
         if (location is null)
         {
@@ -1222,12 +1246,18 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var schedule = GetCurrentSchedule();
         return Jobs.GetAvailableJobs(location, Player, Relationships, JobProgress)
             .Where(job => !schedule.BlockedJobTypes.Contains(job.Type.ToString()))
+            .Where(job => !WeatherActivityRules.BlocksJob(CurrentWeather, job.Type))
             .Select(job => ApplyDayScheduleToJob(ApplyDistrictConditionToJob(job), schedule))
             .ToArray();
     }
 
     public IReadOnlyList<CrimeAttempt> GetAvailableCrimes()
     {
+        if (CurrentWeather.BlocksCrime)
+        {
+            return [];
+        }
+
         var location = World.GetCurrentLocation();
         if (location is null)
         {
@@ -1274,11 +1304,27 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         return crimes;
     }
 
+    public string? GetCrimeBlockReason()
+    {
+        return CurrentWeather.BlocksCrime
+            ? WeatherActivityRules.GetCrimeBlockReason(CurrentWeather)
+            : null;
+    }
+
     public CrimeResult CommitCrime(CrimeAttempt attempt, Random? random = null)
     {
         ArgumentNullException.ThrowIfNull(attempt);
 
         var before = CaptureStats();
+        if (CurrentWeather.BlocksCrime)
+        {
+            var reason = WeatherActivityRules.GetCrimeBlockReason(CurrentWeather);
+            var blockedResult = new CrimeResult { Message = reason };
+            RecordMutation(MutationCategories.GuardRejected, "CommitCrime", before, CaptureStats(), reason);
+            RaiseEvent(reason);
+            return blockedResult;
+        }
+
         var modifierEvaluation = EvaluateCrimeModifiers(attempt);
         var modifiedAttempt = modifierEvaluation.Attempt;
         ApplyCrimeModifierSideEffects(modifierEvaluation.ActiveModifiers);
@@ -1586,6 +1632,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var totalCost = travelCost + clinicCost;
         var currentDay = GetCurrentDayOfWeek();
 
+        var travelBlocked = WeatherActivityRules.BlocksTravelTo(CurrentWeather, location.District);
         return new ClinicTravelOption(
             LocationId: clinicLocationId,
             LocationName: location.Name,
@@ -1597,12 +1644,21 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             OpenDaysSummary: FormatOpenDays(location.ClinicOpenDays),
             TravelTimeMinutes: GetTravelTimeMinutes(location),
             CanAfford: Player.Stats.Money >= totalCost,
-            IsValidOption: true);
+            IsValidOption: !travelBlocked);
     }
 
     public TravelAndClinicVisitResult TravelAndTakeMotherToClinic(LocationId clinicLocationId)
     {
         var before = CaptureStats();
+        var clinicLocation = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == clinicLocationId);
+        if (clinicLocation is not null && WeatherActivityRules.BlocksTravelTo(CurrentWeather, clinicLocation.District))
+        {
+            var reason = WeatherActivityRules.GetTravelBlockReason(CurrentWeather, clinicLocation.District);
+            RecordMutation(MutationCategories.GuardRejected, "TravelAndTakeMotherToClinic", before, CaptureStats(), reason);
+            RaiseEvent(reason);
+            return new TravelAndClinicVisitResult(false, 0, 0, 0, 0);
+        }
+
         var option = GetClinicTravelOption(clinicLocationId);
         if (!option.IsValidOption)
         {
@@ -1710,25 +1766,36 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             return null;
         }
 
+        if (WeatherActivityRules.BlocksTravelTo(CurrentWeather, location.District))
+        {
+            return WeatherActivityRules.GetTravelBlockReason(CurrentWeather, location.District);
+        }
+
+        var summaries = new List<string>();
+        if (CurrentWeather.TravelCostModifier != 0)
+        {
+            summaries.Add($"{WeatherModifiers.GetDisplayName(CurrentWeather.Type)} weather adds {CurrentWeather.TravelCostModifier} LE to transport.");
+        }
+
         var districtCondition = GetActiveDistrictConditionDefinition(location.District);
-        if (districtCondition is null)
+        if (districtCondition is not null)
         {
-            return null;
+            var effect = districtCondition.Effect;
+            if (effect.TravelCostModifier != 0 || effect.TravelTimeMinutesModifier != 0 || effect.TravelEnergyModifier != 0)
+            {
+                summaries.Add($"{districtCondition.Title}: {districtCondition.GameplaySummary}");
+            }
         }
 
-        var effect = districtCondition.Effect;
-        if (effect.TravelCostModifier == 0 && effect.TravelTimeMinutesModifier == 0 && effect.TravelEnergyModifier == 0)
-        {
-            return null;
-        }
-
-        return $"{districtCondition.Title}: {districtCondition.GameplaySummary}";
+        return summaries.Count == 0 ? null : string.Join(" ", summaries);
     }
 
     private int GetTravelCost(Location destination)
     {
         var districtCondition = GetActiveDistrictConditionDefinition(destination.District);
-        var modifiedCost = _locationPricingService.GetTravelCost(destination, Relationships) + (districtCondition?.Effect.TravelCostModifier ?? 0);
+        var modifiedCost = _locationPricingService.GetTravelCost(destination, Relationships)
+            + (districtCondition?.Effect.TravelCostModifier ?? 0)
+            + CurrentWeather.TravelCostModifier;
         return Math.Max(1, modifiedCost);
     }
 
@@ -2792,6 +2859,15 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
                 DetectionRisk = Math.Clamp(modifiedAttempt.DetectionRisk + schedule.CrimeDetectionModifier, 1, 95)
             };
             activeModifiers.Add($"{schedule.DayName}: crime detection {schedule.CrimeDetectionModifier} (schedule effect).");
+        }
+
+        if (CurrentWeather.CrimeDetectionModifier != 0)
+        {
+            modifiedAttempt = modifiedAttempt with
+            {
+                DetectionRisk = Math.Clamp(modifiedAttempt.DetectionRisk + CurrentWeather.CrimeDetectionModifier, 1, 95)
+            };
+            activeModifiers.Add($"{WeatherModifiers.GetDisplayName(CurrentWeather.Type)} weather: crime detection {CurrentWeather.CrimeDetectionModifier:+#;-#;0}.");
         }
 
         return new CrimeModifierEvaluation(modifiedAttempt, activeModifiers);

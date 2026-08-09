@@ -6,6 +6,7 @@ using Slums.Core.Jobs;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.State;
+using Slums.Core.Weather;
 using Slums.Core.World;
 using TUnit.Core;
 
@@ -151,5 +152,21 @@ internal sealed class CrimeMenuStatusQueryTests
         var pettyTheft = statuses.Single(static status => status.Attempt.Type == CrimeType.PettyTheft);
         pettyTheft.ActiveModifiers.Should().Contain(static text => text.Contains("Checkpoint Sweep", StringComparison.Ordinal));
         pettyTheft.EffectiveDetectionRisk.Should().BeGreaterThan(25);
+    }
+
+    [Test]
+    public void GetStatuses_ShouldExplainWeatherWideCrimeClosure()
+    {
+        var query = new CrimeMenuStatusQuery();
+        using var gameState = new GameSession();
+        gameState.World.TravelTo(LocationId.Market);
+        gameState.RestoreWeather(WeatherType.Khamsin);
+
+        var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
+
+        statuses.Should().NotBeEmpty();
+        statuses.Should().OnlyContain(static status => !status.IsAvailable);
+        statuses.Should().OnlyContain(static status =>
+            status.BlockReason != null && status.BlockReason.Contains("khamsin", StringComparison.OrdinalIgnoreCase));
     }
 }

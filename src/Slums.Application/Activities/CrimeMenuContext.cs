@@ -26,6 +26,7 @@ public sealed record CrimeMenuContext(
         CrimeMenuOptionContext[] options = [];
         if (location is not null && location.HasCrimeOpportunities)
         {
+            var globalBlockReason = gameSession.GetCrimeBlockReason();
             var availableByType = gameSession
                 .GetAvailableCrimes()
                 .GroupBy(static attempt => attempt.Type)
@@ -33,7 +34,7 @@ public sealed record CrimeMenuContext(
 
             options = CrimeRegistry
                 .GetCrimeOpportunityStatuses(location, gameSession.Relationships)
-                .Select(status => CreateOption(gameSession, availableByType, status))
+                .Select(status => CreateOption(gameSession, availableByType, status, globalBlockReason))
                 .ToArray();
         }
 
@@ -58,7 +59,8 @@ public sealed record CrimeMenuContext(
     private static CrimeMenuOptionContext CreateOption(
         GameSession gameSession,
         Dictionary<CrimeType, CrimeAttempt> availableByType,
-        CrimeOpportunityStatus status)
+        CrimeOpportunityStatus status,
+        string? globalBlockReason)
     {
         var attempt = availableByType.TryGetValue(status.Attempt.Type, out var availableAttempt)
             ? availableAttempt
@@ -69,6 +71,6 @@ public sealed record CrimeMenuContext(
             gameSession.PreviewCrime(attempt),
             availableByType.ContainsKey(status.Attempt.Type),
             status.IsAvailable,
-            status.BlockReason);
+            globalBlockReason ?? status.BlockReason);
     }
 }
