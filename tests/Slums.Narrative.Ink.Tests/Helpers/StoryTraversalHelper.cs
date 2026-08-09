@@ -12,7 +12,7 @@ internal static class StoryTraversalHelper
         var filesystemPath = System.IO.Path.Combine("content", "ink", "main.json");
         if (File.Exists(filesystemPath))
         {
-            return new Story(File.ReadAllText(filesystemPath));
+            return InkStoryFactory.Create(File.ReadAllText(filesystemPath));
         }
 
         var assembly = typeof(InkNarrativeService).Assembly;
@@ -22,7 +22,7 @@ internal static class StoryTraversalHelper
             ?? throw new InvalidOperationException($"Could not find Ink story resource: {resourceName}");
 
         using var reader = new StreamReader(stream);
-        return new Story(reader.ReadToEnd());
+        return InkStoryFactory.Create(reader.ReadToEnd());
     }
 
     public static IReadOnlyList<string> GetAllKnotNames()

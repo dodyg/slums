@@ -31,7 +31,7 @@ public sealed class InkNarrativeService : INarrativeService
         LastKnot = knotName;
         _pendingOutcome = null;
         _currentStory = null;
-        var story = new Story(LoadStoryResource());
+        var story = InkStoryFactory.Create(LoadStoryResource());
         SyncVariablesToInk(story, sceneState);
         story.ChoosePathString(knotName);
         _currentStory = story;
