@@ -88,6 +88,9 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     public Guid RunId { get => _runState.RunId; private set => _runState.RunId = value; }
 
+    /// <summary>Structured journal of events and automatic transactions, persisted with saves.</summary>
+    public EventJournal EventJournal { get; } = new();
+
     /// <summary>The session-owned random source; all gameplay randomness flows through it.</summary>
     public Random SharedRandom => _sharedRandom;
 
@@ -3090,12 +3093,30 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
     private void RaiseEvent(string message)
     {
+        RaiseEvent(message, EventSource.GameEvent);
+    }
+
+    private void RaiseEvent(string message, EventSource source)
+    {
+        EventJournal.Add(Clock.Day, source, message);
         GameEvent?.Invoke(this, new GameEventArgs(message));
     }
 
     private void RaiseAutoTransaction(string message)
     {
-        RaiseEvent($"[Day {CurrentDay}] {message}");
+        RaiseEvent($"[Day {CurrentDay}] {message}", EventSource.AutoTransaction);
+    }
+
+    /// <summary>Replaces the event journal contents (used when restoring a save).</summary>
+    public void RestoreEventJournal(IEnumerable<EventJournalEntry> entries)
+    {
+        ArgumentNullException.ThrowIfNull(entries);
+
+        EventJournal.Clear();
+        foreach (var entry in entries)
+        {
+            EventJournal.Add(entry.Day, entry.Source, entry.Message);
+        }
     }
 
     public IReadOnlyList<InvestmentDefinition> GetAvailableInvestments()

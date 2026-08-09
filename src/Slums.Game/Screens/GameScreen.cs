@@ -39,6 +39,13 @@ internal sealed class GameScreen : ScreenSurface
         Children.Add(new OverviewWindow(this));
         Children.Add(new StatusPageWindow(this));
         Children.Add(new EventLogWindow(this));
+
+        // Rehydrate the UI log from the persisted journal so a loaded game is not empty.
+        foreach (var entry in _gameState.EventJournal.Entries)
+        {
+            _eventLog.Add(entry.Message);
+        }
+
         _selectedAction = 0;
         IsFocused = true;
         UseMouse = true;
@@ -47,7 +54,7 @@ internal sealed class GameScreen : ScreenSurface
 
     private void OnGameEvent(object? sender, GameEventArgs e)
     {
-        AddEventLogEntry(e.Message);
+        AddToUiLog(e.Message);
     }
 
     public override void Update(TimeSpan delta)
@@ -162,6 +169,12 @@ internal sealed class GameScreen : ScreenSurface
     }
 
     internal void AddEventLogEntry(string message)
+    {
+        _gameState.EventJournal.Add(_gameState.Clock.Day, EventSource.System, message);
+        AddToUiLog(message);
+    }
+
+    private void AddToUiLog(string message)
     {
         _eventLog.Add(message);
         while (_eventLog.Count > GameScreenLayout.MaxEventLogEntries)
