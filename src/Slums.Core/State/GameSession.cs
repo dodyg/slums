@@ -198,6 +198,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
     }
 
+    private bool CanCompleteActivityToday(int durationMinutes)
+    {
+        return DailyActivityWindow.CanComplete(Clock, durationMinutes, EndOfDayHour);
+    }
+
     public void EndDay(Random? random = null)
     {
         var before = CaptureStats();
@@ -666,6 +671,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         var travelCost = GetTravelCost(location);
         var travelEnergyCost = GetTravelEnergyCost(location);
+        var travelTimeMinutes = GetTravelTimeMinutes(location);
 
         if (Player.Stats.Money < travelCost)
         {
@@ -693,11 +699,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             RaiseEvent("Iman's directions keep you off the most exhausting side streets in Shubra.");
         }
 
-        AdvanceTime(GetTravelTimeMinutes(location));
         World.TravelTo(locationId);
 
         RaiseEvent($"Traveled to {location.Name}.");
         RecordMutation(MutationCategories.Travel, "TryTravelTo", before, CaptureStats(), $"Traveled to {location.Name} (cost {travelCost} LE)");
+        AdvanceTime(travelTimeMinutes);
         return true;
     }
 
@@ -745,11 +751,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             RaiseEvent("Dokki's stares follow you the entire way on foot.");
         }
 
-        AdvanceTime(walkTimeMinutes);
         World.TravelTo(locationId);
 
         RaiseEvent($"Walked to {location.Name}. The streets took their toll.");
         RecordMutation(MutationCategories.Travel, "TryWalkTo", before, CaptureStats(), $"Walked to {location.Name}");
+        AdvanceTime(walkTimeMinutes);
         return true;
     }
 
@@ -834,10 +840,9 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             Player.Stats.ModifyEnergy(-activity.EnergyCost);
         }
 
-        AdvanceTime(activity.DurationMinutes);
-
         RaiseEvent(GetEntertainmentFlavorMessage(activity));
         RecordMutation(MutationCategories.Entertainment, "TryPerformEntertainment", before, CaptureStats(), $"{activity.Name} (cost {activity.BaseCost} LE, stress -{activity.StressReduction})");
+        AdvanceTime(activity.DurationMinutes);
         return true;
     }
 
@@ -922,8 +927,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             return false;
         }
 
-        var remainingMinutes = (EndOfDayHour * 60) - (Clock.Hour * 60 + Clock.Minute);
-        if (remainingMinutes < definition.TimeCostMinutes)
+        if (!CanCompleteActivityToday(definition.TimeCostMinutes))
         {
             RaiseEvent("Not enough time in the day for that.");
             RecordMutation(MutationCategories.GuardRejected, "AttendCommunityEvent", before, CaptureStats(), "Not enough time");
@@ -936,7 +940,6 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
 
         Player.Stats.ModifyStress(definition.StressChange);
-        AdvanceTime(definition.TimeCostMinutes);
 
         var trustGained = ApplyCommunityEventTrust(definition, random);
         var backgroundBonus = ApplyBackgroundEventBonus(definition);
@@ -965,6 +968,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         var backgroundMessage = backgroundBonus > 0 ? $" Background bonus: +{backgroundBonus} trust." : "";
         RaiseEvent($"You attend {definition.Name}. Stress {definition.StressChange}.{trustMessage}{backgroundMessage}");
         RecordMutation(MutationCategories.Community, "AttendCommunityEvent", before, CaptureStats(), $"{definition.Name} (stress {definition.StressChange}, trust gained: {trustGained})");
+        AdvanceTime(definition.TimeCostMinutes);
         return true;
     }
 
@@ -1207,7 +1211,6 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         if (result.Success)
         {
             ActivityLedgerSystem.RecordWorkShift(_workState, Clock, job, result);
-            AdvanceTime(job.DurationMinutes);
             if (!result.MistakeMade)
             {
                 ApplySkillGain(GetSkillForJob(job.Type));
@@ -1224,6 +1227,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
             RaiseEvent(result.Message);
             RecordMutation(MutationCategories.Work, "WorkJob", before, CaptureStats(), result.Message);
+            AdvanceTime(job.DurationMinutes);
         }
         else
         {
@@ -1501,6 +1505,8 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             return new MotherClinicVisitResult(false, clinicStatus.VisitCost, 0);
         }
 
+        const int clinicVisitMinutes = 90;
+
         var healthBonus = 0;
         if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout)
         {
@@ -1522,7 +1528,6 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         Player.Stats.ModifyMoney(-clinicStatus.VisitCost);
         Player.Household.UpdateMotherHealth(healthChange);
         Player.Stats.ModifyEnergy(-10);
-        AdvanceTime(90);
         ApplySkillGain(SkillId.Medical);
 
         RaiseEvent($"You take your mother into {clinicStatus.LocationName}. The visit costs {clinicStatus.VisitCost} LE. Her health improves by {healthChange}.");
@@ -1532,6 +1537,7 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
         }
 
         RecordMutation(MutationCategories.Clinic, "TakeMotherToClinic", before, CaptureStats(), $"Clinic visit at {clinicStatus.LocationName} (cost {clinicStatus.VisitCost} LE, health +{healthChange})");
+        AdvanceTime(clinicVisitMinutes);
         return new MotherClinicVisitResult(true, clinicStatus.VisitCost, healthChange);
     }
 
@@ -3745,36 +3751,26 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
             return (false, "Message has expired.");
         }
 
-        if (message.WasMissed)
+        var missedCallCost = message.WasMissed ? 1 : 0;
+        var totalMoneyCost = missedCallCost + message.ResponseMoneyCost;
+        if (Player.Stats.Money < totalMoneyCost)
         {
-            if (Player.Stats.Money < 1)
-            {
-                return (false, "Not enough money to return this missed call (1 LE).");
-            }
-
-            Player.Stats.ModifyMoney(-1);
+            return message.WasMissed && message.ResponseMoneyCost == 0
+                ? (false, "Not enough money to return this missed call (1 LE).")
+                : (false, $"Not enough money (need {totalMoneyCost} LE).");
         }
 
-        if (message.ResponseTimeCost > 0 && Clock.Hour + message.ResponseTimeCost > EndOfDayHour)
+        var responseTimeMinutes = message.ResponseTimeCost * 60;
+        if (!CanCompleteActivityToday(responseTimeMinutes))
         {
             return (false, "Not enough time to respond today.");
         }
 
-        if (message.ResponseMoneyCost > 0 && Player.Stats.Money < message.ResponseMoneyCost)
-        {
-            return (false, $"Not enough money (need {message.ResponseMoneyCost} LE).");
-        }
-
         var before = CaptureStats();
 
-        if (message.ResponseTimeCost > 0)
+        if (totalMoneyCost > 0)
         {
-            Clock.AdvanceHours(message.ResponseTimeCost);
-        }
-
-        if (message.ResponseMoneyCost > 0)
-        {
-            Player.Stats.ModifyMoney(-message.ResponseMoneyCost);
+            Player.Stats.ModifyMoney(-totalMoneyCost);
         }
 
         PhoneMessages.RespondToMessage(messageId);
@@ -3783,6 +3779,11 @@ public sealed class GameSession : IDisposable, INarrativeOutcomeTarget
 
         RecordMutation(MutationCategories.Phone, "RespondToMessage", before, CaptureStats(),
             $"Responded to message from {message.Sender}: {message.Content}");
+
+        if (responseTimeMinutes > 0)
+        {
+            AdvanceTime(responseTimeMinutes);
+        }
 
         return (true, $"Responded to {message.Sender}.");
     }

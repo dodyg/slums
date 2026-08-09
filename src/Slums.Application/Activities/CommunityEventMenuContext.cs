@@ -6,6 +6,7 @@ namespace Slums.Application.Activities;
 public sealed record CommunityEventMenuContext(
     int PlayerMoney,
     int CurrentHour,
+    int CurrentMinute,
     int EndOfDayHour,
     IReadOnlyList<CommunityEventDefinition> AvailableEvents,
     CommunityEventAttendance Attendance)
@@ -17,6 +18,7 @@ public sealed record CommunityEventMenuContext(
         return new CommunityEventMenuContext(
             gameSession.Player.Stats.Money,
             gameSession.Clock.Hour,
+            gameSession.Clock.Minute,
             22,
             gameSession.GetAvailableCommunityEvents(),
             gameSession.EventAttendance);

@@ -13,7 +13,7 @@ public sealed class CommunityEventMenuQuery
             .Select(evt =>
             {
                 var canAfford = context.PlayerMoney >= evt.MoneyCost;
-                var remainingMinutes = (context.EndOfDayHour * 60) - (context.CurrentHour * 60);
+                var remainingMinutes = (context.EndOfDayHour * 60) - ((context.CurrentHour * 60) + context.CurrentMinute);
                 var hasTime = remainingMinutes >= evt.TimeCostMinutes;
                 var alreadyAttended = context.Attendance.AttendedThisWeek.Contains(evt.Id);
                 var canAttend = canAfford && hasTime && !alreadyAttended;
