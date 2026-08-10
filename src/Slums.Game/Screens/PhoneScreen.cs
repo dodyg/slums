@@ -209,24 +209,15 @@ internal sealed class PhoneScreen : ScreenSurface
 
         var entry = _status.Entries[_selectedIndex];
 
-        if (entry.IsTip)
+        var (success, _, trustLoss) = new PhoneIgnoreCommand().Execute(_gameState, entry.Id, entry.IsTip);
+        if (success)
         {
-            var (success, message, trustLoss) = _gameState.IgnoreTipAction(entry.Id);
-            if (success)
-            {
-                var logMsg = trustLoss > 0
+            var logMsg = entry.IsTip
+                ? trustLoss > 0
                     ? $"Ignored tip from {entry.SourceName}. Trust -{trustLoss}."
-                    : $"Ignored tip from {entry.SourceName}.";
-                _parentScreen.AddEventLogEntry(logMsg);
-            }
-        }
-        else
-        {
-            var (success, message, trustLoss) = _gameState.IgnoreMessage(entry.Id);
-            if (success)
-            {
-                _parentScreen.AddEventLogEntry($"Ignored message from {entry.SourceName}.");
-            }
+                    : $"Ignored tip from {entry.SourceName}."
+                : $"Ignored message from {entry.SourceName}.";
+            _parentScreen.AddEventLogEntry(logMsg);
         }
 
         RefreshStatus();
@@ -236,7 +227,7 @@ internal sealed class PhoneScreen : ScreenSurface
     {
         if (_context.PhoneLost)
         {
-            var (success, message) = _gameState.ReplacePhone();
+            var (success, message) = new PhoneReplaceCommand().Execute(_gameState);
             if (success)
             {
                 _parentScreen.AddEventLogEntry($"Phone replaced for {_context.PhoneReplacementCost} LE.");
@@ -248,7 +239,7 @@ internal sealed class PhoneScreen : ScreenSurface
         }
         else if (!_context.PhoneOperational)
         {
-            var (success, message) = _gameState.RefillPhoneCredit();
+            var (success, message) = new PhoneRefillCreditCommand().Execute(_gameState);
             if (success)
             {
                 _parentScreen.AddEventLogEntry($"Phone credit refilled: {message}");
