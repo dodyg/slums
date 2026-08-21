@@ -11,11 +11,12 @@ The repository contains a playable .NET 10 vertical slice with:
 - SadConsole screens for identity and background selection, travel, work, crime, household care, relationships, phone contacts, community activity, training, investments, saving, loading, and endings
 - Ink-driven introductions, recurring conversations, system scenes, route consequences, and ending epilogues
 - a survival loop covering time, nutrition, sleep, rent, household care, health, energy, stress, weather, calendar rhythms, and holidays
-- 13 locations across six Cairo districts, with JSON-authored locations and 12 JSON-authored job definitions
+- 13 locations across six Cairo districts, with JSON-authored locations, 13 JSON-authored job definitions, and a robotics workshop catalog
 - honest-work progression, mistake risk, lockouts, gender/background modifiers, and location-specific job variants
 - consequence-heavy crime routes, district heat, territory tension, faction reputation, rumors, tips, and police pressure
 - 13 recurring NPC relationships, phone messages, community events, debt, NPC economy, and small-business investments
 - JSON snapshot persistence around `GameSession` and `LoadedGameSession`
+- persistent second-hand robotics: three purchasable machine models, spare-part stock, workshop repairs, and scavenging-job wear/recovery
 - eight ending identifiers: four failure outcomes and four good or ambiguous long-term outcomes
 - structured mutation diagnostics and executable TUnit suites for every project layer
 
@@ -118,7 +119,7 @@ Acceptance targets:
 - Authored branching scenes belong in `content/ink/` and must be compiled to `content/ink/main.json` after source edits.
 - C# owns deterministic simulation rules, action guards, calculations, and ending conditions.
 - Ink owns prose, choices, and tagged narrative outcomes.
-- Cairo-specific writing should remain grounded, contemporary, and consistent with the safety constraints in `REQS.md` and `AGENTS.md`.
+- Cairo-specific writing should remain grounded in Cairo 2060: advanced technology exists unevenly alongside older infrastructure, and it must remain consistent with the safety constraints in `REQS.md` and `AGENTS.md`.
 
 ## Validation
 

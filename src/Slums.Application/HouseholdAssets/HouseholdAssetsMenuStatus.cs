@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Robotics;
 
 namespace Slums.Application.HouseholdAssets;
 
@@ -10,4 +11,6 @@ public sealed record HouseholdAssetsMenuStatus(
     string Note,
     PetType? PetType = null,
     PlantType? PlantType = null,
-    Guid? PlantId = null);
+    Guid? PlantId = null,
+    RobotType? RobotType = null,
+    Guid? RobotId = null);

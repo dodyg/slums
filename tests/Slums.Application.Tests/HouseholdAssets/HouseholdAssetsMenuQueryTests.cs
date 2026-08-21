@@ -3,6 +3,7 @@ using Slums.Application.HouseholdAssets;
 using Slums.Core.Characters;
 using Slums.Core.State;
 using Slums.Core.World;
+using Slums.Core.Robotics;
 using TUnit.Core;
 
 namespace Slums.Application.Tests.HouseholdAssets;
@@ -59,5 +60,24 @@ internal sealed class HouseholdAssetsMenuQueryTests
         var statuses = query.GetStatuses(HouseholdAssetsMenuContext.Create(gameState));
 
         statuses.Should().NotContain(static status => status.ActionType == HouseholdAssetActionType.ManageFishTank);
+    }
+
+    [Test]
+    public void GetStatuses_ShouldExposeRoboticsWorkshopCatalogAndRepairs()
+    {
+        var query = new HouseholdAssetsMenuQuery();
+        var gameState = new GameSession();
+        gameState.World.TravelTo(LocationId.Workshop);
+        gameState.Player.Stats.SetMoney(500);
+        gameState.BuyRobot(RobotType.SalvageCrawler);
+        var robot = gameState.Player.Robotics.Robots[0];
+        robot.Damage(30);
+        gameState.Player.Robotics.AddParts(1);
+
+        var statuses = query.GetStatuses(HouseholdAssetsMenuContext.Create(gameState));
+
+        statuses.Should().Contain(static status => status.ActionType == HouseholdAssetActionType.BuyRobotParts);
+        statuses.Should().Contain(static status => status.ActionType == HouseholdAssetActionType.BuyRobot && status.RobotType == RobotType.RepairDrone);
+        statuses.Should().Contain(status => status.ActionType == HouseholdAssetActionType.RepairRobot && status.RobotId == robot.Id && status.CanExecute);
     }
 }

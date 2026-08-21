@@ -8,5 +8,8 @@ public enum HouseholdAssetActionType
     PayPetCare,
     PayPlantCare,
     ManagePlant,
-    ManageFishTank
+    ManageFishTank,
+    BuyRobot,
+    BuyRobotParts,
+    RepairRobot
 }

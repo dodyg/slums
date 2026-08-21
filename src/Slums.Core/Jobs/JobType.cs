@@ -13,5 +13,6 @@ public enum JobType
     LaundryPressing,
     StreetVending,
     FishSorter,
-    MarketPorter
+    MarketPorter,
+    RoboticsScavenging
 }

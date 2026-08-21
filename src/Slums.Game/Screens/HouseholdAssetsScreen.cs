@@ -54,7 +54,7 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface
 
         RenderSelectedDetails();
         Surface.Print(2, Surface.Height - 3, "Arrow keys to select, Enter to act, Escape to cancel", Color.DarkGray);
-        Surface.Print(2, Surface.Height - 2, $"Money: {_gameState.Player.Stats.Money} LE | Pets: {_gameState.Player.HouseholdAssets.Pets.Count} | Plants: {_gameState.Player.HouseholdAssets.Plants.Count}", Color.Gold);
+        Surface.Print(2, Surface.Height - 2, $"Money: {_gameState.Player.Stats.Money} LE | Pets: {_gameState.Player.HouseholdAssets.Pets.Count} | Plants: {_gameState.Player.HouseholdAssets.Plants.Count} | Robots: {_gameState.Player.Robotics.Robots.Count}/{Slums.Core.Robotics.RobotRegistry.MaxOwnedRobots} | Parts: {_gameState.Player.Robotics.Parts}", Color.Gold);
     }
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)
@@ -136,7 +136,7 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface
             return;
         }
 
-        _command.Execute(_gameState, status.ActionType, status.PetType, status.PlantType);
+        _command.Execute(_gameState, status.ActionType, status.PetType, status.PlantType, status.RobotType, status.RobotId);
         ReturnToParentScreen();
     }
 
@@ -174,6 +174,7 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface
         {
             var locationId when locationId == LocationId.PlantShop => "=== Plant Shop ===",
             var locationId when locationId == LocationId.FishMarket => "=== Fish Market ===",
+            var locationId when locationId == LocationId.Workshop => "=== Robotics Workshop ===",
             _ => "=== Pets & Plants ==="
         };
     }
@@ -184,6 +185,7 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface
         {
             var locationId when locationId == LocationId.PlantShop => "Buy plants here. Weekly care and upgrades are handled from home.",
             var locationId when locationId == LocationId.FishMarket => "Buy a fish tank here. Weekly care is handled from home.",
+            var locationId when locationId == LocationId.Workshop => "Abu Samir sells worn 2060 machines, spare parts, and bench repairs. Every scavenging shift adds wear to an operational robot.",
             _ => "Adopt cats, cover weekly care, manage fish tank upgrades, and manage plant upgrades from home."
         };
     }

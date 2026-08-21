@@ -23,6 +23,7 @@ using Slums.Core.Economy;
 using Slums.Core.World;
 using Slums.Core.Phone;
 using Slums.Core.Information;
+using Slums.Core.Robotics;
 
 using Slums.Core.Randomness;
 using Slums.Core.Diagnostics;
@@ -55,7 +56,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
     {
         Clock = new GameClock();
         _playerIdentity = new PlayerIdentityState();
-        Player = new PlayerCharacter(_playerIdentity, new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new HouseholdAssetsState(), new SkillState());
+        Player = new PlayerCharacter(_playerIdentity, new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new HouseholdAssetsState(), new SkillState(), new RoboticsState());
         World = new WorldState();
         Relationships = new RelationshipState();
         JobProgress = new JobProgressState();
@@ -1246,6 +1247,21 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
             ApplyWorkCrimeSpillover(job, result);
             ApplyBackgroundWorkFlavor(job, result);
+            if (job.Type == JobType.RoboticsScavenging)
+            {
+                if (Player.Robotics.CanBuyParts(1))
+                {
+                    Player.Robotics.AddParts(1);
+                    RaiseEvent("You salvage one usable board or actuator from the pile. Robot parts +1.");
+                }
+
+                var workingRobot = Player.Robotics.Robots.FirstOrDefault(static robot => robot.IsOperational);
+                if (workingRobot is not null)
+                {
+                    workingRobot.Damage(10);
+                    RaiseEvent($"The {RobotRegistry.GetByType(workingRobot.Type).Name} takes wear on the scavenging run. Condition: {workingRobot.Condition}%.");
+                }
+            }
             TerritoryDynamicsCalculator.ApplyHonestWorkImpact(Territory, World.CurrentDistrict);
 
             RaiseEvent(result.Message);
@@ -1863,8 +1879,9 @@ public sealed class GameSession : INarrativeOutcomeTarget
     {
         return World.CurrentLocationId == LocationId.FishMarket
             || World.CurrentLocationId == LocationId.PlantShop
+            || World.CurrentLocationId == LocationId.Workshop
             || (World.CurrentLocationId == LocationId.Home
-                && (Player.HouseholdAssets.HasAnyAssets || Player.HouseholdAssets.HasStreetCatEncounter));
+                && (Player.HouseholdAssets.HasAnyAssets || Player.HouseholdAssets.HasStreetCatEncounter || Player.Robotics.HasAnyRobots));
     }
 
     public bool AdoptStreetCat()
@@ -1950,6 +1967,129 @@ public sealed class GameSession : INarrativeOutcomeTarget
         Player.HouseholdAssets.BuyPlant(plantType, Clock.Day, CurrentWeek);
         RaiseEvent($"You buy {definition.Name} for {definition.OneTimeCost} LE and carry it back home.");
         RecordMutation(MutationCategories.HouseholdAsset, "BuyPlant", before, CaptureStats(), $"Bought {definition.Name} for {definition.OneTimeCost} LE");
+        return true;
+    }
+
+    public bool BuyRobot(RobotType robotType)
+    {
+        var before = CaptureStats();
+        if (World.CurrentLocationId != LocationId.Workshop)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "BuyRobot", before, CaptureStats(), "Not at workshop");
+            RaiseEvent("Abu Samir only sells machines from the workshop bench.");
+            return false;
+        }
+
+        var definition = RobotRegistry.GetByType(robotType);
+        if (!Player.Robotics.CanPurchaseRobot)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "BuyRobot", before, CaptureStats(), "Robot limit reached");
+            RaiseEvent($"The flat and the alley can only support {RobotRegistry.MaxOwnedRobots} machines at once.");
+            return false;
+        }
+
+        if (Player.Robotics.Robots.Any(robot => robot.Type == robotType))
+        {
+            RecordMutation(MutationCategories.GuardRejected, "BuyRobot", before, CaptureStats(), "Already own this robot model");
+            RaiseEvent($"You already own a {definition.Name}.");
+            return false;
+        }
+
+        if (Player.Stats.Money < definition.PurchaseCost)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "BuyRobot", before, CaptureStats(), $"Not enough money (need {definition.PurchaseCost} LE)");
+            RaiseEvent($"You need {definition.PurchaseCost} LE for the {definition.Name}; the seller will not extend credit.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-definition.PurchaseCost);
+        Player.Robotics.PurchaseRobot(robotType, Clock.Day);
+        RaiseEvent($"You buy a {definition.Name} for {definition.PurchaseCost} LE. It works, but its warranty expired years ago.");
+        RecordMutation(MutationCategories.HouseholdAsset, "BuyRobot", before, CaptureStats(), $"Bought {definition.Name} for {definition.PurchaseCost} LE");
+        return true;
+    }
+
+    public bool BuyRobotParts(int quantity = 1)
+    {
+        var before = CaptureStats();
+        if (World.CurrentLocationId != LocationId.Workshop)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "BuyRobotParts", before, CaptureStats(), "Not at workshop");
+            RaiseEvent("You need Abu Samir's workshop bench to buy robot parts.");
+            return false;
+        }
+
+        if (quantity <= 0)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
+        }
+
+        var cost = quantity * RobotRegistry.PartsPurchaseCost;
+        if (!Player.Robotics.CanBuyParts(quantity))
+        {
+            RecordMutation(MutationCategories.GuardRejected, "BuyRobotParts", before, CaptureStats(), "Parts storage limit reached");
+            RaiseEvent($"You can carry at most {RobotRegistry.MaxParts} spare robot parts in the flat.");
+            return false;
+        }
+
+        if (Player.Stats.Money < cost)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "BuyRobotParts", before, CaptureStats(), $"Not enough money (need {cost} LE)");
+            RaiseEvent($"You need {cost} LE for {quantity} robot part{(quantity == 1 ? string.Empty : "s")}.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-cost);
+        Player.Robotics.AddParts(quantity);
+        RaiseEvent($"You buy {quantity} robot part{(quantity == 1 ? string.Empty : "s")} for {cost} LE and wrap them against the dust.");
+        RecordMutation(MutationCategories.HouseholdAsset, "BuyRobotParts", before, CaptureStats(), $"Bought {quantity} robot parts for {cost} LE");
+        return true;
+    }
+
+    public bool RepairRobot(Guid robotId)
+    {
+        var before = CaptureStats();
+        if (World.CurrentLocationId != LocationId.Workshop)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "RepairRobot", before, CaptureStats(), "Not at workshop");
+            RaiseEvent("Repairs have to happen at Abu Samir's workshop bench.");
+            return false;
+        }
+
+        var robot = Player.Robotics.GetRobot(robotId);
+        if (robot is null)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "RepairRobot", before, CaptureStats(), "Robot not found");
+            RaiseEvent("You cannot repair a machine that is not yours.");
+            return false;
+        }
+
+        if (robot.Condition >= 100)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "RepairRobot", before, CaptureStats(), "Robot already fully repaired");
+            RaiseEvent("That machine is already running as well as its old parts allow.");
+            return false;
+        }
+
+        if (Player.Robotics.Parts <= 0)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "RepairRobot", before, CaptureStats(), "No robot parts");
+            RaiseEvent("You need at least one spare robot part before Abu Samir will open the casing.");
+            return false;
+        }
+
+        var definition = RobotRegistry.GetByType(robot.Type);
+        if (Player.Stats.Money < definition.RepairCost)
+        {
+            RecordMutation(MutationCategories.GuardRejected, "RepairRobot", before, CaptureStats(), $"Not enough money (need {definition.RepairCost} LE)");
+            RaiseEvent($"Bench time and solder cost {definition.RepairCost} LE, even when you bring the part.");
+            return false;
+        }
+
+        Player.Stats.ModifyMoney(-definition.RepairCost);
+        Player.Robotics.TryRepairRobot(robotId);
+        RaiseEvent($"Abu Samir uses one spare part to bring your {definition.Name} up to {robot.Condition}% condition.");
+        RecordMutation(MutationCategories.HouseholdAsset, "RepairRobot", before, CaptureStats(), $"Repaired {definition.Name} for {definition.RepairCost} LE and one part");
         return true;
     }
 
@@ -2472,9 +2612,12 @@ public sealed class GameSession : INarrativeOutcomeTarget
         IEnumerable<OwnedPlant> plants,
         bool hasStreetCatEncounter,
         int lastStreetCatEncounterDay,
-        int totalHerbEarnings)
+        int totalHerbEarnings,
+        IEnumerable<OwnedRobot>? robots = null,
+        int robotParts = 0)
     {
         Player.HouseholdAssets.Restore(pets, plants, hasStreetCatEncounter, lastStreetCatEncounterDay, totalHerbEarnings);
+        Player.Robotics.Restore(robots ?? [], robotParts);
     }
 
     public void RestoreRamadanState(bool isActive, bool playerIsFasting, int daysFasting, int daysRemaining)

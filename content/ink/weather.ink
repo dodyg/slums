@@ -3,7 +3,7 @@
 === event_khamsin ===
 The sky turns the color of old brass. By noon the wind has teeth — fine sand that finds every gap in the window frame, every crack in the door, every soft membrane it can reach. The city does not stop. Cairo never stops. But it moves differently under khamsin: slower, angrier, eyes narrowed against a world turned abrasive.
 
-Your mother pulls the thin curtain across her face and breathes through cloth. The electricity flickers twice. Outside, a fruit cart overturns and nobody bothers to pick it up.
+Your mother pulls the thin curtain across her face and breathes through cloth. The rooftop portable reactor drops to reserve. Delivery drones abandon their lanes and land wherever they can. Outside, a fruit cart overturns and nobody bothers to pick it up.
 
 *   [Stay inside and seal the gaps]
     You stuff newspaper into the window frames and hang a wet sheet across the door. The apartment becomes a cave, dark and close, but the sand stays mostly outside. Your mother coughs less. By afternoon, the two of you sit in the dim quiet listening to the wind scream itself tired.
@@ -94,7 +94,7 @@ Your mother puts her hand over yours. She does not say anything. She does not ha
 === event_heatwave ===
 The heat does not arrive. It was always there, waiting under the surface of the city like something buried and angry. By ten in the morning, the air in the flat is thick enough to chew. The fan pushes hot air from one corner to another without cooling anything.
 
-Your mother lies still on her mattress with a wet cloth on her forehead. The fridge hums its useless complaint. Outside, the street has gone quiet in the way that Cairo only goes quiet when the sun becomes personal.
+Your mother lies still on her mattress with a wet cloth on her forehead. The salvaged cooling unit hums its useless complaint. Outside, autonomous EVs have been ordered off the road and the street has gone quiet in the way that Cairo only goes quiet when the sun becomes personal.
 
 *   [Stay inside and manage the heat as best you can]
     You keep the curtains drawn, the windows sealed, and the wet cloths coming. The apartment becomes a dim, still cave where the only movement is the slow rotation of the fan and the slower rise and fall of your mother's chest. You watch her and count the hours until evening.

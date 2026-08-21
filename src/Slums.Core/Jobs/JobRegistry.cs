@@ -6,7 +6,7 @@ public static class JobRegistry
     {
         Type = JobType.BakeryWork,
         Name = "Bakery Work (Forn)",
-        Description = "Work at Al-Forn Al-Baladi baking bread",
+        Description = "Work at Al-Forn Al-Baladi beside adaptive ovens, drone-fed flour bins, and an old reactor cell that keeps the bread line running",
         BasePay = 19,
         EnergyCost = 25,
         StressCost = 5,
@@ -19,7 +19,7 @@ public static class JobRegistry
     {
         Type = JobType.HouseCleaning,
         Name = "House Cleaning",
-        Description = "Clean homes for families in the neighbourhood",
+        Description = "Clean homes where service AIs are too expensive, locked out of aging apartments, or unable to reach the corners",
         BasePay = 16,
         EnergyCost = 32,
         StressCost = 10,
@@ -32,7 +32,7 @@ public static class JobRegistry
     {
         Type = JobType.CallCenterWork,
         Name = "Call Center Shift",
-        Description = "Handle customer calls at TechConnect",
+        Description = "Handle customer calls while TechConnect's persistent AI scores every response",
         BasePay = 25,
         EnergyCost = 15,
         StressCost = 20,
@@ -45,7 +45,7 @@ public static class JobRegistry
     {
         Type = JobType.ClinicReception,
         Name = "Clinic Reception Shift",
-        Description = "Check in patients and keep the queue moving at Rahma Clinic",
+        Description = "Check in patients, read cracked diagnostic displays, and keep the queue moving at Rahma Clinic",
         BasePay = 22,
         EnergyCost = 18,
         StressCost = 14,
@@ -71,7 +71,7 @@ public static class JobRegistry
     {
         Type = JobType.CafeService,
         Name = "Cafe Service",
-        Description = "Carry tea trays and clear tables at Ahwa El-Galaa",
+        Description = "Carry tea trays beneath a restricted autonomous-vehicle lane while the cafe's ordering AI quietly rates every table",
         BasePay = 20,
         EnergyCost = 20,
         StressCost = 10,
@@ -84,7 +84,7 @@ public static class JobRegistry
     {
         Type = JobType.PharmacyStock,
         Name = "Pharmacy Stock Shift",
-        Description = "Sort deliveries, restock shelves, and keep prices straight at Saidaleya Al-Nahda",
+        Description = "Sort medicine deliveries, restock shelves, and explain why cybernetic care is not covered at Saidaleya Al-Nahda",
         BasePay = 21,
         EnergyCost = 16,
         StressCost = 12,
@@ -96,8 +96,8 @@ public static class JobRegistry
     private static readonly JobShift DefaultMicrobusDispatch = new()
     {
         Type = JobType.MicrobusDispatch,
-        Name = "Microbus Dispatch",
-        Description = "Call routes, load passengers, and keep tempers under control at the Bulaq depot",
+        Name = "Autonomous EV Dispatch",
+        Description = "Correct fleet-AI routes, load passengers, and keep tempers under control at the Bulaq depot",
         BasePay = 23,
         EnergyCost = 24,
         StressCost = 16,
@@ -110,7 +110,7 @@ public static class JobRegistry
     {
         Type = JobType.LaundryPressing,
         Name = "Laundry Pressing Shift",
-        Description = "Press shirts, fold sheets, and survive the heat at Shubra Steam Laundry",
+        Description = "Press shirts, supervise half-broken folding arms, and survive the battery heat at Shubra Steam Laundry",
         BasePay = 20,
         EnergyCost = 28,
         StressCost = 9,
@@ -123,7 +123,7 @@ public static class JobRegistry
     {
         Type = JobType.StreetVending,
         Name = "Street Vendor Shift",
-        Description = "Set up a folding table outside Midan Al-Tahrir and sell phone cases, chargers, and cheap accessories to commuters.",
+        Description = "Set up a folding table outside Midan Al-Tahrir and sell phone cases, drone batteries, and cheap accessories to commuters.",
         BasePay = 17,
         EnergyCost = 22,
         StressCost = 12,
@@ -136,7 +136,7 @@ public static class JobRegistry
     {
         Type = JobType.FishSorter,
         Name = "Fish Sorting Shift",
-        Description = "Gut, scale, and sort the morning catch at Wikalet Al-Samak before the ice melts and the fishwives lose patience.",
+        Description = "Gut, scale, and sort the morning catch at Wikalet Al-Samak before the cooling cells fail and the fishwives lose patience.",
         BasePay = 18,
         EnergyCost = 28,
         StressCost = 8,
@@ -149,7 +149,7 @@ public static class JobRegistry
     {
         Type = JobType.MarketPorter,
         Name = "Market Porter Shift",
-        Description = "Haul crates, stack sacks, and carry what vendors cannot between the narrow market aisles.",
+        Description = "Haul crates, stack ration sacks, and move deliveries the market drones cannot safely bring through the narrow aisles.",
         BasePay = 17,
         EnergyCost = 30,
         StressCost = 7,
@@ -158,7 +158,20 @@ public static class JobRegistry
         PayVariance = 4
     };
 
-    private static IReadOnlyList<JobShift> _jobs = [DefaultBakeryWork, DefaultHouseCleaning, DefaultCallCenterWork, DefaultClinicReception, DefaultWorkshopSewing, DefaultCafeService, DefaultPharmacyStock, DefaultMicrobusDispatch, DefaultLaundryPressing, DefaultStreetVending, DefaultFishSorter, DefaultMarketPorter];
+    private static readonly JobShift DefaultRoboticsScavenging = new()
+    {
+        Type = JobType.RoboticsScavenging,
+        Name = "Robotics Scavenging Shift",
+        Description = "Strip failed delivery drones, dead inspection crawlers, and obsolete street hardware for reusable parts at Abu Samir's workshop.",
+        BasePay = 24,
+        EnergyCost = 24,
+        StressCost = 11,
+        DurationMinutes = 420,
+        MinEnergyRequired = 30,
+        PayVariance = 6
+    };
+
+    private static IReadOnlyList<JobShift> _jobs = [DefaultBakeryWork, DefaultHouseCleaning, DefaultCallCenterWork, DefaultClinicReception, DefaultWorkshopSewing, DefaultCafeService, DefaultPharmacyStock, DefaultMicrobusDispatch, DefaultLaundryPressing, DefaultStreetVending, DefaultFishSorter, DefaultMarketPorter, DefaultRoboticsScavenging];
 
     public static JobShift BakeryWork => GetJobByType(JobType.BakeryWork) ?? DefaultBakeryWork;
 
@@ -183,6 +196,8 @@ public static class JobRegistry
     public static JobShift FishSorter => GetJobByType(JobType.FishSorter) ?? DefaultFishSorter;
 
     public static JobShift MarketPorter => GetJobByType(JobType.MarketPorter) ?? DefaultMarketPorter;
+
+    public static JobShift RoboticsScavenging => GetJobByType(JobType.RoboticsScavenging) ?? DefaultRoboticsScavenging;
 
     public static IReadOnlyList<JobShift> AllJobs => _jobs;
 

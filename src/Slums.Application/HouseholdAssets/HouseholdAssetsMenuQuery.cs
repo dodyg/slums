@@ -1,5 +1,6 @@
 using Slums.Core.Characters;
 using Slums.Core.World;
+using Slums.Core.Robotics;
 
 namespace Slums.Application.HouseholdAssets;
 
@@ -44,6 +45,11 @@ public sealed class HouseholdAssetsMenuQuery
                     BuildPlantPurchaseNote(definition, context.Assets.CanBuyPlant),
                     PlantType: definition.Type));
             }
+        }
+
+        if (context.CurrentLocationId == LocationId.Workshop)
+        {
+            AddRoboticsWorkshopStatuses(context, statuses);
         }
 
         return statuses;
@@ -117,6 +123,45 @@ public sealed class HouseholdAssetsMenuQuery
                 true,
                 BuildFishTankManageNote(fishDefinition, fishTank, context.CurrentWeek),
                 PetType.Fish));
+        }
+    }
+
+    private static void AddRoboticsWorkshopStatuses(HouseholdAssetsMenuContext context, List<HouseholdAssetsMenuStatus> statuses)
+    {
+        statuses.Add(new HouseholdAssetsMenuStatus(
+            HouseholdAssetActionType.BuyRobotParts,
+            "Buy Robot Part",
+            $"{RobotRegistry.PartsPurchaseCost} LE each | stock {context.Robotics.Parts}/{RobotRegistry.MaxParts}",
+            context.Robotics.CanBuyParts(1) && context.Money >= RobotRegistry.PartsPurchaseCost,
+            "Spare boards, actuators, and seals are mixed together. One part restores one repair step."));
+
+        foreach (var definition in RobotRegistry.AllDefinitions.OrderBy(static robot => robot.PurchaseCost))
+        {
+            var alreadyOwned = context.Robotics.Robots.Any(robot => robot.Type == definition.Type);
+            statuses.Add(new HouseholdAssetsMenuStatus(
+                HouseholdAssetActionType.BuyRobot,
+                $"Buy {definition.Name}",
+                $"{definition.PurchaseCost} LE | max {RobotRegistry.MaxOwnedRobots} robots",
+                !alreadyOwned && context.Robotics.CanPurchaseRobot && context.Money >= definition.PurchaseCost,
+                alreadyOwned ? "You already own this model." : definition.Description,
+                RobotType: definition.Type));
+        }
+
+        foreach (var robot in context.Robotics.Robots)
+        {
+            var definition = RobotRegistry.GetByType(robot.Type);
+            statuses.Add(new HouseholdAssetsMenuStatus(
+                HouseholdAssetActionType.RepairRobot,
+                $"Repair {definition.Name}",
+                $"condition {robot.Condition}% | {definition.RepairCost} LE + 1 part",
+                context.Robotics.CanRepairRobot(robot.Id) && context.Money >= definition.RepairCost,
+                robot.Condition >= 100
+                    ? "Already fully repaired."
+                    : context.Robotics.Parts <= 0
+                        ? "Buy a spare part first."
+                        : $"Abu Samir can restore up to {definition.RepairCondition} condition per part.",
+                RobotType: robot.Type,
+                RobotId: robot.Id));
         }
     }
 

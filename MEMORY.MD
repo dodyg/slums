@@ -4,7 +4,7 @@ This document explains the game architecture and simulation mechanics for future
 
 ## Project Overview
 
-**Slums** is a text-driven survival RPG set in contemporary Cairo slums. The player chooses Amira, a young woman, or Karim, a young man (both 20-29), then selects a life background. The protagonist must balance survival needs, care for a widowed mother, and navigate moral choices between honest underpaid work and risky criminal activity.
+**Slums** is a text-driven survival RPG set in the Cairo slums of 2060. Cybernetics, electronic drones, autonomous EVs, portable nuclear power, and persistent AI are widespread but unevenly accessible. The player chooses Amira, a young woman, or Karim, a young man (both 20-29), then selects a life background. The protagonist must balance survival needs, care for a widowed mother, and navigate moral choices between honest underpaid work and risky criminal activity.
 
 ## Solution Architecture
 
@@ -23,7 +23,7 @@ tests/
   Slums.Narrative.Ink.Tests/
 content/
   ink/                  # .ink source files, compiled to main.json
-  data/                 # JSON: backgrounds, jobs, locations, random_events, district_conditions, plants, pets
+  data/                 # JSON: backgrounds, jobs, locations, random_events, district_conditions, plants, pets, robots
 ```
 
 **Dependency Direction**: Always inward. `Slums.Core` references nothing. UI never contains business logic.
@@ -112,6 +112,7 @@ The canonical runtime boundary for an active run. Key state groups:
 **HouseholdAssetsState**:
 - Pets: up to 3 cats or fish tanks, passive mother health bonus
 - Plants: up to 10 plants (15 types across culinary herbs, sellable herbs, flowers, medicinal)
+- **RoboticsState**: up to three distinct second-hand robots, each with condition; spare parts are capped and persisted
 - Weekly care costs deducted automatically; neglect pauses bonuses but nothing dies
 - Sellable herbs generate harvest income automatically
 
@@ -181,7 +182,7 @@ Egyptian week (Saturday-Friday). `GameClock.GetDayOfWeek()` derives day from cal
 
 ## Seasonal Calendar
 
-Game starts October 1, 2024. Seasons determine weather probabilities, food costs, energy drain, and more.
+Game starts October 1, 2060. Seasons determine weather probabilities, food costs, energy drain, and more.
 
 | Season | Key Effects |
 |---|---|
@@ -213,8 +214,10 @@ Each day rolls weather based on season via `WeatherRoller`. 7 types:
 
 ## Honest Work System
 
-### Job Types (12)
-BakeryWork, HouseCleaning, CallCenterWork, ClinicReception, WorkshopSewing, CafeService, PharmacyStock, MicrobusDispatch, LaundryPressing, StreetVending, FishSorter, MarketPorter
+### Job Types (13)
+BakeryWork, HouseCleaning, CallCenterWork, ClinicReception, WorkshopSewing, RoboticsScavenging, CafeService, PharmacyStock, MicrobusDispatch, LaundryPressing, StreetVending, FishSorter, MarketPorter
+
+`RoboticsScavenging` is a real honest-work shift at Abu Samir's Workshop. A successful shift pays wages and recovers one usable robot part when storage has room; an operational owned robot takes wear during the shift. Robots, parts, and repairs are purchased through the workshop shop flow. Repairs consume one part plus the model's bench fee and restore model-specific condition.
 
 ### Job Variants
 Each job has multiple variants unlocked by:

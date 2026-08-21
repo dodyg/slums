@@ -2,7 +2,7 @@ namespace Slums.Core.Calendar;
 
 public sealed class GameCalendar
 {
-    private static readonly DateOnly StartDate = new(2024, 10, 1);
+    private static readonly DateOnly StartDate = new(2060, 10, 1);
 
     public static DateOnly GetDate(int gameDay)
     {

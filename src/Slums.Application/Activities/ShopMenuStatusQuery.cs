@@ -48,6 +48,7 @@ public sealed class ShopMenuStatusQuery
         {
             var locationId when locationId == LocationId.PlantShop => "Buy Plants",
             var locationId when locationId == LocationId.FishMarket => "Buy Fish Tank",
+            var locationId when locationId == LocationId.Workshop => "Robotics Workshop",
             _ => "Pets & Plants"
         };
     }
@@ -62,6 +63,8 @@ public sealed class ShopMenuStatusQuery
                 $"Open the household-assets catalog for {locationName} to buy herbs, flowers, and aloe.",
             var locationId when locationId == LocationId.FishMarket =>
                 $"Open the household-assets catalog for {locationName} to purchase the fish tank.",
+            var locationId when locationId == LocationId.Workshop =>
+                $"Buy second-hand robots, spare parts, and repairs at {locationName}.",
             _ =>
                 "Open the household-assets screen to adopt cats, cover weekly care, or manage plant upgrades."
         };

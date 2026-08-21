@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Slums.Core.Characters;
 using Slums.Core.Jobs;
 using Slums.Core.World;
+using Slums.Core.Robotics;
 using Slums.Infrastructure.Content;
 using TUnit.Core;
 
@@ -111,6 +112,17 @@ internal sealed class JsonContentRepositoryTests
         var jobs = repository.LoadJobs();
 
         jobs.Select(static job => job.Type).Should().BeEquivalentTo(Enum.GetValues<JobType>());
+    }
+
+    [Test]
+    public void LoadRobots_FromRepositoryContent_ShouldContainEveryRobotType()
+    {
+        var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, GetRepositoryContentDirectory());
+
+        var robots = repository.LoadRobots();
+
+        robots.Select(static robot => robot.Type).Should().BeEquivalentTo(Enum.GetValues<RobotType>());
+        robots.Should().Contain(static robot => robot.Name == "Salvage Crawler");
     }
 
     [Test]

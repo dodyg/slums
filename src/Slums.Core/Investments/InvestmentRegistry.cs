@@ -115,7 +115,7 @@ public static class InvestmentRegistry
         {
             Type = InvestmentType.PhoneChargingStation,
             Name = "Phone Charging Station",
-            Description = "Sell phone charges to microbus drivers and depot travelers",
+            Description = "Sell phone charges to autonomous EV operators and depot travelers",
             RiskLabel = "Low-Medium",
             Cost = 160,
             WeeklyIncomeMin = 8,

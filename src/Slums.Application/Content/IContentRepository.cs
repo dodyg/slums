@@ -2,6 +2,7 @@ using Slums.Core.Characters;
 using Slums.Core.Events;
 using Slums.Core.Jobs;
 using Slums.Core.World;
+using Slums.Core.Robotics;
 
 namespace Slums.Application.Content;
 
@@ -20,4 +21,6 @@ public interface IContentRepository
     public IReadOnlyList<PetDefinition> LoadPets();
 
     public IReadOnlyList<PlantDefinition> LoadPlants();
+
+    public IReadOnlyList<RobotDefinition> LoadRobots();
 }

@@ -1,6 +1,6 @@
 # slums
 
-Slums is a text-driven RPG about survival in Cairo, built with SadConsole, Ink, and .NET 10.
+Slums is a text-driven RPG about survival in Cairo 2060, built with SadConsole, Ink, and .NET 10. Cybernetics, electronic drones, autonomous EVs, portable nuclear power, and persistent AI shape the city, but the slums experience them through unequal access, surveillance, repairs, and unreliable infrastructure.
 
 The current project includes:
 

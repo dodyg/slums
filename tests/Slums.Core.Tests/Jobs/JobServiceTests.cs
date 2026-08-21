@@ -36,8 +36,8 @@ internal sealed class JobServiceTests
 
         var jobs = service.GetAvailableJobs(location, player, relationships, progress).ToList();
 
-        jobs.Should().ContainSingle();
-        jobs[0].Type.Should().Be(JobType.WorkshopSewing);
+        jobs.Should().HaveCount(2);
+        jobs.Select(static job => job.Type).Should().Contain([JobType.WorkshopSewing, JobType.RoboticsScavenging]);
     }
 
     [Test]
@@ -99,8 +99,8 @@ internal sealed class JobServiceTests
 
         var jobs = service.GetAvailableJobs(location, player, relationships, progress).ToList();
 
-        jobs.Should().ContainSingle();
-        jobs[0].Name.Should().Be("Workshop Finishing Table");
+        jobs.Should().Contain(static job => job.Type == JobType.WorkshopSewing);
+        jobs.Single(static job => job.Type == JobType.WorkshopSewing).Name.Should().Be("Workshop Finishing Table");
     }
 
     [Test]
@@ -309,6 +309,17 @@ internal sealed class JobServiceTests
 
         canPerform.Should().BeFalse();
         reason.Should().Contain("not available");
+    }
+
+    [Test]
+    public void GetAvailableJobs_ShouldExposeRoboticsScavengingAtWorkshop()
+    {
+        var service = new JobService();
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Workshop);
+        var jobs = service.GetAvailableJobs(location, new PlayerCharacter(), new RelationshipState(), new JobProgressState()).ToList();
+
+        jobs.Should().ContainSingle(static job => job.Type == JobType.RoboticsScavenging);
+        jobs.Single(static job => job.Type == JobType.RoboticsScavenging).Description.Should().Contain("failed delivery drones");
     }
 
     [Test]

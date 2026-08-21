@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Slums.Core.Characters;
 using Slums.Core.Jobs;
 using Slums.Core.World;
+using Slums.Core.Robotics;
 
 namespace Slums.Infrastructure.Content;
 
@@ -13,6 +14,7 @@ namespace Slums.Infrastructure.Content;
 [JsonSerializable(typeof(List<DistrictConditionDefinition>))]
 [JsonSerializable(typeof(List<PetDefinition>))]
 [JsonSerializable(typeof(List<PlantDefinition>))]
+[JsonSerializable(typeof(List<RobotDefinition>))]
 internal sealed partial class ContentJsonContext : JsonSerializerContext
 {
 }

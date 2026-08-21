@@ -13,7 +13,7 @@ internal sealed class SeasonalCalendarTests
     {
         var date = GameCalendar.GetDate(1);
 
-        await Assert.That(date).IsEqualTo(new DateOnly(2024, 10, 1));
+        await Assert.That(date).IsEqualTo(new DateOnly(2060, 10, 1));
     }
 
     [Test]
@@ -21,7 +21,7 @@ internal sealed class SeasonalCalendarTests
     {
         var date = GameCalendar.GetDate(2);
 
-        await Assert.That(date).IsEqualTo(new DateOnly(2024, 10, 2));
+        await Assert.That(date).IsEqualTo(new DateOnly(2060, 10, 2));
     }
 
     [Test]

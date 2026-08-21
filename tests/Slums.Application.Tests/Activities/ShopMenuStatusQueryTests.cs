@@ -85,6 +85,20 @@ internal sealed class ShopMenuStatusQueryTests
     }
 
     [Test]
+    public void GetStatuses_ShouldSurfaceRoboticsWorkshop_InShopMenu()
+    {
+        var query = new ShopMenuStatusQuery();
+        var gameState = new GameSession();
+        gameState.World.TravelTo(LocationId.Workshop);
+
+        var status = query.GetStatuses(ShopMenuContext.Create(gameState))[0];
+
+        status.OptionId.Should().Be(ShopOptionId.OpenHouseholdAssets);
+        status.Name.Should().Be("Robotics Workshop");
+        status.Note.Should().Contain("robots");
+    }
+
+    [Test]
     public void GetStatuses_ShouldSurfaceHomePetsAndPlants_WhenHouseholdManagementExists()
     {
         var query = new ShopMenuStatusQuery();

@@ -127,7 +127,7 @@ public static class RandomEventRegistry
             static state => state.World.CurrentLocationId == LocationId.Pharmacy),
         new(
             "DepotFareShakeup",
-            "At the microbus depot, fares change mid-argument and nobody agrees on who is supposed to absorb the loss.",
+            "At the autonomous EV depot, fares change mid-argument and nobody agrees on who is supposed to absorb the loss.",
             new RandomEventEffect { MoneyChange = 10, StressChange = 5, InkKnot = "event_depot_fare_shakeup" },
             5,
             7,

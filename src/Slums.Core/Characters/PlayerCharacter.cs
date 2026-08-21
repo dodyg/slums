@@ -1,6 +1,7 @@
 namespace Slums.Core.Characters;
 
 using Slums.Core.Skills;
+using Slums.Core.Robotics;
 
 public enum BackgroundType
 {
@@ -14,7 +15,7 @@ public sealed class PlayerCharacter
     private readonly PlayerIdentityState _identity;
 
     public PlayerCharacter()
-        : this(new PlayerIdentityState(), new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new HouseholdAssetsState(), new SkillState())
+        : this(new PlayerIdentityState(), new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new HouseholdAssetsState(), new SkillState(), new RoboticsState())
     {
     }
 
@@ -24,7 +25,8 @@ public sealed class PlayerCharacter
         NutritionState nutrition,
         HouseholdCareState household,
         HouseholdAssetsState householdAssets,
-        SkillState skills)
+        SkillState skills,
+        RoboticsState robotics)
     {
         _identity = identity ?? throw new ArgumentNullException(nameof(identity));
         Stats = stats ?? throw new ArgumentNullException(nameof(stats));
@@ -32,6 +34,7 @@ public sealed class PlayerCharacter
         Household = household ?? throw new ArgumentNullException(nameof(household));
         HouseholdAssets = householdAssets ?? throw new ArgumentNullException(nameof(householdAssets));
         Skills = skills ?? throw new ArgumentNullException(nameof(skills));
+        Robotics = robotics ?? throw new ArgumentNullException(nameof(robotics));
 
         Stats.SetHunger(Nutrition.Satiety);
     }
@@ -75,6 +78,8 @@ public sealed class PlayerCharacter
     public HouseholdAssetsState HouseholdAssets { get; }
 
     public SkillState Skills { get; }
+
+    public RoboticsState Robotics { get; }
 
     public bool HasSelectedBackground
     {

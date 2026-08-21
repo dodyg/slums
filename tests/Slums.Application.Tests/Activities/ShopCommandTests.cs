@@ -63,4 +63,20 @@ internal sealed class ShopCommandTests
 
         result.Should().BeTrue();
     }
+
+    [Test]
+    public void Execute_BuyRobotParts_CallsWorkshopPurchase()
+    {
+        var command = new ShopCommand();
+        var session = new GameSession();
+        session.World.TravelTo(Slums.Core.World.LocationId.Workshop);
+        session.Player.Stats.SetMoney(20);
+
+        var result = new Slums.Application.HouseholdAssets.HouseholdAssetsCommand().Execute(
+            session,
+            Slums.Application.HouseholdAssets.HouseholdAssetActionType.BuyRobotParts);
+
+        result.Should().BeTrue();
+        session.Player.Robotics.Parts.Should().Be(1);
+    }
 }

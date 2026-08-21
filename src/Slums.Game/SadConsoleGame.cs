@@ -9,6 +9,7 @@ using Slums.Application.Randomness;
 using Slums.Core.Characters;
 using Slums.Core.Events;
 using Slums.Core.Jobs;
+using Slums.Core.Robotics;
 using Slums.Core.World;
 using Slums.Game.Screens;
 using Slums.Infrastructure.Content;
@@ -75,6 +76,7 @@ internal sealed class SadConsoleGame : IGame
         var districtConditions = _contentRepository.LoadDistrictConditions();
         var pets = _contentRepository.LoadPets();
         var plants = _contentRepository.LoadPlants();
+        var robots = _contentRepository.LoadRobots();
 
         ContentCatalogValidator.Validate(
             backgrounds,
@@ -84,7 +86,8 @@ internal sealed class SadConsoleGame : IGame
             districtConditions,
             pets,
             plants,
-            InkStoryCatalog.GetKnotNames());
+            InkStoryCatalog.GetKnotNames(),
+            robots);
 
         BackgroundRegistry.Configure(backgrounds);
         JobRegistry.Configure(jobs);
@@ -93,6 +96,7 @@ internal sealed class SadConsoleGame : IGame
         DistrictConditionRegistry.Configure(districtConditions);
         PetRegistry.Configure(pets);
         PlantRegistry.Configure(plants);
+        RobotRegistry.Configure(robots);
         LogContentConfigured(_logger);
     }
 

@@ -1,4 +1,5 @@
 using Slums.Core.State;
+using Slums.Core.Robotics;
 using Slums.Core.World;
 
 namespace Slums.Application.HouseholdAssets;
@@ -8,7 +9,8 @@ public sealed record HouseholdAssetsMenuContext(
     string? LocationName,
     int CurrentWeek,
     int Money,
-    Slums.Core.Characters.HouseholdAssetsState Assets)
+    Slums.Core.Characters.HouseholdAssetsState Assets,
+    RoboticsState Robotics)
 {
     public static HouseholdAssetsMenuContext Create(GameSession gameSession)
     {
@@ -19,6 +21,7 @@ public sealed record HouseholdAssetsMenuContext(
             gameSession.World.GetCurrentLocation()?.Name,
             gameSession.CurrentWeek,
             gameSession.Player.Stats.Money,
-            gameSession.Player.HouseholdAssets);
+            gameSession.Player.HouseholdAssets,
+            gameSession.Player.Robotics);
     }
 }

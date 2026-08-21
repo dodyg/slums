@@ -181,7 +181,9 @@ public sealed record GameSessionSnapshot
                 HouseholdAssets.Plants.Select(static snapshot => snapshot.Restore()),
                 HouseholdAssets.HasStreetCatEncounter,
                 HouseholdAssets.LastStreetCatEncounterDay,
-                HouseholdAssets.TotalHerbEarnings);
+                HouseholdAssets.TotalHerbEarnings,
+                HouseholdAssets.Robots.Select(static snapshot => snapshot.Restore()),
+                HouseholdAssets.RobotParts);
 
             gameSession.RestoreInvestmentState(Investments, TotalInvestmentEarnings);
 

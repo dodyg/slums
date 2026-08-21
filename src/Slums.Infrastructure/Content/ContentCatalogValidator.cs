@@ -2,6 +2,7 @@ using Slums.Core.Characters;
 using Slums.Core.Events;
 using Slums.Core.Jobs;
 using Slums.Core.World;
+using Slums.Core.Robotics;
 
 namespace Slums.Infrastructure.Content;
 
@@ -20,7 +21,8 @@ public static class ContentCatalogValidator
         IReadOnlyList<DistrictConditionDefinition> districtConditions,
         IReadOnlyList<PetDefinition> pets,
         IReadOnlyList<PlantDefinition> plants,
-        IReadOnlySet<string> knownInkKnots)
+        IReadOnlySet<string> knownInkKnots,
+        IReadOnlyList<RobotDefinition>? robots = null)
     {
         ArgumentNullException.ThrowIfNull(backgrounds);
         ArgumentNullException.ThrowIfNull(locations);
@@ -40,6 +42,10 @@ public static class ContentCatalogValidator
         ValidateDistrictConditions(districtConditions, problems);
         ValidatePets(pets, locations, problems);
         ValidatePlants(plants, locations, problems);
+        if (robots is not null)
+        {
+            ValidateRobots(robots, locations, problems);
+        }
 
         if (problems.Count > 0)
         {
@@ -197,6 +203,45 @@ public static class ContentCatalogValidator
         if (missingTypes.Length > 0)
         {
             problems.Add($"jobs: missing types {string.Join(", ", missingTypes)}.");
+        }
+    }
+
+    private static void ValidateRobots(IReadOnlyList<RobotDefinition> robots, IReadOnlyList<Location> locations, List<string> problems)
+    {
+        if (robots.Count == 0)
+        {
+            problems.Add("robots: catalog is empty.");
+            return;
+        }
+
+        var configuredTypes = new HashSet<RobotType>();
+        foreach (var robot in robots)
+        {
+            if (!configuredTypes.Add(robot.Type))
+            {
+                problems.Add($"robots: duplicate type {robot.Type}.");
+            }
+
+            if (string.IsNullOrWhiteSpace(robot.Name))
+            {
+                problems.Add($"robots: {robot.Type} has no name.");
+            }
+
+            if (robot.PurchaseCost <= 0 || robot.RepairCost <= 0 || robot.RepairCondition <= 0)
+            {
+                problems.Add($"robots: {robot.Type} has invalid purchase or repair economics.");
+            }
+
+            if (!locations.Any(location => location.Id == robot.PurchaseLocationId))
+            {
+                problems.Add($"robots: {robot.Type} references missing purchase location '{robot.PurchaseLocationId.Value}'.");
+            }
+        }
+
+        var missingTypes = Enum.GetValues<RobotType>().Where(type => !configuredTypes.Contains(type)).ToArray();
+        if (missingTypes.Length > 0)
+        {
+            problems.Add($"robots: missing types {string.Join(", ", missingTypes)}.");
         }
     }
 

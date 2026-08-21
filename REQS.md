@@ -53,9 +53,18 @@ Interview-complete working requirements draft based on the user's answers.
 - The world should support tension between survival, dignity, loyalty, ambition, and danger.
 
 ## Setting Scope
-- Time period: contemporary 2020s.
+- Time period: Cairo in 2060.
 - Core playable and referenced Cairo areas should include Dokki, Imbaba, and Ard al-Liwa.
 - Real Cairo institutions and district identities should shape the social and economic landscape.
+
+### Cairo 2060 Technology Layer
+
+- Cybernetics, electronic drones, autonomous electric vehicles, portable nuclear power, and persistent AI are ordinary parts of the wider city, but access is sharply unequal.
+- The slums should experience advanced technology through repair work, rationing, surveillance, unreliable infrastructure, and second-hand systems rather than effortless abundance.
+- Autonomous EVs share roads with old microbuses and handcarts; drones monitor, deliver, and occasionally fail; portable nuclear generators power protected districts while poorer buildings still bargain over electricity.
+- Persistent AI should be useful and intrusive: it can translate, route calls, or manage a device while also profiling residents, shaping work access, and feeding police or corporate systems.
+- Cybernetic medicine should widen the gap between people who can afford augmentation and clinics that must keep old bodies functioning without it.
+- Technology must intensify the existing survival, dignity, migration, crime, and state-pressure themes. It must not turn the setting into escapist techno-fantasy or remove the need for community solidarity.
 
 ## Protagonist and Household
 - The player first chooses the preset identity Amira or Karim, then chooses a preset life background rather than creating a character from scratch.

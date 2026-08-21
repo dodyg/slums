@@ -8,6 +8,7 @@ using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.Training;
 using Slums.Core.World;
+using Slums.Core.Robotics;
 using Slums.Infrastructure.Persistence;
 using TUnit.Core;
 
@@ -62,7 +63,9 @@ internal sealed class JsonSaveGameStoreTests
             ],
             hasStreetCatEncounter: true,
             lastStreetCatEncounterDay: 7,
-            totalHerbEarnings: 25);
+                totalHerbEarnings: 25,
+                robots: [OwnedRobot.Restore(Guid.Parse("22222222-2222-2222-2222-222222222222"), RobotType.RepairDrone, 6, 65)],
+                robotParts: 2);
             gameSession.RestoreInvestmentState(
             [
                 new InvestmentSnapshot(InvestmentType.FoulCart, 150, 8, 12, 3, false)
@@ -117,6 +120,10 @@ internal sealed class JsonSaveGameStoreTests
                     restoredSession.Player.HouseholdAssets.Plants[0].HasActiveUpgrade(PlantUpgradeType.BiggerPot, restoredSession.CurrentWeek).Should().BeTrue();
                     restoredSession.Player.HouseholdAssets.HasStreetCatEncounter.Should().BeTrue();
                     restoredSession.Player.HouseholdAssets.TotalHerbEarnings.Should().Be(25);
+                    restoredSession.Player.Robotics.Robots.Should().ContainSingle();
+                    restoredSession.Player.Robotics.Robots[0].Type.Should().Be(RobotType.RepairDrone);
+                    restoredSession.Player.Robotics.Robots[0].Condition.Should().Be(65);
+                    restoredSession.Player.Robotics.Parts.Should().Be(2);
                     restoredSession.TotalInvestmentEarnings.Should().Be(27);
                     restoredSession.ActiveInvestments.Should().ContainSingle();
                     restoredSession.ActiveInvestments[0].Type.Should().Be(InvestmentType.FoulCart);

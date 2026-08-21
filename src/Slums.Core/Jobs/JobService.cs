@@ -146,7 +146,7 @@ public sealed class JobService
             _ when location.Id == LocationId.Market => [ResolveShift(JobType.HouseCleaning, player, relationshipState, jobProgressState), ResolveShift(JobType.MarketPorter, player, relationshipState, jobProgressState)],
             _ when location.Id == LocationId.CallCenter => [ResolveShift(JobType.CallCenterWork, player, relationshipState, jobProgressState)],
             _ when location.Id == LocationId.Clinic => [ResolveShift(JobType.ClinicReception, player, relationshipState, jobProgressState)],
-            _ when location.Id == LocationId.Workshop => [ResolveShift(JobType.WorkshopSewing, player, relationshipState, jobProgressState)],
+            _ when location.Id == LocationId.Workshop => [ResolveShift(JobType.WorkshopSewing, player, relationshipState, jobProgressState), ResolveShift(JobType.RoboticsScavenging, player, relationshipState, jobProgressState)],
             _ when location.Id == LocationId.Cafe => [ResolveShift(JobType.CafeService, player, relationshipState, jobProgressState)],
             _ when location.Id == LocationId.Pharmacy => [ResolveShift(JobType.PharmacyStock, player, relationshipState, jobProgressState)],
             _ when location.Id == LocationId.Depot => [ResolveShift(JobType.MicrobusDispatch, player, relationshipState, jobProgressState)],
@@ -204,6 +204,7 @@ public sealed class JobService
             JobType.StreetVending => ResolveStreetVendingShift(player, relationshipState, track),
             JobType.FishSorter => ResolveFishSorterShift(player, track),
             JobType.MarketPorter => ResolveMarketPorterShift(track),
+            JobType.RoboticsScavenging => JobRegistry.RoboticsScavenging,
             _ => JobRegistry.GetJobByType(jobType) ?? throw new ArgumentOutOfRangeException(nameof(jobType))
         };
     }
@@ -478,6 +479,7 @@ public sealed class JobService
             JobType.StreetVending => player.Stats.Stress >= 60,
             JobType.FishSorter => player.Stats.Energy <= job.MinEnergyRequired + 5,
             JobType.MarketPorter => player.Stats.Energy <= job.MinEnergyRequired + 3,
+            JobType.RoboticsScavenging => player.Stats.Energy <= job.MinEnergyRequired + 5,
             _ => false
         };
     }
@@ -510,6 +512,7 @@ public sealed class JobService
             JobType.StreetVending => 1,
             JobType.FishSorter => 1,
             JobType.MarketPorter => 1,
+            JobType.RoboticsScavenging => 1,
             _ => 0
         };
     }
@@ -524,6 +527,7 @@ public sealed class JobService
             JobType.StreetVending => -8,
             JobType.FishSorter => -8,
             JobType.MarketPorter => -8,
+            JobType.RoboticsScavenging => -8,
             _ => -8
         };
     }
@@ -567,6 +571,7 @@ public sealed class JobService
             JobType.FishSorter when player.Skills.GetLevel(SkillId.Physical) >= 2 => "Unlocked by Physical 2.",
             JobType.MarketPorter when track.Reliability >= 80 => "Unlocked by reliability 80.",
             JobType.MarketPorter when track.Reliability >= 60 => "Unlocked by reliability 60.",
+            JobType.RoboticsScavenging => "Abu Samir's side bench is open to anyone willing to sort useful hardware from city waste.",
             _ => "Base shift."
         };
     }
@@ -599,6 +604,7 @@ public sealed class JobService
             JobType.FishSorter when track.Reliability < 75 || player.Skills.GetLevel(SkillId.Physical) < 3 => "Reach reliability 75 and Physical 3 for Morning Auction Prep.",
             JobType.MarketPorter when track.Reliability < 60 => "Reach reliability 60 for Steady Route Porter.",
             JobType.MarketPorter when track.Reliability < 80 => "Reach reliability 80 for Wholesale Carry.",
+            JobType.RoboticsScavenging => null,
             _ => null
         };
     }
@@ -685,6 +691,7 @@ public sealed class JobService
             JobType.StreetVending => locationId == LocationId.Square,
             JobType.FishSorter => locationId == LocationId.FishMarket,
             JobType.MarketPorter => locationId == LocationId.Market,
+            JobType.RoboticsScavenging => locationId == LocationId.Workshop,
             _ => false
         };
     }

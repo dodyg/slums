@@ -8,7 +8,7 @@ public sealed class HolidayRegistry
         {
             Id = HolidayId.CopticChristmas,
             Name = "Coptic Christmas",
-            StartDate = new DateOnly(2025, 1, 7),
+            StartDate = new DateOnly(2061, 1, 7),
             DurationDays = 1,
             Description = "Community gathering event. Bakery demand surge.",
             JobPayModifier = 5,
@@ -19,7 +19,7 @@ public sealed class HolidayRegistry
         {
             Id = HolidayId.ShamElNessim,
             Name = "Sham el-Nessim",
-            StartDate = new DateOnly(2025, 4, 21),
+            StartDate = new DateOnly(2061, 4, 21),
             DurationDays = 1,
             Description = "Outdoor spring festival. Unique food items available.",
             StressModifier = -8,
@@ -29,7 +29,7 @@ public sealed class HolidayRegistry
         {
             Id = HolidayId.Ramadan,
             Name = "Ramadan",
-            StartDate = new DateOnly(2025, 2, 28),
+            StartDate = new DateOnly(2061, 2, 28),
             DurationDays = 30,
             Description = "Month of fasting. Community iftar gatherings available.",
             FoodCostModifier = 0,
@@ -40,7 +40,7 @@ public sealed class HolidayRegistry
         {
             Id = HolidayId.EidAlFitr,
             Name = "Eid al-Fitr",
-            StartDate = new DateOnly(2025, 3, 30),
+            StartDate = new DateOnly(2061, 3, 30),
             DurationDays = 3,
             Description = "Gift-spending pressure: 20-50 LE expected. Large community events.",
             StressModifier = 5,
@@ -51,7 +51,7 @@ public sealed class HolidayRegistry
         {
             Id = HolidayId.EidAlAdha,
             Name = "Eid al-Adha",
-            StartDate = new DateOnly(2025, 6, 6),
+            StartDate = new DateOnly(2061, 6, 6),
             DurationDays = 4,
             Description = "Meat-sharing event. Market food prices spike then surplus.",
             MotherHealthModifier = 5,

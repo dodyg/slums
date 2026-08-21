@@ -241,6 +241,8 @@ Prefer finishing one thin playable slice over partially building many systems.
 Respect the requirements file:
 
 - keep the setting grounded in Cairo
+- set the story in Cairo in 2060, where advanced technology coexists with severe inequality and aging infrastructure
+- use cybernetics, electronic drones, autonomous EVs, portable nuclear power, and persistent AI as sources of access, labor, surveillance, risk, and consequence rather than effortless solutions
 - keep the tone gritty and realistic
 - keep crime consequence-heavy
 - do not glamorize harmful activity

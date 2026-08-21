@@ -27,6 +27,8 @@ namespace Slums.Infrastructure.Persistence;
 [JsonSerializable(typeof(List<OwnedPetSnapshot>))]
 [JsonSerializable(typeof(OwnedPlantSnapshot))]
 [JsonSerializable(typeof(List<OwnedPlantSnapshot>))]
+[JsonSerializable(typeof(OwnedRobotSnapshot))]
+[JsonSerializable(typeof(List<OwnedRobotSnapshot>))]
 [JsonSerializable(typeof(GameSessionRamadanSnapshot))]
 [JsonSerializable(typeof(GameSessionCommunityEventSnapshot))]
 [JsonSerializable(typeof(GameSessionDistrictHeatSnapshot))]

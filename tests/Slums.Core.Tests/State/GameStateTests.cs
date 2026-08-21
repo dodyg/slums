@@ -3,6 +3,7 @@ using Slums.Core.Crimes;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
+using Slums.Core.Robotics;
 using TUnit.Core;
 using TUnit.Core.Interfaces;
 
@@ -121,6 +122,47 @@ internal sealed class GameStateTests
         await Assert.That(result).IsTrue();
         await Assert.That(state.Player.Household.MedicineStock).IsEqualTo(2);
         await Assert.That(state.Player.Stats.Money).IsEqualTo(50);
+    }
+
+    [Test]
+    public async Task RoboticsWorkshop_ShouldSupportBuyingPartsAndRepairingOwnedRobot()
+    {
+        var state = new GameSession();
+        state.World.TravelTo(LocationId.Workshop);
+        state.Player.Stats.SetMoney(200);
+
+        await Assert.That(state.BuyRobot(RobotType.SalvageCrawler)).IsTrue();
+        var robot = state.Player.Robotics.Robots[0];
+        robot.Damage(60);
+        await Assert.That(state.BuyRobotParts()).IsTrue();
+        await Assert.That(state.RepairRobot(robot.Id)).IsTrue();
+
+        await Assert.That(robot.Condition).IsEqualTo(85);
+        await Assert.That(state.Player.Robotics.Parts).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task RoboticsPurchases_ShouldRequireWorkshop()
+    {
+        var state = new GameSession();
+        state.Player.Stats.SetMoney(200);
+
+        await Assert.That(state.BuyRobot(RobotType.SalvageCrawler)).IsFalse();
+        await Assert.That(state.Player.Robotics.Robots).IsEmpty();
+    }
+
+    [Test]
+    public async Task RoboticsScavengingShift_ShouldPayAndRecoverOneUsablePart()
+    {
+        var state = new GameSession();
+        state.World.TravelTo(LocationId.Workshop);
+        state.Player.Stats.SetEnergy(100);
+
+        var result = state.WorkJob(state.GetAvailableJobs().Single(static job => job.Type == Slums.Core.Jobs.JobType.RoboticsScavenging));
+
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(result.MoneyEarned).IsGreaterThan(0);
+        await Assert.That(state.Player.Robotics.Parts).IsEqualTo(1);
     }
 
     [Test]
@@ -463,7 +505,7 @@ internal sealed class GameStateTests
         state.Relationships.SetNpcRelationship(NpcId.NurseSalma, 12, 1);
 
         var trustBefore = state.Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust;
-        var result = state.WorkJob(state.GetAvailableJobs().Single());
+        var result = state.WorkJob(state.GetAvailableJobs().Single(static job => job.Type == Slums.Core.Jobs.JobType.ClinicReception));
 
         await Assert.That(result.Success).IsTrue();
         await Assert.That(result.MistakeMade).IsFalse();
@@ -494,7 +536,7 @@ internal sealed class GameStateTests
         state.SetWorkCounters(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
         state.Player.Stats.SetEnergy(35);
 
-        var result = state.WorkJob(state.GetAvailableJobs().Single());
+        var result = state.WorkJob(state.GetAvailableJobs().Single(static job => job.Type == Slums.Core.Jobs.JobType.WorkshopSewing));
 
         await Assert.That(result.MistakeMade).IsTrue();
         await Assert.That(state.Relationships.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).WasEmbarrassed).IsTrue();

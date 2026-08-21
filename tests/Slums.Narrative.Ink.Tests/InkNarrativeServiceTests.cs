@@ -25,6 +25,8 @@ internal sealed class InkNarrativeServiceTests
         service.StartScene("intro_medical", NarrativeSceneState.Create(state));
 
         service.IsSceneActive.Should().BeTrue();
+        service.CurrentText.Should().Contain("Cairo, 2060.");
+        service.CurrentText.Should().Contain("persistent AI");
         service.CurrentText.Should().Contain("Three years of medical school.");
         service.CurrentChoices.Should().ContainInOrder("Check on her", "Look for work instead");
     }
