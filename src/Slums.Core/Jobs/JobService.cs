@@ -30,7 +30,7 @@ public sealed class JobService
             riskWarning);
     }
 
-    public JobResult PerformJob(JobShift job, PlayerCharacter player, Location currentLocation, RelationshipState relationshipState, JobProgressState jobProgressState, int currentDay, Random? random = null)
+    public JobResult PerformJob(JobShift job, PlayerCharacter player, Location currentLocation, RelationshipState relationshipState, JobProgressState jobProgressState, int currentDay, Random? random = null, int payModifier = 0)
     {
         ArgumentNullException.ThrowIfNull(job);
         ArgumentNullException.ThrowIfNull(player);
@@ -48,7 +48,7 @@ public sealed class JobService
 
         if (ShouldApplyMistake(resolvedJob, player))
         {
-            return PerformMistakeShift(resolvedJob, player, jobProgressState, currentDay, random);
+            return PerformMistakeShift(resolvedJob, player, jobProgressState, currentDay, random, payModifier);
         }
 
         var pay = resolvedJob.CalculatePay(random);
@@ -67,7 +67,7 @@ public sealed class JobService
             energyCost += genderEnergyMod;
         }
 
-        pay += genderPayMod;
+        pay = Math.Max(0, pay + genderPayMod + payModifier);
         var totalStressCost = resolvedJob.StressCost + genderStressMod;
 
         player.Stats.ModifyMoney(pay);
@@ -157,10 +157,10 @@ public sealed class JobService
         };
     }
 
-    private static JobResult PerformMistakeShift(JobShift job, PlayerCharacter player, JobProgressState jobProgressState, int currentDay, Random random)
+    private static JobResult PerformMistakeShift(JobShift job, PlayerCharacter player, JobProgressState jobProgressState, int currentDay, Random random, int payModifier)
     {
 #pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
-        var reducedPay = Math.Max(0, (job.BasePay / 2) + random.Next(0, Math.Max(2, job.PayVariance)));
+        var reducedPay = Math.Max(0, (job.BasePay / 2) + random.Next(0, Math.Max(2, job.PayVariance)) + payModifier);
 #pragma warning restore CA5394
         var stressCost = job.StressCost + GetMistakeStressPenalty(job.Type);
         var lockoutDays = GetLockoutDays(job.Type);

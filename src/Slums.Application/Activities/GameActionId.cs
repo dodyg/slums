@@ -21,5 +21,6 @@ public enum GameActionId
     Train,
     HomeImprovement,
     CommunityEvent,
-    Phone
+    Phone,
+    News
 }

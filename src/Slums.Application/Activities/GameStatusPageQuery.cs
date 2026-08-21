@@ -75,6 +75,19 @@ public sealed class GameStatusPageQuery
             .Select(definition => $"{DistrictInfo.GetName(definition.District)}: {definition.Title} - {definition.GameplaySummary}")
             .ToList();
 
+        foreach (var news in context.ActiveNews)
+        {
+            var areas = news.AffectedDistricts.Count == 0
+                ? "city-wide"
+                : string.Join(", ", news.AffectedDistricts.Select(DistrictInfo.GetName));
+            lines.Add($"NEWS [{news.Reliability}]: {news.Headline} ({areas})");
+        }
+
+        foreach (var service in context.InfrastructureServices.Where(static service => service.IsActive))
+        {
+            lines.Add($"Service pressure: {service.Service} in {DistrictInfo.GetName(service.District)} is {service.Severity} ({service.RemainingDays}d)");
+        }
+
         if (lines.Count == 0)
         {
             lines =

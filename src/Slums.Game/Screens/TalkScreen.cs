@@ -58,9 +58,9 @@ internal sealed class TalkScreen : ScreenSurface
             var npc = _npcs[i];
             var rowY = ListY + (i * ListRowHeight);
             var prefix = i == _selectedIndex ? "> " : "  ";
-            var color = i == _selectedIndex ? Color.Cyan : Color.White;
+            var color = !npc.IsAvailable ? Color.DarkGray : i == _selectedIndex ? Color.Cyan : Color.White;
             Surface.Print(ListX, rowY, TrimToFit($"{prefix}{npc.Name}", DetailX - ListX - 2), color);
-            Surface.Print(ListX + 2, rowY + 1, $"Trust: {npc.Trust}", GetTrustColor(npc.Trust));
+            Surface.Print(ListX + 2, rowY + 1, npc.IsAvailable ? $"Trust: {npc.Trust}" : "Unavailable", npc.IsAvailable ? GetTrustColor(npc.Trust) : Color.DarkGray);
         }
 
         RenderSelectedNpcDetails();
@@ -84,6 +84,11 @@ internal sealed class TalkScreen : ScreenSurface
 
         if (keyboard.IsKeyPressed(Keys.Enter))
         {
+            if (!_npcs[_selectedIndex].IsAvailable)
+            {
+                _parentScreen.AddEventLogEntry(_npcs[_selectedIndex].UnavailableReason);
+                return true;
+            }
             var npcId = _npcs[_selectedIndex].NpcId;
             var talkScene = _talkSceneRequestFactory.Create(_context, npcId, _gameState.SharedRandom);
             _runtime.NarrativeService.StartScene(talkScene.KnotName, talkScene.SceneState);
@@ -122,6 +127,10 @@ internal sealed class TalkScreen : ScreenSurface
 
         Surface.Print(DetailX, y++, selected.Name, Color.White);
         Surface.Print(DetailX, y++, $"Trust: {selected.Trust}", GetTrustColor(selected.Trust));
+        if (!selected.IsAvailable)
+        {
+            Surface.Print(DetailX, y++, selected.UnavailableReason, Color.Orange);
+        }
         y++;
 
         foreach (var line in WrapText(selected.Summary, detailWidth))

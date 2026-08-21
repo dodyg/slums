@@ -3,6 +3,10 @@ using Slums.Core.Events;
 using Slums.Core.Jobs;
 using Slums.Core.World;
 using Slums.Core.Robotics;
+using Slums.Core.Inventory;
+using Slums.Core.Relationships;
+using Slums.Core.World.News;
+using Slums.Core.Clock;
 
 namespace Slums.Infrastructure.Content;
 
@@ -22,7 +26,10 @@ public static class ContentCatalogValidator
         IReadOnlyList<PetDefinition> pets,
         IReadOnlyList<PlantDefinition> plants,
         IReadOnlySet<string> knownInkKnots,
-        IReadOnlyList<RobotDefinition>? robots = null)
+        IReadOnlyList<RobotDefinition>? robots = null,
+        IReadOnlyList<NewsFlashDefinition>? newsFlashes = null,
+        IReadOnlyList<ItemDefinition>? items = null,
+        IReadOnlyList<NpcScheduleDefinition>? npcSchedules = null)
     {
         ArgumentNullException.ThrowIfNull(backgrounds);
         ArgumentNullException.ThrowIfNull(locations);
@@ -45,6 +52,12 @@ public static class ContentCatalogValidator
         if (robots is not null)
         {
             ValidateRobots(robots, locations, problems);
+        }
+        if (newsFlashes is not null && items is not null && npcSchedules is not null)
+        {
+            ValidateNews(newsFlashes, locations, items, knownInkKnots, problems);
+            ValidateItems(items, problems);
+            ValidateNpcSchedules(npcSchedules, locations, problems);
         }
 
         if (problems.Count > 0)
@@ -422,6 +435,126 @@ public static class ContentCatalogValidator
         if (missingTypes.Length > 0)
         {
             problems.Add($"plants: missing types {string.Join(", ", missingTypes)}.");
+        }
+    }
+
+    private static void ValidateItems(IReadOnlyList<ItemDefinition> items, List<string> problems)
+    {
+        if (items.Count == 0)
+        {
+            problems.Add("items: catalog is empty.");
+            return;
+        }
+
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var item in items)
+        {
+            if (string.IsNullOrWhiteSpace(item.Id) || !ids.Add(item.Id))
+            {
+                problems.Add($"items: duplicate or empty id '{item.Id}'.");
+            }
+            if (string.IsNullOrWhiteSpace(item.Name) || string.IsNullOrWhiteSpace(item.Description))
+            {
+                problems.Add($"items: '{item.Id}' must have a name and description.");
+            }
+            if (item.MaximumQuantity <= 0)
+            {
+                problems.Add($"items: '{item.Id}' has non-positive maximum quantity.");
+            }
+        }
+    }
+
+    private static void ValidateNews(
+        IReadOnlyList<NewsFlashDefinition> newsFlashes,
+        IReadOnlyList<Location> locations,
+        IReadOnlyList<ItemDefinition> items,
+        IReadOnlySet<string> knownInkKnots,
+        List<string> problems)
+    {
+        if (newsFlashes.Count == 0)
+        {
+            problems.Add("news_flashes: catalog is empty.");
+            return;
+        }
+
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        var locationDistricts = locations.Select(static location => location.District).ToHashSet();
+        var itemIds = items.Select(static item => item.Id).ToHashSet(StringComparer.Ordinal);
+        foreach (var news in newsFlashes)
+        {
+            if (string.IsNullOrWhiteSpace(news.Id) || !ids.Add(news.Id))
+            {
+                problems.Add($"news_flashes: duplicate or empty id '{news.Id}'.");
+            }
+            if (string.IsNullOrWhiteSpace(news.Headline) || string.IsNullOrWhiteSpace(news.Body) || string.IsNullOrWhiteSpace(news.SourceLabel))
+            {
+                problems.Add($"news_flashes: '{news.Id}' must have headline, body, and source label.");
+            }
+            if (news.MinimumDay < 1 || news.Weight <= 0 || news.CooldownDays < 0 || news.DurationDays <= 0)
+            {
+                problems.Add($"news_flashes: '{news.Id}' has invalid timing or weight values.");
+            }
+            if (news.AffectedDistricts.Any(district => !locationDistricts.Contains(district)))
+            {
+                problems.Add($"news_flashes: '{news.Id}' references a district without a location.");
+            }
+            if (!string.IsNullOrWhiteSpace(news.InkKnot) && !knownInkKnots.Contains(news.InkKnot))
+            {
+                problems.Add($"news_flashes: '{news.Id}' references missing ink knot '{news.InkKnot}'.");
+            }
+
+            foreach (var effect in news.Effects)
+            {
+                if (effect.Type == NewsEffectType.StartInfrastructureDisruption && (effect.Service is null || effect.DurationDays <= 0))
+                {
+                    problems.Add($"news_flashes: '{news.Id}' has an infrastructure effect without service and duration.");
+                }
+                if (effect.District is DistrictId effectDistrict && !locationDistricts.Contains(effectDistrict))
+                {
+                    problems.Add($"news_flashes: '{news.Id}' effect references a district without a location.");
+                }
+            }
+
+            var responseIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var response in news.Responses)
+            {
+                if (string.IsNullOrWhiteSpace(response.Id) || !responseIds.Add(response.Id) || string.IsNullOrWhiteSpace(response.Label))
+                {
+                    problems.Add($"news_flashes: '{news.Id}' has a duplicate, empty, or unlabeled response.");
+                }
+                if (response.MoneyCost < 0 || response.TimeCostMinutes < 0 || response.RequiredItemQuantity < 0)
+                {
+                    problems.Add($"news_flashes: '{news.Id}' response '{response.Id}' has a negative cost.");
+                }
+                if (response.RequiredItemId is not null && (!itemIds.Contains(response.RequiredItemId) || response.RequiredItemQuantity <= 0))
+                {
+                    problems.Add($"news_flashes: '{news.Id}' response '{response.Id}' references an invalid required item.");
+                }
+            }
+        }
+    }
+
+    private static void ValidateNpcSchedules(IReadOnlyList<NpcScheduleDefinition> schedules, IReadOnlyList<Location> locations, List<string> problems)
+    {
+        var locationIds = locations.Select(static location => location.Id).ToHashSet();
+        var keys = new HashSet<(NpcId Npc, GameDayOfWeek Day, int Start, int End)>();
+        foreach (var schedule in schedules)
+        {
+            if (!locationIds.Contains(schedule.Location))
+            {
+                problems.Add($"npc_schedules: {schedule.Npc} references missing location '{schedule.Location.Value}'.");
+            }
+            if (schedule.StartMinute < 0 || schedule.EndMinute <= schedule.StartMinute || schedule.EndMinute > 1440)
+            {
+                problems.Add($"npc_schedules: {schedule.Npc} has invalid time window.");
+            }
+            foreach (var day in schedule.Days)
+            {
+                if (!keys.Add((schedule.Npc, day, schedule.StartMinute, schedule.EndMinute)))
+                {
+                    problems.Add($"npc_schedules: duplicate schedule for {schedule.Npc} on {day}.");
+                }
+            }
         }
     }
 

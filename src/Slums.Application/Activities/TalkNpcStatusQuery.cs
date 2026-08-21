@@ -27,7 +27,9 @@ public sealed class TalkNpcStatusQuery
             GetSummary(context, npcId, relationship),
             GetFactionLink(context, npcId),
             GetMemoryFlags(context, relationship),
-            GetTriggerSignals(context, npcId, relationship));
+            GetTriggerSignals(context, npcId, relationship),
+            context.Availability.GetValueOrDefault(npcId)?.IsAvailable ?? true,
+            context.Availability.GetValueOrDefault(npcId)?.Reason ?? string.Empty);
     }
 
     private static string GetSummary(TalkNpcContext context, NpcId npcId, NpcRelationship relationship)

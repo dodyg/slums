@@ -24,6 +24,8 @@ using Slums.Core.World;
 using Slums.Core.Phone;
 using Slums.Core.Information;
 using Slums.Core.Robotics;
+using Slums.Core.Inventory;
+using Slums.Core.World.News;
 
 using Slums.Core.Randomness;
 using Slums.Core.Diagnostics;
@@ -149,8 +151,30 @@ public sealed class GameSession : INarrativeOutcomeTarget
     public PhoneState Phone { get; } = new();
     public PhoneMessageState PhoneMessages { get; } = new();
     public TipState Tips { get; } = new();
+    public NewsState News { get; } = new();
+    public InfrastructureState Infrastructure { get; } = new();
+    public InventoryState Inventory { get; } = new();
     private RamadanState _ramadanState = RamadanState.Inactive;
     public RamadanState RamadanState => _ramadanState;
+
+    public IReadOnlyList<ActiveNewsFlash> ActiveNews => News.ActiveFlashes;
+
+    public IReadOnlyList<NewsFlashDefinition> GetActiveNewsDefinitions()
+    {
+        return News.ActiveFlashes
+            .Select(static flash => NewsRegistry.GetById(flash.DefinitionId))
+            .OfType<NewsFlashDefinition>()
+            .ToArray();
+    }
+
+    public IReadOnlyList<NpcAvailability> GetNpcAvailability()
+    {
+        return NpcAvailabilityResolver.ResolveAll(
+            Clock,
+            World.CurrentLocationId,
+            NpcScheduleRegistry.All,
+            NewsImpactCalculator.GetActiveNewsIds(News));
+    }
 
     public event EventHandler<GameEventArgs>? GameEvent;
     public IReadOnlyList<GameMutationRecord> Mutations => _mutations;
@@ -314,6 +338,13 @@ public sealed class GameSession : INarrativeOutcomeTarget
             Player.Household.UpdateMotherHealth(householdAssetsBonus);
         }
 
+        var overnightInfrastructureStress = InfrastructureImpactCalculator.GetSleepStressModifier(Infrastructure, World.CurrentDistrict);
+        if (overnightInfrastructureStress > 0)
+        {
+            Player.Stats.ModifyStress(overnightInfrastructureStress);
+            RaiseEvent($"Unreliable utilities make sleep harder. Stress +{overnightInfrastructureStress}.");
+        }
+
         var rentResult = _rentState.ProcessDay(RecurringExpenses.DailyRentCost, Player.Stats.Money);
         if (rentResult.Paid)
         {
@@ -432,6 +463,12 @@ public sealed class GameSession : INarrativeOutcomeTarget
         };
         RaiseEvent($"Weather: {WeatherModifiers.GetDisplayName(CurrentWeather.Type)}");
         RaiseEvent("You return home for the night.");
+
+        var newNews = NewsService.ResolveStartOfDay(News, Infrastructure, EventJournal, Clock.Day, random ?? _sharedRandom);
+        if (newNews?.InkKnot is not null)
+        {
+            QueueNarrativeScene(newNews.InkKnot);
+        }
 
         if (GetCurrentDayOfWeek() == GameDayOfWeek.Monday)
         {
@@ -1230,7 +1267,15 @@ public sealed class GameSession : INarrativeOutcomeTarget
             return JobResult.Failed("You are nowhere.");
         }
 
-        var result = Jobs.PerformJob(job, Player, location, Relationships, JobProgress, Clock.Day, random ?? _sharedRandom);
+        var result = Jobs.PerformJob(
+            job,
+            Player,
+            location,
+            Relationships,
+            JobProgress,
+            Clock.Day,
+            random ?? _sharedRandom,
+            NewsImpactCalculator.GetJobPayModifier(News, job.Type));
 
         if (result.Success)
         {
@@ -1593,6 +1638,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
         baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(Territory, World.CurrentDistrict);
         baseModifier += GetUmmKarimFoodDiscount();
+        baseModifier += NewsImpactCalculator.GetFoodPriceModifier(News, World.CurrentDistrict);
 
         var modifiedCost = _locationPricingService.GetFoodCost(World.CurrentDistrict) + baseModifier;
         return Math.Max(1, modifiedCost);
@@ -1611,6 +1657,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
         baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(Territory, World.CurrentDistrict);
         baseModifier += GetUmmKarimFoodDiscount();
+        baseModifier += NewsImpactCalculator.GetFoodPriceModifier(News, World.CurrentDistrict);
 
         var modifiedCost = _locationPricingService.GetStreetFoodCost(World.CurrentDistrict) + baseModifier;
         return Math.Max(1, modifiedCost);
@@ -1760,13 +1807,26 @@ public sealed class GameSession : INarrativeOutcomeTarget
     {
         var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
         var modifiedCost = _locationPricingService.GetMedicineCost(World.CurrentDistrict, World.CurrentLocationId, Relationships, Player.Skills)
-            + (districtCondition?.Effect.MedicineCostModifier ?? 0);
+            + (districtCondition?.Effect.MedicineCostModifier ?? 0)
+            + InfrastructureImpactCalculator.GetMedicinePriceModifier(Infrastructure, World.CurrentDistrict);
         return Math.Max(1, modifiedCost);
     }
 
     public JobPreview PreviewJob(JobType jobType)
     {
-        return ApplyDistrictConditionToJobPreview(Jobs.PreviewJob(jobType, Player, Relationships, JobProgress));
+        var preview = ApplyDistrictConditionToJobPreview(Jobs.PreviewJob(jobType, Player, Relationships, JobProgress));
+        var modifiers = preview.ActiveModifiers.ToList();
+        var payModifier = NewsImpactCalculator.GetJobPayModifier(News, jobType);
+        if (payModifier != 0)
+        {
+            modifiers.Add($"City news changes this shift's pay by {payModifier} LE.");
+        }
+        var infrastructure = Infrastructure.Get(World.CurrentDistrict, InfrastructureServiceType.Electricity);
+        if (infrastructure.IsActive)
+        {
+            modifiers.Add($"Electricity is {infrastructure.Severity} here; workshop and office work may be interrupted.");
+        }
+        return preview with { ActiveModifiers = modifiers };
     }
 
     public IReadOnlyList<DistrictConditionDefinition> GetDailyDistrictConditions()
@@ -1821,6 +1881,17 @@ public sealed class GameSession : INarrativeOutcomeTarget
             summaries.Add($"{WeatherModifiers.GetDisplayName(CurrentWeather.Type)} weather adds {CurrentWeather.TravelCostModifier} LE to transport.");
         }
 
+        var infrastructureTravel = InfrastructureImpactCalculator.GetTravelCostModifier(Infrastructure, location.District);
+        var newsTravel = NewsImpactCalculator.GetTravelCostModifier(News, location.District);
+        if (infrastructureTravel != 0)
+        {
+            summaries.Add($"Transport service pressure adds {infrastructureTravel} LE and time to this trip.");
+        }
+        if (newsTravel != 0)
+        {
+            summaries.Add($"City news adds {newsTravel} LE to fares in this area.");
+        }
+
         var districtCondition = GetActiveDistrictConditionDefinition(location.District);
         if (districtCondition is not null)
         {
@@ -1839,7 +1910,9 @@ public sealed class GameSession : INarrativeOutcomeTarget
         var districtCondition = GetActiveDistrictConditionDefinition(destination.District);
         var modifiedCost = _locationPricingService.GetTravelCost(destination, Relationships)
             + (districtCondition?.Effect.TravelCostModifier ?? 0)
-            + CurrentWeather.TravelCostModifier;
+            + CurrentWeather.TravelCostModifier
+            + InfrastructureImpactCalculator.GetTravelCostModifier(Infrastructure, destination.District)
+            + NewsImpactCalculator.GetTravelCostModifier(News, destination.District);
         return Math.Max(1, modifiedCost);
     }
 
@@ -1867,7 +1940,9 @@ public sealed class GameSession : INarrativeOutcomeTarget
     private int GetTravelTimeMinutes(Location destination)
     {
         var districtCondition = GetActiveDistrictConditionDefinition(destination.District);
-        var modifiedMinutes = destination.TravelTimeMinutes + (districtCondition?.Effect.TravelTimeMinutesModifier ?? 0);
+        var modifiedMinutes = destination.TravelTimeMinutes
+            + (districtCondition?.Effect.TravelTimeMinutesModifier ?? 0)
+            + InfrastructureImpactCalculator.GetTravelTimeModifier(Infrastructure, destination.District);
         return Math.Max(1, modifiedMinutes);
     }
 
@@ -3502,7 +3577,12 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
     private void ResolveWeeklyEconomy(Random random)
     {
-        NpcEconomyResolver.ResolveWeek(NpcEconomies, Relationships, Clock.Day, random);
+        var hardshipModifier = NewsImpactCalculator.GetNpcHardshipModifier(News);
+        NpcEconomyResolver.ResolveWeek(NpcEconomies, Relationships, Clock.Day, random, hardshipModifier);
+        if (hardshipModifier > 0)
+        {
+            RaiseEvent($"City pressure is reaching household economies. Local hardship risk is up by {hardshipModifier}.");
+        }
 
         var hajjEconomy = NpcEconomies.GetEconomy(NpcId.LandlordHajjMahmoud);
         if (hajjEconomy.WealthLevel == NpcWealthLevel.Struggling || hajjEconomy.WealthLevel == NpcWealthLevel.Poor)

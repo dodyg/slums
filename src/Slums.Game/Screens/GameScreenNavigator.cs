@@ -45,6 +45,7 @@ internal sealed class GameScreenNavigator
             GameActionId.TakeMotherToClinic => ShowClinicTravelMenu(),
             GameActionId.Travel => ShowTravelMenu(),
             GameActionId.Phone => ShowPhoneMenu(),
+            GameActionId.News => ShowNewsMenu(),
             GameActionId.SaveGame => ShowSaveMenu(),
             _ => false
         };
@@ -116,6 +117,12 @@ internal sealed class GameScreenNavigator
     {
         var phoneContext = PhoneMenuContext.Create(_gameState);
         NavigateTo(new PhoneScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, phoneContext, _parentScreen));
+        return true;
+    }
+
+    private bool ShowNewsMenu()
+    {
+        NavigateTo(new NewsScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, _parentScreen));
         return true;
     }
 

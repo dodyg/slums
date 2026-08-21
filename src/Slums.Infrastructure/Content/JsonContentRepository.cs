@@ -7,6 +7,9 @@ using Slums.Core.Jobs;
 using Slums.Core.State;
 using Slums.Core.World;
 using Slums.Core.Robotics;
+using Slums.Core.Inventory;
+using Slums.Core.Relationships;
+using Slums.Core.World.News;
 
 namespace Slums.Infrastructure.Content;
 
@@ -63,6 +66,21 @@ public sealed class JsonContentRepository : IContentRepository
     public IReadOnlyList<RobotDefinition> LoadRobots()
     {
         return Load(Path.Combine(_contentDirectory, "robots.json"), ContentJsonContext.Default.ListRobotDefinition);
+    }
+
+    public IReadOnlyList<NewsFlashDefinition> LoadNewsFlashes()
+    {
+        return Load(Path.Combine(_contentDirectory, "news_flashes.json"), ContentJsonContext.Default.ListNewsFlashDefinition);
+    }
+
+    public IReadOnlyList<ItemDefinition> LoadItems()
+    {
+        return Load(Path.Combine(_contentDirectory, "items.json"), ContentJsonContext.Default.ListItemDefinition);
+    }
+
+    public IReadOnlyList<NpcScheduleDefinition> LoadNpcSchedules()
+    {
+        return Load(Path.Combine(_contentDirectory, "npc_schedules.json"), ContentJsonContext.Default.ListNpcScheduleDefinition);
     }
 
     private List<T> Load<T>(string path, System.Text.Json.Serialization.Metadata.JsonTypeInfo<List<T>> jsonTypeInfo)

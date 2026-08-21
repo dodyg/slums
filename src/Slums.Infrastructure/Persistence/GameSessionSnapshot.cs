@@ -62,6 +62,12 @@ public sealed record GameSessionSnapshot
     /// <summary>Structured event journal, preserved so the UI log is not empty after load.</summary>
     public IReadOnlyList<EventJournalEntry> Journal { get; init; } = [];
 
+    public GameSessionNewsSnapshot News { get; init; } = new();
+
+    public GameSessionInfrastructureSnapshot Infrastructure { get; init; } = new();
+
+    public GameSessionInventorySnapshot Inventory { get; init; } = new();
+
     /// <summary>
     /// Serializable state of the session's shared random source. Restoring it lets a continued
     /// session reproduce the exact same weather, events, economy, and outcomes as the
@@ -99,6 +105,9 @@ public sealed record GameSessionSnapshot
             Tips = GameSessionTipSnapshot.Capture(gameSession),
             Rumors = gameSession.Rumors.ActiveRumors.Select(RumorSnapshot.Capture).ToArray(),
             Journal = gameSession.EventJournal.Entries.ToArray(),
+            News = GameSessionNewsSnapshot.Capture(gameSession),
+            Infrastructure = GameSessionInfrastructureSnapshot.Capture(gameSession),
+            Inventory = GameSessionInventorySnapshot.Capture(gameSession),
             RandomState = gameSession.RandomState
         };
     }
@@ -227,6 +236,9 @@ public sealed record GameSessionSnapshot
             }
 
             gameSession.RestoreEventJournal(Journal);
+            News.Restore(gameSession);
+            Infrastructure.Restore(gameSession);
+            Inventory.Restore(gameSession);
 
             foreach (var npcId in Enum.GetValues<NpcId>())
             {

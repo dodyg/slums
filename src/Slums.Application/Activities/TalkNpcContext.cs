@@ -13,7 +13,8 @@ public sealed record TalkNpcContext(
     int HonestShiftsCompleted,
     int CrimesCommitted,
     int PolicePressure,
-    NarrativeSceneState SceneState)
+    NarrativeSceneState SceneState,
+    IReadOnlyDictionary<NpcId, NpcAvailability> Availability)
 {
     public static TalkNpcContext Create(GameSession gameSession)
     {
@@ -27,6 +28,7 @@ public sealed record TalkNpcContext(
             gameSession.HonestShiftsCompleted,
             gameSession.CrimesCommitted,
             gameSession.PolicePressure,
-            NarrativeSceneState.Create(gameSession));
+            NarrativeSceneState.Create(gameSession),
+            gameSession.GetNpcAvailability().ToDictionary(static item => item.Npc));
     }
 }

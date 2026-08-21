@@ -84,6 +84,8 @@ public sealed class GameActionMenuQuery
             actions.Add(new GameAction(GameActionId.Phone, label));
         }
 
+        actions.Add(new GameAction(GameActionId.News, "City News"));
+
         actions.Add(new GameAction(GameActionId.SaveGame, "Save Game"));
         actions.Add(new GameAction(GameActionId.EndDay, "End Day"));
 

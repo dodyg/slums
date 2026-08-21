@@ -4,7 +4,7 @@ namespace Slums.Core.Economy;
 
 public static class NpcEconomyResolver
 {
-    public static void ResolveWeek(NpcEconomyState economies, RelationshipState relationships, int currentDay, Random random)
+    public static void ResolveWeek(NpcEconomyState economies, RelationshipState relationships, int currentDay, Random random, int hardshipModifier = 0)
     {
         ArgumentNullException.ThrowIfNull(economies);
         ArgumentNullException.ThrowIfNull(relationships);
@@ -31,11 +31,12 @@ public static class NpcEconomyResolver
             roll = random.Next(100);
 #pragma warning restore CA5394
 
-            if (roll < def.HardshipChance)
+            var hardshipChance = Math.Clamp(def.HardshipChance + hardshipModifier, 0, 100);
+            if (roll < hardshipChance)
             {
                 ApplyHardship(economies, relationships, npcId, economy, currentDay, random);
             }
-            else if (roll < def.HardshipChance + def.WindfallChance)
+            else if (roll < hardshipChance + def.WindfallChance)
             {
                 int generousDays;
 #pragma warning disable CA5394

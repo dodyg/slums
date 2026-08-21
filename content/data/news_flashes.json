@@ -1,0 +1,80 @@
+[
+  {
+    "Id": "medicine_shipments_delayed", "Category": "Displacement", "Headline": "Medicine shipments delayed at the southern crossings", "Body": "Regional fighting has slowed the route used by generic medicine suppliers. Rahma Clinic is asking patients not to panic-buy.", "SourceLabel": "Rahma Clinic network", "SourceType": "ClinicNotice", "Reliability": "Confirmed", "AffectedDistricts": ["ArdAlLiwa", "BulaqAlDakrour", "Imbaba"], "MinimumDay": 3, "Weight": 8, "CooldownDays": 2, "DurationDays": 4,
+    "Effects": [
+      { "Type": "StartInfrastructureDisruption", "Service": "ClinicMedicine", "Severity": "Disrupted", "DurationDays": 4 },
+      { "Type": "FoodPriceModifier", "Amount": 1, "District": "ArdAlLiwa" }
+    ],
+    "Responses": [
+      { "Id": "prepare_packet", "Label": "Buy a clinic supply packet", "Type": "Prepare", "MoneyCost": 12, "RequiredItemId": "clinic_supply_packet", "RequiredItemQuantity": 1, "OutcomeMessage": "You keep one packet aside and leave the rest for the clinic queue." },
+      { "Id": "help_clinic", "Label": "Help the clinic collection", "Type": "HelpCommunity", "TimeCostMinutes": 60, "TrustChange": 2, "OutcomeMessage": "You carry boxes and translate a few anxious messages. The waiting room settles." }
+    ]
+  },
+  {
+    "Id": "crossings_tighten", "Category": "Conflict", "Headline": "Crossings tighten after failed ceasefire talks", "Body": "More document checks are expected on routes used by displaced families. Umm Karim says the neighborhood is sharing warnings quietly.", "SourceLabel": "Umm Karim's voice notes", "SourceType": "CommunityNetwork", "Reliability": "Likely", "AffectedDistricts": ["Imbaba", "Dokki", "DowntownCairo"], "MinimumDay": 5, "Weight": 7, "CooldownDays": 3, "DurationDays": 5,
+    "Effects": [
+      { "Type": "PolicePressureModifier", "Amount": 2, "District": "Dokki" },
+      { "Type": "NpcHardshipModifier", "Amount": 3 }
+    ],
+    "Responses": [
+      { "Id": "share_warning", "Label": "Share the warning", "Type": "ShareInformation", "TimeCostMinutes": 30, "TrustChange": 2, "OutcomeMessage": "The warning travels through the rooftops before the official message catches up." },
+      { "Id": "carry_papers", "Label": "Prepare your documents", "Type": "Prepare", "MoneyCost": 18, "RequiredItemId": "work_papers", "RequiredItemQuantity": 1, "OutcomeMessage": "You put the papers in a plastic sleeve and keep them close." }
+    ]
+  },
+  {
+    "Id": "freight_insurance_rises", "Category": "Economy", "Headline": "Red Sea freight insurance pushes food and fare prices up", "Body": "Importers are passing another small increase down the chain. The market sellers are already recalculating staples on paper.", "SourceLabel": "Midan radio bulletin", "SourceType": "Broadcast", "Reliability": "Confirmed", "AffectedDistricts": ["Imbaba", "BulaqAlDakrour", "Shubra", "Dokki"], "MinimumDay": 4, "Weight": 9, "CooldownDays": 2, "DurationDays": 5,
+    "Effects": [
+      { "Type": "FoodPriceModifier", "Amount": 3 },
+      { "Type": "TravelCostModifier", "Amount": 1 },
+      { "Type": "NpcHardshipModifier", "Amount": 2 }
+    ],
+    "Responses": [
+      { "Id": "community_parcel", "Label": "Join the bulk food order", "Type": "HelpCommunity", "MoneyCost": 8, "TrustChange": 1, "OutcomeMessage": "A bulk order does not make the prices fair, but it keeps the neighborhood from bidding against itself." }
+    ]
+  },
+  {
+    "Id": "platform_rates_cut", "Category": "Labor", "Headline": "Delivery platform cuts contractor rates after automated review", "Body": "A pricing model has marked Cairo routes as less profitable. Drivers and call workers are being asked to do more for less.", "SourceLabel": "TechConnect staff channel", "SourceType": "PlatformMessage", "Reliability": "Confirmed", "AffectedDistricts": ["Dokki", "DowntownCairo"], "MinimumDay": 6, "Weight": 8, "CooldownDays": 3, "DurationDays": 4,
+    "Effects": [
+      { "Type": "JobPayModifier", "Amount": -6 },
+      { "Type": "NpcHardshipModifier", "Amount": 4 }
+    ],
+    "Responses": [
+      { "Id": "change_route", "Label": "Switch to local workshop work", "Type": "ChangeRoute", "TimeCostMinutes": 30, "OutcomeMessage": "You trade the app queue for a bench, where Abu Samir still pays in cash." }
+    ]
+  },
+  {
+    "Id": "solar_import_delay", "Category": "Technology", "Headline": "Solar battery imports wait at the port", "Body": "Repair shops are stripping old panels for parts while the official shipment sits in paperwork. The rooftop co-op asks households to conserve.", "SourceLabel": "Abu Samir's repair bench", "SourceType": "CommunityNetwork", "Reliability": "Likely", "AffectedDistricts": ["Imbaba", "ArdAlLiwa", "Shubra"], "MinimumDay": 7, "Weight": 6, "CooldownDays": 3, "DurationDays": 6,
+    "Effects": [
+      { "Type": "StartInfrastructureDisruption", "Service": "Electricity", "Severity": "Strained", "DurationDays": 5 },
+      { "Type": "StartInfrastructureDisruption", "Service": "Electricity", "Severity": "Disrupted", "District": "ArdAlLiwa", "DurationDays": 3 }
+    ],
+    "Responses": [
+      { "Id": "bring_cell", "Label": "Contribute a solar cell", "Type": "HelpCommunity", "RequiredItemId": "solar_cell", "RequiredItemQuantity": 1, "TrustChange": 2, "OutcomeMessage": "The co-op cannot fix the import delay, but your cell keeps one stairwell light alive." }
+    ]
+  },
+  {
+    "Id": "clinic_partnership_funded", "Category": "Civic", "Headline": "Rahma Clinic receives emergency supply funding", "Body": "A partnership with a teaching hospital releases a small emergency stock. It will not last forever, but the queue has room again.", "SourceLabel": "Rahma Clinic noticeboard", "SourceType": "ClinicNotice", "Reliability": "Confirmed", "AffectedDistricts": ["ArdAlLiwa", "BulaqAlDakrour"], "MinimumDay": 8, "Weight": 5, "CooldownDays": 4, "DurationDays": 4,
+    "Effects": [ { "Type": "CommunityOpportunity", "Amount": 1, "District": "ArdAlLiwa" } ],
+    "Responses": [ { "Id": "volunteer_clinic", "Label": "Volunteer at the clinic", "Type": "HelpCommunity", "TimeCostMinutes": 60, "TrustChange": 3, "OutcomeMessage": "You sort supplies and keep the clinic's limited stock moving to the people who need it." } ]
+  },
+  {
+    "Id": "remittance_outage", "Category": "Infrastructure", "Headline": "Community remittance service suffers an outage", "Body": "A neighborhood wallet provider has stopped clearing transfers. Families are falling back to trusted couriers and handwritten receipts.", "SourceLabel": "Mona's rooftop group", "SourceType": "CommunityNetwork", "Reliability": "Likely", "AffectedDistricts": ["Imbaba", "Shubra"], "MinimumDay": 9, "Weight": 6, "CooldownDays": 3, "DurationDays": 3,
+    "Effects": [
+      { "Type": "NpcHardshipModifier", "Amount": 5 },
+      { "Type": "FoodPriceModifier", "Amount": 1, "District": "Imbaba" }
+    ],
+    "Responses": [ { "Id": "carry_remittance", "Label": "Carry a trusted message", "Type": "UseContact", "TimeCostMinutes": 45, "TrustChange": 2, "OutcomeMessage": "You carry a voice note and a printed receipt through the alleys. Trust matters more than the broken wallet today." } ]
+  },
+  {
+    "Id": "transport_route_slowdown", "Category": "Infrastructure", "Headline": "A route dispute slows transport across three districts", "Body": "Drivers are refusing the disputed route and electric buses are turning around early. Walking remains possible, but every trip now takes planning.", "SourceLabel": "Bulaq depot board", "SourceType": "EmployerNotice", "Reliability": "Confirmed", "AffectedDistricts": ["BulaqAlDakrour", "Dokki", "DowntownCairo"], "MinimumDay": 10, "Weight": 7, "CooldownDays": 3, "DurationDays": 5,
+    "Effects": [
+      { "Type": "StartInfrastructureDisruption", "Service": "Transport", "Severity": "Strained", "DurationDays": 5 },
+      { "Type": "TravelCostModifier", "Amount": 2 },
+      { "Type": "JobPayModifier", "Amount": -2 }
+    ],
+    "Responses": [
+      { "Id": "buy_pass", "Label": "Secure a depot pass", "Type": "Prepare", "MoneyCost": 6, "RequiredItemId": "transit_pass", "RequiredItemQuantity": 1, "OutcomeMessage": "Safaa finds you a route token. It is not a promise, but it keeps one trip possible." },
+      { "Id": "share_route", "Label": "Share the walking route", "Type": "ShareInformation", "TimeCostMinutes": 30, "TrustChange": 1, "OutcomeMessage": "You mark the safer side streets on Mona's phone map." }
+    ]
+  }
+]

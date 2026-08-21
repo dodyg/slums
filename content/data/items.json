@@ -1,0 +1,10 @@
+[
+  { "Id": "work_papers", "Name": "Work papers", "Description": "A replacement document packet that makes employer and checkpoint questions shorter.", "MaximumQuantity": 2 },
+  { "Id": "phone_repair_parts", "Name": "Phone repair parts", "Description": "Second-hand screens, ribbon cable, and a battery cell from Abu Samir's repair network.", "MaximumQuantity": 4 },
+  { "Id": "clinic_supply_packet", "Name": "Clinic supply packet", "Description": "Sealed low-cost dressings and basic supplies that Rahma Clinic can actually use.", "MaximumQuantity": 4 },
+  { "Id": "water_container", "Name": "Water container", "Description": "A clean twenty-litre container for carrying water when the pump schedule slips.", "MaximumQuantity": 3 },
+  { "Id": "repair_component", "Name": "Repair component", "Description": "A useful connector, sensor, or motor part for local repair work.", "MaximumQuantity": 6 },
+  { "Id": "community_food_parcel", "Name": "Community food parcel", "Description": "Bread, beans, and tea packed by a neighborhood kitchen for a household under pressure.", "MaximumQuantity": 4 },
+  { "Id": "transit_pass", "Name": "Transit pass", "Description": "A prepaid route token passed through the depot network when fares rise suddenly.", "MaximumQuantity": 5 },
+  { "Id": "solar_cell", "Name": "Solar cell", "Description": "A salvaged photovoltaic cell that can keep a small rooftop battery bank useful.", "MaximumQuantity": 4 }
+]

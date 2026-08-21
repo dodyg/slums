@@ -126,6 +126,22 @@ internal sealed class JsonContentRepositoryTests
     }
 
     [Test]
+    public void LoadWorldEnrichmentCatalogs_FromRepositoryContent_ShouldContainCrossReferencedData()
+    {
+        var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, GetRepositoryContentDirectory());
+
+        var news = repository.LoadNewsFlashes();
+        var items = repository.LoadItems();
+        var schedules = repository.LoadNpcSchedules();
+
+        news.Should().HaveCount(8);
+        news.Should().Contain(definition => definition.Id == "platform_rates_cut");
+        items.Should().HaveCount(8);
+        items.Should().Contain(item => item.Id == "clinic_supply_packet");
+        schedules.Should().HaveCount(Enum.GetValues<Slums.Core.Relationships.NpcId>().Length);
+    }
+
+    [Test]
     public void LoadLocations_FromRepositoryContent_ShouldEnableEveryConfiguredJobLocation()
     {
         var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, GetRepositoryContentDirectory());
