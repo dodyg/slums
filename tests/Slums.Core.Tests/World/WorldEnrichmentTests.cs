@@ -1,5 +1,6 @@
 using Slums.Core.Clock;
 using Slums.Core.Inventory;
+using Slums.Core.Economy;
 using Slums.Core.Relationships;
 using Slums.Core.World;
 using Slums.Core.World.News;
@@ -121,6 +122,19 @@ internal sealed class WorldEnrichmentTests
         await Assert.That(availability.IsAvailable).IsFalse();
         await Assert.That(availability.Location).IsEqualTo(LocationId.Laundry);
         await Assert.That(availability.Reason).Contains("laundry");
+    }
+
+    [Test]
+    public async Task NewsHardshipModifier_ShouldIncreaseBoundedNpcHardshipResolution()
+    {
+        var economies = new NpcEconomyState();
+        economies.Initialize();
+        var relationships = new RelationshipState();
+
+        NpcEconomyResolver.ResolveWeek(economies, relationships, 7, new AlwaysGeneratingRandom(), hardshipModifier: 100);
+
+        await Assert.That(economies.GetStrugglingNpcs()).Count().IsGreaterThan(0);
+        await Assert.That(economies.GetStrugglingNpcs().Count).IsLessThanOrEqualTo(Enum.GetValues<NpcId>().Length);
     }
 
     private sealed class AlwaysGeneratingRandom : Random

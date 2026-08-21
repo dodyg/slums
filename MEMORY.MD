@@ -23,7 +23,7 @@ tests/
   Slums.Narrative.Ink.Tests/
 content/
   ink/                  # .ink source files, compiled to main.json
-  data/                 # JSON: backgrounds, jobs, locations, random_events, district_conditions, plants, pets, robots
+  data/                 # JSON: world catalogs, jobs, locations, random events, news, infrastructure, items, schedules
 ```
 
 **Dependency Direction**: Always inward. `Slums.Core` references nothing. UI never contains business logic.
@@ -47,6 +47,7 @@ The canonical runtime boundary for an active run. Key state groups:
 - **Economy**: Debts (4 sources), NPC economies, investments
 - **Crime/Law**: District heat (per-district police pressure), territory control, crime counters
 - **Information**: Phone state/messages, tips, rumors
+- **World pressure**: Reactive city news, infrastructure service outages, inventory items, and NPC availability schedules
 - **Progress**: Job progress, event history, story flags, community event attendance, training
 - **Narrative**: Pending scene queue, ending knot
 - **Diagnostics**: Mutation record list with GameMutationRecord entries
@@ -70,6 +71,8 @@ The canonical runtime boundary for an active run. Key state groups:
    - Resolve sellable plant income
    - Advance clock to next day (Day++, reset to 06:00, travel to Home)
    - Update Ramadan state, roll district conditions, roll new weather
+   - Resolve eligible city news, expire prior flashes, apply infrastructure effects, and journal the headline
+   - Apply news-driven document pressure and queue any authored follow-up knot
    - On Mondays: weekly household asset neglect, investment resolution, NPC economy resolution
    - Reset daily flags (nutrition, household, training, crime)
    - Check community event skip consequences (3+ skips: concern, 5+ skips: trust penalties)

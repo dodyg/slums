@@ -6,7 +6,7 @@
       { "Type": "FoodPriceModifier", "Amount": 1, "District": "ArdAlLiwa" }
     ],
     "Responses": [
-      { "Id": "prepare_packet", "Label": "Buy a clinic supply packet", "Type": "Prepare", "MoneyCost": 12, "RequiredItemId": "clinic_supply_packet", "RequiredItemQuantity": 1, "OutcomeMessage": "You keep one packet aside and leave the rest for the clinic queue." },
+      { "Id": "prepare_packet", "Label": "Use a clinic supply packet", "Type": "Prepare", "RequiredItemId": "clinic_supply_packet", "RequiredItemQuantity": 1, "OutcomeMessage": "You keep one packet aside and leave the rest for the clinic queue." },
       { "Id": "help_clinic", "Label": "Help the clinic collection", "Type": "HelpCommunity", "TimeCostMinutes": 60, "TrustChange": 2, "OutcomeMessage": "You carry boxes and translate a few anxious messages. The waiting room settles." }
     ]
   },

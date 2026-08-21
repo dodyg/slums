@@ -465,9 +465,24 @@ public sealed class GameSession : INarrativeOutcomeTarget
         RaiseEvent("You return home for the night.");
 
         var newNews = NewsService.ResolveStartOfDay(News, Infrastructure, EventJournal, Clock.Day, random ?? _sharedRandom);
-        if (newNews?.InkKnot is not null)
+        if (newNews is not null)
         {
-            QueueNarrativeScene(newNews.InkKnot);
+            foreach (var district in newNews.AffectedDistricts)
+            {
+                var pressure = NewsImpactCalculator.GetPolicePressureModifier(News, district);
+                if (pressure > 0)
+                {
+                    DistrictHeat.AddHeat(district, pressure);
+                    RaiseEvent($"The {newNews.Headline} brings extra document pressure to {DistrictInfo.GetName(district)}.");
+                }
+            }
+
+            RecordMutation(MutationCategories.News, "ResolveStartOfDay", before, CaptureStats(), newNews.Headline);
+
+            if (newNews.InkKnot is not null)
+            {
+                QueueNarrativeScene(newNews.InkKnot);
+            }
         }
 
         if (GetCurrentDayOfWeek() == GameDayOfWeek.Monday)

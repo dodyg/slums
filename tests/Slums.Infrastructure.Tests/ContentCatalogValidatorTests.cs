@@ -1,8 +1,11 @@
 using FluentAssertions;
 using Slums.Core.Characters;
 using Slums.Core.Events;
+using Slums.Core.Inventory;
 using Slums.Core.Jobs;
+using Slums.Core.Relationships;
 using Slums.Core.World;
+using Slums.Core.World.News;
 using Slums.Infrastructure.Content;
 using TUnit;
 
@@ -26,6 +29,80 @@ internal sealed class ContentCatalogValidatorTests
             KnownKnots);
 
         act.Should().NotThrow();
+    }
+
+    [Test]
+    public async Task Validate_WithWorldEnrichmentCatalog_DoesNotThrow()
+    {
+        var catalog = BuildValidCatalog();
+        var news = new NewsFlashDefinition
+        {
+            Id = "news",
+            Headline = "Headline",
+            Body = "Body",
+            SourceLabel = "Source",
+            MinimumDay = 1,
+            Weight = 1,
+            DurationDays = 2,
+            AffectedDistricts = [DistrictId.Imbaba],
+            Responses = [new NewsResponseDefinition
+            {
+                Id = "prepare",
+                Label = "Prepare",
+                Type = NewsResponseType.Prepare,
+                RequiredItemId = "papers",
+                RequiredItemQuantity = 1
+            }]
+        };
+        var items = new[] { new ItemDefinition { Id = "papers", Name = "Papers", Description = "Documents", MaximumQuantity = 1 } };
+        var schedules = new[] { new NpcScheduleDefinition { Npc = NpcId.NeighborMona, Days = [Slums.Core.Clock.GameDayOfWeek.Saturday], StartMinute = 360, EndMinute = 600, Location = LocationId.Home, AbsenceReason = "At home." } };
+
+        var act = () => ContentCatalogValidator.Validate(
+            catalog.Backgrounds,
+            catalog.Locations,
+            catalog.Jobs,
+            catalog.RandomEvents,
+            catalog.DistrictConditions,
+            catalog.Pets,
+            catalog.Plants,
+            KnownKnots,
+            newsFlashes: [news],
+            items: items,
+            npcSchedules: schedules);
+
+        act.Should().NotThrow();
+    }
+
+    [Test]
+    public async Task Validate_NewsResponseWithUnknownItem_Fails()
+    {
+        var catalog = BuildValidCatalog();
+        var news = new NewsFlashDefinition
+        {
+            Id = "news",
+            Headline = "Headline",
+            Body = "Body",
+            SourceLabel = "Source",
+            MinimumDay = 1,
+            Weight = 1,
+            DurationDays = 2,
+            Responses = [new NewsResponseDefinition { Id = "prepare", Label = "Prepare", Type = NewsResponseType.Prepare, RequiredItemId = "missing", RequiredItemQuantity = 1 }]
+        };
+
+        var act = () => ContentCatalogValidator.Validate(
+            catalog.Backgrounds,
+            catalog.Locations,
+            catalog.Jobs,
+            catalog.RandomEvents,
+            catalog.DistrictConditions,
+            catalog.Pets,
+            catalog.Plants,
+            KnownKnots,
+            newsFlashes: [news],
+            items: [new ItemDefinition { Id = "papers", Name = "Papers", Description = "Documents", MaximumQuantity = 1 }],
+            npcSchedules: []);
+
+        act.Should().Throw<ContentLoadException>().WithMessage("*invalid required item*");
     }
 
     [Test]

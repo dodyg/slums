@@ -17,6 +17,9 @@ The repository contains a playable .NET 10 vertical slice with:
 - 13 recurring NPC relationships, phone messages, community events, debt, NPC economy, and small-business investments
 - JSON snapshot persistence around `GameSession` and `LoadedGameSession`
 - persistent second-hand robotics: three purchasable machine models, spare-part stock, workshop repairs, and scavenging-job wear/recovery
+- reactive city news with source reliability, district effects, one-shot player responses, and event-journal entries
+- infrastructure service state for electricity, water, transport, and clinic medicine, with gameplay impacts and snapshot persistence
+- JSON-authored inventory items and NPC schedule windows used by response actions, status views, and talk availability
 - eight ending identifiers: four failure outcomes and four good or ambiguous long-term outcomes
 - structured mutation diagnostics and executable TUnit suites for every project layer
 
@@ -87,8 +90,8 @@ Acceptance targets:
 
 ### 2. Balance and visibility
 
-- audit pay, food, rent, clinic, transport, debt, and investment values as one economy
-- make schedule, weather, district condition, territory, and relationship modifiers visible before commitment
+- audit pay, food, rent, clinic, transport, debt, investment, news, and infrastructure values as one economy
+- make schedule, weather, district condition, territory, relationship, news, and service modifiers visible before commitment
 - keep preview values and committed outcomes on the same calculation path
 - verify walking and paid travel remain meaningful alternatives
 
@@ -101,6 +104,7 @@ Acceptance targets:
 
 ### 4. Authored reactivity
 
+- add selected Ink follow-ups to high-impact news flashes after the systemic responses have been playtested
 - audit recurring dialogue coverage against the 100-day no-repeat requirement
 - expand route-specific aftermath for debt, work mistakes, district heat, household care, and leaving crime
 - keep gender and background reactions grounded and consequential without turning them into deterministic success/failure choices
