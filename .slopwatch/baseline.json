@@ -1,7 +1,17 @@
 {
   "version": 1,
   "createdAt": "2026-03-28T13:05:56.4427352+00:00",
-  "updatedAt": "2026-03-28T13:05:56.4427357+00:00",
+  "updatedAt": "2026-08-21T20:15:30.7252216+00:00",
   "description": "Initial baseline created by 'slopwatch init' on 2026-03-28 13:05:56 UTC",
-  "entries": []
+  "entries": [
+    {
+      "hash": "42c4e31ea3ec34b3",
+      "ruleId": "SW003",
+      "filePath": "src/Slums.Infrastructure/Persistence/JsonSaveGameStore.cs",
+      "lineNumber": 211,
+      "codeSnippet": "catch (IOException)\n        {\n            // Best-effort cleanup of the temporary file; the original save is untouched.\n        }",
+      "message": "Empty catch block swallows exceptions without handling",
+      "baselinedAt": "2026-08-21T20:15:30.72521+00:00"
+    }
+  ]
 }
