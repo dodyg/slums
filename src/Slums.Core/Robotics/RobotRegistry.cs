@@ -10,7 +10,7 @@ public static class RobotRegistry
         {
             Type = RobotType.SalvageCrawler,
             Name = "Salvage Crawler",
-            Description = "A second-hand tracked crawler that can pull useful boards and actuator parts from dead infrastructure.",
+            Description = "A second-hand tracked crawler that can pull useful circuit boards and motor parts from dead infrastructure.",
             PurchaseCost = 125,
             RepairCost = 18,
             RepairCondition = 45,
@@ -20,7 +20,7 @@ public static class RobotRegistry
         {
             Type = RobotType.RepairDrone,
             Name = "Repair Drone",
-            Description = "A battered quad-rotor with a solder arm; its flight controller remembers every hard landing.",
+            Description = "A battered inspection quadcopter with a solder arm; its flight controller remembers every hard landing.",
             PurchaseCost = 165,
             RepairCost = 24,
             RepairCondition = 40,
@@ -30,7 +30,7 @@ public static class RobotRegistry
         {
             Type = RobotType.CargoMule,
             Name = "Cargo Mule",
-            Description = "A squat autonomous hauler built for alleys where delivery firms stopped sending drivers.",
+            Description = "A squat remote-assisted cargo hauler built for alleys where delivery firms stopped sending drivers.",
             PurchaseCost = 210,
             RepairCost = 30,
             RepairCondition = 35,

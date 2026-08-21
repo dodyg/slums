@@ -319,7 +319,7 @@ internal sealed class JobServiceTests
         var jobs = service.GetAvailableJobs(location, new PlayerCharacter(), new RelationshipState(), new JobProgressState()).ToList();
 
         jobs.Should().ContainSingle(static job => job.Type == JobType.RoboticsScavenging);
-        jobs.Single(static job => job.Type == JobType.RoboticsScavenging).Description.Should().Contain("failed delivery drones");
+        jobs.Single(static job => job.Type == JobType.RoboticsScavenging).Description.Should().Contain("broken delivery drones");
     }
 
     [Test]

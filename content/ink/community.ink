@@ -47,7 +47,7 @@ The work is not glamorous. The stairwell smells like ammonia and old cooking oil
 === event_rooftop_tea ===
 The invitation arrives through Mona, who says Umm Karim is hosting tea on the roof tonight and specifically mentioned your name. This is either an honor or a test, and with Umm Karim, the difference is not always clear.
 
-The rooftop at dusk is beautiful in the way that only Cairo rooftops can be: water tanks and portable reactor housings silhouetted against a sky the color of bruised fruit, the call to prayer mixing with autonomous-car chimes, and electronic drones crossing the sunset in orderly lines. The entire city spreads out below like a problem too large to solve but too present to ignore.
+The rooftop at dusk is beautiful in the way that only Cairo rooftops can be: water tanks and patched solar panels silhouetted against a sky the color of bruised fruit, the call to prayer mixing with taxi horns, and a delivery drone wobbling across the sunset. The entire city spreads out below like a problem too large to solve but too present to ignore.
 
 *   [Attend and listen carefully]
     Umm Karim pours tea with the precision of someone measuring more than liquid. The conversation circles around prices, police movements, and which kiosk owner is cheating his customers this week. You listen more than you speak, which is exactly what Umm Karim prefers.

@@ -31,7 +31,7 @@ public sealed class WorldState
         {
             Id = LocationId.Home,
             Name = "Your Apartment",
-            Description = "A small two-room flat you share with your mother, tied to a rationed neighborhood microgrid beneath the drone lanes.",
+            Description = "A small two-room flat you share with your mother, lit by a rooftop solar co-op when the neighborhood supply holds.",
             District = DistrictId.Imbaba,
             HasJobOpportunities = false,
             HasCrimeOpportunities = false,
@@ -41,7 +41,7 @@ public sealed class WorldState
         {
             Id = LocationId.Market,
             Name = "Souk Al-Gom'a",
-            Description = "The Friday market, busy with vendors, shoppers, repair stalls, and delivery drones cutting across the sky.",
+            Description = "The Friday market, busy with vendors, shoppers, repair stalls, and the occasional delivery drone above the roofs.",
             District = DistrictId.Imbaba,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
@@ -52,7 +52,7 @@ public sealed class WorldState
         {
             Id = LocationId.Bakery,
             Name = "Al-Forn Al-Baladi",
-            Description = "A traditional bakery where bread is baked in stone ovens while a rooftop solar array and old reactor cell keep the ovens running.",
+            Description = "A traditional bakery where bread is baked in stone ovens and a temperamental solar inverter helps keep the lights on.",
             District = DistrictId.Imbaba,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
@@ -62,7 +62,7 @@ public sealed class WorldState
         {
             Id = LocationId.CallCenter,
             Name = "TechConnect Office",
-            Description = "An AI-assisted call center serving international clients, where a persistent system scores every pause in your voice.",
+            Description = "A call center serving international clients, where speech software scores your script and a supervisor decides what the software missed.",
             District = DistrictId.Dokki,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
@@ -72,7 +72,7 @@ public sealed class WorldState
         {
             Id = LocationId.Square,
             Name = "Midan Al-Tahrir",
-            Description = "The busy central square where autonomous EVs, old buses, street sellers, and electronic drone corridors meet.",
+            Description = "The busy central square where electric taxis, old buses, street sellers, and the city's first delivery drones share the road.",
             District = DistrictId.DowntownCairo,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
@@ -83,7 +83,7 @@ public sealed class WorldState
         {
             Id = LocationId.Clinic,
             Name = "Rahma Clinic",
-            Description = "A cramped low-cost clinic where waiting patients spill into the hallway and cybernetic diagnostics are mostly out of reach.",
+            Description = "A cramped low-cost clinic where waiting patients spill into the hallway and even a working ultrasound is a precious resource.",
             District = DistrictId.ArdAlLiwa,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
@@ -96,7 +96,7 @@ public sealed class WorldState
         {
             Id = LocationId.Workshop,
             Name = "Abu Samir Sewing Workshop",
-            Description = "A noisy garment workshop with irons hissing, fabric dust in the air, and a side bench for repairing cheap prosthetic joints.",
+            Description = "A noisy garment workshop with irons hissing, fabric dust in the air, and a side bench for repairing imported mobility aids.",
             District = DistrictId.ArdAlLiwa,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
@@ -106,7 +106,7 @@ public sealed class WorldState
         {
             Id = LocationId.Cafe,
             Name = "Ahwa El-Galaa",
-            Description = "A Dokki street cafe serving tea, shai, and endless neighborhood gossip beneath a restricted autonomous-vehicle lane.",
+            Description = "A Dokki street cafe serving tea, shai, and endless neighborhood gossip beside a marked lane for electric taxis.",
             District = DistrictId.Dokki,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
@@ -117,7 +117,7 @@ public sealed class WorldState
         {
             Id = LocationId.Pharmacy,
             Name = "Saidaleya Al-Nahda",
-            Description = "A discount pharmacy in Bulaq al-Dakrour with stacked boxes, tired fluorescent lights, and women comparing ordinary medicine against expensive cybernetic care.",
+            Description = "A discount pharmacy in Bulaq al-Dakrour with stacked boxes, tired fluorescent lights, and women comparing generic medicine against private clinics.",
             District = DistrictId.BulaqAlDakrour,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
@@ -131,7 +131,7 @@ public sealed class WorldState
         {
             Id = LocationId.Depot,
             Name = "Bulaq Microbus Depot",
-            Description = "A chaotic transport yard where autonomous EV routes are shouted louder than engines and everybody is late for something.",
+            Description = "A chaotic transport yard where electric-taxi routes are argued over beside idling microbuses and everybody is late for something.",
             District = DistrictId.BulaqAlDakrour,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
@@ -142,7 +142,7 @@ public sealed class WorldState
         {
             Id = LocationId.Laundry,
             Name = "Shubra Steam Laundry",
-            Description = "A hot narrow laundry where steam, starch, battery heat, and neighborhood gossip cling to everything at once.",
+            Description = "A hot narrow laundry where steam, starch, generator fumes, and neighborhood gossip cling to everything at once.",
             District = DistrictId.Shubra,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
@@ -153,7 +153,7 @@ public sealed class WorldState
         {
             Id = LocationId.FishMarket,
             Name = "Wikalet Al-Samak",
-            Description = "A fish market where wet floors, sensor tanks, shouted prices, and cloudy water crowd every step.",
+            Description = "A fish market where wet floors, cheap digital scales, shouted prices, and cloudy water crowd every step.",
             District = DistrictId.Imbaba,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,

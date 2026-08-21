@@ -2,7 +2,7 @@
   {
     "Type": "BakeryWork",
     "Name": "Bakery Work (Forn)",
-    "Description": "Work at Al-Forn Al-Baladi beside adaptive ovens, drone-fed flour bins, and an old reactor cell that keeps the bread line running",
+    "Description": "Work at Al-Forn Al-Baladi beside stone ovens, hand-loaded flour bins, and a solar inverter that fails when the heat rises",
     "BasePay": 21,
     "EnergyCost": 25,
     "StressCost": 3,
@@ -13,7 +13,7 @@
   {
     "Type": "HouseCleaning",
     "Name": "House Cleaning",
-    "Description": "Clean homes where service AIs are too expensive, locked out of aging apartments, or unable to reach the corners",
+    "Description": "Clean homes where imported service machines are too expensive, broken, or unable to reach the corners",
     "BasePay": 18,
     "EnergyCost": 32,
     "StressCost": 8,
@@ -24,7 +24,7 @@
   {
     "Type": "CallCenterWork",
     "Name": "Call Center Shift",
-    "Description": "Handle customer calls while TechConnect's persistent AI scores every response",
+    "Description": "Handle customer calls while TechConnect's speech software scores every response",
     "BasePay": 27,
     "EnergyCost": 15,
     "StressCost": 18,
@@ -57,7 +57,7 @@
   {
     "Type": "CafeService",
     "Name": "Cafe Service",
-    "Description": "Carry tea trays beneath a restricted autonomous-vehicle lane while the cafe's ordering AI quietly rates every table",
+    "Description": "Carry tea trays beside a marked electric-taxi lane while the cafe's ordering tablet quietly rates every table",
     "BasePay": 22,
     "EnergyCost": 20,
     "StressCost": 8,
@@ -68,7 +68,7 @@
   {
     "Type": "PharmacyStock",
     "Name": "Pharmacy Stock Shift",
-    "Description": "Sort medicine deliveries, restock shelves, and explain why cybernetic care is not covered at Saidaleya Al-Nahda",
+    "Description": "Sort medicine deliveries, restock shelves, and explain why private-clinic care is not covered at Saidaleya Al-Nahda",
     "BasePay": 23,
     "EnergyCost": 16,
     "StressCost": 10,
@@ -78,8 +78,8 @@
   },
   {
     "Type": "MicrobusDispatch",
-    "Name": "Autonomous EV Dispatch",
-    "Description": "Correct fleet-AI routes, load passengers, and keep tempers under control at the Bulaq depot",
+    "Name": "Electric Taxi Dispatch",
+    "Description": "Correct route-app errors, load passengers, and keep tempers under control at the Bulaq depot",
     "BasePay": 25,
     "EnergyCost": 24,
     "StressCost": 14,
@@ -101,7 +101,7 @@
   {
     "Type": "StreetVending",
     "Name": "Street Vendor Shift",
-    "Description": "Set up a folding table outside Midan Al-Tahrir and sell phone cases, drone batteries, and cheap accessories to commuters.",
+    "Description": "Set up a folding table outside Midan Al-Tahrir and sell phone cases, power banks, and cheap accessories to commuters.",
     "BasePay": 19,
     "EnergyCost": 22,
     "StressCost": 10,
@@ -123,7 +123,7 @@
   {
     "Type": "MarketPorter",
     "Name": "Market Porter Shift",
-    "Description": "Haul crates, stack ration sacks, and move deliveries the market drones cannot safely bring through the narrow aisles.",
+    "Description": "Haul crates, stack sacks, and move deliveries that couriers cannot safely bring through the narrow aisles.",
     "BasePay": 19,
     "EnergyCost": 30,
     "StressCost": 5,
@@ -134,7 +134,7 @@
   {
     "Type": "RoboticsScavenging",
     "Name": "Robotics Scavenging Shift",
-    "Description": "Strip failed delivery drones, dead inspection crawlers, and obsolete street hardware for reusable parts at Abu Samir's workshop.",
+    "Description": "Strip broken delivery drones, discarded inspection cameras, and obsolete street hardware for reusable parts at Abu Samir's workshop.",
     "BasePay": 24,
     "EnergyCost": 24,
     "StressCost": 11,

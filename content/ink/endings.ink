@@ -49,7 +49,7 @@ The train south feels unreal at first. In Luxor, nobody mistakes you for the stu
 -> DONE
 
 === ending_luxor_prisoner ===
-Leaving for Luxor does not erase the state file with your name on it. It does something quieter and still radical: it forces distance between your future and the rooms where other people learned to speak about you as if surveillance were fate.
+Leaving for Luxor does not erase the state file with your name on it. It does something quieter and still radical: it forces distance between your future and the rooms where other people learned to speak about you as if a database were fate.
 -> DONE
 
 === ending_luxor_sudanese ===
@@ -57,7 +57,7 @@ The train south feels like moving toward air instead of scrutiny. Luxor is not f
 -> DONE
 
 === ending_arrested ===
-The holding cell smells of heat, metal, and old fear. A wall display keeps asking for your biometric consent in a voice that never changes. Somewhere above you, Cairo keeps bargaining, praying, hustling, and surviving without pausing long enough to notice one more {gender == "male": man | woman} disappear indoors.
+The holding cell smells of heat, metal, and old fear. An officer keeps asking you to press a thumb to a cracked scanner. Somewhere above you, Cairo keeps bargaining, praying, hustling, and surviving without pausing long enough to notice one more {gender == "male": man | woman} disappear indoors.
 -> DONE
 
 === ending_eviction ===
@@ -105,7 +105,7 @@ You do not get the old life back, and no one pretends otherwise. What changes is
 === ending_crime_kingpin ===
 The money finally arrives in amounts that change how people look at you. Doors open faster. Favors come wrapped as respect. Even the ones above you speak more carefully now.
 
-But every rung you climbed belongs to someone else too: stolen drone routes, hijacked vehicle permissions, power cells that should have gone to a clinic. The errands are bigger, the witnesses closer, the punishment for hesitation clearer. From the outside it looks like power. Up close it is only a better-lit cage, and Cairo knows exactly how to keep the key.
+But every rung you climbed belongs to someone else too: stolen delivery routes, hijacked taxi accounts, phone batteries that should have gone to a clinic. The errands are bigger, the witnesses closer, the punishment for hesitation clearer. From the outside it looks like power. Up close it is only a better-lit cage, and Cairo knows exactly how to keep the key.
 -> DONE
 
 === ending_debt_violence ===

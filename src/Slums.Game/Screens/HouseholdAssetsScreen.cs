@@ -185,7 +185,7 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface
         {
             var locationId when locationId == LocationId.PlantShop => "Buy plants here. Weekly care and upgrades are handled from home.",
             var locationId when locationId == LocationId.FishMarket => "Buy a fish tank here. Weekly care is handled from home.",
-            var locationId when locationId == LocationId.Workshop => "Abu Samir sells worn 2060 machines, spare parts, and bench repairs. Every scavenging shift adds wear to an operational robot.",
+            var locationId when locationId == LocationId.Workshop => "Abu Samir sells worn imported machines, spare parts, and bench repairs. Every scavenging shift adds wear to an operational robot.",
             _ => "Adopt cats, cover weekly care, manage fish tank upgrades, and manage plant upgrades from home."
         };
     }

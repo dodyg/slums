@@ -6,7 +6,7 @@ public static class JobRegistry
     {
         Type = JobType.BakeryWork,
         Name = "Bakery Work (Forn)",
-        Description = "Work at Al-Forn Al-Baladi beside adaptive ovens, drone-fed flour bins, and an old reactor cell that keeps the bread line running",
+        Description = "Work at Al-Forn Al-Baladi beside stone ovens, hand-loaded flour bins, and a solar inverter that fails when the heat rises",
         BasePay = 19,
         EnergyCost = 25,
         StressCost = 5,
@@ -19,7 +19,7 @@ public static class JobRegistry
     {
         Type = JobType.HouseCleaning,
         Name = "House Cleaning",
-        Description = "Clean homes where service AIs are too expensive, locked out of aging apartments, or unable to reach the corners",
+        Description = "Clean homes where imported service machines are too expensive, broken, or unable to reach the corners",
         BasePay = 16,
         EnergyCost = 32,
         StressCost = 10,
@@ -32,7 +32,7 @@ public static class JobRegistry
     {
         Type = JobType.CallCenterWork,
         Name = "Call Center Shift",
-        Description = "Handle customer calls while TechConnect's persistent AI scores every response",
+        Description = "Handle customer calls while TechConnect's speech software scores every response",
         BasePay = 25,
         EnergyCost = 15,
         StressCost = 20,
@@ -71,7 +71,7 @@ public static class JobRegistry
     {
         Type = JobType.CafeService,
         Name = "Cafe Service",
-        Description = "Carry tea trays beneath a restricted autonomous-vehicle lane while the cafe's ordering AI quietly rates every table",
+        Description = "Carry tea trays beside a marked electric-taxi lane while the cafe's ordering tablet quietly rates every table",
         BasePay = 20,
         EnergyCost = 20,
         StressCost = 10,
@@ -84,7 +84,7 @@ public static class JobRegistry
     {
         Type = JobType.PharmacyStock,
         Name = "Pharmacy Stock Shift",
-        Description = "Sort medicine deliveries, restock shelves, and explain why cybernetic care is not covered at Saidaleya Al-Nahda",
+        Description = "Sort medicine deliveries, restock shelves, and explain why private-clinic care is not covered at Saidaleya Al-Nahda",
         BasePay = 21,
         EnergyCost = 16,
         StressCost = 12,
@@ -96,8 +96,8 @@ public static class JobRegistry
     private static readonly JobShift DefaultMicrobusDispatch = new()
     {
         Type = JobType.MicrobusDispatch,
-        Name = "Autonomous EV Dispatch",
-        Description = "Correct fleet-AI routes, load passengers, and keep tempers under control at the Bulaq depot",
+        Name = "Electric Taxi Dispatch",
+        Description = "Correct route-app errors, load passengers, and keep tempers under control at the Bulaq depot",
         BasePay = 23,
         EnergyCost = 24,
         StressCost = 16,
@@ -123,7 +123,7 @@ public static class JobRegistry
     {
         Type = JobType.StreetVending,
         Name = "Street Vendor Shift",
-        Description = "Set up a folding table outside Midan Al-Tahrir and sell phone cases, drone batteries, and cheap accessories to commuters.",
+        Description = "Set up a folding table outside Midan Al-Tahrir and sell phone cases, power banks, and cheap accessories to commuters.",
         BasePay = 17,
         EnergyCost = 22,
         StressCost = 12,
@@ -149,7 +149,7 @@ public static class JobRegistry
     {
         Type = JobType.MarketPorter,
         Name = "Market Porter Shift",
-        Description = "Haul crates, stack ration sacks, and move deliveries the market drones cannot safely bring through the narrow aisles.",
+        Description = "Haul crates, stack sacks, and move deliveries that couriers cannot safely bring through the narrow aisles.",
         BasePay = 17,
         EnergyCost = 30,
         StressCost = 7,
@@ -162,7 +162,7 @@ public static class JobRegistry
     {
         Type = JobType.RoboticsScavenging,
         Name = "Robotics Scavenging Shift",
-        Description = "Strip failed delivery drones, dead inspection crawlers, and obsolete street hardware for reusable parts at Abu Samir's workshop.",
+        Description = "Strip broken delivery drones, discarded inspection cameras, and obsolete street hardware for reusable parts at Abu Samir's workshop.",
         BasePay = 24,
         EnergyCost = 24,
         StressCost = 11,

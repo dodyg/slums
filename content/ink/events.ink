@@ -34,11 +34,11 @@ The clinic walls are peeling, but the doctor's hands are clean. Your mother sits
 -> DONE
 
 === event_neighborhood_rumor ===
-A neighbour lowers her voice and says plainclothes men were asking for names two alleys over, pretending not to be police badly enough to insult everyone. An electronic drone hovered above the lane while they asked, its red status light steady as a heartbeat.
+A neighbour lowers her voice and says plainclothes men were asking for names two alleys over, pretending not to be police badly enough to insult everyone. A small camera drone hovered above the lane while they asked, its red status light steady as a heartbeat.
 -> DONE
 
 === event_home_water_cut_collection ===
-The water cuts out before noon and the whole building turns into a chain of borrowed buckets, muttered apologies, and stair-climbing labor. The building's portable reactor still has charge, but the desalination pump's license has expired and the municipal persistent AI keeps routing every complaint into a closed ticket. Every household is short on something, so help arrives mixed with irritation and the shame of needing it.
+The water cuts out before noon and the whole building turns into a chain of borrowed buckets, muttered apologies, and stair-climbing labor. The building's shared batteries still have charge, but the municipal pump is waiting on a part and the complaint app keeps routing every ticket into a closed category. Every household is short on something, so help arrives mixed with irritation and the shame of needing it.
 -> DONE
 
 === event_bakery_flour_shortage ===
@@ -50,7 +50,7 @@ By noon the plastic chairs have filled, then the hallway, then the patch of shad
 -> DONE
 
 === event_call_center_script_change ===
-The supervisor tapes a revised script to the wall as if that makes it reasonable. TechConnect's persistent customer-service AI pushed the change overnight, then assigned the blame to whichever worker's voiceprint showed the most hesitation. By the third angry caller, you can feel the room learning how quickly management mistakes confusion for disobedience.
+The supervisor tapes a revised script to the wall as if that makes it reasonable. TechConnect's speech-scoring software pushed the change overnight, then flagged whichever worker's voice showed the most hesitation. By the third angry caller, you can feel the room learning how quickly management mistakes confusion for disobedience.
 -> DONE
 
 === event_workshop_rush_order ===
@@ -66,7 +66,7 @@ By asr, the building has quietly arranged itself into a system of favors: one wo
 -> DONE
 
 === event_dokki_checkpoint_sweep ===
-The checkpoint appears almost casually, as if police barriers have always belonged at this corner. Electronic drones hover over the barrier and compare faces to the city's live risk index. Men in plain shirts do the real watching while uniforms do the easier work of being seen.
+The checkpoint appears almost casually, as if police barriers have always belonged at this corner. A borrowed police drone hovers over the barrier while an officer checks IDs against a tablet. Men in plain shirts do the real watching while uniforms do the easier work of being seen.
 -> DONE
 
 === event_dokki_transport_friction ===
@@ -86,7 +86,7 @@ The line at the Bulaq pharmacy is already doubled back on itself by mid-morning.
 -> DONE
 
 === event_depot_fare_shakeup ===
-At the depot, autonomous EV operators, human dispatchers, and passengers spend half an hour arguing over fares as if volume might create justice. The fleet AI changed the tariff before dawn and assigned the surcharge to the people least able to contest it. It creates heat, bad tempers, and a little money for whoever stays standing the longest.
+At the depot, electric-taxi drivers, human dispatchers, and passengers spend half an hour arguing over fares as if volume might create justice. The route app changed the tariff before dawn and assigned the surcharge to the people least able to contest it. It creates heat, bad tempers, and a little money for whoever stays standing the longest.
 -> DONE
 
 === event_shubra_steam_break ===

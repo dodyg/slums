@@ -27,7 +27,7 @@
   },
   {
     "Id": "PowerCut",
-    "Description": "The neighborhood's portable reactor reserve drops into safety mode, leaving everyone tired and irritable.",
+    "Description": "The neighborhood's shared solar batteries drop into reserve, leaving everyone tired and irritable.",
     "MinDay": 3,
     "Weight": 9,
     "ConditionId": "in_imbaba",
@@ -164,7 +164,7 @@
   },
   {
     "Id": "DepotFareShakeup",
-    "Description": "At the autonomous EV depot, fares change mid-argument and nobody agrees on who is supposed to absorb the loss.",
+    "Description": "At the electric-taxi depot, fares change mid-argument and nobody agrees on who is supposed to absorb the loss.",
     "MinDay": 5,
     "Weight": 8,
     "ConditionId": "at_depot",

@@ -4,7 +4,7 @@ This document explains the game architecture and simulation mechanics for future
 
 ## Project Overview
 
-**Slums** is a text-driven survival RPG set in the Cairo slums of 2060. Cybernetics, electronic drones, autonomous EVs, portable nuclear power, and persistent AI are widespread but unevenly accessible. The player chooses Amira, a young woman, or Karim, a young man (both 20-29), then selects a life background. The protagonist must balance survival needs, care for a widowed mother, and navigate moral choices between honest underpaid work and risky criminal activity.
+**Slums** is a text-driven survival RPG set in Cairo in 2030. Smartphones, digital payments, solar panels, electric vehicles, delivery drones, biometric checks, and limited machine-learning services are unevenly accessible alongside aging infrastructure. The setting uses a realistic Afrofuturist lens: local communities, African cultural continuity, repair work, mutual aid, language, and faith shape how technology is used. The player chooses Amira, a young woman, or Karim, a young man (both 20-29), then selects a life background. The protagonist must balance survival needs, care for a widowed mother, and navigate moral choices between honest underpaid work and risky criminal activity.
 
 ## Solution Architecture
 
@@ -182,7 +182,7 @@ Egyptian week (Saturday-Friday). `GameClock.GetDayOfWeek()` derives day from cal
 
 ## Seasonal Calendar
 
-Game starts October 1, 2060. Seasons determine weather probabilities, food costs, energy drain, and more.
+Game starts October 1, 2030. Seasons determine weather probabilities, food costs, energy drain, and more.
 
 | Season | Key Effects |
 |---|---|

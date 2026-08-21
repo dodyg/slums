@@ -12,11 +12,13 @@ INCLUDE community.ink
 INCLUDE debt.ink
 
 === intro_medical ===
-Cairo, 2060.
+Cairo, 2030.
 
-The future arrived in layers. Autonomous electric cars whisper along the wealthy roads, electronic drones stitch delivery lanes through the sky, and portable nuclear units keep the new towers bright. Down here in Imbaba, the building shares a rationed microgrid with three neighbours. The rooftop relay drops out whenever the heat rises. A persistent AI lives in almost every cheap phone, listening for its owner's voice and selling a cleaner version of the truth to whoever can pay.
+The future arrived in layers, as it always does. Wealthy roads carry imported electric cars, delivery drones cross the roofs when the wind allows it, and new towers advertise solar glass that never reaches Imbaba. Down here, three buildings share a rooftop solar co-op and argue over whose turn it is to charge the batteries. Most phones are second-hand. Most repairs are local. A translation app can help you find work, but it can also decide your accent sounds expensive to insure.
 
-Cybernetics are everywhere in the advertisements and rare in the clinic. The rich replace failing joints before they fail. Your mother waits for a nurse with a cracked diagnostic tablet and a cupboard of ordinary medicine.
+This is not a borrowed future. It is Cairo making room for itself: rooftop gardens beside satellite dishes, Nubian and Sudanese recipes traded through voice notes, old women running savings circles, and young people turning broken imports into tools the neighborhood can afford.
+
+The city sells AI as convenience: a call-center script, a route planner, an eligibility check. It is useful, narrow, and wrong in ways that cost poor people more than rich ones. Your mother waits for a nurse with a cracked diagnostic tablet and a cupboard of ordinary medicine.
 
 Three years of medical school.
 
@@ -24,7 +26,7 @@ Three years of dreaming of a white coat, of a stethoscope around your neck, of r
 
 Then Baba died, and the tuition money evaporated with him.
 
-Now you sit in your single room in Imbaba, listening to your mother cough into a washed-thin handkerchief while an autonomous EV shuttle glides past below and an old microbus argues with it for road space. The cough sounds wet. Worse than yesterday.
+Now you sit in your single room in Imbaba, listening to your mother cough into a washed-thin handkerchief while an electric taxi loses a fight with an old microbus below. The cough sounds wet. Worse than yesterday.
 
 *   [Check on her]
     You kneel beside her mattress. Her forehead is clammy, her breathing labored.
@@ -39,7 +41,7 @@ Now you sit in your single room in Imbaba, listening to your mother cough into a
 *   [Look for work instead]
     You can't help her if you can't pay for medicine.
     
-    You step into the alley behind the building. The first ahwa chairs are scraping the pavement beneath the drone corridor. Oil hisses at the taameya cart while a neighbour tries to restart a salvaged service bot with a screwdriver. Somebody upstairs is already shouting about money.
+    You step into the alley behind the building. The first ahwa chairs are scraping the pavement as a delivery drone searches for a safe landing. Oil hisses at the taameya cart while a neighbour tries to revive a discarded phone with a screwdriver. Somebody upstairs is already shouting about money.
     
     This is your world now. Not the bright corridors of the faculty hospital. Not the life people used to promise you.
     
@@ -71,9 +73,9 @@ Now you sit in your single room in Imbaba, listening to your mother cough into a
     -> intro_done
 
 === intro_prisoner ===
-Cairo, 2060. The city remembers everything that can be indexed.
+Cairo, 2030. The city remembers everything that can be uploaded.
 
-The cameras are smaller now. Some ride on insect-sized electronic drones; some sit behind the eyes of public-service kiosks; some are buried in the persistent AI that manages every official account you cannot afford to lose. The state calls it safety. The people who live under it call it being watched from above, below, and inside the device in your pocket.
+The cameras are cheaper now. Some hang over shop doors, some sit in public-service kiosks, and some ride on small drones during a police sweep. The state calls it safety. The people who live under it call it being watched by a phone, a landlord, a platform, or a person with the right connection. A face match can be wrong, but the appeal still costs a day's wages.
 
 The cell door opened eight months ago.
 
@@ -82,7 +84,7 @@ Your mother aged ten years in the two you were inside. The neighbours still lowe
 You are twenty-six years old. You have a criminal record, a gap in your employment history, and a mother who needs medicine you can't afford.
 
 *   [Think about what happened]
-    It was just a protest. A gathering in Tahrir against predictive policing, rationed power, and the price of being misclassified by an AI that never has to meet you. Bread prices, corruption, humiliation, all the things that pile up in a chest until they come out as shouting.
+    It was just a protest. A gathering in Tahrir against predictive policing pilots, rationed power, and the price of being misclassified by a software system that never has to meet you. Bread prices, corruption, humiliation, all the things that pile up in a chest until they come out as shouting.
     
     The details don't matter to the employers who reject your applications.
     -> intro_prisoner_reflection
@@ -110,7 +112,7 @@ You are twenty-six years old. You have a criminal record, a gap in your employme
     -> intro_done
 
 === intro_sudanese ===
-Cairo, 2060. Above the roofs, delivery drones blink in ordered lanes. At street level, families still carry water by hand when the neighborhood reactor goes into safety mode.
+Cairo, 2030. Above the roofs, delivery drones blink when their batteries hold. At street level, families still carry water by hand when the neighborhood pump fails.
 
 You still dream of the Nile in Khartoum.
 
@@ -142,14 +144,14 @@ Cairo was supposed to be temporary. A station between one life and the next. But
 
 === intro_sudanese_home_reflection ===
 *   [Continue]
-    Home is gone. Home is this cramped apartment in Imbaba, with its peeling paint, a salvaged cooling unit, and electricity that fails exactly when the portable reactor reserve is diverted to the tower district.
+    Home is gone. Home is this cramped apartment in Imbaba, with its peeling paint, a salvaged cooling unit, and electricity that fails exactly when the tower district gets priority.
     
     Home is your mother, keeping her Sudanese ID in a plastic bag like a talisman.
     
     -> intro_done
 
 === intro_done ===
-Your story begins in Cairo, 2060: a city where an autonomous car can cross the river without a driver, a drone can map a whole block before breakfast, and a persistent AI can know your name before your neighbour does. None of that guarantees food, medicine, privacy, or a way out.
+Your story begins in Cairo, 2030: a city where an electric car can cross the river, a drone can photograph a block before breakfast, and a platform can know your name before your neighbour does. None of that guarantees food, medicine, privacy, or a way out.
 
 The day stretches before you, one more day in a city that can hold twelve million people and still find ways to make one {gender == "male": man | woman} feel cornered.
 

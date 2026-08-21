@@ -47,7 +47,7 @@ By maghrib, the talk on the street has already turned. Men lower their voices wh
     -> DONE
 
 === crime_police_encounter ===
-The patrol appears at the corner where the alley meets the main road. Two uniforms, a plainclothes officer, and a small police drone that keeps its camera pointed at chest height. The officer watches faces with the patience of a man who has all day and no particular target. Your pulse spikes. You have done nothing wrong today, but in Cairo, "nothing wrong" is not the same as "nothing to hide."
+The patrol appears at the corner where the alley meets the main road. Two uniforms, a plainclothes officer, and a borrowed police drone that keeps its camera pointed at chest height. The officer watches faces with the patience of a man who has all day and no particular target. Your pulse spikes. You have done nothing wrong today, but in Cairo, "nothing wrong" is not the same as "nothing to hide."
 
 *   [Walk past normally]
     You force your shoulders to relax, your pace to stay even, your eyes to look bored instead of frightened. The plainclothes officer glances at you, then past you, then back at the stream of faces. You round the corner and do not start breathing again until you are half a block away.
@@ -63,7 +63,7 @@ The patrol appears at the corner where the alley meets the main road. Two unifor
     -> DONE
 
 === crime_gang_retaliation ===
-The message is not written. It is left: your door scratched, a glass bottle shattered at your threshold, and a cheap inspection drone wedged behind the water tank, its memory wiped too late. The building holds its breath.
+The message is not written. It is left: your door scratched, a glass bottle shattered at your threshold, and a cheap camera drone wedged behind the water tank, its memory card removed too late. The building holds its breath.
 
 Mona finds you in the morning and says three men were asking about you last night. They did not knock. They only stood at the bottom of the stairs and looked up.
 

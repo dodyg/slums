@@ -53,18 +53,18 @@ Interview-complete working requirements draft based on the user's answers.
 - The world should support tension between survival, dignity, loyalty, ambition, and danger.
 
 ## Setting Scope
-- Time period: Cairo in 2060.
+- Time period: Cairo in 2030.
 - Core playable and referenced Cairo areas should include Dokki, Imbaba, and Ard al-Liwa.
 - Real Cairo institutions and district identities should shape the social and economic landscape.
 
-### Cairo 2060 Technology Layer
+### Cairo 2030 Technology Layer
 
-- Cybernetics, electronic drones, autonomous electric vehicles, portable nuclear power, and persistent AI are ordinary parts of the wider city, but access is sharply unequal.
-- The slums should experience advanced technology through repair work, rationing, surveillance, unreliable infrastructure, and second-hand systems rather than effortless abundance.
-- Autonomous EVs share roads with old microbuses and handcarts; drones monitor, deliver, and occasionally fail; portable nuclear generators power protected districts while poorer buildings still bargain over electricity.
-- Persistent AI should be useful and intrusive: it can translate, route calls, or manage a device while also profiling residents, shaping work access, and feeding police or corporate systems.
-- Cybernetic medicine should widen the gap between people who can afford augmentation and clinics that must keep old bodies functioning without it.
-- Technology must intensify the existing survival, dignity, migration, crime, and state-pressure themes. It must not turn the setting into escapist techno-fantasy or remove the need for community solidarity.
+- The story takes place in Cairo in 2030. Technology is recognizably contemporary and uneven: smartphones, digital wallets, solar panels, electric vehicles, delivery drones, biometric systems, telemedicine, and machine-learning services exist beside aging buildings, paper records, handcarts, and unreliable utilities.
+- Use a realistic Afrofuturist lens: African people and communities shape the future through repair, mutual aid, local knowledge, language, faith, music, design, and political imagination. Technology should be something people appropriate and negotiate, not a foreign spectacle that replaces Cairo's own culture.
+- In poorer neighborhoods, technology is most visible through second-hand phones, shared Wi-Fi, informal charging, e-bike and EV repairs, cheap sensors, platform work, CCTV, and the labor required to keep imported systems running. A drone may deliver medicine to a wealthy tower and still be stripped for parts in Imbaba.
+- AI should mean limited, fallible services: call-center scripts, translation tools, route pricing, identity checks, and automated eligibility decisions. These systems can be useful, biased, opaque, and easy for employers or authorities to misuse; there is no omniscient persistent AI.
+- Cybernetics and portable nuclear power are not ordinary technologies in this setting. Medical prostheses remain specialist, expensive care, and nuclear generators are not part of everyday neighborhood infrastructure. Keep advanced ideas as distant, aspirational, or clearly speculative rather than treating them as common facts.
+- Technology must intensify the existing survival, dignity, migration, crime, and state-pressure themes without removing the need for community solidarity. The future should feel possible, lived-in, and specifically African rather than a generic cyberpunk backdrop.
 
 ## Protagonist and Household
 - The player first chooses the preset identity Amira or Karim, then chooses a preset life background rather than creating a character from scratch.
