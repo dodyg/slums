@@ -69,19 +69,10 @@ internal sealed class NewsScreen : ScreenSurface
             AcknowledgeSelected();
             return true;
         }
-        if (keyboard.IsKeyPressed(Keys.D1))
+        var responseIndex = NumberKeyMapper.GetPressedNumberIndex(keyboard, 3);
+        if (responseIndex.HasValue)
         {
-            RespondSelected(0);
-            return true;
-        }
-        if (keyboard.IsKeyPressed(Keys.D2))
-        {
-            RespondSelected(1);
-            return true;
-        }
-        if (keyboard.IsKeyPressed(Keys.D3))
-        {
-            RespondSelected(2);
+            RespondSelected(responseIndex.Value);
             return true;
         }
         if (_actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape)))

@@ -4,6 +4,7 @@ using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Narrative;
 using Slums.Core.State;
+using Slums.Game.Input;
 
 namespace Slums.Game.Screens;
 
@@ -107,16 +108,14 @@ internal sealed class NarrativeScreen : ScreenSurface
             return true;
         }
 
-        for (var i = 0; i < Math.Min(9, _narrativeService.CurrentChoices.Count); i++)
+        var choiceIndex = NumberKeyMapper.GetPressedNumberIndex(keyboard, _narrativeService.CurrentChoices.Count);
+        if (choiceIndex.HasValue)
         {
-            if (keyboard.IsKeyPressed(Keys.D1 + i) || keyboard.IsKeyPressed(Keys.NumPad1 + i))
-            {
-                _selectedChoiceIndex = i;
-                _narrativeService.SelectChoice(i);
-                RefreshWrappedText();
-                HandleCompletion();
-                return true;
-            }
+            _selectedChoiceIndex = choiceIndex.Value;
+            _narrativeService.SelectChoice(choiceIndex.Value);
+            RefreshWrappedText();
+            HandleCompletion();
+            return true;
         }
 
         if (keyboard.IsKeyPressed(Keys.Enter))
