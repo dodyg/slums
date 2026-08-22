@@ -12,11 +12,11 @@ You bury your mother with help, debt, and the stunned courtesy people reserve fo
 
 === ending_stability ===
 Stability is rent paid on time, bread on the table, water stored before the pump cuts, and a place in the building's cooling roster when the nights stay hot. Mornings no longer begin with panic already in your throat. In Cairo, that is enough to build on.
--> DONE
+-> ending_crisis_reflection
 
 === ending_stability_medical ===
 The work is narrower, poorer, and less admired than the white coat you once imagined. Your hands are still useful. Salma trusts you to recognize heat illness before the triage model does, and your mother trusts you with the ordinary care that keeps her alive.
--> DONE
+-> ending_crisis_reflection
 
 === ending_stability_prisoner ===
 Stability does not erase the file with your name on it or the years already taken. It does something smaller and harder: it proves the state did not get to define every room you would stand in afterward.
@@ -56,7 +56,7 @@ You and your mother carry what you can into the stairwell while the building pre
 
 === ending_network_shelter ===
 You stay in the city and become difficult to erase inside it. A neighbor warns you before trouble climbs the stairs. A nurse stretches medicine one more week. The rooftop committee saves a share of battery power for your mother's cooling unit, and the water roster includes your household even when you cannot contribute. It is not safety. It is shelter built out of people.
--> DONE
+-> ending_crisis_reflection
 
 === ending_network_shelter_mona ===
 You stay afloat because Mona keeps turning the building into a line of warning, gossip, and quiet mercy. The city does not soften. It simply reaches you through a neighbor before it reaches you through a threat, and over time that difference becomes the shape of survival.
@@ -78,4 +78,19 @@ You stay afloat because Hanan knows how to survive a city built on selective mem
 The money finally arrives in amounts that change how people look at you. Doors open faster. Favors come wrapped as respect. Even the ones above you speak more carefully now.
 
 But every rung you climbed belongs to someone else too: stolen delivery routes, hijacked fleet accounts, clinic power cells that should have kept a diagnostic fridge alive. The errands are bigger, the witnesses closer, the punishment for hesitation clearer. From the outside it looks like power. Up close it is only a better-lit cage, and Cairo knows exactly how to keep the key.
+-> ending_crisis_reflection
+
+=== ending_crisis_reflection ===
+{crisis_resolution_state == "SharedEmergencyPlan":
+The rooftop cooperative remains imperfect but answerable to its residents. Your ending carries the memory of water rosters, repaired storage, and a decision made in public.
+}
+{crisis_resolution_state == "CooperativeProtected":
+The cooperative holds together because people protected access before the shortage could be turned into a private advantage.
+}
+{crisis_resolution_state == "AccessRestricted":
+Your household has a narrower certainty, while the block continues to carry the cost of the restricted allocation.
+}
+{crisis_resolution_state == "DivertedAndExposed":
+The diverted access left a trail. The cooperative has power for now, but names, permits, and police attention will outlast the relief.
+}
 -> DONE

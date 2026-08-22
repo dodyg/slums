@@ -51,12 +51,6 @@ public static class RumorGenerator
 
     private static HashSet<NpcId> GetNpcsInDistrict(DistrictId district)
     {
-        return district switch
-        {
-            DistrictId.Imbaba => new HashSet<NpcId> { NpcId.LandlordHajjMahmoud, NpcId.FixerUmmKarim, NpcId.NeighborMona, NpcId.NurseSalma, NpcId.CafeOwnerNadia },
-            DistrictId.Dokki => new HashSet<NpcId> { NpcId.WorkshopBossAbuSamir, NpcId.FenceHanan, NpcId.RunnerYoussef, NpcId.PharmacistMariam },
-            DistrictId.BulaqAlDakrour => new HashSet<NpcId> { NpcId.DispatcherSafaa, NpcId.LaundryOwnerIman },
-            _ => new HashSet<NpcId>()
-        };
+        return NpcRegistry.GetNpcsInDistrict(district).ToHashSet();
     }
 }

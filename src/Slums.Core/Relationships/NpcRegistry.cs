@@ -90,6 +90,20 @@ public static class NpcRegistry
         return npcs;
     }
 
+    public static IReadOnlyList<NpcId> GetNpcsInDistrict(DistrictId districtId)
+    {
+        return districtId switch
+        {
+            DistrictId.Imbaba => [NpcId.LandlordHajjMahmoud, NpcId.FixerUmmKarim, NpcId.NeighborMona, NpcId.FenceHanan],
+            DistrictId.ArdAlLiwa => [NpcId.NurseSalma, NpcId.WorkshopBossAbuSamir],
+            DistrictId.Dokki => [NpcId.CafeOwnerNadia],
+            DistrictId.BulaqAlDakrour => [NpcId.PharmacistMariam, NpcId.DispatcherSafaa],
+            DistrictId.Shubra => [NpcId.LaundryOwnerIman],
+            DistrictId.DowntownCairo => [NpcId.RunnerYoussef, NpcId.VendorTarek, NpcId.OfficerKhalid],
+            _ => []
+        };
+    }
+
     public static string GetConversationKnot(NpcId npcId, RelationshipState relationshipState, int policePressure)
     {
         return GetConversationKnot(npcId, relationshipState, policePressure, currentDay: 0, honestShiftsCompleted: 0, crimesCommitted: 0, currentMoney: 100, motherHealth: 70);

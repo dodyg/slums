@@ -229,4 +229,18 @@ internal sealed class NpcRegistryTests
 
         selected.Should().HaveCount(ConversationPoolRegistry.ConversationVariantCount);
     }
+
+    [Test]
+    public void GetNpcsInDistrict_ShouldFollowCanonicalWorldLocations()
+    {
+        NpcRegistry.GetNpcsInDistrict(DistrictId.ArdAlLiwa)
+            .Should()
+            .Contain([NpcId.NurseSalma, NpcId.WorkshopBossAbuSamir]);
+        NpcRegistry.GetNpcsInDistrict(DistrictId.BulaqAlDakrour)
+            .Should()
+            .Contain([NpcId.PharmacistMariam, NpcId.DispatcherSafaa]);
+        NpcRegistry.GetNpcsInDistrict(DistrictId.Dokki)
+            .Should()
+            .Contain(NpcId.CafeOwnerNadia);
+    }
 }
