@@ -36,6 +36,19 @@ VAR crisis_resources = 0
 VAR crisis_condition = 70
 VAR crisis_decision = "None"
 VAR crisis_resolution_state = "Unresolved"
+VAR pending_ending = ""
+VAR handset_data_exposure = 0
+VAR microgrid_repair_debt = 0
+VAR microgrid_storage_condition = 70
+VAR transit_permit_review = false
+VAR biometric_appeal_pending = false
+VAR last_telemedicine_triage_day = 0
+VAR allocation_model_confidence = 58
+VAR mother_arc_decision = ""
+VAR mona_arc_decision = ""
+VAR salma_arc_decision = ""
+VAR mahmoud_arc_decision = ""
+VAR ummkarim_arc_decision = ""
 
 INCLUDE crime.ink
 INCLUDE events.ink
@@ -47,6 +60,7 @@ INCLUDE seasons.ink
 INCLUDE community.ink
 INCLUDE debt.ink
 INCLUDE crisis.ink
+INCLUDE central_arcs.ink
 
 === intro_medical ===
 Cairo, 2060.

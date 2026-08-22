@@ -27,6 +27,9 @@ The repository contains a playable .NET 10 vertical slice with:
 - validated Ink gameplay globals with state-reactive branching and typed multi-flag outcomes
 - narrative outcomes applied through an application command and the canonical `GameSession` mutation boundary, including immediate failure-ending checks
 - ending-knot catalog validation that rejects missing or orphaned compiled ending scenes
+- a shared 30-day crisis planner with delayed callbacks and five ordered central-character arcs, each backed by typed decisions and persisted beat history
+- a typed technology-obligation ledger for handset exposure, cooperative storage maintenance, transit scrutiny, biometric appeals, telemedicine use, and bounded allocation confidence
+- two-stage ending commitments: pending final scenes persist before the sacrifice choice, then existing ending IDs and epilogues remain authoritative
 
 Repo-owned JSON and Ink content are authoritative and fail fast during bootstrap. There is no normal-runtime fallback narrative or content catalog.
 

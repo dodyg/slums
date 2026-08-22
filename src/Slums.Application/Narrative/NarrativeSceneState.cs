@@ -48,6 +48,15 @@ public sealed record NarrativeSceneState(
     public int CrisisCooperativeCondition { get; init; }
     public CityCrisisDecision CrisisDecision { get; init; }
     public CityCrisisResolution CrisisResolution { get; init; }
+    public string PendingEnding { get; init; } = string.Empty;
+    public int HandsetDataExposure { get; init; }
+    public int MicrogridRepairDebt { get; init; }
+    public int MicrogridStorageCondition { get; init; }
+    public bool TransitPermitReview { get; init; }
+    public bool BiometricAppealPending { get; init; }
+    public int LastTelemedicineTriageDay { get; init; }
+    public int AllocationModelConfidence { get; init; }
+    public IReadOnlyDictionary<string, string> CentralDecisions { get; init; } = new Dictionary<string, string>();
 
     public static NarrativeSceneState Create(GameSession gameSession)
     {
@@ -88,7 +97,16 @@ public sealed record NarrativeSceneState(
             CrisisResourcesCommitted = gameSession.CityCrisis.ResourcesCommitted,
             CrisisCooperativeCondition = gameSession.CityCrisis.CooperativeCondition,
             CrisisDecision = gameSession.CityCrisis.Decision,
-            CrisisResolution = gameSession.CityCrisis.Resolution
+            CrisisResolution = gameSession.CityCrisis.Resolution,
+            PendingEnding = gameSession.PendingEndingId?.ToString() ?? string.Empty,
+            HandsetDataExposure = gameSession.Technology.HandsetDataExposure,
+            MicrogridRepairDebt = gameSession.Technology.MicrogridRepairDebt,
+            MicrogridStorageCondition = gameSession.Technology.MicrogridStorageCondition,
+            TransitPermitReview = gameSession.Technology.TransitPermitReview,
+            BiometricAppealPending = gameSession.Technology.BiometricAppealPending,
+            LastTelemedicineTriageDay = gameSession.Technology.LastTelemedicineTriageDay,
+            AllocationModelConfidence = gameSession.Technology.AllocationModelConfidence
+            , CentralDecisions = gameSession.CentralCharacterArcs.Decisions.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.ToString())
         };
 
         return sceneState;

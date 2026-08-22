@@ -76,6 +76,7 @@ Put these here:
 - police pressure
 - faction reputation
 - ending checks
+- typed central-character arc decisions and technology obligations
 
 Do not put SadConsole, Ink, or file IO here.
 
@@ -268,6 +269,8 @@ If content touches those boundaries, choose implication and consequence over exp
 - Keep shared narrative signal rules and scene-trigger catalogs in `Slums.Core` when both `GameSession` and application queries need the same logic.
 - Route player-triggered gameplay mutations through `Slums.Application` commands/queries instead of calling `GameSession` directly from SadConsole screens.
 - Apply completed Ink outcomes through `ApplyNarrativeOutcomeCommand` and `GameSession.ApplyNarrativeOutcome`; the narrative screen owns presentation/navigation only, while the session records the source knot and checks failure endings.
+- Keep selectable endings two-stage: `GameSession` stores a pending ending commitment until the final Ink choice applies an `EndingCommitmentEffect`; automatic failure endings remain immediate.
+- Keep central-character decisions in `CentralCharacterArcState` and technology liabilities in `TechnologyObligationState`; relationship trust and prose flags are supporting signals, not replacements for remembered choices or obligations.
 - Keep persistence centered on `GameSession` snapshots and `LoadedGameSession`; do not reintroduce parallel save-state models.
 - Use Ink for authored branching scenes, not for core economy simulation.
 - Treat missing or invalid Ink content as a hard failure; do not restore fallback narrative behavior.

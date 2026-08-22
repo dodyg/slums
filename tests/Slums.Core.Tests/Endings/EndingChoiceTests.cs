@@ -18,15 +18,23 @@ internal sealed class EndingChoiceTests
     }
 
     [Test]
-    public void TryChooseEnding_ShouldCommitTheSelectedPath()
+    public void TryChooseEnding_ShouldOpenPendingCommitment()
     {
         var session = CreateStableSession();
 
         var chosen = session.TryChooseEnding(EndingId.StabilityHonestWork);
 
         chosen.Should().BeTrue();
+        session.IsGameOver.Should().BeFalse();
+        session.EndingId.Should().BeNull();
+        session.PendingEndingId.Should().Be(EndingId.StabilityHonestWork);
+        session.PendingEndingKnot.Should().Be(EndingKnotCatalog.Commitment);
+
+        session.CommitEnding(EndingId.StabilityHonestWork, "care_shift");
+
         session.IsGameOver.Should().BeTrue();
         session.EndingId.Should().Be(EndingId.StabilityHonestWork);
+        session.FinalSacrifice.Should().Be("care_shift");
         session.PendingEndingKnot.Should().Be("ending_stability_medical");
     }
 

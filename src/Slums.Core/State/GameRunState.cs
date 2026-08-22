@@ -16,5 +16,9 @@ internal sealed class GameRunState
 
     public string? PendingEndingKnot { get; set; }
 
+    public EndingId? PendingEndingId { get; set; }
+
+    public string? FinalSacrifice { get; set; }
+
     public bool EmergencySupportClaimed { get; set; }
 }

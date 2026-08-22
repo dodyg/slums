@@ -1,4 +1,5 @@
 using Slums.Core.Economy;
+using Slums.Core.Endings;
 using Slums.Core.Relationships;
 using Slums.Core.Narrative;
 
@@ -33,5 +34,7 @@ public interface INarrativeOutcomeTarget
     public bool ChooseCrisisDecision(CityCrisisDecision decision);
     public bool ResolveCityCrisis(CityCrisisResolution resolution);
     public void AdjustPolicePressure(int delta);
+    public void CommitEnding(EndingId endingId, string sacrifice);
+    public bool RecordCentralCharacterDecision(CentralCharacterId character, CentralArcDecision decision);
     public void AddEventMessage(string message);
 }

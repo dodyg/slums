@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Slums.Application.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.Economy;
+using Slums.Core.Endings;
 using Slums.Core.Narrative;
 
 namespace Slums.Narrative.Ink;
@@ -251,6 +252,14 @@ public sealed class InkNarrativeService : INarrativeService
                 _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [new PolicePressureEffect(ParseIntEffect(tag, valueStr))] });
                 return;
 
+            case "ENDING_COMMIT":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [ParseEndingCommitment(tag, valueStr)] });
+                return;
+
+            case "CENTRAL_DECISION":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [ParseCentralDecision(tag, valueStr)] });
+                return;
+
             default:
                 // Not an effect tag; scene markers (e.g. weather/season tags) are ignored.
                 return;
@@ -345,6 +354,32 @@ public sealed class InkNarrativeService : INarrativeService
         return factory(npcId, state);
     }
 
+    private static EndingCommitmentEffect ParseEndingCommitment(string tag, string valueStr)
+    {
+        var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
+        if (parts.Length != 2 || !Enum.TryParse<EndingId>(parts[0], out var ending) || !Enum.IsDefined(ending) || string.IsNullOrWhiteSpace(parts[1]))
+        {
+            throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected 'EndingId,sacrifice'.");
+        }
+
+        return new EndingCommitmentEffect(ending, parts[1]);
+    }
+
+    private static CentralCharacterDecisionEffect ParseCentralDecision(string tag, string valueStr)
+    {
+        var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
+        if (parts.Length != 2
+            || !Enum.TryParse<CentralCharacterId>(parts[0], out var character)
+            || !Enum.IsDefined(character)
+            || !Enum.TryParse<CentralArcDecision>(parts[1], out var decision)
+            || !Enum.IsDefined(decision))
+        {
+            throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected 'Character,Decision'.");
+        }
+
+        return new CentralCharacterDecisionEffect(character, decision);
+    }
+
     private static void SyncVariablesToInk(Story story, NarrativeSceneState sceneState)
     {
         TrySetGlobalVariable(story, "money", sceneState.Money);
@@ -389,6 +424,19 @@ public sealed class InkNarrativeService : INarrativeService
         TrySetGlobalVariable(story, "crisis_condition", sceneState.CrisisCooperativeCondition);
         TrySetGlobalVariable(story, "crisis_decision", sceneState.CrisisDecision.ToString());
         TrySetGlobalVariable(story, "crisis_resolution_state", sceneState.CrisisResolution.ToString());
+        TrySetGlobalVariable(story, "pending_ending", sceneState.PendingEnding);
+        TrySetGlobalVariable(story, "handset_data_exposure", sceneState.HandsetDataExposure);
+        TrySetGlobalVariable(story, "microgrid_repair_debt", sceneState.MicrogridRepairDebt);
+        TrySetGlobalVariable(story, "microgrid_storage_condition", sceneState.MicrogridStorageCondition);
+        TrySetGlobalVariable(story, "transit_permit_review", sceneState.TransitPermitReview);
+        TrySetGlobalVariable(story, "biometric_appeal_pending", sceneState.BiometricAppealPending);
+        TrySetGlobalVariable(story, "last_telemedicine_triage_day", sceneState.LastTelemedicineTriageDay);
+        TrySetGlobalVariable(story, "allocation_model_confidence", sceneState.AllocationModelConfidence);
+        TrySetGlobalVariable(story, "mother_arc_decision", sceneState.CentralDecisions.GetValueOrDefault("Mother", string.Empty));
+        TrySetGlobalVariable(story, "mona_arc_decision", sceneState.CentralDecisions.GetValueOrDefault("NeighborMona", string.Empty));
+        TrySetGlobalVariable(story, "salma_arc_decision", sceneState.CentralDecisions.GetValueOrDefault("NurseSalma", string.Empty));
+        TrySetGlobalVariable(story, "mahmoud_arc_decision", sceneState.CentralDecisions.GetValueOrDefault("HajjMahmoud", string.Empty));
+        TrySetGlobalVariable(story, "ummkarim_arc_decision", sceneState.CentralDecisions.GetValueOrDefault("UmmKarim", string.Empty));
 
         if (!string.IsNullOrWhiteSpace(sceneState.Background))
         {

@@ -72,6 +72,11 @@ internal sealed class GameScreen : ScreenSurface
             return;
         }
 
+        if (_gameState.PendingEndingKnot is not null && TryShowEndingScene())
+        {
+            return;
+        }
+
         var elapsedMinutes = _automaticTimeAdvancer.CollectElapsedMinutes(delta);
         if (elapsedMinutes <= 0)
         {
@@ -253,12 +258,15 @@ internal sealed class GameScreen : ScreenSurface
 
         _runtime.NarrativeService.StartScene(knotName, NarrativeSceneState.Create(_gameState));
         IsFocused = false;
+        ScreenSurface nextScreen = _gameState.PendingEndingId is not null
+            ? this
+            : new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime);
         ScreenTransition.FadeTo(new NarrativeScreen(
             GameRuntime.ScreenWidth,
             GameRuntime.ScreenHeight,
             _runtime.NarrativeService,
             _gameState,
-            new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime)));
+            nextScreen));
 
         return true;
     }

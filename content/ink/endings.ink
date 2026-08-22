@@ -1,5 +1,49 @@
 # Ending scenes
 
+=== ending_commitment ===
+The month has narrowed the future to one decision. The choice is not a promise that Cairo will become kind. It is a decision about what you will spend, protect, or leave behind when the next morning arrives.
+
+{pending_ending == "StabilityHonestWork":
+    *   [Keep the clinic hours and reserve the last money for your mother's care]
+        You choose care over a faster escape. The work will remain tiring and underpaid, but the decision keeps a reliable hand beside the people who cannot afford a second mistake.
+        # ENDING_COMMIT:StabilityHonestWork,care_shift
+        -> DONE
+    *   [Take the better depot contract and let the building share the care]
+        You choose the contract. Mona and Salma hear the request for help without treating it as a moral test, but your household becomes dependent on a network that is already carrying too much.
+        # ENDING_COMMIT:StabilityHonestWork,depot_contract
+        -> DONE
+}
+{pending_ending == "NetworkShelter":
+    *   [Give your remaining savings to the cooling-room fund]
+        You put the money where everyone can see it. The fund protects more than your flat, and it also means there is no private reserve when the next shortage arrives.
+        # ENDING_COMMIT:NetworkShelter,cooling_fund
+        -> DONE
+    *   [Keep the savings and accept the roster's help]
+        You keep a small private buffer. The roster still includes your household, but the people who built it remember that shelter is a contribution before it is a service.
+        # ENDING_COMMIT:NetworkShelter,private_buffer
+        -> DONE
+}
+{pending_ending == "QuitTheLuxorDream":
+    *   [Buy the tickets and leave the Cairo network behind]
+        You spend the money on distance. It is freedom with a thin wallet, and every person you leave behind has to decide whether goodbye is a wound or a boundary.
+        # ENDING_COMMIT:QuitTheLuxorDream,buy_distance
+        -> DONE
+    *   [Delay the train and send one last payment home]
+        You send help south before you buy your own passage. The train still exists, but the departure becomes later and less certain.
+        # ENDING_COMMIT:QuitTheLuxorDream,send_home
+        -> DONE
+}
+{pending_ending == "CrimeKingpin":
+    *   [Protect the clinic shipment and lose the easy money]
+        You keep one route from becoming another missing medicine story. The people above you call it sentiment. The people below you call it a debt they may remember.
+        # ENDING_COMMIT:CrimeKingpin,protect_shipment
+        -> DONE
+    *   [Take control of the shipment and make the network pay]
+        You choose power with open eyes. The cooperative gets no apology, only a new account ledger with your name on it.
+        # ENDING_COMMIT:CrimeKingpin,control_shipment
+        -> DONE
+}
+
 === ending_destitution ===
 There is a point where the city stops offering you choices and starts offering you corners. Rent becomes arrears. Hunger becomes the plan for tomorrow too. You are still alive, but life narrows into borrowed shade, shut doors, and the humiliation of needing one more day from people who have none to spare.
 -> DONE

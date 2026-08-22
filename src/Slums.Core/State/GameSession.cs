@@ -25,6 +25,7 @@ using Slums.Core.Phone;
 using Slums.Core.Information;
 using Slums.Core.Robotics;
 using Slums.Core.Inventory;
+using Slums.Core.Technology;
 using Slums.Core.World.News;
 
 using Slums.Core.Randomness;
@@ -136,6 +137,10 @@ public sealed class GameSession : INarrativeOutcomeTarget
     public bool HasClaimedEmergencySupport => _runState.EmergencySupportClaimed;
     public bool CanRequestEmergencySupport => Clock.Day <= 7 && Player.HasSelectedBackground && !HasClaimedEmergencySupport;
     public string? PendingEndingKnot { get => _runState.PendingEndingKnot; private set => _runState.PendingEndingKnot = value; }
+
+    public EndingId? PendingEndingId { get => _runState.PendingEndingId; private set => _runState.PendingEndingId = value; }
+
+    public string? FinalSacrifice { get => _runState.FinalSacrifice; private set => _runState.FinalSacrifice = value; }
     public IReadOnlyList<Investment> ActiveInvestments => _investmentState.ActiveInvestments;
     public int TotalInvestmentEarnings { get => _investmentState.TotalInvestmentEarnings; private set => _investmentState.TotalInvestmentEarnings = value; }
     public int TotalHerbEarnings => Player.HouseholdAssets.TotalHerbEarnings;
@@ -159,6 +164,8 @@ public sealed class GameSession : INarrativeOutcomeTarget
     public NewsState News { get; } = new();
     public InfrastructureState Infrastructure { get; } = new();
     public CityCrisisState CityCrisis { get; } = new();
+    public CentralCharacterArcState CentralCharacterArcs { get; } = new();
+    public TechnologyObligationState Technology { get; } = new();
     public InventoryState Inventory { get; } = new();
     private RamadanState _ramadanState = RamadanState.Inactive;
     public RamadanState RamadanState => _ramadanState;
@@ -223,19 +230,35 @@ public sealed class GameSession : INarrativeOutcomeTarget
     public bool TryChooseEnding(EndingId endingId)
     {
         var before = CaptureStats();
-        if (!EndingService.GetAvailableEndings(this).Contains(endingId))
+        if (PendingEndingId is not null || IsGameOver || !EndingService.GetAvailableEndings(this).Contains(endingId))
         {
             RaiseEvent("That long-term path is not ready yet.");
             RecordMutation(MutationCategories.GuardRejected, "ChooseEnding", before, CaptureStats(), $"Ending {endingId} is not available");
             return false;
         }
 
+        PendingEndingId = endingId;
+        PendingEndingKnot = EndingKnotCatalog.Commitment;
+        RecordMutation(MutationCategories.EndingTriggered, "ChooseEnding", before, CaptureStats(), $"Ending commitment opened: {endingId}");
+        return true;
+    }
+
+    public void CommitEnding(EndingId endingId, string sacrifice)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(sacrifice);
+        var before = CaptureStats();
+        if (PendingEndingId != endingId || IsGameOver)
+        {
+            throw new InvalidOperationException($"Ending '{endingId}' is not the pending commitment.");
+        }
+
         EndingId = endingId;
+        FinalSacrifice = sacrifice;
+        PendingEndingId = null;
         IsGameOver = true;
         GameOverReason = EndingService.GetMessage(endingId);
         PendingEndingKnot = EndingService.GetInkKnot(this, endingId);
-        RecordMutation(MutationCategories.EndingTriggered, "ChooseEnding", before, CaptureStats(), $"Ending chosen: {endingId}");
-        return true;
+        RecordMutation(MutationCategories.EndingTriggered, "CommitEnding", before, CaptureStats(), $"Ending committed: {endingId}; sacrifice: {sacrifice}");
     }
 
     public void AdvanceTime(int minutes)
@@ -627,7 +650,16 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
     public bool CollectCrisisEvidence(int amount = 1) => CityCrisis.CollectEvidence(amount);
 
-    public bool CommitCrisisResources(int amount) => CityCrisis.CommitResources(amount);
+    public bool CommitCrisisResources(int amount)
+    {
+        var committed = CityCrisis.CommitResources(amount);
+        if (committed)
+        {
+            Technology.RecordMicrogridRepair(amount);
+        }
+
+        return committed;
+    }
 
     public bool ChooseCrisisDecision(CityCrisisDecision decision) => CityCrisis.ChooseDecision(decision, Clock.Day);
 
@@ -643,6 +675,11 @@ public sealed class GameSession : INarrativeOutcomeTarget
     }
 
     public bool ResolveCityCrisis(CityCrisisResolution resolution) => CityCrisis.Resolve(resolution);
+
+    public bool RecordCentralCharacterDecision(CentralCharacterId character, CentralArcDecision decision)
+    {
+        return CentralCharacterArcs.RecordDecision(character, decision);
+    }
 
     public void AdjustPolicePressure(int delta)
     {
@@ -2889,7 +2926,9 @@ public sealed class GameSession : INarrativeOutcomeTarget
         string? gameOverReason,
         EndingId? endingId,
         string? pendingEndingKnot,
-        bool emergencySupportClaimed = false)
+        bool emergencySupportClaimed = false,
+        EndingId? pendingEndingId = null,
+        string? finalSacrifice = null)
     {
         SetRunId(runId);
         SetDaysSurvived(daysSurvived);
@@ -2897,6 +2936,8 @@ public sealed class GameSession : INarrativeOutcomeTarget
         GameOverReason = string.IsNullOrWhiteSpace(gameOverReason) ? null : gameOverReason;
         EndingId = endingId;
         PendingEndingKnot = string.IsNullOrWhiteSpace(pendingEndingKnot) ? null : pendingEndingKnot;
+        PendingEndingId = pendingEndingId;
+        FinalSacrifice = string.IsNullOrWhiteSpace(finalSacrifice) ? null : finalSacrifice;
         _runState.EmergencySupportClaimed = emergencySupportClaimed;
     }
 
@@ -3398,6 +3439,24 @@ public sealed class GameSession : INarrativeOutcomeTarget
         if (crisisCallback is not null && TryQueueNarrativeTrigger(crisisCallback))
         {
             CityCrisis.MarkCallbackQueued();
+        }
+
+        var centralArc = CentralCharacterArcPlanner.GetNextTrigger(Clock.Day, _storyFlags);
+        if (centralArc is not null && TryQueueNarrativeTrigger(centralArc))
+        {
+            var character = centralArc.KnotName switch
+            {
+                var knot when knot.StartsWith("central_mother_", StringComparison.Ordinal) => CentralCharacterId.Mother,
+                var knot when knot.StartsWith("central_mona_", StringComparison.Ordinal) => CentralCharacterId.NeighborMona,
+                var knot when knot.StartsWith("central_salma_", StringComparison.Ordinal) => CentralCharacterId.NurseSalma,
+                var knot when knot.StartsWith("central_mahmoud_", StringComparison.Ordinal) => CentralCharacterId.HajjMahmoud,
+                var knot when knot.StartsWith("central_ummkarim_", StringComparison.Ordinal) => CentralCharacterId.UmmKarim,
+                _ => (CentralCharacterId?)null
+            };
+            if (character is not null)
+            {
+                CentralCharacterArcs.MarkBeat(character.Value);
+            }
         }
     }
 
@@ -4329,6 +4388,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         var before = CaptureStats();
         Player.Stats.ModifyMoney(-Phone.CreditWeekCost);
         Phone.RefillCredit();
+        Technology.RecordHandsetUse();
         PhoneMessages.DeliverMissedMessages();
 
         RecordMutation(MutationCategories.Phone, "RefillPhoneCredit", before, CaptureStats(),

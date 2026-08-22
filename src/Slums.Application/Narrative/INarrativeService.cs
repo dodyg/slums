@@ -1,4 +1,6 @@
 using Slums.Core.Characters;
+using Slums.Core.Endings;
+using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 
 namespace Slums.Application.Narrative;
@@ -25,6 +27,10 @@ public interface INarrativeService
 /// individually so every target receives its own change.
 /// </summary>
 public abstract record NarrativeEffect;
+
+public sealed record EndingCommitmentEffect(EndingId Ending, string Sacrifice) : NarrativeEffect;
+
+public sealed record CentralCharacterDecisionEffect(CentralCharacterId Character, CentralArcDecision Decision) : NarrativeEffect;
 
 public sealed record NarrativeOutcome
 {

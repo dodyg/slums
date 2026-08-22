@@ -107,6 +107,15 @@ public static class NarrativeSceneExtensions
                 case PolicePressureEffect police:
                     state.AdjustPolicePressure(police.Change);
                     break;
+                case EndingCommitmentEffect ending:
+                    state.CommitEnding(ending.Ending, ending.Sacrifice);
+                    break;
+                case CentralCharacterDecisionEffect decision:
+                    if (!state.RecordCentralCharacterDecision(decision.Character, decision.Decision))
+                    {
+                        throw new InvalidOperationException($"Central decision '{decision.Decision}' does not belong to '{decision.Character}'.");
+                    }
+                    break;
                 default:
                     throw new InvalidOperationException($"Unknown narrative effect type: {effect.GetType().Name}");
             }

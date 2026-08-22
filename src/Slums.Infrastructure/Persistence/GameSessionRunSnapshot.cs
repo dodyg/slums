@@ -11,6 +11,8 @@ public sealed record GameSessionRunSnapshot
     public EndingId? EndingId { get; init; }
     public int DaysSurvived { get; init; }
     public string? PendingEndingKnot { get; init; }
+    public EndingId? PendingEndingId { get; init; }
+    public string? FinalSacrifice { get; init; }
     public bool EmergencySupportClaimed { get; init; }
     public int UnpaidRentDays { get; init; }
     public int AccumulatedRentDebt { get; init; }
@@ -30,6 +32,8 @@ public sealed record GameSessionRunSnapshot
             EndingId = gameSession.EndingId,
             DaysSurvived = gameSession.DaysSurvived,
             PendingEndingKnot = gameSession.PendingEndingKnot,
+            PendingEndingId = gameSession.PendingEndingId,
+            FinalSacrifice = gameSession.FinalSacrifice,
             EmergencySupportClaimed = gameSession.HasClaimedEmergencySupport,
             UnpaidRentDays = gameSession.UnpaidRentDays,
             AccumulatedRentDebt = gameSession.AccumulatedRentDebt,

@@ -52,6 +52,8 @@ namespace Slums.Infrastructure.Persistence;
 [JsonSerializable(typeof(List<TipEntrySnapshot>))]
 [JsonSerializable(typeof(Slums.Core.State.EventJournalEntry))]
 [JsonSerializable(typeof(List<Slums.Core.State.EventJournalEntry>))]
+[JsonSerializable(typeof(GameSessionTechnologySnapshot))]
+[JsonSerializable(typeof(GameSessionCharacterArcSnapshot))]
 internal sealed partial class SaveGameJsonContext : JsonSerializerContext
 {
 }

@@ -70,6 +70,10 @@ public sealed record GameSessionSnapshot
 
     public GameSessionInventorySnapshot Inventory { get; init; } = new();
 
+    public GameSessionTechnologySnapshot Technology { get; init; } = new();
+
+    public GameSessionCharacterArcSnapshot CharacterArcs { get; init; } = new();
+
     /// <summary>
     /// Serializable state of the session's shared random source. Restoring it lets a continued
     /// session reproduce the exact same weather, events, economy, and outcomes as the
@@ -111,6 +115,8 @@ public sealed record GameSessionSnapshot
             Infrastructure = GameSessionInfrastructureSnapshot.Capture(gameSession),
             CityCrisis = GameSessionCrisisSnapshot.Capture(gameSession),
             Inventory = GameSessionInventorySnapshot.Capture(gameSession),
+            Technology = GameSessionTechnologySnapshot.Capture(gameSession),
+            CharacterArcs = GameSessionCharacterArcSnapshot.Capture(gameSession),
             RandomState = gameSession.RandomState
         };
     }
@@ -175,7 +181,9 @@ public sealed record GameSessionSnapshot
                 Run.GameOverReason,
                 Run.EndingId,
                 Run.PendingEndingKnot,
-                Run.EmergencySupportClaimed);
+                Run.EmergencySupportClaimed,
+                Run.PendingEndingId,
+                Run.FinalSacrifice);
 
             
             gameSession.RestoreRentState(
@@ -245,6 +253,15 @@ public sealed record GameSessionSnapshot
             Infrastructure.Restore(gameSession);
             CityCrisis.Restore(gameSession);
             Inventory.Restore(gameSession);
+            gameSession.Technology.Restore(
+                Technology.HandsetDataExposure,
+                Technology.MicrogridRepairDebt,
+                Technology.MicrogridStorageCondition,
+                Technology.TransitPermitReview,
+                Technology.BiometricAppealPending,
+                Technology.LastTelemedicineTriageDay,
+                Technology.AllocationModelConfidence);
+            gameSession.CentralCharacterArcs.Restore(CharacterArcs.Beats, CharacterArcs.Decisions);
 
             foreach (var npcId in Enum.GetValues<NpcId>())
             {

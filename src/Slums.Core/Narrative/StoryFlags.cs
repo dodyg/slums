@@ -111,6 +111,31 @@ public static class StoryFlags
     public const string CrisisMutualAidCallbackSeen = "crisis_mutual_aid_callback_seen";
     public const string CrisisDiversionCallbackSeen = "crisis_diversion_callback_seen";
     public const string CrisisPublicPressureCallbackSeen = "crisis_public_pressure_callback_seen";
+    public const string CentralMotherArcSeen = "central_mother_arc_seen";
+    public const string CentralMonaArcSeen = "central_mona_arc_seen";
+    public const string CentralSalmaArcSeen = "central_salma_arc_seen";
+    public const string CentralMahmoudArcSeen = "central_mahmoud_arc_seen";
+    public const string CentralUmmKarimArcSeen = "central_ummkarim_arc_seen";
+    public const string CentralMotherVulnerabilitySeen = "central_mother_vulnerability_seen";
+    public const string CentralMotherConflictSeen = "central_mother_conflict_seen";
+    public const string CentralMotherReckoningSeen = "central_mother_reckoning_seen";
+    public const string CentralMotherOutcomeSeen = "central_mother_outcome_seen";
+    public const string CentralMonaTransactionSeen = "central_mona_transaction_seen";
+    public const string CentralMonaVulnerabilitySeen = "central_mona_vulnerability_seen";
+    public const string CentralMonaConflictSeen = "central_mona_conflict_seen";
+    public const string CentralMonaOutcomeSeen = "central_mona_outcome_seen";
+    public const string CentralSalmaTransactionSeen = "central_salma_transaction_seen";
+    public const string CentralSalmaVulnerabilitySeen = "central_salma_vulnerability_seen";
+    public const string CentralSalmaConflictSeen = "central_salma_conflict_seen";
+    public const string CentralSalmaOutcomeSeen = "central_salma_outcome_seen";
+    public const string CentralMahmoudTransactionSeen = "central_mahmoud_transaction_seen";
+    public const string CentralMahmoudVulnerabilitySeen = "central_mahmoud_vulnerability_seen";
+    public const string CentralMahmoudConflictSeen = "central_mahmoud_conflict_seen";
+    public const string CentralMahmoudOutcomeSeen = "central_mahmoud_outcome_seen";
+    public const string CentralUmmKarimTransactionSeen = "central_ummkarim_transaction_seen";
+    public const string CentralUmmKarimVulnerabilitySeen = "central_ummkarim_vulnerability_seen";
+    public const string CentralUmmKarimConflictSeen = "central_ummkarim_conflict_seen";
+    public const string CentralUmmKarimOutcomeSeen = "central_ummkarim_outcome_seen";
 
     public static IReadOnlyList<string> GetCrimeRouteAftermathFlags(CrimeType crimeType)
     {

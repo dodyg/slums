@@ -48,6 +48,19 @@ public static class InkStoryCatalog
             , ["crisis_condition"] = typeof(int)
             , ["crisis_decision"] = typeof(string)
             , ["crisis_resolution_state"] = typeof(string)
+            , ["pending_ending"] = typeof(string)
+            , ["handset_data_exposure"] = typeof(int)
+            , ["microgrid_repair_debt"] = typeof(int)
+            , ["microgrid_storage_condition"] = typeof(int)
+            , ["transit_permit_review"] = typeof(bool)
+            , ["biometric_appeal_pending"] = typeof(bool)
+            , ["last_telemedicine_triage_day"] = typeof(int)
+            , ["allocation_model_confidence"] = typeof(int)
+            , ["mother_arc_decision"] = typeof(string)
+            , ["mona_arc_decision"] = typeof(string)
+            , ["salma_arc_decision"] = typeof(string)
+            , ["mahmoud_arc_decision"] = typeof(string)
+            , ["ummkarim_arc_decision"] = typeof(string)
         };
 
     /// <summary>Gets the gameplay globals that every compiled story must declare.</summary>

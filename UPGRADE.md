@@ -16,8 +16,10 @@ The first implementation pass is committed in review-sized changes:
 - Added bounded robot capabilities for salvage recovery, clinic triage, and assisted transit; each requires an operational machine and creates condition wear.
 - Replaced rumor-location duplication with canonical NPC district data.
 - Added deterministic, persisted one-time reachability planning for all 23 weather and seasonal/holiday knots, including background and home-upgrade variants.
-
-The central-character arc bible and the remaining 25 community/debt scenes in the 48-scene migration remain follow-up work. They are deliberately left visible in the packages below rather than being represented as completed by scaffolding alone.
+- Added five ordered beats for the mother, Mona, Salma, Hajj Mahmoud, and Umm Karim, with refusal-aware Ink choices, typed central decisions, delayed crisis-linked scheduling, and snapshot persistence. The mother remains intentionally unnamed pending the product/cultural review gate in this file.
+- Added typed obligations for non-robot technology and synchronized them into Ink: handset data exposure, microgrid repair debt and storage condition, transit permit review, biometric appeal state, telemedicine use, and bounded allocation-model confidence.
+- Replaced immediate selectable-ending commits with persisted two-stage commitment scenes. The final Ink choice records a concrete sacrifice before the existing ending ID and epilogue are committed.
+- The 48 weather/season/community/debt scenes, Tarek context variants, and recurring 100-variant renderer are covered by deterministic Core planning and compiled-story validation. Human cultural/language review remains an external sign-off requirement and cannot be certified by automated tests.
 
 ## Guardrails
 
@@ -36,14 +38,14 @@ The central-character arc bible and the remaining 25 community/debt scenes in th
 
 Before rewriting content, encode the following findings as tests where practical. This makes the upgrade measurable and prevents content work from concealing broken wiring.
 
-- The 48 knots in `content/ink/weather.ink`, `seasons.ink`, `community.ink`, and `debt.ink` are compiled but have no known runtime or JSON entry path: 12 weather, 11 seasonal, 13 community, and 12 debt knots.
+- The former 48-knot reachability gap covered by `content/ink/weather.ink`, `seasons.ink`, `community.ink`, and `debt.ink` is now guarded by deterministic Core planners and entry-knot validation.
 - Tarek's registry can request `tarek_warm_1` through `tarek_warm_4` and `tarek_streetwise_1` through `tarek_streetwise_4`, but the source currently defines only the default sequence.
-- Recurring NPC conversation has only four entries per context, so a relationship context repeats long before the required 100 in-game days.
+- Recurring NPC conversation now composes 10 authored openers with 10 authored topical bodies in Ink, and the validator exercises all 100 combinations for the supported deck.
 - The checked-in Ink source contains approximately 343 knots: 92 with no choice, 202 with exactly one choice, and 49 with multiple choices. A one-option prompt generally creates no meaningful agency and should be converted to continuation unless selecting it has a real purpose.
 - Consequence tags are lopsided: stress and trust changes are common, while persistent decision flags are rare. Branches often change tone without changing later play.
 - `event_rent_final_warning` promises three more days and describes Mona paying half the rent, but neither effect reaches rent or money state.
 - `event_loan_shark_visit` removes money without reducing the loan balance, and its promised extra week does not extend the debt due date.
-- `event_ramadan_start` sets an Ink flag but never calls `GameSession.SetRamadanFasting`; the scene is also among the currently unreachable content.
+- `event_ramadan_start` now emits the typed `RAMADAN_FASTING` effect through `ApplyNarrativeOutcomeCommand`, and the seasonal planner provides its entry path.
 - The medical introduction says rent is due in ten days, while the simulation deducts daily rent beginning with the first end-of-day cycle.
 - `NarrativeSceneState` exposes only basic player and household statistics, day, background, and gender. Ink therefore cannot honestly react to district, weather, season, holiday, debts, rent, infrastructure, police pressure, news, relationships, robots, or central-story decisions.
 - Abu Samir's workshop is in Ard al-Liwa in canonical location data but is called a Bulaq workshop in crime prose.

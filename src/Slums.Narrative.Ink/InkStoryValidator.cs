@@ -96,6 +96,24 @@ internal static class InkStoryValidator
             case "CRISIS_RESOLUTION":
                 ValidateEnumValue<CityCrisisResolution>(tag, payload, CityCrisisResolution.Unresolved);
                 break;
+            case "ENDING_COMMIT":
+                var endingParts = payload.Split(',', 2, StringSplitOptions.TrimEntries);
+                if (endingParts.Length != 2 || !Enum.TryParse<Slums.Core.Endings.EndingId>(endingParts[0], out var ending) || !Enum.IsDefined(ending) || string.IsNullOrWhiteSpace(endingParts[1]))
+                {
+                    throw InvalidTag(tag, "expected 'EndingId,sacrifice'");
+                }
+                break;
+            case "CENTRAL_DECISION":
+                var decisionParts = payload.Split(',', 2, StringSplitOptions.TrimEntries);
+                if (decisionParts.Length != 2
+                    || !Enum.TryParse<CentralCharacterId>(decisionParts[0], out var character)
+                    || !Enum.IsDefined(character)
+                    || !Enum.TryParse<CentralArcDecision>(decisionParts[1], out var decision)
+                    || !Enum.IsDefined(decision))
+                {
+                    throw InvalidTag(tag, "expected 'Character,Decision'");
+                }
+                break;
             default:
                 if (IntegerTags.Contains(key, StringComparer.Ordinal) && !int.TryParse(payload, out _))
                 {
