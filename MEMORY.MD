@@ -50,7 +50,8 @@ The canonical runtime boundary for an active run. Key state groups:
 - **World pressure**: Reactive city news, infrastructure service outages, inventory items, and NPC availability schedules
 - **Progress**: Job progress, event history, story flags, community event attendance, training
 - **Early support**: A selected background exposes one first-week emergency community support package. Medical dropouts receive two medicine doses, released prisoners receive a small mutual-aid cash/food package, and Sudanese refugees receive a kitchen food parcel. The package costs 60 minutes, is persisted, and cannot be claimed twice.
-- **Narrative**: Pending scene queue, ending knot
+- **Narrative**: Pending scene queue, five ordered central-character arcs, shared crisis with delayed callbacks, and two-stage ending commitments
+- **Technology obligations**: Handset data exposure, microgrid repair debt/storage condition, transit permit review, biometric appeal state, telemedicine use, and bounded allocation-model confidence are typed and persisted in `TechnologyObligationState`; application commands expose these mutations and Ink receives scalar snapshots.
 - **Diagnostics**: Mutation record list with GameMutationRecord entries
 - **EventJournal**: Structured day/source/message journal of events and auto-transactions, persisted with saves and rendered by the UI log
 - **Randomness**: All gameplay randomness flows through the session-owned `GameRandom` (serializable xoshiro256**); save files persist its state so restored runs continue the exact same sequence
@@ -411,7 +412,7 @@ Clinic locations: Rahma Clinic (ArdAlLiwa, 35 LE base), Saidaleya Pharmacy (Bula
 
 ## Ending Conditions (EndingService)
 
-Failure endings remain automatic; good or ambiguous endings are threshold-gated choices shown through the Long-Term Paths action. `EndingService.GetAvailableEndings` reports unlocked choices and `GameSession.TryChooseEnding` commits only a valid player selection.
+Failure endings remain automatic; good or ambiguous endings are threshold-gated choices shown through the Long-Term Paths action. `EndingService.GetAvailableEndings` reports unlocked choices. `GameSession.TryChooseEnding` opens a persisted commitment scene; the final Ink choice applies `EndingCommitmentEffect`, records the sacrifice, and only then commits the ending epilogue.
 
 **Bad:**
 1. **MotherDied**: Mother health reaches 0
