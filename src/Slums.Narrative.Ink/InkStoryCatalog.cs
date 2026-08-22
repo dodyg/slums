@@ -98,4 +98,9 @@ public static class InkStoryCatalog
             throw new InvalidOperationException($"Compiled Ink story contains unclassified top-level knots: {string.Join(", ", unclassified)}.");
         }
     }
+
+    public static IReadOnlyList<InkChoiceAudit> GetChoiceAudit()
+    {
+        return InkChoiceAuditor.Audit(InkStoryFactory.Create(InkStoryLoader.LoadStoryJson()));
+    }
 }

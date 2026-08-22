@@ -26,6 +26,7 @@ public static class EndingKnotCatalog
     public const string NetworkShelterSalma = "ending_network_shelter_salma";
     public const string NetworkShelterNadia = "ending_network_shelter_nadia";
     public const string NetworkShelterHanan = "ending_network_shelter_hanan";
+    public const string CrisisReflection = "ending_crisis_reflection";
 
     /// <summary>Gets every ending knot that is reachable from the documented ending catalog.</summary>
     public static IReadOnlySet<string> AllKnownKnots { get; } = new HashSet<string>(StringComparer.Ordinal)
@@ -48,6 +49,7 @@ public static class EndingKnotCatalog
         NetworkShelterSalma,
         NetworkShelterNadia,
         NetworkShelterHanan
+        , CrisisReflection
     };
 
     /// <summary>Rejects compiled ending content that is missing or not selected by the catalog.</summary>

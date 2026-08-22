@@ -93,4 +93,7 @@ Your household has a narrower certainty, while the block continues to carry the 
 {crisis_resolution_state == "DivertedAndExposed":
 The diverted access left a trail. The cooperative has power for now, but names, permits, and police attention will outlast the relief.
 }
+{crisis_resolution_state == "Unresolved":
+The cooperative's crisis remains unresolved, another pressure waiting beyond the month you managed to survive.
+}
 -> DONE
