@@ -43,8 +43,9 @@ internal sealed class NarrativeScreen : ScreenSurface
 
         Surface.Print(2, 1, "=== Scene ===", Color.Cyan);
 
-        const int textPanelTop = 3;
-        var textPanelHeight = Surface.Height - 10;
+        var textPanelTop = NarrativeScreenLayout.TextPanelTop;
+        var textPanelHeight = NarrativeScreenLayout.GetTextPanelHeight(Surface.Height);
+        _scrollOffset = NarrativeScreenLayout.ClampScrollOffset(_scrollOffset, _wrappedLines.Count, textPanelHeight);
 
         for (var row = 0; row < textPanelHeight; row++)
         {
@@ -59,7 +60,9 @@ internal sealed class NarrativeScreen : ScreenSurface
 
         if (_wrappedLines.Count > textPanelHeight)
         {
-            Surface.Print(Surface.Width - 16, 1, $"Scroll {_scrollOffset + 1}/{Math.Max(1, _wrappedLines.Count - textPanelHeight + 1)}", Color.DarkGray);
+            var scrollPositions = NarrativeScreenLayout.GetScrollPositionCount(_wrappedLines.Count, textPanelHeight);
+            Surface.Print(Surface.Width - 16, 1, $"Scroll {_scrollOffset + 1}/{scrollPositions}", Color.DarkGray);
+            Surface.Print(2, Surface.Height - 6, "PgUp/PgDn=scroll Home/End=jump", Color.DarkGray);
         }
 
         var choiceStartY = Surface.Height - 5;
@@ -88,7 +91,7 @@ internal sealed class NarrativeScreen : ScreenSurface
             }
             else
             {
-                _scrollOffset = Math.Max(0, _scrollOffset - 1);
+                ScrollBy(-1);
             }
 
             return true;
@@ -102,9 +105,35 @@ internal sealed class NarrativeScreen : ScreenSurface
             }
             else
             {
-                _scrollOffset = Math.Min(Math.Max(0, _wrappedLines.Count - (Surface.Height - 10)), _scrollOffset + 1);
+                ScrollBy(1);
             }
 
+            return true;
+        }
+
+        if (keyboard.IsKeyPressed(Keys.PageUp))
+        {
+            ScrollBy(-NarrativeScreenLayout.GetTextPanelHeight(Surface.Height));
+            return true;
+        }
+
+        if (keyboard.IsKeyPressed(Keys.PageDown))
+        {
+            ScrollBy(NarrativeScreenLayout.GetTextPanelHeight(Surface.Height));
+            return true;
+        }
+
+        if (keyboard.IsKeyPressed(Keys.Home))
+        {
+            _scrollOffset = 0;
+            return true;
+        }
+
+        if (keyboard.IsKeyPressed(Keys.End))
+        {
+            _scrollOffset = NarrativeScreenLayout.GetMaxScrollOffset(
+                _wrappedLines.Count,
+                NarrativeScreenLayout.GetTextPanelHeight(Surface.Height));
             return true;
         }
 
@@ -134,6 +163,15 @@ internal sealed class NarrativeScreen : ScreenSurface
         }
 
         return base.ProcessKeyboard(keyboard);
+    }
+
+    private void ScrollBy(int lineDelta)
+    {
+        var textPanelHeight = NarrativeScreenLayout.GetTextPanelHeight(Surface.Height);
+        _scrollOffset = NarrativeScreenLayout.ClampScrollOffset(
+            _scrollOffset + lineDelta,
+            _wrappedLines.Count,
+            textPanelHeight);
     }
 
     private void RefreshWrappedText()
