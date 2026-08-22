@@ -68,9 +68,9 @@ public static class DistrictConditionRegistry
         {
             Id = "imbaba_utility_cut",
             District = DistrictId.Imbaba,
-            Title = "Utility Cut",
-            BulletinText = "Imbaba is limping through another utility cut.",
-            GameplaySummary = "Food runs cost more and moving in or out takes longer.",
+            Title = "Water Rotation Missed",
+            BulletinText = "Imbaba's pump missed its scheduled hour, and the rooftop tanks are running low in the heat.",
+            GameplaySummary = "Water and food runs cost more, and moving in or out takes longer.",
             MinDay = 1,
             Weight = 4,
             Effect = new DistrictConditionEffect
@@ -119,9 +119,9 @@ public static class DistrictConditionRegistry
         {
             Id = "dokki_traffic_surge",
             District = DistrictId.Dokki,
-            Title = "Traffic Surge",
-            BulletinText = "Dokki is jammed with traffic, delays, and people arriving already angry.",
-            GameplaySummary = "Travel is slower and Dokki shifts add a little more stress than usual.",
+            Title = "Cooling Peak Traffic",
+            BulletinText = "Dokki is jammed after charging points derated in the heat and automated routes diverted at once.",
+            GameplaySummary = "Travel is slower and Dokki shifts add more heat stress than usual.",
             MinDay = 1,
             Weight = 3,
             Effect = new DistrictConditionEffect
@@ -134,8 +134,8 @@ public static class DistrictConditionRegistry
         {
             Id = "ardalliwa_clinic_overflow",
             District = DistrictId.ArdAlLiwa,
-            Title = "Clinic Overflow",
-            BulletinText = "Ard al-Liwa clinics are overflowing and every errand there is running long.",
+            Title = "Heat Clinic Overflow",
+            BulletinText = "Ard al-Liwa clinics are overflowing with heat illness, and every errand there is running long.",
             GameplaySummary = "Clinic visits cost more, clinic work pays better, and medicine queues spill over.",
             MinDay = 1,
             Weight = 4,
@@ -199,8 +199,8 @@ public static class DistrictConditionRegistry
         {
             Id = "shubra_steam_break",
             District = DistrictId.Shubra,
-            Title = "Steam Break",
-            BulletinText = "Shubra laundries are losing time to a steam break and the whole block feels it.",
+            Title = "Steam and Water Break",
+            BulletinText = "Shubra laundries are losing time to a steam break during a short water allotment, and the whole block feels it.",
             GameplaySummary = "Shubra work is more stressful and moving through the district costs extra energy.",
             MinDay = 1,
             Weight = 4,
@@ -264,8 +264,8 @@ public static class DistrictConditionRegistry
             Id = "imbaba_fish_season",
             District = DistrictId.Imbaba,
             Title = "Fish Season",
-            BulletinText = "Nile season brings extra catch to the fish market and extra work to the quay.",
-            GameplaySummary = "Work pays a little more and food is cheaper with the fresh catch flowing in.",
+            BulletinText = "A rare strong Nile catch reaches the fish market before the cooling cells fill.",
+            GameplaySummary = "Work pays a little more and food is briefly cheaper while the fresh catch lasts.",
             MinDay = 1,
             Weight = 3,
             Effect = new DistrictConditionEffect

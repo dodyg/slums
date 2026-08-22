@@ -66,6 +66,23 @@ Interview-complete working requirements draft based on the user's answers.
 - Everyday cybernetics and portable nuclear power are not ordinary technologies in this setting. Medical implants and advanced prostheses remain specialist, expensive care, while neighborhood power comes from the grid, solar generation, storage, and fuel-backed emergency systems. Keep more advanced ideas rare, inaccessible, or clearly speculative.
 - Technology must intensify the existing survival, dignity, migration, crime, and state-pressure themes without removing the need for community solidarity. The future should feel possible, lived-in, and specifically African rather than a generic cyberpunk backdrop.
 
+### Cairo 2060 Climate Baseline
+
+- Cairo in 2060 is hotter than present-day Cairo. The hot season lasts longer, hot nights are more common, and heatwaves are frequent enough to shape work hours, travel, health care, food storage, and household budgets.
+- Extreme heat lands unevenly. Dense low-income districts have less shade, poorer insulation, fewer reliable cooling options, and greater exposure to power and water interruptions than wealthy districts.
+- Egypt's water supply is under severe pressure. Cairo households live with pump schedules, rooftop storage, metering, reuse, and arguments over allocation. Water scarcity must be a recurring material constraint, not an occasional disaster scene.
+- Food reflects heat, water stress, and salinity in Egyptian agriculture through unreliable deliveries, reduced variety, spoilage risk, and price shocks. Do not imply that every harvest fails or that food production has ended.
+- Average rainfall remains low. When rain does reach Cairo, dry and poorly maintained drainage can still produce disruptive street flooding. Do not portray Cairo as becoming generally wet.
+- Adaptation is part of the Afrofuturist setting. Use locally repaired solar systems, shade cloth, reflective roofs, reed screens, water committees, altered work hours, neighborhood cooling rooms, crop and food cooperatives, and trusted information networks. African communities design, maintain, and govern these systems.
+- Climate pressure should deepen existing choices without making the setting hopeless or uniformly ruined. Show competence, negotiation, unequal access, and collective action alongside loss.
+
+Research anchors:
+
+- [IPCC AR6, Africa chapter](https://www.ipcc.ch/report/ar6/wg2/chapter/chapter-9/): stronger North African warming, especially in summer, with more frequent and intense heatwaves and greater drought risk.
+- [Egypt Fourth National Communication](https://unfccc.int/sites/default/files/resource/Egypt%20NC4.pdf): greater irrigation demand, heat and water stress, salinity, and projected food-crop losses by mid-century.
+- [World Bank Egypt climate brief](https://www.worldbank.org/en/country/egypt/brief/egypt-ccdr-lays-out-priority-climate-actions-and-investment-opportunities): extreme water scarcity risk and high urban exposure to heat, flooding, air pollution, desertification, and sea-level rise.
+- [UNDP study of Egypt's economy in 2060](https://www.undp.org/egypt/publications/potential-impacts-climate-change-egyptian-economy): scenario-based pressure on agriculture, food prices, heat stress, air quality, and employment.
+
 ## Protagonist and Household
 - The player first chooses the preset identity Amira or Karim, then chooses a preset life background rather than creating a character from scratch.
 - Confirmed preset backgrounds:
@@ -540,13 +557,13 @@ Holidays are tied to the calendar date and create temporary world-state shifts.
 
 | Weather | Seasonal Probability | Effects |
 |---------|---------------------|---------|
-| **Clear** | Autumn 70%, Winter 50%, Spring 40%, Summer 60% | Baseline. No modifiers. |
-| **Hot** | Summer 25%, Spring 15%, Autumn 5% | Energy drain +5. Outdoor work stress +3. Crime detection +5% (more people outside). Food prices +2 LE. |
-| **Heatwave** | Summer 10%, Spring 3% | Energy drain +10. Health -5 if energy < 30. All outdoor jobs unavailable. Food prices +5 LE. Stress +5. Crime detection +10%. |
-| **Khamsin (sandstorm)** | Spring 20%, Summer 3% | Travel costs +5 LE. All outdoor jobs unavailable. Energy drain +8. Crime completely blocked. Indoor stress +5. One day only; strong narrative event. |
-| **Cool/Overcast** | Winter 30%, Autumn 15% | Rest recovery +5 energy. Food prices -2 LE. Crime detection -5% (fewer witnesses). Stress -2. |
+| **Clear** | Autumn 65%, Winter 52%, Spring 35%, Summer 48% | Baseline. No modifiers. Summer's seasonal heat drain still applies. |
+| **Hot** | Summer 34%, Spring 20%, Autumn 12%, Winter 3% | Energy drain +5. Outdoor work stress +3. Crime detection +5% (more people outside). Food prices +2 LE. |
+| **Heatwave** | Summer 15%, Spring 6%, Autumn 1% | Energy drain +10. Health -5 if energy < 30. All outdoor jobs unavailable. Food prices +5 LE. Stress +5. Crime detection +10%. |
+| **Khamsin (sandstorm)** | Spring 20%, Summer 2%, Autumn 2%, Winter 2% | Travel costs +5 LE. All outdoor jobs unavailable. Energy drain +8. Crime completely blocked. Indoor stress +5. One day only; strong narrative event. |
+| **Cool/Overcast** | Winter 28%, Autumn 12%, Spring 4% | Rest recovery +5 energy. Food prices -2 LE. Crime detection -5% (fewer witnesses). Stress -2. |
 | **Rain** | Winter 5%, Autumn 3% | Travel to Ard Al-Liwa and Dokki blocked (flooding). Food prices +5 LE. Home leak event (repair cost 10-20 LE if no curtain upgrade). Stress -3 if at home, +3 if caught outside. Unique rain scene in Ink. |
-| **Windy** | Spring 15%, Winter 10%, Autumn 5% | Energy drain +2. Crime detection -5% (fewer witnesses, noise cover). Market stall disruption: informal market stall investment revenue halved for the day. |
+| **Windy** | Spring 13%, Winter 10%, Autumn 5%, Summer 1% | Energy drain +2. Crime detection -5% (fewer witnesses, noise cover). Market stall disruption: informal market stall investment revenue halved for the day. |
 
 - Weather is rolled using seeded randomness at the start of each new day during `EndDay()`.
 - The current weather is displayed on the HUD.

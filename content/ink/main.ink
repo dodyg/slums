@@ -23,9 +23,11 @@ INCLUDE debt.ink
 === intro_medical ===
 Cairo, 2060.
 
-The future arrived in layers, as it always does. Wealthy roads carry autonomous electric taxis along mapped corridors, cargo drones cross the roofs when the wind allows it, and new towers advertise self-tinting solar glass that never reaches Imbaba. Down here, three buildings share a rooftop solar-and-storage co-op and argue over whose turn it is to draw from the batteries. Most handsets are refurbished. Most repairs are local. A pocket translation model can help you find work, but it can also decide your accent sounds expensive to insure.
+Summer lasts longer than the calendars admit. Even in October, the concrete gives back heat after midnight. Water reaches the rooftop tanks on a rotating schedule, and every household knows the sound of the pump starting. When it fails, the whole building starts counting buckets.
 
-This is not a borrowed future. It is Cairo making room for itself: rooftop gardens beside old satellite dishes and mesh relays, Nubian and Sudanese recipes traded through voice notes, old women running savings circles, and young people turning retired delivery bots and broken imports into tools the neighborhood can afford.
+Wealthy roads carry autonomous electric taxis along mapped corridors. Cargo drones cross the roofs when the wind allows it, and new towers advertise self-tinting solar glass that never reaches Imbaba. Down here, three buildings share a rooftop solar-and-storage co-op. The residents patched it together from Egyptian inverters, retired bus cells, and whatever the repair market could recover. They argue over cooling hours when the grid rations power.
+
+Imbaba has made its own future. Rooftop gardens sit beside old satellite dishes and mesh relays. Nubian and Sudanese recipes travel through voice notes. Women run savings circles and water rosters. Young technicians turn retired delivery bots and broken imports into tools the neighborhood can afford.
 
 The city sells machine learning as convenience: a call-center script, a route planner, an eligibility check, a medical triage service. Each system is useful, narrow, and wrong in ways that cost poor people more than rich ones. Your mother waits for a nurse with a cracked diagnostic patch reader and a cupboard of ordinary medicine.
 
@@ -84,7 +86,7 @@ Now you sit in your single room in Imbaba, listening to your mother cough into a
 === intro_prisoner ===
 Cairo, 2060. The city remembers everything that can be uploaded.
 
-The cameras are cheaper now. Some hang over shop doors, some sit in public-service kiosks, and some ride on small drones during a police sweep. The state calls it safety. The people who live under it call it being watched by a handset, a landlord, a platform, or a person with the right connection. A biometric match can be wrong, but the appeal still costs a day's wages.
+The heat stays after dark, trapped between concrete walls. Water is rationed by district pressure and electricity by demand. The cameras rarely lose either. Some hang over shop doors, some sit in public-service kiosks, and some ride on small drones during a police sweep. The state calls it safety. The people who live under it call it being watched by a handset, a landlord, a platform, or a person with the right connection. A biometric match can be wrong, but the appeal still costs a day's wages.
 
 The cell door opened eight months ago.
 
@@ -121,7 +123,7 @@ You are twenty-six years old. You have a criminal record, a gap in your employme
     -> intro_done
 
 === intro_sudanese ===
-Cairo, 2060. Above the roofs, delivery drones blink when their batteries hold and courier bots wait behind locked gates. At street level, families still carry water by hand when the neighborhood pump fails.
+Cairo, 2060. The long hot season presses against the roofs well into autumn. Delivery drones blink when their batteries hold, and courier bots wait behind locked gates for cooler pavement. At street level, families still carry water by hand when the neighborhood pump misses its hour.
 
 You still dream of the Nile in Khartoum.
 
@@ -145,7 +147,7 @@ Cairo was supposed to be temporary. A station between one life and the next. But
 *   [Think about your mother]
     She adjusted better than you expected. Picked up the Egyptian dialect faster than you did. Found a network of Sudanese women who trade clinic names, charity kitchens, and landlord warnings like contraband.
     
-    But her health is failing. The stress of displacement, the poor diet, the uncertainty—it wears on a body.
+    But her health is failing. Displacement, poor diet, and uncertainty wear on a body.
     
     She needs medication you can barely afford.
     
@@ -162,7 +164,7 @@ Cairo was supposed to be temporary. A station between one life and the next. But
 === intro_done ===
 Your story begins in Cairo, 2060: a city where an autonomous taxi can cross the river, a drone can map a block before breakfast, and a platform can know your name before your neighbour does. None of that guarantees food, medicine, privacy, or a way out.
 
-The day stretches before you, one more day in a city that can hold twelve million people and still find ways to make one {gender == "male": man | woman} feel cornered.
+The day stretches before you, one more day in a city crowded far beyond what its water pipes, power lines, and shaded streets were built to carry. It can still find ways to make one {gender == "male": man | woman} feel cornered.
 
 { money < 40:
     Your wallet is already thin enough that one missed shift becomes a household emergency.

@@ -1,12 +1,12 @@
 # Community solidarity and territory events
 
 === event_friday_rooftop ===
-The rooftop on Friday afternoon belongs to everyone. Women spread mats across the concrete, children chase each other between the water tanks, and the call to prayer drifts up from the minaret two blocks away like a blanket being shaken out over the whole neighborhood.
+The rooftop belongs to everyone on Friday, once the fiercest heat has passed. Women spread mats beneath patched shade cloth. Children thread between water tanks, solar panels, and clay planters fed with kitchen rinse water. The call to prayer drifts up from the minaret two blocks away.
 
-Hajj Mahmoud sits on a plastic chair near the edge, prayer beads in hand, watching his tenants the way a shepherd watches sheep — with a mixture of duty and exhaustion that never quite becomes affection.
+Hajj Mahmoud sits on a plastic chair near the edge, prayer beads in hand. Beside him lies the building ledger with rent on one page and pump hours on the next. Duty and exhaustion have worn the same expression into his face.
 
 *   [Join the gathering]
-    You sit cross-legged on a mat between Mona and a woman from the fourth floor whose name you should know by now. Tea is poured. News is exchanged. A child climbs into your lap uninvited and refuses to leave. For two hours, the rent is not discussed, the money is not counted, and the city feels like it belongs to the people sitting on its roof.
+    You sit cross-legged on a mat between Mona and a woman from the fourth floor whose name you should know by now. Tea is poured. People exchange news about prices, water pressure, work, and family. For two hours, nobody discusses your rent, and the roof belongs to the people keeping the building alive.
     # STRESS:-5
     # NPC_TRUST:NeighborMona,2
     # NPC_TRUST:LandlordHajjMahmoud,1
@@ -22,12 +22,12 @@ Hajj Mahmoud sits on a plastic chair near the edge, prayer beads in hand, watchi
     -> DONE
 
 === event_neighborhood_cleanup ===
-Somebody's cousin organized it. Somebody else brought bags. By nine in the morning, half the building is sweeping the stairwell, scrubbing the landing, and carrying trash to the skip three blocks away because the city trucks have not come in two weeks.
+Somebody's cousin organized it. Somebody else brought bags, limewash, and a borrowed drain camera. They start at dawn, before the stairwell traps the day's heat. Half the building sweeps the landings, clears the rain grates, and coats the roof's hottest patches white while the city trucks remain two weeks late.
 
 The work is not glamorous. The stairwell smells like ammonia and old cooking oil. But by noon, the building looks almost proud of itself, and people who never speak to each other are passing cleaning supplies and complaints about the municipal government with equal ease.
 
 *   [Join the cleanup crew]
-    You scrub the stairs with a brush that has seen better decades and carry bags that test your lower back. By the end, your hands are raw, your clothes are ruined, and the building looks marginally less like it is decomposing. The neighbors thank you with the sincerity of people who genuinely needed the help.
+    You scrub the stairs with a brush that has seen better decades, then help lay reflective cloth over the west wall. By the end, your hands are raw and your clothes are ruined. The top floor may be one degree easier to sleep in tonight. The neighbors thank you because small differences matter in a heatwave.
     # ENERGY:-8
     # STRESS:-4
     # NPC_TRUST:NeighborMona,2
@@ -47,10 +47,10 @@ The work is not glamorous. The stairwell smells like ammonia and old cooking oil
 === event_rooftop_tea ===
 The invitation arrives through Mona, who says Umm Karim is hosting tea on the roof tonight and specifically mentioned your name. This is either an honor or a test, and with Umm Karim, the difference is not always clear.
 
-The rooftop at dusk is beautiful in the way that only Cairo rooftops can be: water tanks and patched solar panels silhouetted against a sky the color of bruised fruit, the call to prayer mixing with taxi horns, and an autonomous delivery drone wobbling across the sunset. The entire city spreads out below like a problem too large to solve but too present to ignore.
+At dusk, water tanks and patched solar panels cut dark shapes into a violet sky. The call to prayer mixes with taxi horns while an autonomous delivery drone wobbles home before its battery overheats. Cairo spreads out below, crowded, stubborn, and held together by millions of private repairs.
 
 *   [Attend and listen carefully]
-    Umm Karim pours tea with the precision of someone measuring more than liquid. The conversation circles around prices, police movements, and which kiosk owner is cheating his customers this week. You listen more than you speak, which is exactly what Umm Karim prefers.
+    Umm Karim pours tea with the precision of someone measuring more than liquid. The conversation circles around food prices, police movements, tomorrow's pump schedule, and which kiosk owner is cheating his customers this week. You listen more than you speak, which is exactly what Umm Karim prefers.
     # STRESS:-2
     # NPC_TRUST:FixerUmmKarim,3
     # MESSAGE:Umm Karim's rooftop tea is part social call, part intelligence briefing.
@@ -176,7 +176,7 @@ Your building is spared only because the police started at the other end of the 
     -> DONE
 
 === event_territory_flip ===
-The old crew left overnight. Not dramatically — they simply stopped appearing at their corners, stopped collecting, stopped watching. By morning, new men stood in their places with the casual authority of people who had been planning this moment for weeks.
+The old crew left overnight. They simply stopped appearing at their corners, stopped collecting, stopped watching. By morning, new men stood in their places with the casual authority of people who had been planning this moment for weeks.
 
 The market adjusts. Prices shift. The ahwa serves the same tea to different faces. Cairo does not pause for regime change, even the local kind. The city simply recalculates who matters and who does not, and you recalculate with it.
 
@@ -194,7 +194,7 @@ The market adjusts. Prices shift. The ahwa serves the same tea to different face
     -> DONE
 
 === event_refugee_solidarity ===
-The tension in Imbaba has been rising for days, and the Sudanese families feel it first — the longer stares, the louder whispers, the way a room can go quiet when you enter it. But tonight, the community fights back with the only weapon it has: presence.
+The tension in Imbaba has been rising for days, and the Sudanese families feel it first: the longer stares, the louder whispers, the way a room can go quiet when you enter it. Tonight, the community answers with presence.
 
 The Sudanese families gather in the lane. Not to protest. Not to shout. Just to stand together, visible and numerous, in the place where they live. The women link arms. The men stand behind them. And for one evening, the street remembers that it belongs to everyone who walks it.
 
@@ -206,8 +206,8 @@ The Sudanese families gather in the lane. Not to protest. Not to shout. Just to 
     # MESSAGE:You stand with the Sudanese community. The lane holds its breath, and the tension eases.
     -> DONE
 
-*   [Support from inside — bring tea and water]
-    You cannot stand in the line — your mother needs you, or your nerve fails you, or the calculation of risk does not come out in favor of visibility. But you carry a tray of tea down the stairs and set it at the edge of the gathering, and the women nod without breaking formation, and the gesture lands where it needs to.
+*   [Support from inside by bringing tea and water]
+    You cannot stand in the line. Your mother needs you, or your nerve fails you, or the calculation of risk does not favor visibility. You carry a tray of tea down the stairs and set it at the edge of the gathering. The women nod without breaking formation.
     # STRESS:-1
     # NPC_TRUST:PharmacistMariam,3
     # MESSAGE:You support from the margins. The tea arrives where the courage is.
@@ -226,7 +226,7 @@ Mona stops by not to invite you, but to ask if you are alright. The question is 
     -> DONE
 
 *   [Explain that survival takes all your time]
-    You tell her the truth: that every hour is spoken for, that the money demands more than it used to, that choosing between a rooftop gathering and an extra shift is not really a choice. She nods, and the nod is understanding, but it is also a wall going up — slowly, brick by missed invitation.
+    You tell her the truth: every hour is spoken for, money demands more than it used to, and choosing between a rooftop gathering and an extra shift is not really a choice. She nods with understanding, but a wall is going up slowly, brick by missed invitation.
     # STRESS:4
     # NPC_TRUST:NeighborMona,-2
     # MESSAGE:You explain your absence. Mona understands, but understanding has limits.

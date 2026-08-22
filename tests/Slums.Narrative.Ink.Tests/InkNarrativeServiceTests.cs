@@ -26,7 +26,10 @@ internal sealed class InkNarrativeServiceTests
 
         service.IsSceneActive.Should().BeTrue();
         service.CurrentText.Should().Contain("Cairo, 2060.");
-        service.CurrentText.Should().Contain("translation model");
+        service.CurrentText.Should().Contain("Summer lasts longer");
+        service.CurrentText.Should().Contain("Water reaches the rooftop tanks");
+        service.CurrentText.Should().Contain("Imbaba has made its own future");
+        service.CurrentText.Should().Contain("machine learning as convenience");
         service.CurrentText.Should().Contain("Three years of medical school.");
         service.CurrentChoices.Should().ContainInOrder("Check on her", "Look for work instead");
     }

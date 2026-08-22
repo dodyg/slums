@@ -6,7 +6,7 @@ public static class JobRegistry
     {
         Type = JobType.BakeryWork,
         Name = "Bakery Work (Forn)",
-        Description = "Work at Al-Forn Al-Baladi beside stone ovens, hand-loaded flour bins, and a microgrid controller that fails when the heat rises",
+        Description = "Start before dawn at Al-Forn Al-Baladi beside stone ovens, rationed flour bins, and a microgrid controller that fails when the heat rises",
         BasePay = 19,
         EnergyCost = 25,
         StressCost = 5,
@@ -58,7 +58,7 @@ public static class JobRegistry
     {
         Type = JobType.WorkshopSewing,
         Name = "Garment Workshop Shift",
-        Description = "Hem, press, and pack cheap garments in Abu Samir's workshop",
+        Description = "Hem, press, and pack cheap garments beside damp reed screens and repaired solar fans in Abu Samir's workshop",
         BasePay = 20,
         EnergyCost = 30,
         StressCost = 8,
@@ -71,7 +71,7 @@ public static class JobRegistry
     {
         Type = JobType.CafeService,
         Name = "Cafe Service",
-        Description = "Carry tea trays beside a marked autonomous-taxi lane while the cafe's ordering tablet quietly rates every table",
+        Description = "Carry tea trays under a solar awning beside a marked autonomous-taxi lane while the cafe's ordering tablet quietly rates every table",
         BasePay = 20,
         EnergyCost = 20,
         StressCost = 10,
@@ -110,7 +110,7 @@ public static class JobRegistry
     {
         Type = JobType.LaundryPressing,
         Name = "Laundry Pressing Shift",
-        Description = "Press shirts, supervise half-broken folding arms, and survive the storage-cell heat at Shubra Steam Laundry",
+        Description = "Press shirts, supervise half-broken folding arms, and stretch Shubra Steam Laundry's water allotment through the battery heat",
         BasePay = 20,
         EnergyCost = 28,
         StressCost = 9,
@@ -123,7 +123,7 @@ public static class JobRegistry
     {
         Type = JobType.StreetVending,
         Name = "Street Vendor Shift",
-        Description = "Set up a folding table outside Midan Al-Tahrir and sell handset cases, power cells, and cheap accessories to commuters.",
+        Description = "Set up before the worst heat outside Midan Al-Tahrir and sell handset cases, power cells, and shade patches to commuters.",
         BasePay = 17,
         EnergyCost = 22,
         StressCost = 12,

@@ -76,5 +76,28 @@
       { "Id": "buy_pass", "Label": "Secure a depot pass", "Type": "Prepare", "MoneyCost": 6, "RequiredItemId": "transit_pass", "RequiredItemQuantity": 1, "OutcomeMessage": "Safaa finds you a route token. It is not a promise, but it keeps one trip possible." },
       { "Id": "share_route", "Label": "Share the walking route", "Type": "ShareInformation", "TimeCostMinutes": 30, "TrustChange": 1, "OutcomeMessage": "You mark the safer side streets on Mona's phone map." }
     ]
+  },
+  {
+    "Id": "heat_dome_power_rotation", "Category": "Infrastructure", "Headline": "Night heat forces emergency power and water rotations", "Body": "The heat alert has been extended after another night failed to cool. Dense districts will receive shorter pump windows while hospitals and public cooling rooms take priority power.", "SourceLabel": "Cairo heat-health bulletin", "SourceType": "OfficialStatement", "Reliability": "Confirmed", "AffectedDistricts": ["Imbaba", "ArdAlLiwa", "BulaqAlDakrour", "Shubra", "Dokki", "DowntownCairo"], "MinimumDay": 4, "Weight": 10, "CooldownDays": 3, "DurationDays": 4,
+    "Effects": [
+      { "Type": "StartInfrastructureDisruption", "Service": "Electricity", "Severity": "Strained", "DurationDays": 4 },
+      { "Type": "StartInfrastructureDisruption", "Service": "Water", "Severity": "Strained", "DurationDays": 3 },
+      { "Type": "FoodPriceModifier", "Amount": 2 }
+    ],
+    "Responses": [
+      { "Id": "fill_water", "Label": "Fill the household containers", "Type": "Prepare", "RequiredItemId": "water_container", "RequiredItemQuantity": 1, "OutcomeMessage": "You fill the clean containers during Imbaba's short pump window and share the schedule upstairs." },
+      { "Id": "cooling_room", "Label": "Help open the cooling room", "Type": "HelpCommunity", "TimeCostMinutes": 60, "TrustChange": 2, "OutcomeMessage": "The building committee shades a ground-floor room and reserves battery power for fans, medicine, and older neighbors." }
+    ]
+  },
+  {
+    "Id": "delta_harvest_shortfall", "Category": "Economy", "Headline": "Heat and salinity cut another Delta harvest", "Body": "The confirmed crop report shows smaller deliveries of vegetables, maize, and fruit. Imbaba sellers are pooling orders while bakeries ration higher-priced flour.", "SourceLabel": "Agricultural cooperative bulletin", "SourceType": "Broadcast", "Reliability": "Confirmed", "AffectedDistricts": ["Imbaba", "BulaqAlDakrour", "Shubra", "Dokki", "ArdAlLiwa"], "MinimumDay": 6, "Weight": 9, "CooldownDays": 4, "DurationDays": 6,
+    "Effects": [
+      { "Type": "FoodPriceModifier", "Amount": 4 },
+      { "Type": "NpcHardshipModifier", "Amount": 4 }
+    ],
+    "Responses": [
+      { "Id": "bulk_staples", "Label": "Join the staples pool", "Type": "HelpCommunity", "MoneyCost": 10, "TrustChange": 2, "OutcomeMessage": "Umm Karim combines six households' orders so the market cannot charge each family a separate scarcity premium." },
+      { "Id": "share_storage", "Label": "Share cool storage", "Type": "UseContact", "TimeCostMinutes": 45, "TrustChange": 1, "OutcomeMessage": "Nadia makes room in the cafe's solar cooler for produce that would otherwise spoil before morning." }
+    ]
   }
 ]

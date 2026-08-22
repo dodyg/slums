@@ -244,6 +244,9 @@ Respect the requirements file:
 - set the story in Cairo in 2060, where mature but uneven digital technology coexists with severe inequality and aging infrastructure
 - use repairable smart handsets, digital wallets, solar-and-storage microgrids, autonomous electric transit, delivery drones and ground robots, biometric systems, telemedicine, and bounded machine-learning services as sources of access, labor, surveillance, risk, and consequence rather than effortless solutions
 - write through a realistic Afrofuturist lens: Cairo's African communities, languages, faiths, repair cultures, mutual-aid networks, and local institutions shape the future instead of serving as scenery for imported technology
+- treat 2060 Cairo as hotter than the present, with a longer hot season, hotter nights, recurrent heatwaves, severe water pressure, climate-stressed food supply, and unequal access to cooling and reliable infrastructure
+- keep average rainfall scarce while allowing rare rain to overwhelm dry, poorly maintained drains; do not turn Cairo into a generally wet climate
+- show locally governed adaptation through shade, reflective roofs, repaired solar storage, water committees, altered work hours, cooling rooms, food cooperatives, and neighborhood warning networks
 - do not treat persistent omniscient AI, everyday cybernetics, or portable nuclear power as normal 2060 infrastructure; keep them absent, rare, or speculative when they appear
 - keep the tone gritty and realistic
 - keep crime consequence-heavy

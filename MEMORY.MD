@@ -4,7 +4,7 @@ This document explains the game architecture and simulation mechanics for future
 
 ## Project Overview
 
-**Slums** is a text-driven survival RPG set in Cairo in 2060. Repairable smart handsets, digital payments, solar-and-storage microgrids, autonomous electric transit, delivery drones, biometric checks, telemedicine, service robotics, and bounded machine-learning services are unevenly accessible alongside aging infrastructure. The setting uses a realistic Afrofuturist lens: local communities, African cultural continuity, repair work, mutual aid, language, and faith shape how technology is used. The player chooses Amira, a young woman, or Karim, a young man (both 20-29), then selects a life background. The protagonist must balance survival needs, care for a widowed mother, and navigate moral choices between honest underpaid work and risky criminal activity.
+**Slums** is a text-driven survival RPG set in Cairo in 2060. Repairable smart handsets, digital payments, solar-and-storage microgrids, autonomous electric transit, delivery drones, biometric checks, telemedicine, service robotics, and bounded machine-learning services are unevenly accessible alongside aging infrastructure. Cairo has a longer hot season, hotter nights, recurrent heatwaves, severe water pressure, and climate-stressed food supply. Rare rain can still overwhelm dry, poorly maintained drains. The setting uses a realistic Afrofuturist lens: local communities, African cultural continuity, repair work, mutual aid, language, faith, and community-run climate adaptation shape how technology is used. The player chooses Amira, a young woman, or Karim, a young man (both 20-29), then selects a life background. The protagonist must balance survival needs, care for a widowed mother, and navigate moral choices between honest underpaid work and risky criminal activity.
 
 ## Solution Architecture
 
@@ -59,7 +59,7 @@ The canonical runtime boundary for an active run. Key state groups:
 
 1. **AdvanceTime(minutes)**: Advances clock, triggers EndDay at 22:00
 
-Meaningful conversations cost 45 minutes and crime routes carry route-specific 60–180 minute costs. These mutations happen before the nightly boundary, so an action crossing 22:00 resolves its effects against the original day before the next day starts.
+Meaningful conversations cost 45 minutes and crime routes carry route-specific costs of 60 to 180 minutes. These mutations happen before the nightly boundary, so an action crossing 22:00 resolves its effects against the original day before the next day starts.
 2. **EndDay()** performs ~40 steps in order:
    - Apply daily stat decay (Hunger -12, Energy -10, Stress +3)
    - Apply season modifiers, weather modifiers, holiday effects, Ramadan fasting
@@ -219,6 +219,8 @@ Each day rolls weather based on season via `WeatherRoller`. 7 types:
 | CoolOvercast | Stress -2, food cost -2, crime detection -5 |
 | Rain | Food cost +5, blocks travel to flood-prone areas |
 | Windy | Energy drain +2, crime detection -5 |
+
+The 2060 probability table keeps summer's baseline seasonal drain and makes explicit hot or heatwave days slightly more likely than clear days. Autumn can still produce heatwaves, and winter retains a small hot-weather risk. This represents a longer hot season without making every day an extreme event.
 
 ## Honest Work System
 

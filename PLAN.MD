@@ -22,6 +22,7 @@ The repository contains a playable .NET 10 vertical slice with:
 - JSON-authored inventory items and NPC schedule windows used by response actions, status views, and talk availability
 - eight ending identifiers: four failure outcomes and four good or ambiguous long-term outcomes, with threshold-gated player choices for the latter
 - visible morning survival forecasts and one-time background-specific emergency support during the first week
+- a research-grounded 2060 climate baseline expressed through hotter seasonal weather, water and power rotations, climate-stressed food supply, heat-aware work, and community-run adaptation
 - structured mutation diagnostics and executable TUnit suites for every project layer
 - validated Ink gameplay globals with state-reactive branching and typed multi-flag outcomes
 - narrative outcomes applied through an application command and the canonical `GameSession` mutation boundary, including immediate failure-ending checks

@@ -11,11 +11,11 @@ You bury your mother with help, debt, and the stunned courtesy people reserve fo
 -> DONE
 
 === ending_stability ===
-It is not victory. It is rent paid on time, bread on the table, and mornings that do not begin with panic already in your throat. In Cairo, that counts for something close to grace.
+Stability is rent paid on time, bread on the table, water stored before the pump cuts, and a place in the building's cooling roster when the nights stay hot. Mornings no longer begin with panic already in your throat. In Cairo, that is enough to build on.
 -> DONE
 
 === ending_stability_medical ===
-It is not the white coat you once imagined. It is narrower than that, poorer than that, and far less admired. But your hands are still useful, your mother still trusts them, and some mornings usefulness is close enough to dignity to let you breathe.
+The work is narrower, poorer, and less admired than the white coat you once imagined. Your hands are still useful. Salma trusts you to recognize heat illness before the triage model does, and your mother trusts you with the ordinary care that keeps her alive.
 -> DONE
 
 === ending_stability_prisoner ===
@@ -23,15 +23,17 @@ Stability does not erase the file with your name on it or the years already take
 -> DONE
 
 === ending_stability_sudanese ===
-The life you build is still called temporary by people who have never watched years harden around a {gender == "male": man | woman}. Even so, the rent gets paid, your mother eats, and a future begins to exist in Cairo without apologizing for itself first.
+The life you build is still called temporary by people who have never watched years harden around a {gender == "male": man | woman}. Even so, the rent gets paid and your mother eats. The Sudanese kitchen puts your name on its water and food committee. A future begins to exist in Cairo without asking permission.
 -> DONE
 
 === ending_luxor ===
-The train south feels unreal at first. Even after Giza falls behind, you keep waiting for the city to pull you back by the wrist. Luxor is not a miracle, only a place where your chest loosens and the future stops looking like a trap with rent due.
+The train south feels unreal at first. Even after Giza falls behind, you keep waiting for Cairo to pull you back by the wrist.
+
+Luxor is hotter. Everyone who promised an easy escape left that part out. Work begins before sunrise, stops when the stone streets turn white with heat, and resumes after maghrib. Water and cooling still cost money. What changes is the shape of the life around those costs: relatives nearby, a room you can keep, and enough distance from the old routes to choose what your family becomes.
 -> DONE
 
 === ending_luxor_medical ===
-The train south feels unreal at first. In Luxor, nobody mistakes you for the student you were supposed to become, which is painful and freeing at once. What survives is not the degree but the discipline: clean hands, careful doses, and a refusal to let care become another broken promise.
+In Luxor, nobody mistakes you for the student you were supposed to become. That is painful and freeing at once. A neighborhood clinic gives you morning hours during the hottest months. What survives is the discipline: clean hands, careful doses, heat checks for older patients, and a refusal to let care become another broken promise.
 -> DONE
 
 === ending_luxor_prisoner ===
@@ -39,7 +41,7 @@ Leaving for Luxor does not erase the state file with your name on it. It does so
 -> DONE
 
 === ending_luxor_sudanese ===
-The train south feels like moving toward air instead of scrutiny. Luxor is not free of paperwork, suspicion, or the vocabulary people use for {gender == "male": men | women} they still call temporary. But it gives your household room to become ordinary, and ordinary can feel almost holy after Cairo.
+The train south moves toward a different kind of scrutiny, not an escape from it. Luxor is not free of paperwork or the vocabulary people use for {gender == "male": men | women} they still call temporary. Sudanese, Nubian, and Upper Egyptian contacts help your household find a room, work around the hottest hours, and enter a savings circle. Ordinary life remains difficult, but it becomes possible.
 -> DONE
 
 === ending_arrested ===
@@ -49,11 +51,11 @@ The holding cell smells of heat, metal, and old fear. An officer keeps asking yo
 === ending_eviction ===
 Seven days behind on rent turns a home into a countdown. By the time Hajj Mahmoud stops knocking and starts ordering, the room has already become a pile of things that cannot protect you.
 
-You and your mother carry what you can into the stairwell while the building pretends not to watch. Cairo has many ways to make a {gender == "male": man | woman} poor. Being made visible in the wrong moment is one of the quickest.
+You and your mother carry what you can into the stairwell while the building pretends not to watch. Outside, the shaded public rooms are already full and the afternoon pavement is dangerous. Cairo has many ways to make a {gender == "male": man | woman} poor. Losing a room now also means losing water storage, cooling, and a door against the heat.
 -> DONE
 
 === ending_network_shelter ===
-You do not escape the city. You do something harder and smaller: you become difficult to erase inside it. A neighbor warns you before trouble climbs the stairs. A nurse stretches medicine one more week. A cafe owner keeps your name in circulation when the money thins out. It is not safety. It is shelter built out of people.
+You stay in the city and become difficult to erase inside it. A neighbor warns you before trouble climbs the stairs. A nurse stretches medicine one more week. The rooftop committee saves a share of battery power for your mother's cooling unit, and the water roster includes your household even when you cannot contribute. It is not safety. It is shelter built out of people.
 -> DONE
 
 === ending_network_shelter_mona ===

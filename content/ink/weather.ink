@@ -1,12 +1,12 @@
 # Weather-specific narrative scenes
 
 === event_khamsin ===
-The sky turns the color of old brass. By noon the wind has teeth — fine sand that finds every gap in the window frame, every crack in the door, every soft membrane it can reach. The city does not stop. Cairo never stops. But it moves differently under khamsin: slower, angrier, eyes narrowed against a world turned abrasive.
+The sky turns the color of old brass. By noon the wind has teeth. Fine sand finds every gap in the window frame, every crack in the door, every soft membrane it can reach. Cairo slows under the khamsin. People move with their eyes narrowed and their faces wrapped.
 
 Your mother pulls the thin curtain across her face and breathes through cloth. The rooftop solar batteries drop to reserve. Delivery drones abandon their routes and land wherever they can. Outside, a fruit cart overturns and nobody bothers to pick it up.
 
 *   [Stay inside and seal the gaps]
-    You stuff newspaper into the window frames and hang a wet sheet across the door. The apartment becomes a cave, dark and close, but the sand stays mostly outside. Your mother coughs less. By afternoon, the two of you sit in the dim quiet listening to the wind scream itself tired.
+    You stuff newspaper into the window frames and dampen a sheet with yesterday's wash water. The apartment becomes a cave, dark and close, but the sand stays mostly outside. Your mother coughs less. By afternoon, the two of you sit in the dim quiet listening to the wind tire itself out.
     # STRESS:3
     # STRESS:-2
     # ENERGY:-5
@@ -40,7 +40,7 @@ Your mother sits with the older women and speaks Arabic with a Khartoum accent t
 -> DONE
 
 === event_rain_leak ===
-The rain starts as a murmur on the roof and builds to a roar. By the second hour, water finds the crack above the kitchen door and begins its patient work. A drip, then a stream, then a line of water tracing the wall like a map of somewhere you would rather be.
+Rain has become too scarce for the city to practice handling it. It starts as a murmur on the roof and builds to a roar. By the second hour, water finds the crack above the kitchen door. A drip becomes a stream, then a line tracing the wall toward the floor.
 
 Your mother moves her mattress away from the wall and says nothing, which is how she communicates the loudest disappointment.
 
@@ -66,10 +66,10 @@ Your mother listens to the rain and says it sounds like Khartoum in August, befo
 -> DONE
 
 === event_rain_outside ===
-You are three blocks from home when the sky opens. The streets of Imbaba turn into rivers of grey water, trash, and the sandals of people running for cover. A microbus hydroplanes past, close enough to splash your gallabiya to the knee.
+You are three blocks from home when the sky opens. The rain is rare, but the old drains are still narrow and packed with dust. The streets of Imbaba turn into rivers of grey water and trash. A microbus hydroplanes past, close enough to splash your gallabiya to the knee.
 
 *   [Find shelter and wait it out]
-    You duck into a shop doorway with five other people who have also learned that fighting Cairo weather is a losing proposition. The rain is warm, which is almost worse — it should be refreshing, but instead it just makes everything damp and heavy.
+    You duck into a shop doorway with five other people. The rain is warm. It should be refreshing, but it only makes everything damp and heavy.
     # STRESS:3
     # ENERGY:-3
     # MESSAGE:You wait out the rain in a shop doorway with strangers who do not make eye contact.
@@ -92,9 +92,9 @@ Your mother puts her hand over yours. She does not say anything. She does not ha
 -> DONE
 
 === event_heatwave ===
-The heat does not arrive. It was always there, waiting under the surface of the city like something buried and angry. By ten in the morning, the air in the flat is thick enough to chew. The fan pushes hot air from one corner to another without cooling anything.
+The heatwave began before the official alert and outlasted the forecast. Last night never cooled. By ten in the morning, the walls are already giving yesterday's heat back to the room. The fan pushes hot air from one corner to another without cooling anything.
 
-Your mother lies still on her mattress with a wet cloth on her forehead. The salvaged cooling unit hums its useless complaint. Outside, electric taxis have been pulled from the road and the street has gone quiet in the way that Cairo only goes quiet when the sun becomes personal.
+Your mother lies still on her mattress with a wet cloth on her forehead. The salvaged cooling unit waits for the building co-op to release another hour of battery power. Outside, electric taxis have been pulled from the road and the street has gone quiet. Shade cloth stretches between balconies, patched and repatched by the people who live below it.
 
 *   [Stay inside and manage the heat as best you can]
     You keep the curtains drawn, the windows sealed, and the wet cloths coming. The apartment becomes a dim, still cave where the only movement is the slow rotation of the fan and the slower rise and fall of your mother's chest. You watch her and count the hours until evening.
@@ -104,7 +104,7 @@ Your mother lies still on her mattress with a wet cloth on her forehead. The sal
     -> DONE
 
 *   [Go out to find ice or cold water]
-    The street is an open mouth. You walk with your head down, following the narrow strip of shade along the buildings. The ice shop has a line that moves at the speed of melting. By the time you return with a bag of ice that is already half water, you understand why Cairo surrenders to August instead of fighting it.
+    You walk with your head down, following the narrow strip of shade along the buildings. The ice shop has a line that moves at the speed of melting. By the time you return with a bag already half water, you understand why work has shifted toward dawn and late evening whenever employers allow it.
     # STRESS:7
     # ENERGY:-12
     # HEALTH:-5
@@ -113,16 +113,16 @@ Your mother lies still on her mattress with a wet cloth on her forehead. The sal
     -> DONE
 
 === event_heatwave_medical ===
-The heatwave does not frighten you the way it frightens others. Three years of anatomy lectures taught you what the body does under thermal stress: the blood vessels dilate, the sweat glands exhaust, the electrolytes drain. You know the warning signs by name.
+Three years of anatomy lectures taught you what the body does under thermal stress: the blood vessels dilate, sweat stops keeping pace, and electrolytes drain. Knowing the warning signs does not make the heat harmless. It tells you when waiting becomes dangerous.
 
 You position your mother's mattress near the window, keep the air moving, mix salt and sugar into the water, and watch for the specific glassiness that means heat exhaustion is becoming heat stroke. Your hands know what to do even when your medical career did not survive to use the knowledge officially.
 # STRESS:-2
 # ENERGY:-5
-# MESSAGE:Your medical training turns a dangerous heatwave into a manageable crisis.
+# MESSAGE:Your medical training reduces some of the danger. The heatwave is still a crisis.
 -> DONE
 
 === event_cool_day ===
-The morning arrives with clouds that actually look like clouds instead of pollution with ambition. The air moves. It actually moves, carrying a breeze that does not feel like a hair dryer. The street is still loud, the rent is still due, and the city still grinds, but for one day the grinding produces less heat.
+The rare cool morning arrives with a breeze that does not feel like a hair dryer. The street is still loud and the rent is still due, but people linger outside because nobody trusts the relief to last.
 
 Your mother sits by the window and breathes without wheezing. The tea cools before you finish it. These are the days Cairo gives you so that the other days remain survivable.
 # STRESS:-5
@@ -149,7 +149,7 @@ The wind tears through Imbaba with the energy of a rumour. It flips awnings, sen
     -> DONE
 
 === event_winter_chill ===
-Cairo does not believe in winter the way Europe believes in winter, but January has its own cruelty. The cold seeps through concrete walls that were built to repel heat, not retain it. The flat is colder inside than outside because at least outside there is sun.
+Warmer years have not abolished January. The cold seeps through concrete walls built to shed heat, not hold warmth. The flat is colder inside than outside because at least outside there is sun.
 
 Your mother wraps herself in every cloth in the apartment and still shivers. The gas heater is empty. The blankets are thin. The city that tried to kill you with heat in summer tries with cold in winter, and the only thing that changes is the direction of the suffering.
 

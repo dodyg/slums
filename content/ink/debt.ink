@@ -132,7 +132,7 @@ Mona appears at your door with a plate of stuffed vine leaves and an envelope. T
 She says the extra is not interest. It is just what neighbors do when the math of survival lets them breathe for one week.
 
 *   [Accept gratefully]
-    You take the plate and the envelope and tell her she did not have to. She says she knows, which is how the best generosity works in Cairo — acknowledged, then absorbed, then paid forward when the next person's walls crack.
+    You take the plate and the envelope and tell her she did not have to. She says she knows. The best generosity in Cairo is acknowledged, absorbed, then paid forward when the next person's walls crack.
     # MONEY:30
     # NPC_TRUST:NeighborMona,2
     # STRESS:-3
@@ -143,7 +143,7 @@ She says the extra is not interest. It is just what neighbors do when the math o
 Youssef slides the money under your door in an envelope with no name on it. Later, in the lane, he mentions that a certain checkpoint will be empty tomorrow night, as if the information were unrelated to the cash.
 
 *   [Thank him for both]
-    You nod at the envelope and at the information, and he nods back, and the transaction completes itself in the way that Cairo's underground economy always does — through implication, timing, and the understanding that some currencies do not need counting.
+    You nod at the envelope and the information, and he nods back. The transaction completes itself through implication, timing, and the understanding that some currencies do not need counting.
     # MONEY:35
     # NPC_TRUST:RunnerYoussef,2
     # MESSAGE:Youssef repays in cash and in a tip about tomorrow night's checkpoint gap.

@@ -101,6 +101,33 @@ internal sealed class WeatherTests
     }
 
     [Test]
+    public async Task WeatherProbabilityTable_HotConditionsIncreaseTowardSummer()
+    {
+        var autumn = WeatherProbabilityTable.GetProbabilities(Season.Autumn);
+        var spring = WeatherProbabilityTable.GetProbabilities(Season.Spring);
+        var summer = WeatherProbabilityTable.GetProbabilities(Season.Summer);
+
+        var autumnHotWeight = autumn[WeatherType.Hot] + autumn[WeatherType.Heatwave];
+        var springHotWeight = spring[WeatherType.Hot] + spring[WeatherType.Heatwave];
+        var summerHotWeight = summer[WeatherType.Hot] + summer[WeatherType.Heatwave];
+
+        await Assert.That(springHotWeight).IsGreaterThan(autumnHotWeight);
+        await Assert.That(summerHotWeight).IsGreaterThan(springHotWeight);
+        await Assert.That(summerHotWeight).IsGreaterThan(summer[WeatherType.Clear]);
+    }
+
+    [Test]
+    public async Task WeatherProbabilityTable_AutumnAndWinterRetainWarmWeatherRisk()
+    {
+        var autumn = WeatherProbabilityTable.GetProbabilities(Season.Autumn);
+        var winter = WeatherProbabilityTable.GetProbabilities(Season.Winter);
+
+        await Assert.That(autumn[WeatherType.Hot]).IsGreaterThan(0);
+        await Assert.That(autumn[WeatherType.Heatwave]).IsGreaterThan(0);
+        await Assert.That(winter[WeatherType.Hot]).IsGreaterThan(0);
+    }
+
+    [Test]
     public async Task WeatherRoller_ProducesValidTypes()
     {
         var rng = new Random(42);

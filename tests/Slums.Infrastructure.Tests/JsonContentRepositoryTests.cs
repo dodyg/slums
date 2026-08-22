@@ -134,8 +134,10 @@ internal sealed class JsonContentRepositoryTests
         var items = repository.LoadItems();
         var schedules = repository.LoadNpcSchedules();
 
-        news.Should().HaveCount(8);
+        news.Should().HaveCount(10);
         news.Should().Contain(definition => definition.Id == "platform_rates_cut");
+        news.Should().Contain(definition => definition.Id == "heat_dome_power_rotation");
+        news.Should().Contain(definition => definition.Id == "delta_harvest_shortfall");
         items.Should().HaveCount(8);
         items.Should().Contain(item => item.Id == "clinic_supply_packet");
         schedules.Should().HaveCount(Enum.GetValues<Slums.Core.Relationships.NpcId>().Length);

@@ -32,7 +32,7 @@ The stairwell feels narrow with him standing there.
 	-> DONE
 
 === landlord_warm_1 ===
-The landlord mentions his own struggles with building costs.
+The landlord shows you the cost of replacing the rooftop pump sensor and two heat-swollen battery cells. Rent is not the only number keeping him awake.
 
 *   [Express sympathy]
 	# STRESS:-1
@@ -48,7 +48,7 @@ He sets aside his ledger and listens more carefully.
 	-> DONE
 
 === landlord_warm_3 ===
-Hajj Mahmoud makes tea while discussing the rent.
+Hajj Mahmoud makes tea from the first water after the pipes run clear, then discusses the rent.
 
 *   [Accept his hospitality]
 	# STRESS:-4
@@ -551,7 +551,7 @@ Mona's bowl of food is warm as she talks.
 	-> DONE
 
 === mona_default_4 ===
-Mona catches you on the landing with building news.
+Mona catches you on the landing with building news: a cheaper lentil seller, a changed pump hour, and a warning that tomorrow's heat alert may close outdoor work.
 
 *   [Listen to her updates]
 	# STRESS:-2
@@ -567,7 +567,7 @@ She looks out for you more openly now.
 	-> DONE
 
 === mona_warm_2 ===
-The tea is sweet and the news is better.
+The tea is sweet. The building battery held through the night, the water tank is half full, and the news is better than usual.
 
 *   [Enjoy the moment]
 	# STRESS:-5
@@ -695,7 +695,7 @@ She points you toward useful information.
 	-> DONE
 
 === salma_default_2 ===
-The clinic is busy but she makes time.
+The clinic is busy with heat rash, dehydration, and ordinary illnesses made worse by hot nights, but she makes time.
 
 *   [Explain what you need]
 	# STRESS:2
@@ -823,7 +823,7 @@ She shifts into crisis mode.
 	-> DONE
 
 === salma_urgent_2 ===
-The clinic moves faster around your emergency.
+Salma overrides the clinic's narrow triage model and the staff move faster around your emergency.
 
 *   [Trust her judgment]
 	# STRESS:2
@@ -887,7 +887,7 @@ He gestures toward an empty station.
 	-> DONE
 
 === abu_samir_default_2 ===
-The workshop smells of hot fabric and steam.
+The workshop smells of hot fabric, solder, and damp reed matting hung across the windows for cooling.
 
 *   [Find your place]
 	# STRESS:2
@@ -911,7 +911,7 @@ Abu Samir counts finished pieces without looking up.
 	-> DONE
 
 === abu_samir_warm_1 ===
-He has a better table for you today.
+He has a better table for you today, beneath the solar fan he rebuilt from a delivery-drone motor.
 
 *   [Thank him]
 	# STRESS:-2
@@ -1015,7 +1015,7 @@ She points to the evening rush.
 	-> DONE
 
 === nadia_default_2 ===
-The cafe hums with conversation and steam.
+The cafe hums with conversation and the whine of a solar awning trying to follow the afternoon sun.
 
 *   [Find your place]
 	# STRESS:2
@@ -1063,7 +1063,7 @@ Nadia trusts you with the good customers.
 	-> DONE
 
 === nadia_warm_4 ===
-Nadia slides tea toward you without asking.
+Nadia slides karkade toward you without asking. It came from an Upper Egyptian growers' co-op before the latest price rise.
 
 *   [Thank her]
 	# STRESS:-2
@@ -1191,7 +1191,7 @@ Hanan values your reliability.
 	-> DONE
 
 === hanan_warm_4 ===
-Hanan makes room for you in the shade.
+Hanan makes room for you beneath a patched market canopy and passes the shared water bottle.
 
 *   [Ask what she has heard]
 	# STRESS:-1
@@ -1335,7 +1335,7 @@ She has work if you want it.
 	-> DONE
 
 === mariam_default_2 ===
-The pharmacy is busy but organized.
+The pharmacy is busy but organized. Temperature strips mark which medicines survived the last refrigeration cut.
 
 *   [Find your place]
 	# STRESS:2
@@ -1431,7 +1431,7 @@ She has routes if you are ready.
 	-> DONE
 
 === safaa_default_2 ===
-The depot hums with engines and voices.
+The depot hums with electric motors, old engines, charging fans, and voices arguing over the shaded routes.
 
 *   [Find your place]
 	# STRESS:2
@@ -1527,7 +1527,7 @@ She points to an empty station.
 	-> DONE
 
 === iman_default_2 ===
-The laundry is hot and busy.
+The laundry is hot before the irons come on. Iman checks the water allotment twice before she starts the first boiler.
 
 *   [Find your rhythm]
 	# STRESS:2
@@ -1575,7 +1575,7 @@ Iman's kindness makes the heat bearable.
 	-> DONE
 
 === iman_warm_4 ===
-Iman hands you water before you ask.
+Iman hands you water before you ask. She filled every bottle during Shubra's dawn pump hour.
 
 *   [Thank her]
 	# STRESS:-2
@@ -1622,7 +1622,7 @@ Tarek adjusts his cardboard display, glancing up as you pass. "You look like you
 	-> DONE
 
 === tarek_default_2 ===
-The afternoon sun beats down on Tarek's makeshift stall. He fans himself with a flattened cardboard box. "This heat will cook us before it cooks the merchandise."
+The afternoon sun beats down on Tarek's makeshift stall. His reflective tarp lowers the temperature just enough to keep the power cells from swelling. He fans himself with a flattened cardboard box. "October used to be kinder than this."
 *   [Agree about the heat]
 	# STRESS:2
 	# NPC_TRUST:VendorTarek,1
@@ -1641,4 +1641,3 @@ A customer walks past without stopping. Tarek watches them go. "See that? That's
 	# STRESS:2
 	# NPC_TRUST:VendorTarek,2
 	-> DONE
-

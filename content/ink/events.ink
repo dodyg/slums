@@ -12,7 +12,7 @@ Your mother tries to smile through the dizziness, but the way her hand clamps ar
     -> DONE
 
 *   [Use your medical knowledge to help her]
-    You check her pulse, her breathing, her temperature. The training comes back in fragments — enough to recognize that this is a bad hour, not a crisis. You raise her pillows, cool her forehead, and wait beside her until the dizziness passes.
+    You check her pulse, her breathing, her temperature. The training comes back in fragments, enough to recognize that this is a bad hour rather than a crisis. You raise her pillows, cool her forehead, and wait beside her until the dizziness passes.
     # STRESS:4
     # ENERGY:-5
     # MOTHER_HEALTH:3
@@ -38,15 +38,15 @@ A neighbour lowers her voice and says plainclothes men were asking for names two
 -> DONE
 
 === event_home_water_cut_collection ===
-The water cuts out before noon and the whole building turns into a chain of borrowed buckets, muttered apologies, and stair-climbing labor. The building's shared batteries still have charge, but the municipal pump is waiting on a pressure sensor and the service portal keeps routing every ticket into a closed category. Every household is short on something, so help arrives mixed with irritation and the shame of needing it.
+The water misses its scheduled hour and the whole building turns into a chain of borrowed buckets, muttered apologies, and stair-climbing labor. The shared batteries still have charge, but the municipal pump is waiting on a pressure sensor while the service portal routes every ticket into a closed category. Mona reads the rooftop tank gauge from an old handset and divides what remains by floor. Every household is short on something, so help arrives mixed with irritation and the shame of needing it.
 -> DONE
 
 === event_bakery_flour_shortage ===
-At the forn, the missing sacks become everyone's problem at once. Men argue over deliveries, trays move half-full, and the owner starts counting losses before the bread has even cooled.
+At the forn, the missing sacks become everyone's problem at once. Another Delta harvest came in short after heat and salt damaged the crop. Men argue over deliveries, trays move half-full, and the owner starts counting losses before the bread has even cooled.
 -> DONE
 
 === event_clinic_overflow ===
-By noon the plastic chairs have filled, then the hallway, then the patch of shade by the clinic door. Nobody here has enough money or enough time, so everyone spends both badly.
+By noon the plastic chairs have filled, then the hallway, then the patch of shade beneath the clinic's solar awning. Salma has seen six heat cases and the hottest hours have not started. Nobody here has enough money, time, or cool space, so everyone spends all three badly.
 -> DONE
 
 === event_call_center_script_change ===
@@ -54,7 +54,7 @@ The supervisor tapes a revised script to the wall as if that makes it reasonable
 -> DONE
 
 === event_workshop_rush_order ===
-Abu Samir keeps saying "khallas, khallas" like the word itself can move the line faster. By the end of the shift your fingers ache and the room smells like hot cloth and impatience.
+Abu Samir starts the rush order at dawn and hangs wet reed matting across the west window. He keeps saying "khallas, khallas" like the word itself can move the line faster. By the end of the shift your fingers ache and the room smells like hot cloth and impatience.
 -> DONE
 
 === event_cafe_spill ===
@@ -86,11 +86,11 @@ The line at the Bulaq pharmacy is already doubled back on itself by mid-morning.
 -> DONE
 
 === event_depot_fare_shakeup ===
-At the depot, autonomous fleet supervisors, human dispatchers, and passengers spend half an hour arguing over fares as if volume might create justice. The route model changed the tariff before dawn and assigned the surcharge to the people least able to contest it. It creates heat, bad tempers, and a little money for whoever stays standing the longest.
+At the depot, autonomous fleet supervisors, human dispatchers, and passengers spend half an hour arguing over fares as if volume might create justice. The route model diverted vehicles from heat-damaged charging points before dawn, then assigned the surcharge to the people least able to contest it. The argument creates bad tempers and a little money for whoever stays standing the longest.
 -> DONE
 
 === event_shubra_steam_break ===
-The steam line pops with a noise like a slap, and suddenly the laundry is wet in all the wrong places. Iman keeps the work moving anyway, because in Cairo broken equipment is never enough reason for rent to wait.
+The steam line pops with a noise like a slap, and suddenly the laundry is wet in all the wrong places. The room was already too hot for safe work. Iman cuts power to the folding arms, opens the roof vent by hand, and keeps the salvageable work moving because rent will not wait for a cool day.
 -> DONE
 
 === event_shubra_block_solidarity ===
@@ -143,22 +143,22 @@ The patrol car rolls past slowly enough to study faces. You press against the wa
 -> DONE
 
 === event_honest_milestone ===
-Ten shifts. Ten days of clocking in, swallowing insults, counting coins, and going home with just enough. Nobody hands you a certificate. The landlord does not smile. But somewhere between the call center scripts and the clinic queues, the street has started reading you as someone who shows up. In Cairo, reliability is not rewarded. It is merely noticed, and that counts as grace.
+Ten shifts. Some began before dawn to avoid the heat. Others ran through power cuts, water queues, and supervisors who treated exhaustion as disobedience. Nobody hands you a certificate. The landlord does not smile. Somewhere between the call center scripts and the clinic queues, the street has started reading you as someone who shows up. Reliability is not rewarded, but it is noticed.
 # STRESS:-5
 -> DONE
 
 === event_community_aftermath ===
-After the gathering, the stairwell smells different — not cleaner, just lived-in by people who decided you belong here. The woman downstairs nods instead of stares. The man above stops counting your footsteps. Belonging in Cairo is never announced. It accumulates, like dust, until one day you realize it has become a kind of shelter.
+After the gathering, the stairwell smells different. It is not cleaner, just lived-in by people who decided you belong here. The woman downstairs nods instead of stares. The man above adds your number to the pump-alert group. Belonging in Cairo is rarely announced. It accumulates until it becomes a kind of shelter.
 # STRESS:-3
 -> DONE
 
 === event_embarrassment_recovery ===
-Abu Samir does not apologize — that is not how workshop forgiveness works. He just hands you the better fabric this time, the kind he gives to women whose hands he trusts. The silence between you is no longer cold. It is the quiet of two people who have agreed never to mention the mistake again.
+Abu Samir does not apologize. That is not how workshop forgiveness works. He hands you the better fabric this time, the kind he gives to women whose hands he trusts. The silence between you is no longer cold. You have both agreed never to mention the mistake again.
 # NPC_TRUST:WorkshopBossAbuSamir,5
 -> DONE
 
 === background_prisoner_khalid ===
-Officer Khalid studies your face a beat too long. You know the look — the one that searches for a name in an old file, the one that remembers who was inside before the amnesty. He does not say anything yet. He just watches, and in Cairo a watching policeman is a sentence that has not decided whether to become a paragraph.
+Officer Khalid studies your face a beat too long. You know the look that searches for a name in an old file and remembers who was inside before the amnesty. He does not say anything yet. He watches, and in Cairo a watching policeman is a sentence that has not decided whether to become a paragraph.
 # STRESS:5
 -> DONE
 

@@ -1,12 +1,12 @@
 # Seasonal and holiday narrative scenes
 
 === event_ramadan_start ===
-The cannon sounds from the direction of the Citadel, and the city shifts. Streets that were loud go quiet. Tables appear in the lane: communal iftar spreads set by people who have nothing but still set a place for strangers. The call to prayer carries over rooftops in a voice that makes even the traffic pause.
+The cannon sounds from the direction of the Citadel, and the city shifts. Streets that were loud go quiet. Tables appear in the lane: communal iftar spreads set by people who have little but still leave a place for strangers. Rooftop committees publish the evening pump and battery hours beside the prayer times, because thirst and refrigeration cannot be left to chance. The call to prayer carries over the roofs and even the traffic pauses.
 
 Your mother asks if you will fast this year. The question is not really about fasting.
 
 *   [Commit to fasting]
-    You tell her yes, and something in her face softens. The discipline will cost you energy, and the hunger will sharpen your nerves, but the act of joining — of belonging to the rhythm of a city that prays together — has its own sustenance.
+    You tell her yes, and something in her face softens. The discipline will cost you energy, and the hunger will sharpen your nerves, but joining the rhythm of a city that prays together has its own sustenance.
     # FLAG:ramadan_fasting
     # STRESS:3
     # MESSAGE:Ramadan begins. You fast with the city, and the belonging costs as much as it gives.
@@ -33,7 +33,7 @@ Your mother sits among the women and for the first time in weeks does not look l
     -> DONE
 
 *   [Take food home to eat quietly with your mother]
-    You fill a plate from the communal spread — it is there for exactly this purpose — and carry it down the stairs. Your mother eats slowly, savoring each bite with the deliberation of someone who knows exactly what hunger costs. You sit together in the dim flat and listen to the city pray.
+    You fill a plate from the communal spread. It is there for exactly this purpose. Your mother eats slowly, savoring each bite with the deliberation of someone who knows exactly what hunger costs. You sit together in the dim flat and listen to the city pray.
     # MONEY:-3
     # STRESS:-5
     # MOTHER_HEALTH:2
@@ -80,7 +80,7 @@ The celebration demands participation. The neighbors are buying gifts. The build
     -> DONE
 
 === event_eid_al_adha ===
-The butcher's cart appears in the lane before dawn. By mid-morning, the smell of meat fills the building for the first time in weeks. The sacrifice is real — a family upstairs pooled money for a sheep, and the division of meat follows ancient rules: one third for the family, one third for friends, one third for the poor.
+The butcher's cart appears in the lane before dawn. By mid-morning, the smell of meat fills the building for the first time in weeks. A family upstairs pooled money for a sheep, and the division of meat follows ancient rules: one third for the family, one third for friends, one third for the poor.
 
 A plate of fresh meat arrives at your door with no name attached.
 
@@ -101,7 +101,7 @@ A plate of fresh meat arrives at your door with no name attached.
     -> DONE
 
 === event_coptic_christmas ===
-January in Cairo brings a different kind of quiet. The Coptic families in the building prepare for Christmas with the particular intensity of people celebrating in a country where their holiday is not the default. The smells from their kitchens — fatta, kahk, spiced tea — drift through the stairwell and make everyone's evening richer whether they celebrate or not.
+January in Cairo brings a different kind of quiet. The Coptic families in the building prepare for Christmas with the particular intensity of people celebrating in a country where their holiday is not the default. The smells from their kitchens, fatta, kahk, and spiced tea, drift through the stairwell and make everyone's evening richer whether they celebrate or not.
 
 Hajj Mahmoud nods politely at the Abdo family on the third floor and receives a plate of cookies in return. This is how Cairo handles difference: not by ignoring it, but by feeding it.
 
@@ -123,7 +123,7 @@ Hajj Mahmoud nods politely at the Abdo family on the third floor and receives a 
 === event_sham_el_nessim ===
 Spring arrives with a holiday older than any religion in the city. The streets fill with families carrying coloured eggs, salted fish, and the particular energy of people who have survived another winter. The Nile corniche turns into a promenade. Children chase each other with paint-stained fingers.
 
-The air actually smells clean. Cairo manages this exactly once a year, and the city knows it.
+A northerly wind cleared some of the dust overnight. The city notices.
 
 *   [Join the crowds at the Nile]
     You take your mother to the corniche on a microbus that costs more than it should and moves slower than walking. But the river is wide and the breeze is real, and for two hours Cairo remembers that it was built beside something beautiful. Your mother eats feseekh for the first time in years and says the salt reminds her of being young.
@@ -141,12 +141,12 @@ The air actually smells clean. Cairo manages this exactly once a year, and the c
     -> DONE
 
 === event_summer_solstice ===
-The longest day of the year arrives with a sun that refuses to set. By six in the evening it is still forty degrees. By eight it is still thirty-five. The city moves in slow motion, as if everyone is underwater and the water is warm.
+The longest day arrives after a week of nights that never cooled. By six in the evening it is still forty degrees. By eight it is still thirty-five. Shops opened before dawn, closed through the worst hours, and will open again after isha if their owners still have the strength.
 
-Your mother's medication needs refrigeration. The electricity has been unreliable for three days.
+Your mother's medication needs refrigeration. The electricity has been unreliable for three days because every cooling unit in the city is asking for power at once. The building battery is reserved for the pump, stairwell lights, and medicine.
 
 *   [Buy ice and keep the medication cold]
-    You walk six blocks to the ice seller and carry a bag that melts faster than you can walk. The medication stays cool. Your arms ache from the weight. Summer in Cairo is a test of how much suffering you can prevent and how much you simply have to endure.
+    You walk six blocks to the ice seller and carry a bag that melts faster than you can walk. The medication stays cool. Your arms ache from the weight. In Cairo, adaptation often means deciding which loss to prevent first.
     # MONEY:-8
     # ENERGY:-5
     # STRESS:3
@@ -162,7 +162,7 @@ Your mother's medication needs refrigeration. The electricity has been unreliabl
     -> DONE
 
 === event_autumn_first ===
-October arrives and the city exclaims. Not with words, but with windows that open for the first time in months, with children who run faster because the air no longer presses down on their chests, with the market stalls that suddenly carry fresh dates and pomegranates.
+October arrives, but the old promise of cool air arrives later. Some mornings still begin hot. On this one, a north breeze finally lets windows open before sunrise, and the market stalls carry dates and pomegranates despite another expensive harvest.
 
 The flat is still small. The rent is still due. Your mother still coughs. But the light comes through the window at a lower angle and paints the walls gold, and for one morning, the colour of everything is enough.
 # STRESS:-4
@@ -170,7 +170,7 @@ The flat is still small. The rent is still due. Your mother still coughs. But th
 -> DONE
 
 === event_winter_first_rain ===
-The first rain of winter catches the city unprepared, as it does every year. The streets flood within minutes because the drainage system is theoretical. Drivers curse. Pedestrians scatter. A child stands in the middle of the lane with arms outstretched, tasting rain that he will remember as a miracle when he is old enough to call it weather.
+The first rain of winter catches the city unprepared. Long dry months left the drains packed with grit, so the streets flood within minutes. Drivers curse. Pedestrians scatter. People put buckets under clean roof edges, unwilling to waste water simply because it fell from the sky.
 
 Your mother opens the window and lets the smell in. Rain on dust, rain on concrete, rain on a city that was not built for rain but somehow still welcomes it.
 # STRESS:-3
@@ -179,7 +179,7 @@ Your mother opens the window and lets the smell in. Rain on dust, rain on concre
 -> DONE
 
 === event_spring_khamsin_warning ===
-The sky turns yellow at the edges. The old women in the building start sealing windows before the radio announces anything. They know. They have known since before there was a radio, since before there was electricity, since before Cairo was tall enough to block the view of the horizon.
+The sky turns yellow at the edges. The old women in the building start sealing windows before the municipal alert reaches anyone's handset. They read the light, the pressure in their ears, and the taste of the air. A young repairman checks the neighborhood dust sensor, sees the same warning in numbers, and starts helping them tape the frames.
 
 Someone says the khamsin will arrive by afternoon. You have until then.
 # STRESS:3

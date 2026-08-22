@@ -72,6 +72,7 @@ internal sealed class EndingScenePathTests
     {
         var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.QuitTheLuxorDream, CreateDefaultSceneState());
         result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.QuitTheLuxorDream} should produce narrative text");
+        string.Join(" ", result.Text).Should().Contain("Luxor is hotter", "Luxor must not be presented as a climate refuge in 2060");
     }
 
     [Test]
@@ -79,6 +80,7 @@ internal sealed class EndingScenePathTests
     {
         var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.StabilityHonestWork, CreateDefaultSceneState());
         result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.StabilityHonestWork} should produce narrative text");
+        string.Join(" ", result.Text).Should().Contain("water stored", "stability in 2060 includes climate adaptation");
     }
 
     [Test]

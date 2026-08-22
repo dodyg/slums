@@ -4,7 +4,7 @@
 The cash in your pocket feels warmer than it should. It smells faintly of sweat and street dust. Cairo rewards nerve, but it memorizes faces.
 
 *   [Hide the money and go home]
-    You fold the notes flat, press them deep in your pocket, and walk home by the longest route — through three different alleys, past four different ahwas, avoiding every face that might have been watching. The money is real. The fear is realer.
+    You fold the notes flat, press them deep in your pocket, and walk home by the longest route through three alleys and past four ahwas, avoiding every face that might have been watching. The money is real. The fear is realer.
     # STRESS:5
     # MESSAGE:The first successful crime leaves your nerves rattling.
     -> DONE
@@ -35,13 +35,13 @@ By maghrib, the talk on the street has already turned. Men lower their voices wh
     -> DONE
 
 *   [Ask Umm Karim to gauge the heat]
-    Umm Karim listens without looking at you. She says the heat is real but not personal yet — they are watching the neighbourhood, not hunting one face. She tells you to stay off the main routes for two days and to stop looking nervous, because nervous is its own kind of confession.
+    Umm Karim listens without looking at you. She says the heat is real but not personal yet. They are watching the neighbourhood, not hunting one face. She tells you to stay off the main routes for two days and to stop looking nervous, because nervous is its own kind of confession.
     # STRESS:4
     # NPC_TRUST:FixerUmmKarim,2
-    # MESSAGE:Umm Karim reads the street for you. The heat is general, not specific — for now.
+    # MESSAGE:Umm Karim reads the street for you. The heat is general, not specific for now.
     -> DONE
 
-*   [Push through — you cannot afford to lose days]
+*   [Push through because you cannot afford to lose days]
     You refuse to let fear reorganize your life. The street watches, but the street always watches, and you have been visible before. You keep moving, keep working, keep your face set to the particular blankness that Cairo teaches {gender == "male": its men | its women} as a first line of defense.
     # STRESS:10
     # MESSAGE:You refuse to hide. The street takes note of the defiance and files it alongside everything else.
@@ -69,11 +69,11 @@ The message is not written. It is left: your door scratched, a glass bottle shat
 Mona finds you in the morning and says three men were asking about you last night. They did not knock. They only stood at the bottom of the stairs and looked up.
 
 *   [Reach out to Umm Karim for protection]
-    You send word through the market chain — two intermediaries, no names, the standard protocol for asking a favour that cannot be asked directly. Umm Karim's reply comes back within the hour: she will speak to them, but the conversation has a price, and the price is not money.
+    You send word through the market chain using two intermediaries and no names, the standard protocol for asking a favour that cannot be asked directly. Umm Karim's reply comes back within the hour: she will speak to them, but the conversation has a price, and the price is not money.
     # STRESS:6
     # NPC_TRUST:FixerUmmKarim,3
     # FACTION_REP:ImbabaCrew,5
-    # MESSAGE:Gang retaliation threatens your home. Umm Karim offers to negotiate — for a price.
+    # MESSAGE:Gang retaliation threatens your home. Umm Karim offers to negotiate for a price.
     -> DONE
 
 *   [Go to the gang directly]
@@ -256,7 +256,7 @@ The shopkeeper hands over the money without meeting your eyes. He has done this 
 -> DONE
 
 === crime_bulaq_protection_detected ===
-The shopkeeper pays, but he pays slowly, and he makes sure two people on the street see the exchange happen. The money is real, but so is the witness report that will travel faster than you can walk home. In Bulaq, paying protection is normal — but being named as the one who collected it is not.
+The shopkeeper pays slowly and makes sure two people on the street see the exchange. The money is real, but so is the witness report that will travel faster than you can walk home. In Bulaq, paying protection is normal. Being named as the collector is not.
 # STRESS:8
 # MONEY:20
 # FACTION_REP:ImbabaCrew,3
