@@ -6,6 +6,18 @@ This document turns the August 2026 narrative review into eight implementation-r
 
 The goal is a coherent 30-day science-fiction drama in which Cairo's infrastructure, institutions, repair cultures, climate pressures, and unequal digital systems shape what the player can do. Technology must create access, labor, surveillance, maintenance, and political consequences—not act as decorative futurism or effortless magic.
 
+## Implementation status
+
+The first implementation pass is committed in review-sized changes:
+
+- Completed the reachability and truthful-consequence foundation, including the entry-knot catalog, synchronized scene state, typed rent/debt/Ramadan effects, and Tarek's missing context knots.
+- Added the shared rooftop water-and-power cooperative crisis with deterministic day beats, typed decisions and resolutions, application commands, persistence, Ink traversal, and ending callbacks.
+- Added 100-entry recurring conversation decks with persisted non-repetition history and stable variant state, plus the compiled-story choice audit.
+- Added bounded robot capabilities for salvage recovery, clinic triage, and assisted transit; each requires an operational machine and creates condition wear.
+- Replaced rumor-location duplication with canonical NPC district data.
+
+The central-character arc bible and the full 48-scene weather/season/community/debt trigger migration remain follow-up work. They are deliberately left visible in the packages below rather than being represented as completed by scaffolding alone.
+
 ## Guardrails
 
 - Preserve .NET 10, C# 14, SadConsole, Ink, JSON persistence, and the existing inward dependency direction.
