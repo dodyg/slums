@@ -20,7 +20,7 @@ internal sealed class TalkScreen : ScreenSurface
     private readonly GameSession _gameState;
     private readonly IReadOnlyList<TalkNpcStatus> _npcs;
     private readonly GameScreen _parentScreen;
-    private readonly TalkSceneRequestFactory _talkSceneRequestFactory = new();
+    private readonly TalkNpcCommand _talkNpcCommand = new();
     private int _selectedIndex;
 
     public TalkScreen(int width, int height, GameRuntime runtime, GameSession gameState, TalkNpcContext context, IReadOnlyList<TalkNpcStatus> npcs, GameScreen parentScreen)
@@ -60,7 +60,7 @@ internal sealed class TalkScreen : ScreenSurface
             var prefix = i == _selectedIndex ? "> " : "  ";
             var color = !npc.IsAvailable ? Color.DarkGray : i == _selectedIndex ? Color.Cyan : Color.White;
             Surface.Print(ListX, rowY, TrimToFit($"{prefix}{npc.Name}", DetailX - ListX - 2), color);
-            Surface.Print(ListX + 2, rowY + 1, npc.IsAvailable ? $"Trust: {npc.Trust}" : "Unavailable", npc.IsAvailable ? GetTrustColor(npc.Trust) : Color.DarkGray);
+            Surface.Print(ListX + 2, rowY + 1, npc.IsAvailable ? $"Trust: {npc.Trust} | {npc.TimeCostMinutes} min" : "Unavailable", npc.IsAvailable ? GetTrustColor(npc.Trust) : Color.DarkGray);
         }
 
         RenderSelectedNpcDetails();
@@ -90,7 +90,12 @@ internal sealed class TalkScreen : ScreenSurface
                 return true;
             }
             var npcId = _npcs[_selectedIndex].NpcId;
-            var talkScene = _talkSceneRequestFactory.Create(_context, npcId, _gameState.SharedRandom);
+            var talkScene = _talkNpcCommand.Execute(_gameState, npcId, _gameState.SharedRandom);
+            if (talkScene is null)
+            {
+                return true;
+            }
+
             _runtime.NarrativeService.StartScene(talkScene.KnotName, talkScene.SceneState);
             IsFocused = false;
             ScreenTransition.FadeTo(new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, _parentScreen));

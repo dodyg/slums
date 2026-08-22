@@ -36,6 +36,7 @@ namespace Slums.Core.State;
 public sealed class GameSession : INarrativeOutcomeTarget
 {
     private const int EndOfDayHour = 22;
+    public const int ConversationDurationMinutes = 45;
     private readonly CrimeService _crimeService = new();
     private readonly RandomEventService _randomEventService = new();
     private readonly PlayerIdentityState _playerIdentity;
@@ -1440,7 +1441,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         {
             Player.Stats.ModifyMoney(result.MoneyEarned);
             ApplySkillGain(SkillId.StreetSmarts);
-            ModifyFactionReputation(FactionId.ImbabaCrew, 4);
+            ModifyFactionReputation(GetFactionForCurrentCrimeRoute(), 4);
             if (Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner)
             {
                 ModifyFactionReputation(FactionId.ExPrisonerNetwork, 5);
@@ -1460,9 +1461,26 @@ public sealed class GameSession : INarrativeOutcomeTarget
             RaiseEvent("People are whispering that the police are getting close.");
         }
 
+        AdvanceTime(attempt.DurationMinutes);
         CheckGameOverConditions();
         RecordMutation(MutationCategories.Crime, "CommitCrime", before, CaptureStats(), $"{attempt.Type}: success={result.Success}, detected={result.Detected}");
         return result;
+    }
+
+    private FactionId GetFactionForCurrentCrimeRoute()
+    {
+        var controllingFaction = Territory.GetControl(World.CurrentDistrict).ControllingFaction;
+        if (controllingFaction.HasValue)
+        {
+            return controllingFaction.Value;
+        }
+
+        return World.CurrentDistrict switch
+        {
+            DistrictId.Dokki => FactionId.DokkiThugs,
+            DistrictId.ArdAlLiwa => FactionId.ExPrisonerNetwork,
+            _ => FactionId.ImbabaCrew
+        };
     }
 
     public bool BuyFood()

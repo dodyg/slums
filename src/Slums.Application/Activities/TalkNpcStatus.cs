@@ -10,5 +10,6 @@ public sealed record TalkNpcStatus(
     string? FactionLink,
     IReadOnlyList<string> MemoryFlags,
     IReadOnlyList<string> TriggerSignals,
+    int TimeCostMinutes,
     bool IsAvailable,
     string UnavailableReason);

@@ -11,6 +11,7 @@ public sealed record CrimeMenuStatus(
     int EffectiveSuccessChance,
     int EffectivePressureIfDetected,
     int EffectivePressureIfUndetected,
+    int DurationMinutes,
     IReadOnlyList<string> ActiveModifiers,
     IReadOnlyList<string> NarrativeSignals,
     IReadOnlyList<string> AccessSignals,

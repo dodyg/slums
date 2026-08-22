@@ -1,5 +1,6 @@
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
+using Slums.Core.State;
 
 namespace Slums.Application.Activities;
 
@@ -20,6 +21,15 @@ public sealed class TalkNpcStatusQuery
     private static TalkNpcStatus BuildStatus(TalkNpcContext context, NpcId npcId)
     {
         var relationship = context.Relationships.GetNpcRelationship(npcId);
+        var scheduledAvailability = context.Availability.GetValueOrDefault(npcId);
+        var isAvailable = scheduledAvailability?.IsAvailable ?? true;
+        var unavailableReason = scheduledAvailability?.Reason ?? string.Empty;
+        if (isAvailable && relationship.LastSeenDay == context.CurrentDay)
+        {
+            isAvailable = false;
+            unavailableReason = $"You already had a meaningful conversation with {NpcRegistry.GetName(npcId)} today.";
+        }
+
         return new TalkNpcStatus(
             npcId,
             NpcRegistry.GetName(npcId),
@@ -28,8 +38,9 @@ public sealed class TalkNpcStatusQuery
             GetFactionLink(context, npcId),
             GetMemoryFlags(context, relationship),
             GetTriggerSignals(context, npcId, relationship),
-            context.Availability.GetValueOrDefault(npcId)?.IsAvailable ?? true,
-            context.Availability.GetValueOrDefault(npcId)?.Reason ?? string.Empty);
+            GameSession.ConversationDurationMinutes,
+            isAvailable,
+            unavailableReason);
     }
 
     private static string GetSummary(TalkNpcContext context, NpcId npcId, NpcRelationship relationship)

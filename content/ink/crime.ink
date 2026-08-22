@@ -250,7 +250,7 @@ The foreman waves you off before you finish explaining. The workshop is being wa
 The shopkeeper hands over the money without meeting your eyes. He has done this before, with other faces, and the transaction carries the practiced efficiency of routine. The neighbourhood watches from doorways and upper windows, and nobody intervenes because in Bulaq, protection money is older than the buildings that collect it.
 # STRESS:4
 # MONEY:30
-# FACTION_REP:BulaqProtection,5
+# FACTION_REP:ImbabaCrew,5
 # MESSAGE:The protection collection goes smooth. Bulaq pays what Bulaq always pays.
 -> DONE
 
@@ -258,7 +258,7 @@ The shopkeeper hands over the money without meeting your eyes. He has done this 
 The shopkeeper pays, but he pays slowly, and he makes sure two people on the street see the exchange happen. The money is real, but so is the witness report that will travel faster than you can walk home. In Bulaq, paying protection is normal — but being named as the one who collected it is not.
 # STRESS:8
 # MONEY:20
-# FACTION_REP:BulaqProtection,3
+# FACTION_REP:ImbabaCrew,3
 # FLAG:bulaq_protection_detected
 # MESSAGE:The collection pays, but the shopkeeper makes sure the street knows your face.
 -> DONE
@@ -266,6 +266,6 @@ The shopkeeper pays, but he pays slowly, and he makes sure two people on the str
 === crime_bulaq_protection_failure ===
 The shopkeeper does not shout. He simply looks at you with the particular patience of a man who has survived worse than you, then tells you that the building has already paid its arrangement this month and the person you should talk to about that is standing three doors down with a wrench in his hand. You leave quickly. The protection racket in Bulaq already has owners.
 # STRESS:9
-# FACTION_REP:BulaqProtection,-5
+# FACTION_REP:ImbabaCrew,-5
 # MESSAGE:The protection collection fails. The territory is already claimed and the claimants are not forgiving.
 -> DONE

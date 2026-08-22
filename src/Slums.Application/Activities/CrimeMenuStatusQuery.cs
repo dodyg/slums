@@ -34,6 +34,7 @@ public sealed class CrimeMenuStatusQuery
             option.Preview.Resolution.SuccessChance,
             option.Preview.Resolution.PolicePressureIfDetected,
             option.Preview.Resolution.PolicePressureIfUndetected,
+            option.Attempt.DurationMinutes,
             option.Preview.ActiveModifiers,
             GetNarrativeSignals(context, option.Attempt),
             GetAccessSignals(context, option),

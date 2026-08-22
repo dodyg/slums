@@ -217,7 +217,7 @@ internal sealed class CrimeScreen : ScreenSurface
         Surface.Print(DetailX, y++, $"Success {selected.EffectiveSuccessChance}% | Detection {selected.EffectiveDetectionRisk}%", Color.Yellow);
         Surface.Print(DetailX, y++, $"Pressure if seen +{selected.EffectivePressureIfDetected}", Color.Gray);
         Surface.Print(DetailX, y++, $"Pressure if clean +{selected.EffectivePressureIfUndetected}", Color.Gray);
-        Surface.Print(DetailX, y++, $"Energy -{selected.Attempt.EnergyCost} | Street Rep {selected.Attempt.StreetRepRequired}", Color.Gray);
+        Surface.Print(DetailX, y++, $"Time {selected.DurationMinutes} min | Energy -{selected.Attempt.EnergyCost} | Street Rep {selected.Attempt.StreetRepRequired}", Color.Gray);
 
         y++;
         var summary = selected.IsAvailable ? selected.StatusText ?? "Route is open." : selected.BlockReason ?? "Route is blocked.";

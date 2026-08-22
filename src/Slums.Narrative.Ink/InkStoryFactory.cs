@@ -28,6 +28,7 @@ public static class InkStoryFactory
 
         lock (ConstructionLock)
         {
+            InkStoryValidator.Validate(json);
             return new Story(json);
         }
     }
