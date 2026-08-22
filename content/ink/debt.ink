@@ -31,7 +31,7 @@ Your mother coughs in the other room. His eyes flick toward the sound.
 
 *   [Pay what you can and beg for time]
     You press crumpled notes into his hand and keep your eyes down. He counts without looking, nods once, and says the remaining amount just grew. But he leaves, and the door closes, and your mother does not ask who that was because she already knows the shape of debt even when nobody names it.
-    # MONEY:-40
+    # DEBT_PAYMENT:LoanShark,40
     # STRESS:8
     # HEALTH:-3
     # MESSAGE:You pay what you can. The loan shark leaves, but the debt swells.
@@ -41,6 +41,7 @@ Your mother coughs in the other room. His eyes flick toward the sound.
     He tilts his head as if considering a reasonable request from a reasonable person. Then he mentions your mother's medication schedule by name. He says one week. He does not say what happens after.
     # STRESS:12
     # HEALTH:-5
+    # DEBT_DUE_EXTENSION:LoanShark,7
     # MESSAGE:The loan shark grants one more week. His knowledge of your mother's routine is a threat disguised as conversation.
     -> DONE
 

@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Application.Narrative;
 using Slums.Core.Diagnostics;
 using Slums.Core.Endings;
+using Slums.Core.Economy;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit;
@@ -84,5 +85,72 @@ internal sealed class ApplyNarrativeOutcomeCommandTests
 
         session.IsGameOver.Should().BeTrue();
         session.EndingId.Should().Be(EndingId.MotherDied);
+    }
+
+    [Test]
+    public void Execute_ShouldApplyRentPaymentAndGraceThroughTypedEffects()
+    {
+        var session = new GameSession();
+        session.Player.Stats.SetMoney(80);
+        session.RestoreRentState(5, 50, true, true);
+
+        ApplyNarrativeOutcomeCommand.Execute(
+            session,
+            "event_rent_final_warning",
+            new NarrativeOutcome
+            {
+                Effects =
+                [
+                    new RentPaymentEffect(10),
+                    new RentGraceDaysEffect(3)
+                ]
+            });
+
+        session.Player.Stats.Money.Should().Be(70);
+        session.AccumulatedRentDebt.Should().Be(40);
+        session.RentGraceDaysRemaining.Should().Be(3);
+
+        session.EndDay();
+
+        session.RentGraceDaysRemaining.Should().Be(2);
+        session.AccumulatedRentDebt.Should().Be(40);
+    }
+
+    [Test]
+    public void Execute_ShouldApplyOnlyTheTargetedDebtAndCapPaymentAtAvailableMoney()
+    {
+        var session = new GameSession();
+        session.Player.Stats.SetMoney(25);
+        session.PlayerDebts.AddDebt(new PlayerDebt
+        {
+            Source = DebtSource.LoanShark,
+            AmountOwed = 90,
+            DueDay = 8,
+            CollectionState = DebtCollectionState.Overdue
+        });
+        session.PlayerDebts.AddDebt(new PlayerDebt
+        {
+            Source = DebtSource.NeighborLoan,
+            AmountOwed = 30,
+            DueDay = 8,
+            CollectionState = DebtCollectionState.Current
+        });
+
+        ApplyNarrativeOutcomeCommand.Execute(
+            session,
+            "event_loan_shark_visit",
+            new NarrativeOutcome
+            {
+                Effects =
+                [
+                    new DebtPaymentEffect(DebtSource.LoanShark, 40),
+                    new DebtDueExtensionEffect(DebtSource.LoanShark, 7)
+                ]
+            });
+
+        session.Player.Stats.Money.Should().Be(0);
+        session.PlayerDebts.Debts.Single(debt => debt.Source == DebtSource.LoanShark).AmountOwed.Should().Be(65);
+        session.PlayerDebts.Debts.Single(debt => debt.Source == DebtSource.LoanShark).DueDay.Should().Be(15);
+        session.PlayerDebts.Debts.Single(debt => debt.Source == DebtSource.NeighborLoan).AmountOwed.Should().Be(30);
     }
 }

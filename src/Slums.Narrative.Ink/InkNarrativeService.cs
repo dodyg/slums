@@ -3,6 +3,7 @@ using Ink.Runtime;
 using Microsoft.Extensions.Logging;
 using Slums.Application.Narrative;
 using Slums.Core.Relationships;
+using Slums.Core.Economy;
 
 namespace Slums.Narrative.Ink;
 
@@ -197,6 +198,30 @@ public sealed class InkNarrativeService : INarrativeService
                 _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { FoodChange = ParseIntEffect(tag, valueStr) });
                 return;
 
+            case "RENT_PAYMENT":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [new RentPaymentEffect(ParseIntEffect(tag, valueStr))] });
+                return;
+
+            case "RENT_GRACE_DAYS":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [new RentGraceDaysEffect(ParseIntEffect(tag, valueStr))] });
+                return;
+
+            case "DEBT_PAYMENT":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [ParseDebtAmountEffect(tag, valueStr, static (source, amount) => new DebtPaymentEffect(source, amount))] });
+                return;
+
+            case "DEBT_DUE_EXTENSION":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [ParseDebtAmountEffect(tag, valueStr, static (source, amount) => new DebtDueExtensionEffect(source, amount))] });
+                return;
+
+            case "RAMADAN_FASTING":
+                if (!bool.TryParse(valueStr, out var isFasting))
+                {
+                    throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected true or false.");
+                }
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [new RamadanFastingEffect(isFasting)] });
+                return;
+
             default:
                 // Not an effect tag; scene markers (e.g. weather/season tags) are ignored.
                 return;
@@ -257,6 +282,18 @@ public sealed class InkNarrativeService : INarrativeService
         return new DebtEffect(npcId, debtState);
     }
 
+    private static TEffect ParseDebtAmountEffect<TEffect>(string tag, string valueStr, Func<DebtSource, int, TEffect> factory)
+        where TEffect : NarrativeEffect
+    {
+        var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
+        if (parts.Length != 2 || !Enum.TryParse<DebtSource>(parts[0], out var source) || !int.TryParse(parts[1], out var amount) || amount <= 0)
+        {
+            throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected 'DebtSource,positiveAmount'.");
+        }
+
+        return factory(source, amount);
+    }
+
     private static NarrativeEffect ParseBoolStateEffect(string tag, string valueStr, Func<NpcId, bool, NarrativeEffect> factory)
     {
         var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
@@ -278,6 +315,21 @@ public sealed class InkNarrativeService : INarrativeService
         TrySetGlobalVariable(story, "mother_health", sceneState.MotherHealth);
         TrySetGlobalVariable(story, "food_stockpile", sceneState.FoodStockpile);
         TrySetGlobalVariable(story, "day", sceneState.Day);
+        TrySetGlobalVariable(story, "district", sceneState.District);
+        TrySetGlobalVariable(story, "weather", sceneState.Weather);
+        TrySetGlobalVariable(story, "season", sceneState.Season);
+        TrySetGlobalVariable(story, "holiday", sceneState.Holiday);
+        TrySetGlobalVariable(story, "is_ramadan", sceneState.IsRamadan);
+        TrySetGlobalVariable(story, "is_fasting", sceneState.IsRamadanFasting);
+        TrySetGlobalVariable(story, "unpaid_rent_days", sceneState.UnpaidRentDays);
+        TrySetGlobalVariable(story, "rent_debt", sceneState.RentDebt);
+        TrySetGlobalVariable(story, "rent_grace_days", sceneState.RentGraceDays);
+        TrySetGlobalVariable(story, "police_pressure", sceneState.PolicePressure);
+        TrySetGlobalVariable(story, "operational_robot_count", sceneState.OperationalRobots.Count);
+        TrySetGlobalVariable(story, "active_news_count", sceneState.ActiveNews.Count);
+        TrySetGlobalVariable(story, "infrastructure_disruption_count", sceneState.Infrastructure.Count);
+        TrySetGlobalVariable(story, "mona_trust", sceneState.RelationshipTrust.GetValueOrDefault("NeighborMona"));
+        TrySetGlobalVariable(story, "salma_trust", sceneState.RelationshipTrust.GetValueOrDefault("NurseSalma"));
 
         if (!string.IsNullOrWhiteSpace(sceneState.Background))
         {

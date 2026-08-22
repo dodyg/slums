@@ -16,6 +16,7 @@ public sealed record GameSessionRunSnapshot
     public int AccumulatedRentDebt { get; init; }
     public bool FirstWarningGiven { get; init; }
     public bool FinalWarningGiven { get; init; }
+    public int RentGraceDaysRemaining { get; init; }
 
     public static GameSessionRunSnapshot Capture(GameSession gameSession)
     {
@@ -33,7 +34,8 @@ public sealed record GameSessionRunSnapshot
             UnpaidRentDays = gameSession.UnpaidRentDays,
             AccumulatedRentDebt = gameSession.AccumulatedRentDebt,
             FirstWarningGiven = gameSession.FirstWarningGiven,
-            FinalWarningGiven = gameSession.FinalWarningGiven
+            FinalWarningGiven = gameSession.FinalWarningGiven,
+            RentGraceDaysRemaining = gameSession.RentGraceDaysRemaining
         };
     }
 }

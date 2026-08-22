@@ -59,6 +59,28 @@ public sealed class PlayerDebtState
         }
     }
 
+    public bool ExtendDueDate(DebtSource source, int days)
+    {
+        if (days <= 0)
+        {
+            return false;
+        }
+
+        var index = _debts.FindIndex(debt => debt.Source == source);
+        if (index < 0)
+        {
+            return false;
+        }
+
+        var debt = _debts[index];
+        _debts[index] = debt with
+        {
+            DueDay = debt.DueDay + Math.Min(days, 30),
+            CollectionState = DebtCollectionState.Current
+        };
+        return true;
+    }
+
     public void UpdateCollectionStates(int currentDay)
     {
         for (var i = 0; i < _debts.Count; i++)

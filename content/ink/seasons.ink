@@ -8,6 +8,7 @@ Your mother asks if you will fast this year. The question is not really about fa
 *   [Commit to fasting]
     You tell her yes, and something in her face softens. The discipline will cost you energy, and the hunger will sharpen your nerves, but joining the rhythm of a city that prays together has its own sustenance.
     # FLAG:ramadan_fasting
+    # RAMADAN_FASTING:true
     # STRESS:3
     # MESSAGE:Ramadan begins. You fast with the city, and the belonging costs as much as it gives.
     -> DONE
@@ -15,6 +16,7 @@ Your mother asks if you will fast this year. The question is not really about fa
 *   [Decline to fast]
     You tell her you cannot afford the weakness this year. She nods, but the nod carries a distance, a small gap opened by a choice she will not argue with but also will not forget. In Cairo, Ramadan is not only faith. It is also identity.
     # STRESS:2
+    # RAMADAN_FASTING:false
     # MESSAGE:Ramadan begins. You do not fast, and the city notices in small, accumulating ways.
     -> DONE
 

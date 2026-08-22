@@ -1,4 +1,5 @@
 using Ink.Runtime;
+using Slums.Core.Narrative;
 
 namespace Slums.Narrative.Ink;
 
@@ -21,6 +22,21 @@ public static class InkStoryCatalog
             ["mother_health"] = typeof(int),
             ["food_stockpile"] = typeof(int),
             ["day"] = typeof(int)
+            , ["district"] = typeof(string)
+            , ["weather"] = typeof(string)
+            , ["season"] = typeof(string)
+            , ["holiday"] = typeof(string)
+            , ["is_ramadan"] = typeof(bool)
+            , ["is_fasting"] = typeof(bool)
+            , ["unpaid_rent_days"] = typeof(int)
+            , ["rent_debt"] = typeof(int)
+            , ["rent_grace_days"] = typeof(int)
+            , ["police_pressure"] = typeof(int)
+            , ["operational_robot_count"] = typeof(int)
+            , ["active_news_count"] = typeof(int)
+            , ["infrastructure_disruption_count"] = typeof(int)
+            , ["mona_trust"] = typeof(int)
+            , ["salma_trust"] = typeof(int)
         };
 
     /// <summary>Gets the gameplay globals that every compiled story must declare.</summary>
@@ -53,5 +69,24 @@ public static class InkStoryCatalog
     {
         var story = InkStoryFactory.Create(InkStoryLoader.LoadStoryJson());
         return story.mainContentContainer.namedOnlyContent.Keys.ToHashSet(StringComparer.Ordinal);
+    }
+
+    /// <summary>Validates the explicit Core entry-knot contract against a compiled story.</summary>
+    public static void ValidateEntryKnots(Story story)
+    {
+        ArgumentNullException.ThrowIfNull(story);
+
+        var names = story.mainContentContainer.namedOnlyContent.Keys.ToHashSet(StringComparer.Ordinal);
+        var missing = NarrativeEntryKnotCatalog.RequiredEntryKnots.Where(knot => !names.Contains(knot)).Order(StringComparer.Ordinal).ToArray();
+        if (missing.Length > 0)
+        {
+            throw new InvalidOperationException($"Compiled Ink story is missing declared entry knots: {string.Join(", ", missing)}.");
+        }
+
+        var unclassified = NarrativeEntryKnotCatalog.GetUnclassified(names);
+        if (unclassified.Count > 0)
+        {
+            throw new InvalidOperationException($"Compiled Ink story contains unclassified top-level knots: {string.Join(", ", unclassified)}.");
+        }
     }
 }

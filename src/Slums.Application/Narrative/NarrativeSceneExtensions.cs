@@ -77,6 +77,21 @@ public static class NarrativeSceneExtensions
                 case HelpedEffect helped:
                     state.SetHelpedState(helped.Npc, helped.Value);
                     break;
+                case RentPaymentEffect rentPayment:
+                    state.ApplyRentPayment(rentPayment.Amount);
+                    break;
+                case RentGraceDaysEffect rentGrace:
+                    state.GrantRentGraceDays(rentGrace.Days);
+                    break;
+                case DebtPaymentEffect debtPayment:
+                    state.ApplyDebtPayment(debtPayment.Source, debtPayment.Amount);
+                    break;
+                case DebtDueExtensionEffect debtExtension:
+                    state.ExtendDebtDueDate(debtExtension.Source, debtExtension.Days);
+                    break;
+                case RamadanFastingEffect fasting:
+                    state.SetRamadanFasting(fasting.IsFasting);
+                    break;
                 default:
                     throw new InvalidOperationException($"Unknown narrative effect type: {effect.GetType().Name}");
             }

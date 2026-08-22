@@ -5,7 +5,7 @@ namespace Slums.Narrative.Ink;
 
 internal static class InkStoryValidator
 {
-    private static readonly string[] IntegerTags = ["MONEY", "HEALTH", "ENERGY", "HUNGER", "STRESS", "MOTHER_HEALTH", "FOOD"];
+    private static readonly string[] IntegerTags = ["MONEY", "HEALTH", "ENERGY", "HUNGER", "STRESS", "MOTHER_HEALTH", "FOOD", "RENT_PAYMENT", "RENT_GRACE_DAYS"];
 
     public static void Validate(string json)
     {
@@ -72,6 +72,16 @@ internal static class InkStoryValidator
             case "HELPED":
                 ValidateNpcBoolean(tag, payload);
                 break;
+            case "DEBT_PAYMENT":
+            case "DEBT_DUE_EXTENSION":
+                ValidateDebtAmount(tag, payload);
+                break;
+            case "RAMADAN_FASTING":
+                if (!bool.TryParse(payload, out _))
+                {
+                    throw InvalidTag(tag, "expected true|false");
+                }
+                break;
             default:
                 if (IntegerTags.Contains(key, StringComparer.Ordinal) && !int.TryParse(payload, out _))
                 {
@@ -123,6 +133,15 @@ internal static class InkStoryValidator
         if (!Enum.TryParse<NpcId>(value, out var npc) || !Enum.IsDefined(npc))
         {
             throw InvalidTag(tag, $"unknown NPC '{value}'");
+        }
+    }
+
+    private static void ValidateDebtAmount(string tag, string payload)
+    {
+        var parts = payload.Split(',', 2, StringSplitOptions.TrimEntries);
+        if (parts.Length != 2 || !Enum.TryParse<Slums.Core.Economy.DebtSource>(parts[0], out _) || !int.TryParse(parts[1], out var amount) || amount <= 0)
+        {
+            throw InvalidTag(tag, "expected 'DebtSource,positiveAmount'");
         }
     }
 

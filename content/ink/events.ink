@@ -116,6 +116,7 @@ When Hajj Mahmoud finally speaks plainly, humiliation becomes logistical. Two da
     You stand in the stairwell with your hands clasped and ask for time you do not deserve from a man who has given you enough of it already. He listens, pulls his beard, and gives you three days. Not because he is kind. Because evicting {gender == "male": a man | a woman} with a sick mother is bad for his reputation in a building where everyone watches everyone.
     # STRESS:8
     # NPC_TRUST:LandlordHajjMahmoud,-2
+    # RENT_GRACE_DAYS:3
     # MESSAGE:Hajj Mahmoud gives you three more days. The reprieve costs dignity it cannot afford to lose.
     -> DONE
 
@@ -129,7 +130,7 @@ When Hajj Mahmoud finally speaks plainly, humiliation becomes logistical. Two da
     Mona does not have much, but she knows people. She makes three phone calls from her phone, speaks in a dialect you cannot fully follow, and by evening, half the rent appears in an envelope slipped under your door with no name. You pay Hajj Mahmoud. He does not ask where it came from.
     # STRESS:5
     # NPC_TRUST:NeighborMona,4
-    # DEBT:NeighborMona,true
+    # RENT_PAYMENT:10
     # MESSAGE:Mona rallies help for your rent. The building protects its own, but the debts multiply.
     -> DONE
 

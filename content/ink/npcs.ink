@@ -1641,3 +1641,62 @@ A customer walks past without stopping. Tarek watches them go. "See that? That's
 	# STRESS:2
 	# NPC_TRUST:VendorTarek,2
 	-> DONE
+
+=== tarek_warm_1 ===
+Tarek keeps a place for you beneath the reflective tarp. "Ahlan. Sit before the heat makes a decision for you."
+*   [Sit and share the shade]
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_2 ===
+He sets aside a repaired handset casing with a clean charging port. "For you, I kept the part that still has a future."
+*   [Thank him and pay fairly]
+	# MONEY:-3
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,5
+	-> DONE
+
+=== tarek_warm_3 ===
+Tarek tells you which roof batteries are holding and which ones are only pretending. His advice is practical, never free of experience.
+*   [Listen closely]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_warm_4 ===
+"You come back," Tarek says, smiling without making a ceremony of it. "That is how a small business learns it has customers."
+*   [Promise to return]
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_1 ===
+Tarek lowers his voice. "The men watching the corner are not shopping. Keep your handset out of sight and your route boring."
+*   [Take the warning]
+	# STRESS:3
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_2 ===
+He has marked two streets on a scrap of packaging: one with cameras, one with people who ask fewer questions.
+*   [Choose the safer route]
+	# ENERGY:-2
+	# STRESS:-1
+	# NPC_TRUST:VendorTarek,3
+	-> DONE
+
+=== tarek_streetwise_3 ===
+"Street smarts is not bravery," Tarek says. "It is knowing which story you do not need to be part of."
+*   [Remember that]
+	# STRESS:1
+	# NPC_TRUST:VendorTarek,4
+	-> DONE
+
+=== tarek_streetwise_4 ===
+Tarek studies the police pressure moving through the square, then folds his stall before the crowd has a reason to notice him.
+*   [Help him pack]
+	# ENERGY:-3
+	# STRESS:-2
+	# NPC_TRUST:VendorTarek,5
+	-> DONE

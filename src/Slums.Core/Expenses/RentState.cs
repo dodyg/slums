@@ -10,15 +10,23 @@ public sealed class RentState
     private bool _firstWarningGiven;
     private bool _finalWarningGiven;
     private int _accumulatedDebt;
+    private int _graceDaysRemaining;
 
     public int UnpaidRentDays => _unpaidRentDays;
     public int AccumulatedRentDebt => _accumulatedDebt;
     public bool FirstWarningGiven => _firstWarningGiven;
     public bool FinalWarningGiven => _finalWarningGiven;
+    public int GraceDaysRemaining => _graceDaysRemaining;
 
     public RentResult ProcessDay(int dailyRentCost, int playerMoney)
     {
         var result = new RentResult();
+
+        if (_graceDaysRemaining > 0)
+        {
+            _graceDaysRemaining--;
+            return result with { GraceApplied = true, GraceDaysRemaining = _graceDaysRemaining };
+        }
 
         if (playerMoney >= dailyRentCost)
         {
@@ -67,12 +75,27 @@ public sealed class RentState
         _accumulatedDebt = Math.Max(0, _accumulatedDebt - amount);
     }
 
+    public void AddGraceDays(int days)
+    {
+        if (days <= 0)
+        {
+            return;
+        }
+
+        _graceDaysRemaining = Math.Min(14, _graceDaysRemaining + days);
+    }
+
     public void Restore(int unpaidRentDays, int accumulatedDebt, bool firstWarningGiven, bool finalWarningGiven)
     {
         _unpaidRentDays = Math.Max(0, unpaidRentDays);
         _accumulatedDebt = Math.Max(0, accumulatedDebt);
         _firstWarningGiven = firstWarningGiven;
         _finalWarningGiven = finalWarningGiven;
+    }
+
+    public void RestoreGraceDays(int graceDays)
+    {
+        _graceDaysRemaining = Math.Clamp(graceDays, 0, 14);
     }
 }
 
@@ -91,6 +114,8 @@ public sealed record RentResult
     public int CurrentUnpaidDays { get; init; }
     public int AccumulatedDebt { get; init; }
     public RentWarningType WarningType { get; init; }
+    public bool GraceApplied { get; init; }
+    public int GraceDaysRemaining { get; init; }
 
     public static RentResult Empty => new();
 }

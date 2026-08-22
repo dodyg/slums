@@ -179,7 +179,8 @@ public sealed record GameSessionSnapshot
                 Run.UnpaidRentDays,
                 Run.AccumulatedRentDebt,
                 Run.FirstWarningGiven,
-                Run.FinalWarningGiven);
+                Run.FinalWarningGiven,
+                Run.RentGraceDaysRemaining);
 
             gameSession.RestoreNarrativeState(
                 Narrative.StoryFlags,

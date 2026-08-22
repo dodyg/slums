@@ -10,6 +10,21 @@ VAR stress = 0
 VAR mother_health = 100
 VAR food_stockpile = 0
 VAR day = 1
+VAR district = "Imbaba"
+VAR weather = "Clear"
+VAR season = "Autumn"
+VAR holiday = ""
+VAR is_ramadan = false
+VAR is_fasting = false
+VAR unpaid_rent_days = 0
+VAR rent_debt = 0
+VAR rent_grace_days = 0
+VAR police_pressure = 0
+VAR operational_robot_count = 0
+VAR active_news_count = 0
+VAR infrastructure_disruption_count = 0
+VAR mona_trust = 0
+VAR salma_trust = 0
 
 INCLUDE crime.ink
 INCLUDE events.ink

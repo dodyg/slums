@@ -31,6 +31,7 @@ public static class InkStoryFactory
             InkStoryValidator.Validate(json);
             var story = new Story(json);
             InkStoryCatalog.ValidateRequiredGlobals(story);
+            InkStoryCatalog.ValidateEntryKnots(story);
             return story;
         }
     }

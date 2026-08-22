@@ -1,3 +1,4 @@
+using Slums.Core.Economy;
 using Slums.Core.Relationships;
 
 namespace Slums.Core.State;
@@ -21,5 +22,10 @@ public interface INarrativeOutcomeTarget
     public void SetEmbarrassedState(NpcId npcId, bool value);
     public void SetHelpedState(NpcId npcId, bool value);
     public void ModifyFactionReputation(FactionId factionId, int delta);
+    public void ApplyRentPayment(int amount);
+    public void GrantRentGraceDays(int days);
+    public void ApplyDebtPayment(DebtSource source, int amount);
+    public void ExtendDebtDueDate(DebtSource source, int days);
+    public void SetRamadanFasting(bool isFasting);
     public void AddEventMessage(string message);
 }

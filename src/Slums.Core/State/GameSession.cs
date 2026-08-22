@@ -141,6 +141,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
     public int TotalHerbEarnings => Player.HouseholdAssets.TotalHerbEarnings;
     public int UnpaidRentDays => _rentState.UnpaidRentDays;
     public int AccumulatedRentDebt => _rentState.AccumulatedRentDebt;
+    public int RentGraceDaysRemaining => _rentState.GraceDaysRemaining;
     public bool FirstWarningGiven => _rentState.FirstWarningGiven;
     public bool FinalWarningGiven => _rentState.FinalWarningGiven;
     private bool CrimeCommittedToday { get => _crimeState.CrimeCommittedToday; set => _crimeState.CrimeCommittedToday = value; }
@@ -373,7 +374,11 @@ public sealed class GameSession : INarrativeOutcomeTarget
         }
 
         var rentResult = _rentState.ProcessDay(RecurringExpenses.DailyRentCost, Player.Stats.Money);
-        if (rentResult.Paid)
+        if (rentResult.GraceApplied)
+        {
+            RaiseAutoTransaction($"Rent grace used. {rentResult.GraceDaysRemaining} grace day{(rentResult.GraceDaysRemaining == 1 ? string.Empty : "s")} remain.");
+        }
+        else if (rentResult.Paid)
         {
             Player.Stats.ModifyMoney(-RecurringExpenses.DailyRentCost);
             RaiseAutoTransaction($"Paid rent: {RecurringExpenses.DailyRentCost} LE");
@@ -2422,6 +2427,73 @@ public sealed class GameSession : INarrativeOutcomeTarget
         Player.Stats.ModifyMoney(delta);
     }
 
+    public void ApplyRentPayment(int amount)
+    {
+        if (amount <= 0 || AccumulatedRentDebt <= 0)
+        {
+            return;
+        }
+
+        var payment = Math.Min(Math.Min(amount, AccumulatedRentDebt), Player.Stats.Money);
+        if (payment <= 0)
+        {
+            return;
+        }
+
+        Player.Stats.ModifyMoney(-payment);
+        _rentState.PayPartialDebt(payment);
+        RaiseAutoTransaction($"Paid {payment} LE toward rent arrears.");
+    }
+
+    public void GrantRentGraceDays(int days)
+    {
+        _rentState.AddGraceDays(days);
+        if (days > 0)
+        {
+            RaiseEvent($"The landlord grants {days} day{(days == 1 ? string.Empty : "s")} of rent grace.");
+        }
+    }
+
+    public void ApplyDebtPayment(DebtSource source, int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        var debt = PlayerDebts.Debts.FirstOrDefault(candidate => candidate.Source == source);
+        if (debt is null)
+        {
+            return;
+        }
+
+        var payment = Math.Min(Math.Min(amount, debt.AmountOwed), Player.Stats.Money);
+        if (payment <= 0)
+        {
+            return;
+        }
+
+        Player.Stats.ModifyMoney(-payment);
+        PlayerDebts.RepayPartial(source, payment);
+        var remaining = PlayerDebts.Debts.FirstOrDefault(candidate => candidate.Source == source)?.AmountOwed ?? 0;
+        if (remaining == 0 && debt.CreditorNpcId is int creditorId && Enum.IsDefined(typeof(NpcId), creditorId))
+        {
+            var creditor = (NpcId)creditorId;
+            Relationships.SetDebtState(creditor, false);
+            Relationships.ModifyNpcTrust(creditor, 3);
+        }
+
+        RaiseAutoTransaction($"Repaid {payment} LE toward {source} debt. Remaining: {remaining} LE.");
+    }
+
+    public void ExtendDebtDueDate(DebtSource source, int days)
+    {
+        if (PlayerDebts.ExtendDueDate(source, days))
+        {
+            RaiseEvent($"The {source} due date moves back {days} day{(days == 1 ? string.Empty : "s")}.");
+        }
+    }
+
     /// <summary>
     /// Applies one complete authored narrative outcome inside the session mutation boundary.
     /// </summary>
@@ -2771,9 +2843,10 @@ public sealed class GameSession : INarrativeOutcomeTarget
         LastPublicFacingWorkDay = Math.Max(0, lastPublicFacingWorkDay);
     }
 
-    public void RestoreRentState(int unpaidRentDays, int accumulatedRentDebt, bool firstWarningGiven, bool finalWarningGiven)
+    public void RestoreRentState(int unpaidRentDays, int accumulatedRentDebt, bool firstWarningGiven, bool finalWarningGiven, int graceDaysRemaining = 0)
     {
         _rentState.Restore(unpaidRentDays, accumulatedRentDebt, firstWarningGiven, finalWarningGiven);
+        _rentState.RestoreGraceDays(graceDaysRemaining);
     }
 
     public void RecordEventHistory(string eventId, int count)
