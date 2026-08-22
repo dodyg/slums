@@ -824,6 +824,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
         Player.Stats.ModifyMoney(-travelCost);
         Player.Stats.ModifyEnergy(-travelEnergyCost);
+        ApplyCargoMuleWear();
         if (Player.BackgroundType == BackgroundType.SudaneseRefugee && location.District == DistrictId.Dokki)
         {
             Player.Stats.ModifyStress(2);
@@ -1429,6 +1430,12 @@ public sealed class GameSession : INarrativeOutcomeTarget
                     workingRobot.Damage(10);
                     RaiseEvent($"The {RobotRegistry.GetByType(workingRobot.Type).Name} takes wear on the scavenging run. Condition: {workingRobot.Condition}%.");
                 }
+
+                if (RobotCapabilityRules.GetSalvageBonusParts(Player.Robotics) > 0 && Player.Robotics.CanBuyParts(1))
+                {
+                    Player.Robotics.AddParts(1);
+                    RaiseEvent("The Salvage Crawler finds one extra usable actuator. Robot parts +1.");
+                }
             }
             TerritoryDynamicsCalculator.ApplyHonestWorkImpact(Territory, World.CurrentDistrict);
 
@@ -1917,6 +1924,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
         Player.Stats.ModifyMoney(-option.TravelCost);
         Player.Stats.ModifyEnergy(-travelEnergyCost);
+        ApplyCargoMuleWear();
         AdvanceTime(option.TravelTimeMinutes);
         World.TravelTo(clinicLocationId);
 
@@ -1931,6 +1939,13 @@ public sealed class GameSession : INarrativeOutcomeTarget
         }
 
         RaiseEvent($"Traveled to {option.LocationName} with your mother.");
+
+        var repairDrone = Player.Robotics.Robots.FirstOrDefault(robot => robot.Type == RobotType.RepairDrone && robot.IsOperational);
+        if (repairDrone is not null)
+        {
+            repairDrone.Damage(RobotCapabilityRules.ClinicWear);
+            RaiseEvent($"The Repair Drone's triage reader takes {RobotCapabilityRules.ClinicWear} condition wear. Condition: {repairDrone.Condition}%.");
+        }
 
         var clinicResult = TakeMotherToClinic();
 
@@ -2066,15 +2081,32 @@ public sealed class GameSession : INarrativeOutcomeTarget
             scheduleDiscount *= 2;
         }
 
-        var modifiedCost = _locationPricingService.GetClinicVisitCost(location, Relationships, Player.Skills) + (districtCondition?.Effect.ClinicVisitCostModifier ?? 0) - scheduleDiscount;
+        var modifiedCost = _locationPricingService.GetClinicVisitCost(location, Relationships, Player.Skills)
+            + (districtCondition?.Effect.ClinicVisitCostModifier ?? 0)
+            - scheduleDiscount
+            - RobotCapabilityRules.GetClinicCostReduction(Player.Robotics);
         return Math.Max(1, modifiedCost);
     }
 
     private int GetTravelEnergyCost(Location destination)
     {
         var districtCondition = GetActiveDistrictConditionDefinition(destination.District);
-        var modifiedCost = _locationPricingService.GetTravelEnergyCost(destination, Relationships) + (districtCondition?.Effect.TravelEnergyModifier ?? 0);
+        var modifiedCost = _locationPricingService.GetTravelEnergyCost(destination, Relationships)
+            + (districtCondition?.Effect.TravelEnergyModifier ?? 0)
+            - RobotCapabilityRules.GetTransitEnergyReduction(Player.Robotics);
         return Math.Max(1, modifiedCost);
+    }
+
+    private void ApplyCargoMuleWear()
+    {
+        var cargoMule = Player.Robotics.Robots.FirstOrDefault(robot => robot.Type == RobotType.CargoMule && robot.IsOperational);
+        if (cargoMule is null)
+        {
+            return;
+        }
+
+        cargoMule.Damage(RobotCapabilityRules.TransitWear);
+        RaiseEvent($"The Cargo Mule takes {RobotCapabilityRules.TransitWear} condition wear on the route. Condition: {cargoMule.Condition}%.");
     }
 
     private int GetTravelTimeMinutes(Location destination)

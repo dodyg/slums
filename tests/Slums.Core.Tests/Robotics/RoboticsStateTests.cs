@@ -41,4 +41,28 @@ internal sealed class RoboticsStateTests
         state.PurchaseRobot(RobotType.CargoMule, 1).Should().BeTrue();
         state.PurchaseRobot(RobotType.CargoMule, 2).Should().BeFalse();
     }
+
+    [Test]
+    public void CapabilityRules_ShouldGrantOnlyOperationalRobotBenefits()
+    {
+        var state = new RoboticsState();
+        state.PurchaseRobot(RobotType.CargoMule, 1);
+        state.PurchaseRobot(RobotType.RepairDrone, 1);
+        state.PurchaseRobot(RobotType.SalvageCrawler, 1);
+
+        RobotCapabilityRules.GetTransitEnergyReduction(state).Should().Be(RobotCapabilityRules.TransitEnergyReduction);
+        RobotCapabilityRules.GetClinicCostReduction(state).Should().Be(RobotCapabilityRules.ClinicCostReduction);
+        RobotCapabilityRules.GetSalvageBonusParts(state).Should().Be(RobotCapabilityRules.SalvageBonusParts);
+
+        state.Robots[0].Damage(100);
+        RobotCapabilityRules.GetTransitEnergyReduction(state).Should().Be(0);
+    }
+
+    [Test]
+    public void CapabilityRules_ShouldKeepTheDocumentedWearCostsPositive()
+    {
+        RobotCapabilityRules.SalvageWear.Should().BeGreaterThan(0);
+        RobotCapabilityRules.ClinicWear.Should().BeGreaterThan(0);
+        RobotCapabilityRules.TransitWear.Should().BeGreaterThan(0);
+    }
 }
