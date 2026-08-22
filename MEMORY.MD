@@ -49,6 +49,7 @@ The canonical runtime boundary for an active run. Key state groups:
 - **Information**: Phone state/messages, tips, rumors
 - **World pressure**: Reactive city news, infrastructure service outages, inventory items, and NPC availability schedules
 - **Progress**: Job progress, event history, story flags, community event attendance, training
+- **Early support**: A selected background exposes one first-week emergency community support package. Medical dropouts receive two medicine doses, released prisoners receive a small mutual-aid cash/food package, and Sudanese refugees receive a kitchen food parcel. The package costs 60 minutes, is persisted, and cannot be claimed twice.
 - **Narrative**: Pending scene queue, ending knot
 - **Diagnostics**: Mutation record list with GameMutationRecord entries
 - **EventJournal**: Structured day/source/message journal of events and auto-transactions, persisted with saves and rendered by the UI log
@@ -57,6 +58,8 @@ The canonical runtime boundary for an active run. Key state groups:
 ### Time Flow
 
 1. **AdvanceTime(minutes)**: Advances clock, triggers EndDay at 22:00
+
+Meaningful conversations cost 45 minutes and crime routes carry route-specific 60–180 minute costs. These mutations happen before the nightly boundary, so an action crossing 22:00 resolves its effects against the original day before the next day starts.
 2. **EndDay()** performs ~40 steps in order:
    - Apply daily stat decay (Hunger -12, Energy -10, Stress +3)
    - Apply season modifiers, weather modifiers, holiday effects, Ramadan fasting
@@ -137,6 +140,8 @@ Defined in `content/data/backgrounds.json`:
 1. **MedicalSchoolDropout**: High stress, Medical 3, better clinic outcomes, +3 stress when mother health <60
 2. **ReleasedPoliticalPrisoner**: Low money, higher police scrutiny (half heat decay), Persuasion 2 + StreetSmarts 1
 3. **SudaneseRefugee**: Accent friction in Dokki (+2 stress walking there, Dokki baseline heat 10), StreetSmarts 2 + Physical 1, community support
+
+The Household status page includes a side-effect-free morning survival forecast derived from live session prices: rent, a three-meal food bundle, minimum transport to a work site, medicine for two doses, current supplies, and cash runway before and after a medicine reserve.
 
 ## Locations and Districts
 
@@ -286,9 +291,9 @@ Each district tracks faction influence (ImbabaCrew, DokkiThugs, ExPrisonerNetwor
 - FactionReputation: ImbabaCrew, DokkiThugs, ExPrisonerNetwork
 
 ### Conversation Pool System
-- Each NPC has 100 unique dialogue knots per context
+- Each NPC context has four authored dialogue knots plus any special scene knots
 - Context determined by: trust level, police pressure, money, mother health, double-life status, recent events
-- Seen knots are excluded, ensuring 100 days without repetition
+- Seen knots are excluded, and a Narrative test rejects duplicate normalized scene bodies within a context
 
 ## Phone System
 
@@ -404,7 +409,7 @@ Clinic locations: Rahma Clinic (ArdAlLiwa, 35 LE base), Saidaleya Pharmacy (Bula
 
 ## Ending Conditions (EndingService)
 
-8 endings checked in priority order:
+Failure endings remain automatic; good or ambiguous endings are threshold-gated choices shown through the Long-Term Paths action. `EndingService.GetAvailableEndings` reports unlocked choices and `GameSession.TryChooseEnding` commits only a valid player selection.
 
 **Bad:**
 1. **MotherDied**: Mother health reaches 0
@@ -412,10 +417,10 @@ Clinic locations: Rahma Clinic (ArdAlLiwa, 35 LE base), Saidaleya Pharmacy (Bula
 3. **Arrested**: Global heat >=100, or (Day>=30 AND Crimes>=6 AND Heat>=85 AND Stress>=70)
 4. **Eviction**: 7 days of unpaid rent
 **Good/Ambiguous:**
-5. **StabilityHonestWork**: Day>=30, work earnings >=180, mother alive, heat<60, no recent crime
+5. **StabilityHonestWork**: Day>=30, reliable honest shifts and earnings, mother alive, heat<60, and a sustained clean period
 6. **NetworkShelter**: Day>=30, network trust sum >=140, mother alive, money >=120
-7. **QuitTheLuxorDream**: Day>=30, money >500, crimes <=3, mother health >60
-8. **CrimeKingpin**: Crime earnings >=1000 AND ImbabaCrew rep >50
+7. **QuitTheLuxorDream**: Day>=30, a 550 LE departure reserve, crimes <=3, mother health >60, and a sustained clean period
+8. **CrimeKingpin**: Crime earnings >=1000, at least eight crimes, ImbabaCrew control/standing, and deliberate commitment to the route
 
 Ending Ink knots have variants by background and strongest support contact.
 

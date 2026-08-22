@@ -14,13 +14,14 @@ The repository contains a playable .NET 10 vertical slice with:
 - 13 locations across six Cairo districts, with JSON-authored locations, 13 JSON-authored job definitions, and a robotics workshop catalog
 - honest-work progression, mistake risk, lockouts, gender/background modifiers, and location-specific job variants
 - consequence-heavy crime routes, district heat, territory tension, faction reputation, rumors, tips, and police pressure
-- 13 recurring NPC relationships, phone messages, community events, debt, NPC economy, and small-business investments
+- 13 recurring NPC relationships with four distinct authored scenes per context, phone messages, community events, debt, NPC economy, and small-business investments
 - JSON snapshot persistence around `GameSession` and `LoadedGameSession`
 - persistent second-hand robotics: three purchasable machine models, spare-part stock, workshop repairs, and scavenging-job wear/recovery
 - reactive city news with source reliability, district effects, one-shot player responses, and event-journal entries
 - infrastructure service state for electricity, water, transport, and clinic medicine, with gameplay impacts and snapshot persistence
 - JSON-authored inventory items and NPC schedule windows used by response actions, status views, and talk availability
-- eight ending identifiers: four failure outcomes and four good or ambiguous long-term outcomes
+- eight ending identifiers: four failure outcomes and four good or ambiguous long-term outcomes, with threshold-gated player choices for the latter
+- visible morning survival forecasts and one-time background-specific emergency support during the first week
 - structured mutation diagnostics and executable TUnit suites for every project layer
 
 Repo-owned JSON and Ink content are authoritative and fail fast during bootstrap. There is no normal-runtime fallback narrative or content catalog.
@@ -43,7 +44,7 @@ The intended daily rhythm is:
 - Days 1-7 teach survival and establish recurring contacts.
 - Days 8-20 make work progression, debt, faction pressure, and household strain visible.
 - Days 21-35 should produce route commitment and credible ending pressure.
-- Longer runs remain supported; recurring dialogue pools must avoid repetition for at least 100 days within the same relationship context.
+- Longer runs remain supported; recurring dialogue contexts use smaller authored pools and reject duplicate normalized scene bodies in content validation.
 
 ### Economy
 
@@ -105,7 +106,7 @@ Acceptance targets:
 ### 4. Authored reactivity
 
 - add selected Ink follow-ups to high-impact news flashes after the systemic responses have been playtested
-- audit recurring dialogue coverage against the 100-day no-repeat requirement
+- audit recurring dialogue contexts for distinct authored scenes and reactive follow-ups
 - expand route-specific aftermath for debt, work mistakes, district heat, household care, and leaving crime
 - keep gender and background reactions grounded and consequential without turning them into deterministic success/failure choices
 - preserve the established content boundaries: implication and consequence over graphic detail
