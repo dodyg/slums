@@ -44,9 +44,12 @@ public static class NarrativeSceneExtensions
             state.AdjustFoodStockpile(outcome.FoodChange);
         }
 
-        if (!string.IsNullOrWhiteSpace(outcome.SetFlag))
+        var flags = outcome.SetFlags.Count > 0
+            ? outcome.SetFlags
+            : outcome.SetFlag is { } legacyFlag ? [legacyFlag] : [];
+        foreach (var flag in flags.Where(static flag => !string.IsNullOrWhiteSpace(flag)).Distinct(StringComparer.Ordinal))
         {
-            state.SetStoryFlag(outcome.SetFlag);
+            state.SetStoryFlag(flag);
         }
 
         foreach (var effect in outcome.Effects)

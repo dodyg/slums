@@ -32,6 +32,25 @@ internal sealed class InkNarrativeServiceTests
     }
 
     [Test]
+    public void StartScene_ShouldBranchOnSynchronizedMoney()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+        var lowMoneyState = new GameSession();
+        lowMoneyState.Player.Stats.SetMoney(20);
+
+        service.StartScene("intro_done", NarrativeSceneState.Create(lowMoneyState));
+
+        service.CurrentText.Should().Contain("wallet is already thin");
+
+        var comfortableMoneyState = new GameSession();
+        comfortableMoneyState.Player.Stats.SetMoney(80);
+        service.StartScene("intro_done", NarrativeSceneState.Create(comfortableMoneyState));
+
+        service.CurrentText.Should().Contain("count the notes twice");
+        service.CurrentText.Should().NotContain("wallet is already thin");
+    }
+
+    [Test]
     public void SelectChoice_ShouldAdvanceMedicalIntroScene()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
@@ -120,6 +139,19 @@ internal sealed class InkNarrativeServiceTests
         outcome!.Effects.OfType<NpcTrustEffect>().Where(effect => effect.Change > 0).Should().NotBeEmpty();
         outcome.Effects.OfType<FactionReputationEffect>().Where(effect => effect.Change > 0).Should().NotBeEmpty();
         outcome.SetFlag.Should().Be("fixer_met");
+    }
+
+    [Test]
+    public void SelectChoice_ShouldPreserveMultipleFlagsFromOneScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+
+        StartScene(service, "crime_first_success");
+        service.SelectChoice(2);
+
+        var outcome = service.GetPendingOutcome();
+        outcome.Should().NotBeNull();
+        outcome!.SetFlags.Should().ContainInOrder("first_crime_reflected", "crime_consequence_seen");
     }
 
     [Test]
@@ -313,14 +345,13 @@ internal sealed class InkNarrativeServiceTests
     }
 
     [Test]
-    public void StartScene_ShouldLoadAllFormerlyAbruptEndingScenes()
+    public void StartScene_ShouldLoadActiveFormerlyAbruptEndingScenes()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
         var expectations = new Dictionary<string, string>
         {
             ["ending_destitution"] = "stops offering you choices",
             ["ending_mother_died"] = "room goes quiet",
-            ["ending_collapse"] = "not one dramatic blow",
             ["ending_crime_kingpin"] = "better-lit cage"
         };
 

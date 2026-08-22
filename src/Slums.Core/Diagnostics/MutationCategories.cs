@@ -23,4 +23,5 @@ public static class MutationCategories
     public const string Phone = "Phone";
     public const string Information = "Information";
     public const string News = "News";
+    public const string Narrative = "Narrative";
 }

@@ -2422,6 +2422,30 @@ public sealed class GameSession : INarrativeOutcomeTarget
         Player.Stats.ModifyMoney(delta);
     }
 
+    /// <summary>
+    /// Applies one complete authored narrative outcome inside the session mutation boundary.
+    /// </summary>
+    /// <param name="sourceKnot">The Ink knot that produced the outcome.</param>
+    /// <param name="effectReason">The authored message or reason displayed for the outcome.</param>
+    /// <param name="applyOutcome">The application-layer effect adapter.</param>
+    public void ApplyNarrativeOutcome(string sourceKnot, string? effectReason, Action<INarrativeOutcomeTarget> applyOutcome)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(sourceKnot);
+        ArgumentNullException.ThrowIfNull(applyOutcome);
+
+        var before = CaptureStats();
+        applyOutcome(this);
+        CheckGameOverConditions();
+        RecordMutation(
+            MutationCategories.Narrative,
+            "ApplyNarrativeOutcome",
+            before,
+            CaptureStats(),
+            string.IsNullOrWhiteSpace(effectReason)
+                ? $"Applied Ink outcome from '{sourceKnot}'"
+                : $"Applied Ink outcome from '{sourceKnot}': {effectReason}");
+    }
+
     public void AdjustHealth(int delta)
     {
         Player.Stats.ModifyHealth(delta);

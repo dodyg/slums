@@ -11,17 +11,17 @@ namespace Slums.Game.Screens;
 internal sealed class NarrativeScreen : ScreenSurface
 {
     private readonly INarrativeService _narrativeService;
-    private readonly INarrativeOutcomeTarget _narrativeOutcomeTarget;
+    private readonly GameSession _gameSession;
     private readonly ScreenSurface _nextScreen;
     private readonly List<string> _wrappedLines = [];
     private int _selectedChoiceIndex;
     private int _scrollOffset;
 
-    public NarrativeScreen(int width, int height, INarrativeService narrativeService, INarrativeOutcomeTarget narrativeOutcomeTarget, ScreenSurface nextScreen)
+    public NarrativeScreen(int width, int height, INarrativeService narrativeService, GameSession gameSession, ScreenSurface nextScreen)
         : base(width, height)
     {
         _narrativeService = narrativeService;
-        _narrativeOutcomeTarget = narrativeOutcomeTarget;
+        _gameSession = gameSession;
         _nextScreen = nextScreen;
         IsFocused = true;
         UseMouse = true;
@@ -174,7 +174,9 @@ internal sealed class NarrativeScreen : ScreenSurface
         var outcome = _narrativeService.GetPendingOutcome();
         if (outcome is not null)
         {
-            _narrativeOutcomeTarget.ApplyOutcome(outcome);
+            var sourceKnot = _narrativeService.LastKnot
+                ?? throw new InvalidOperationException("A completed narrative scene must retain its source knot.");
+            ApplyNarrativeOutcomeCommand.Execute(_gameSession, sourceKnot, outcome);
             _narrativeService.ClearPendingOutcome();
         }
 

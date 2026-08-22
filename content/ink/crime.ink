@@ -21,6 +21,7 @@ The cash in your pocket feels warmer than it should. It smells faintly of sweat 
     You find a bench near the bus station and hold the money in your hand like a question. It is not much. It is enough to matter. The city moves around you, indifferent and efficient, and you sit in the middle of it holding proof that the line you promised not to cross has already been crossed.
     # STRESS:8
     # FLAG:first_crime_reflected
+    # FLAG:crime_consequence_seen
     # MESSAGE:You sit with the money and the guilt. The first crime changes something that cannot be changed back.
     -> DONE
 

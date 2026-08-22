@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FluentAssertions;
+using Slums.Core.Endings;
 using Slums.Narrative.Ink.Tests.Helpers;
 using TUnit;
 
@@ -30,6 +31,28 @@ internal sealed class StoryArtifactValidationTests
         var story = StoryTraversalHelper.LoadStory();
 
         story.Should().NotBeNull("the pinned runtime must accept the checked-in compiled artifact");
+    }
+
+    [Test]
+    public async Task CompiledArtifact_DeclaresAllSynchronizedGameplayGlobals()
+    {
+        var story = StoryTraversalHelper.LoadStory();
+
+        foreach (var requiredGlobal in InkStoryCatalog.RequiredGlobals)
+        {
+            story.variablesState.GlobalVariableExistsWithName(requiredGlobal.Key).Should().BeTrue();
+            story.variablesState[requiredGlobal.Key]!.GetType().Should().Be(requiredGlobal.Value);
+        }
+    }
+
+    [Test]
+    public async Task CompiledArtifact_HasNoOrphanEndingKnots()
+    {
+        var knotNames = StoryTraversalHelper.GetAllKnotNames().ToHashSet(StringComparer.Ordinal);
+
+        var act = () => EndingKnotCatalog.ValidateKnownKnots(knotNames);
+
+        act.Should().NotThrow();
     }
 
     [Test]

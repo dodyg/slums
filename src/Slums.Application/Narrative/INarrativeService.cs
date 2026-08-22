@@ -35,6 +35,13 @@ public sealed record NarrativeOutcome
     public int StressChange { get; init; }
     public int MotherHealthChange { get; init; }
     public int FoodChange { get; init; }
+    /// <summary>All story flags emitted by the scene, in authored order.</summary>
+    public IReadOnlyList<string> SetFlags { get; init; } = [];
+
+    /// <summary>
+    /// Compatibility accessor for callers that only expect one flag. New code should use
+    /// <see cref="SetFlags"/> so no authored flags are lost.
+    /// </summary>
     public string? SetFlag { get; init; }
     public string Message { get; init; } = string.Empty;
 

@@ -264,9 +264,11 @@ If content touches those boundaries, choose implication and consequence over exp
 - When `GameSession` starts collecting orchestration-heavy logic, extract focused core planners/evaluators/calculators and keep the session as the state owner and integration surface.
 - Keep shared narrative signal rules and scene-trigger catalogs in `Slums.Core` when both `GameSession` and application queries need the same logic.
 - Route player-triggered gameplay mutations through `Slums.Application` commands/queries instead of calling `GameSession` directly from SadConsole screens.
+- Apply completed Ink outcomes through `ApplyNarrativeOutcomeCommand` and `GameSession.ApplyNarrativeOutcome`; the narrative screen owns presentation/navigation only, while the session records the source knot and checks failure endings.
 - Keep persistence centered on `GameSession` snapshots and `LoadedGameSession`; do not reintroduce parallel save-state models.
 - Use Ink for authored branching scenes, not for core economy simulation.
 - Treat missing or invalid Ink content as a hard failure; do not restore fallback narrative behavior.
+- Treat missing synchronized Ink globals and orphaned ending knots as hard bootstrap/test failures.
 - Treat missing or invalid repo-owned JSON content as a hard failure during app bootstrap; do not silently fall back in normal runtime.
 - Add content in `content/` before hardcoding large world datasets.
 - Update `PLAN.MD` and `AGENTS.md` if architectural direction changes.

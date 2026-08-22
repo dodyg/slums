@@ -7,6 +7,7 @@ using Slums.Application.Narrative;
 using Slums.Application.Persistence;
 using Slums.Application.Randomness;
 using Slums.Core.Characters;
+using Slums.Core.Endings;
 using Slums.Core.Events;
 using Slums.Core.Jobs;
 using Slums.Core.Robotics;
@@ -84,6 +85,9 @@ internal sealed class SadConsoleGame : IGame
         var items = _contentRepository.LoadItems();
         var npcSchedules = _contentRepository.LoadNpcSchedules();
 
+        var knotNames = InkStoryCatalog.GetKnotNames();
+        EndingKnotCatalog.ValidateKnownKnots(knotNames);
+
         ContentCatalogValidator.Validate(
             backgrounds,
             locations,
@@ -92,7 +96,7 @@ internal sealed class SadConsoleGame : IGame
             districtConditions,
             pets,
             plants,
-            InkStoryCatalog.GetKnotNames(),
+            knotNames,
             robots,
             newsFlashes,
             items,

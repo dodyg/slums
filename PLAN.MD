@@ -23,6 +23,9 @@ The repository contains a playable .NET 10 vertical slice with:
 - eight ending identifiers: four failure outcomes and four good or ambiguous long-term outcomes, with threshold-gated player choices for the latter
 - visible morning survival forecasts and one-time background-specific emergency support during the first week
 - structured mutation diagnostics and executable TUnit suites for every project layer
+- validated Ink gameplay globals with state-reactive branching and typed multi-flag outcomes
+- narrative outcomes applied through an application command and the canonical `GameSession` mutation boundary, including immediate failure-ending checks
+- ending-knot catalog validation that rejects missing or orphaned compiled ending scenes
 
 Repo-owned JSON and Ink content are authoritative and fail fast during bootstrap. There is no normal-runtime fallback narrative or content catalog.
 
@@ -71,6 +74,7 @@ Critical loan-shark debt contributes to `Destitution`; it is not a separate `Deb
 - `Slums.Application` owns player-facing commands and context queries.
 - `Slums.Game` owns rendering, input, composition, and `ScreenTransition` navigation only.
 - Persistence remains centered on `GameSession` snapshots and `LoadedGameSession`.
+- Completed Ink outcomes must pass through `ApplyNarrativeOutcomeCommand` and `GameSession.ApplyNarrativeOutcome`; SadConsole screens do not mutate narrative effects directly.
 - `Slums.Infrastructure` validates repo-owned JSON and must reject incomplete or contradictory catalogs when they can invalidate runtime behavior.
 - `Slums.Narrative.Ink` synchronizes state and applies narrative outcomes; it does not own survival or economy rules.
 - Prefer small extractions from `GameSession` when a cohesive rule can be tested independently. Do not create parallel state models.

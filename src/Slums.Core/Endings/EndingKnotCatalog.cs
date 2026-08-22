@@ -27,6 +27,51 @@ public static class EndingKnotCatalog
     public const string NetworkShelterNadia = "ending_network_shelter_nadia";
     public const string NetworkShelterHanan = "ending_network_shelter_hanan";
 
+    /// <summary>Gets every ending knot that is reachable from the documented ending catalog.</summary>
+    public static IReadOnlySet<string> AllKnownKnots { get; } = new HashSet<string>(StringComparer.Ordinal)
+    {
+        MotherDied,
+        Arrested,
+        Eviction,
+        Destitution,
+        StabilityHonestWork,
+        CrimeKingpin,
+        QuitTheLuxorDream,
+        NetworkShelter,
+        StabilityMedical,
+        StabilityPrisoner,
+        StabilitySudanese,
+        LuxorMedical,
+        LuxorPrisoner,
+        LuxorSudanese,
+        NetworkShelterMona,
+        NetworkShelterSalma,
+        NetworkShelterNadia,
+        NetworkShelterHanan
+    };
+
+    /// <summary>Rejects compiled ending content that is missing or not selected by the catalog.</summary>
+    public static void ValidateKnownKnots(IReadOnlySet<string> knotNames)
+    {
+        ArgumentNullException.ThrowIfNull(knotNames);
+
+        var missing = AllKnownKnots.Where(knot => !knotNames.Contains(knot)).ToArray();
+        if (missing.Length > 0)
+        {
+            throw new InvalidOperationException($"Ending catalog references missing Ink knots: {string.Join(", ", missing)}.");
+        }
+
+        var orphaned = knotNames
+            .Where(static knot => knot.StartsWith("ending_", StringComparison.Ordinal))
+            .Where(knot => !AllKnownKnots.Contains(knot))
+            .OrderBy(static knot => knot, StringComparer.Ordinal)
+            .ToArray();
+        if (orphaned.Length > 0)
+        {
+            throw new InvalidOperationException($"Ink story contains orphan ending knots: {string.Join(", ", orphaned)}.");
+        }
+    }
+
     public static string GetDefault(EndingId endingId)
     {
         return endingId switch

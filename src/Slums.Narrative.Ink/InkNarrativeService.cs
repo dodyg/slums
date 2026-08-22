@@ -134,7 +134,7 @@ public sealed class InkNarrativeService : INarrativeService
         switch (key)
         {
             case "FLAG":
-                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { SetFlag = valueStr });
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { SetFlag = valueStr, SetFlags = [valueStr] });
                 return;
 
             case "MESSAGE":
@@ -316,10 +316,23 @@ public sealed class InkNarrativeService : INarrativeService
             StressChange = existing.StressChange + next.StressChange,
             MotherHealthChange = existing.MotherHealthChange + next.MotherHealthChange,
             FoodChange = existing.FoodChange + next.FoodChange,
+            SetFlags = MergeFlags(existing, next),
             SetFlag = next.SetFlag ?? existing.SetFlag,
             Message = string.IsNullOrWhiteSpace(existing.Message) ? next.Message : string.Join(" ", new[] { existing.Message, next.Message }.Where(static message => !string.IsNullOrWhiteSpace(message))),
             Effects = existing.Effects.Concat(next.Effects).ToArray()
         };
+    }
+
+    private static string[] MergeFlags(NarrativeOutcome existing, NarrativeOutcome next)
+    {
+        var existingFlags = existing.SetFlags.Count > 0
+            ? existing.SetFlags
+            : existing.SetFlag is { } existingFlag ? [existingFlag] : [];
+        var nextFlags = next.SetFlags.Count > 0
+            ? next.SetFlags
+            : next.SetFlag is { } nextFlag ? [nextFlag] : [];
+
+        return existingFlags.Concat(nextFlags).ToArray();
     }
 
     private static readonly Action<ILogger, string, Exception?> LogSceneStartedDelegate =

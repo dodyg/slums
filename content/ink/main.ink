@@ -1,6 +1,15 @@
 # SLUMS - Main Ink Story
 
 VAR gender = "female"
+VAR background = ""
+VAR money = 0
+VAR health = 100
+VAR energy = 100
+VAR hunger = 100
+VAR stress = 0
+VAR mother_health = 100
+VAR food_stockpile = 0
+VAR day = 1
 
 INCLUDE crime.ink
 INCLUDE events.ink
@@ -154,6 +163,12 @@ Cairo was supposed to be temporary. A station between one life and the next. But
 Your story begins in Cairo, 2030: a city where an electric car can cross the river, a drone can photograph a block before breakfast, and a platform can know your name before your neighbour does. None of that guarantees food, medicine, privacy, or a way out.
 
 The day stretches before you, one more day in a city that can hold twelve million people and still find ways to make one {gender == "male": man | woman} feel cornered.
+
+{ money < 40:
+    Your wallet is already thin enough that one missed shift becomes a household emergency.
+- else:
+    You count the notes twice. There is room for one careful mistake, not two.
+}
 
 Survive.
 -> DONE
