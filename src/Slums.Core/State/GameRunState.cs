@@ -15,4 +15,6 @@ internal sealed class GameRunState
     public int DaysSurvived { get; set; }
 
     public string? PendingEndingKnot { get; set; }
+
+    public bool EmergencySupportClaimed { get; set; }
 }

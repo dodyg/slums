@@ -87,6 +87,32 @@ internal sealed class CommunityEventTests
     }
 
     [Test]
+    public async Task EmergencySupport_ShouldProvideBackgroundSpecificEarlyRelief_AndConsumeTime()
+    {
+        var medical = new GameSession();
+        medical.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        var medicalHour = medical.Clock.Hour;
+
+        var result = medical.RequestEmergencySupport();
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(medical.HasClaimedEmergencySupport).IsTrue();
+        await Assert.That(medical.Player.Household.MedicineStock).IsEqualTo(2);
+        await Assert.That(medical.Clock.Hour).IsGreaterThan(medicalHour);
+        await Assert.That(medical.RequestEmergencySupport()).IsFalse();
+
+        var prisoner = new GameSession();
+        prisoner.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+        prisoner.RequestEmergencySupport();
+        await Assert.That(prisoner.Player.Stats.Money).IsEqualTo(60);
+
+        var refugee = new GameSession();
+        refugee.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        refugee.RequestEmergencySupport();
+        await Assert.That(refugee.Player.Household.FoodStockpile).IsEqualTo(5);
+    }
+
+    [Test]
     public async Task AttendCommunityEvent_FridayGathering_GrantsTrust()
     {
         var state = new GameSession();

@@ -11,6 +11,7 @@ public sealed record GameSessionRunSnapshot
     public EndingId? EndingId { get; init; }
     public int DaysSurvived { get; init; }
     public string? PendingEndingKnot { get; init; }
+    public bool EmergencySupportClaimed { get; init; }
     public int UnpaidRentDays { get; init; }
     public int AccumulatedRentDebt { get; init; }
     public bool FirstWarningGiven { get; init; }
@@ -28,6 +29,7 @@ public sealed record GameSessionRunSnapshot
             EndingId = gameSession.EndingId,
             DaysSurvived = gameSession.DaysSurvived,
             PendingEndingKnot = gameSession.PendingEndingKnot,
+            EmergencySupportClaimed = gameSession.HasClaimedEmergencySupport,
             UnpaidRentDays = gameSession.UnpaidRentDays,
             AccumulatedRentDebt = gameSession.AccumulatedRentDebt,
             FirstWarningGiven = gameSession.FirstWarningGiven,

@@ -32,6 +32,18 @@ internal sealed class GameActionMenuQueryTests
     }
 
     [Test]
+    public void GetActions_ShouldExposeEmergencySupport_ForSelectedBackgroundsDuringFirstWeek()
+    {
+        var query = new GameActionMenuQuery();
+        var gameState = new GameSession();
+        gameState.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+
+        var actions = query.GetActions(GameActionMenuContext.Create(gameState));
+
+        actions.Should().Contain(action => action.Id == GameActionId.EmergencySupport && action.Label == "Emergency Community Support");
+    }
+
+    [Test]
     public void GetActions_ShouldExposeLocationSpecificActions_AwayFromHome()
     {
         var query = new GameActionMenuQuery();

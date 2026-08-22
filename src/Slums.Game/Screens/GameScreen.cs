@@ -196,6 +196,7 @@ internal sealed class GameScreen : ScreenSurface
             case GameActionId.CheckOnMother:
             case GameActionId.GiveMotherMedicine:
             case GameActionId.EndDay:
+            case GameActionId.EmergencySupport:
                 _gameActionCommand.Execute(_gameState, action.Id);
                 break;
             default:

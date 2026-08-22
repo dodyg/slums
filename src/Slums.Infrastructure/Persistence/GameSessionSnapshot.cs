@@ -171,7 +171,8 @@ public sealed record GameSessionSnapshot
                 Run.IsGameOver,
                 Run.GameOverReason,
                 Run.EndingId,
-                Run.PendingEndingKnot);
+                Run.PendingEndingKnot,
+                Run.EmergencySupportClaimed);
 
             
             gameSession.RestoreRentState(

@@ -28,6 +28,7 @@ internal sealed class JsonSaveGameStoreTests
             var runId = Guid.NewGuid();
             gameSession.Player.ApplyGender(Gender.Female);
             gameSession.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+            gameSession.RequestEmergencySupport();
             gameSession.Player.Stats.SetMoney(222);
             gameSession.Player.Nutrition.SetSatiety(41);
             gameSession.Player.Nutrition.SetDaysUndereating(2);
@@ -46,7 +47,7 @@ internal sealed class JsonSaveGameStoreTests
             ]);
             gameSession.RestoreCrimeState(30, 120, 2, 5, hasCrimeCommittedToday: true);
             gameSession.RestoreWorkState(140, 4, 7, 7);
-            gameSession.RestoreRunState(runId, 7, isGameOver: false, gameOverReason: null, endingId: null, pendingEndingKnot: null);
+            gameSession.RestoreRunState(runId, 7, isGameOver: false, gameOverReason: null, endingId: null, pendingEndingKnot: null, emergencySupportClaimed: true);
             gameSession.SetStoryFlag("crime_warning");
             gameSession.QueueNarrativeScene("queued_scene");
             gameSession.RestoreJobTrack(JobType.ClinicReception, 74, 5, 9);
@@ -90,6 +91,7 @@ internal sealed class JsonSaveGameStoreTests
                     restoredSession.Player.Gender.Should().Be(Gender.Female);
                     restoredSession.Player.Name.Should().Be("Amira");
                     restoredSession.RunId.Should().Be(runId);
+                    restoredSession.HasClaimedEmergencySupport.Should().BeTrue();
                     restoredSession.Player.Stats.Money.Should().Be(222);
                     restoredSession.Player.Nutrition.Satiety.Should().Be(41);
                     restoredSession.Player.Nutrition.DaysUndereating.Should().Be(2);

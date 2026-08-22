@@ -57,6 +57,11 @@ public sealed class GameActionMenuQuery
             actions.Add(new GameAction(GameActionId.CommunityEvent, "Community Events"));
         }
 
+        if (context.HasEmergencySupport)
+        {
+            actions.Add(new GameAction(GameActionId.EmergencySupport, "Emergency Community Support"));
+        }
+
         actions.Add(new GameAction(GameActionId.Shop, "Shop"));
 
         if (context.HasHouseholdAssetsAccess)

@@ -37,6 +37,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
 {
     private const int EndOfDayHour = 22;
     public const int ConversationDurationMinutes = 45;
+    public const int EmergencySupportDurationMinutes = 60;
     private readonly CrimeService _crimeService = new();
     private readonly RandomEventService _randomEventService = new();
     private readonly PlayerIdentityState _playerIdentity;
@@ -132,6 +133,8 @@ public sealed class GameSession : INarrativeOutcomeTarget
     public IReadOnlyCollection<string> StoryFlags => _storyFlags;
     public IReadOnlyDictionary<string, int> RandomEventHistory => _randomEventHistory;
     public bool HasCrimeCommittedToday => CrimeCommittedToday;
+    public bool HasClaimedEmergencySupport => _runState.EmergencySupportClaimed;
+    public bool CanRequestEmergencySupport => Clock.Day <= 7 && Player.HasSelectedBackground && !HasClaimedEmergencySupport;
     public string? PendingEndingKnot { get => _runState.PendingEndingKnot; private set => _runState.PendingEndingKnot = value; }
     public IReadOnlyList<Investment> ActiveInvestments => _investmentState.ActiveInvestments;
     public int TotalInvestmentEarnings { get => _investmentState.TotalInvestmentEarnings; private set => _investmentState.TotalInvestmentEarnings = value; }
@@ -1069,6 +1072,48 @@ public sealed class GameSession : INarrativeOutcomeTarget
         RaiseEvent($"You attend {definition.Name}. Stress {definition.StressChange}.{trustMessage}{backgroundMessage}");
         RecordMutation(MutationCategories.Community, "AttendCommunityEvent", before, CaptureStats(), $"{definition.Name} (stress {definition.StressChange}, trust gained: {trustGained})");
         AdvanceTime(definition.TimeCostMinutes);
+        return true;
+    }
+
+    /// <summary>
+    /// Accepts one early-run emergency support package tied to the selected background.
+    /// </summary>
+    public bool RequestEmergencySupport()
+    {
+        var before = CaptureStats();
+        if (!CanRequestEmergencySupport)
+        {
+            RaiseEvent("No emergency community support is available for this run.");
+            RecordMutation(MutationCategories.GuardRejected, "RequestEmergencySupport", before, CaptureStats(), "Support already claimed, expired, or background not selected");
+            return false;
+        }
+
+        _runState.EmergencySupportClaimed = true;
+        switch (Player.BackgroundType)
+        {
+            case BackgroundType.MedicalSchoolDropout:
+                Player.Household.AddMedicine(2);
+                Relationships.ModifyNpcTrust(NpcId.NurseSalma, 2);
+                RaiseEvent("Salma puts two clinic doses aside for your mother. You spend an hour collecting them and promising to return the favor.");
+                break;
+            case BackgroundType.ReleasedPoliticalPrisoner:
+                Player.Stats.ModifyMoney(30);
+                Player.Household.AddStaples(1);
+                Relationships.ModifyNpcTrust(NpcId.NeighborMona, 2);
+                RaiseEvent("Mona gathers a small mutual-aid envelope and one food parcel. It is help, not a solution, and it costs an hour to arrange safely.");
+                break;
+            case BackgroundType.SudaneseRefugee:
+                Player.Household.AddStaples(3);
+                Player.Stats.ModifyStress(-4);
+                Relationships.ModifyNpcTrust(NpcId.NeighborMona, 2);
+                RaiseEvent("The Sudanese women's kitchen sends bread, beans, and tea upstairs. You spend an hour carrying containers back through the lane.");
+                break;
+            default:
+                throw new InvalidOperationException($"Unsupported background {Player.BackgroundType}.");
+        }
+
+        AdvanceTime(EmergencySupportDurationMinutes);
+        RecordMutation(MutationCategories.Community, "RequestEmergencySupport", before, CaptureStats(), $"Emergency support claimed for {Player.BackgroundType}");
         return true;
     }
 
@@ -2650,7 +2695,8 @@ public sealed class GameSession : INarrativeOutcomeTarget
         bool isGameOver,
         string? gameOverReason,
         EndingId? endingId,
-        string? pendingEndingKnot)
+        string? pendingEndingKnot,
+        bool emergencySupportClaimed = false)
     {
         SetRunId(runId);
         SetDaysSurvived(daysSurvived);
@@ -2658,6 +2704,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         GameOverReason = string.IsNullOrWhiteSpace(gameOverReason) ? null : gameOverReason;
         EndingId = endingId;
         PendingEndingKnot = string.IsNullOrWhiteSpace(pendingEndingKnot) ? null : pendingEndingKnot;
+        _runState.EmergencySupportClaimed = emergencySupportClaimed;
     }
 
     public void SetDaysSurvived(int daysSurvived)
