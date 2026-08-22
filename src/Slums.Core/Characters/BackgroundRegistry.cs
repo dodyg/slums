@@ -39,7 +39,7 @@ public static class BackgroundRegistry
         Type = BackgroundType.SudaneseRefugee,
         Name = "Sudanese Refugee",
         Description = "You fled Khartoum with your mother when the fighting intensified. Cairo was supposed to be temporary. That was three years ago. Your Arabic has a slight accent that marks you as different.",
-        StoryIntro = "You still dream of the Nile in Khartoum, before the jets came. In Imbaba, your mother keeps her Sudanese ID sealed beside the household water cards. You are Egyptian by law, but the ayna question never stops.",
+        StoryIntro = "You still dream of the Nile in Khartoum, before the jets came. In Imbaba, your mother keeps her Sudanese ID sealed beside the household water cards. Your papers and your belonging are both questioned, and the ayna question never stops.",
         StartingMoney = 50,
         StartingHealth = 90,
         StartingEnergy = 75,

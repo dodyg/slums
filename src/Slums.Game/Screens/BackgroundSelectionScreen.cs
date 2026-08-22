@@ -74,7 +74,7 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
         Surface.Print(centerX - 10, y, "--- Starting Stats ---", Color.Cyan);
         y++;
 
-        Surface.Print(centerX - 15, y, $"Money: {selected.StartingMoney} EGP", Color.Gold);
+        Surface.Print(centerX - 15, y, $"Money: {selected.StartingMoney} LE", Color.Gold);
         y++;
         Surface.Print(centerX - 15, y, $"Health: {selected.StartingHealth}%", GetStatColor(selected.StartingHealth));
         y++;

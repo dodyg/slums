@@ -230,9 +230,9 @@ The ticket numbers stop making sense, the wrong woman starts shouting, and every
 -> DONE
 
 === crime_workshop_contraband_success ===
-The workshop swallows the contraband the way Bulaq swallows everything: without asking, without remembering, and without leaving a trail. The foreman pockets his share and tells you the floor has seen worse than what you brought. In the morning the goods are gone, distributed into a hundred different supply chains, and the money arrives folded inside a spare parts invoice.
+The workshop in Ard al-Liwa swallows the contraband without asking, remembering, or leaving a trail. The foreman pockets his share and tells you the floor has seen worse than what you brought. In the morning the goods are gone, distributed into a hundred different supply chains, and the money arrives folded inside a spare parts invoice.
 # STRESS:3
-# MESSAGE:The workshop absorbs the contraband cleanly. Bulaq's supply chains make things disappear.
+# MESSAGE:The Ard al-Liwa workshop absorbs the contraband cleanly. Its repair supply chains make things disappear.
 -> DONE
 
 === crime_workshop_contraband_detected ===
@@ -242,9 +242,9 @@ The goods move through the workshop, but a delivery boy asks the wrong question 
 -> DONE
 
 === crime_workshop_contraband_failure ===
-The foreman waves you off before you finish explaining. The workshop is being watched this week, he says, and Bulaq has enough problems without importing new ones. You carry the goods back out into the street, heavier than when you brought them in, and every glance from a passerby feels like an accusation.
+The foreman waves you off before you finish explaining. The workshop is being watched this week, he says, and Ard al-Liwa has enough problems without importing new ones. You carry the goods back out into the street, heavier than when you brought them in, and every glance from a passerby feels like an accusation.
 # STRESS:7
-# MESSAGE:The workshop refuses the shipment. The contraband stays in your hands and the anxiety compounds.
+# MESSAGE:The Ard al-Liwa workshop refuses the shipment. The contraband stays in your hands and the anxiety compounds.
 -> DONE
 
 === crime_bulaq_protection_success ===
