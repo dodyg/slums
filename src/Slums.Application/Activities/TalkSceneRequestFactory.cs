@@ -13,6 +13,15 @@ public sealed class TalkSceneRequestFactory
         context.Relationships.RecordContact(npcId, context.CurrentDay);
 
         var selectedRandom = random ?? context.Random;
+        var conversationContext = NpcRegistry.GetConversationContext(
+            npcId,
+            context.Relationships,
+            context.PolicePressure,
+            context.CurrentDay,
+            context.HonestShiftsCompleted,
+            context.CrimesCommitted,
+            context.Player.Stats.Money,
+            context.Player.Household.MotherHealth);
         var knotName = NpcRegistry.GetConversationKnot(
             npcId,
             context.Relationships,
@@ -37,6 +46,16 @@ public sealed class TalkSceneRequestFactory
 
         context.Relationships.RecordSeenConversation(npcId, knotName);
         context.Relationships.RecordSeenConversationVariant(npcId, variantId);
-        return new TalkSceneRequest(knotName, context.SceneState with { ConversationVariantId = variantId }, variantId);
+        var sceneKnot = ConversationPoolRegistry.RecurringConversationKnot;
+        context.Relationships.RecordSeenConversation(npcId, sceneKnot);
+        return new TalkSceneRequest(
+            sceneKnot,
+            context.SceneState with
+            {
+                ConversationVariantId = variantId,
+                ConversationContext = conversationContext,
+                ConversationNpc = npcId.ToString()
+            },
+            variantId);
     }
 }

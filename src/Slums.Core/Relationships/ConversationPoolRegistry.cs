@@ -4,6 +4,7 @@ public static class ConversationPoolRegistry
 {
     private const int ConversationPoolSize = 4;
     public const int ConversationVariantCount = 100;
+    public const string RecurringConversationKnot = "recurring_conversation";
 
     public static IReadOnlyList<string> GetConversationPool(NpcId npcId, string context) => npcId switch
     {

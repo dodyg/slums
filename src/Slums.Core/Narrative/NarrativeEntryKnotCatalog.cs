@@ -45,6 +45,7 @@ public static class NarrativeEntryKnotCatalog
             || knotName.StartsWith("season_", StringComparison.Ordinal)
             || knotName.StartsWith("community_", StringComparison.Ordinal)
             || knotName.StartsWith("debt_", StringComparison.Ordinal)
+            || knotName.StartsWith("recurring_", StringComparison.Ordinal)
             || knotName.StartsWith("crime_", StringComparison.Ordinal)
             || IsRecurringConversation(knotName);
     }

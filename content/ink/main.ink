@@ -26,6 +26,8 @@ VAR infrastructure_disruption_count = 0
 VAR mona_trust = 0
 VAR salma_trust = 0
 VAR conversation_variant = ""
+VAR conversation_context = ""
+VAR conversation_npc = ""
 VAR conversation_opener = 0
 VAR conversation_body = 0
 VAR crisis_phase = "NotDiscovered"
@@ -38,6 +40,7 @@ VAR crisis_resolution_state = "Unresolved"
 INCLUDE crime.ink
 INCLUDE events.ink
 INCLUDE npcs.ink
+INCLUDE conversations.ink
 INCLUDE endings.ink
 INCLUDE weather.ink
 INCLUDE seasons.ink

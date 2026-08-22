@@ -371,6 +371,8 @@ public sealed class InkNarrativeService : INarrativeService
         TrySetGlobalVariable(story, "mona_trust", sceneState.RelationshipTrust.GetValueOrDefault("NeighborMona"));
         TrySetGlobalVariable(story, "salma_trust", sceneState.RelationshipTrust.GetValueOrDefault("NurseSalma"));
         TrySetGlobalVariable(story, "conversation_variant", sceneState.ConversationVariantId);
+        TrySetGlobalVariable(story, "conversation_context", sceneState.ConversationContext);
+        TrySetGlobalVariable(story, "conversation_npc", sceneState.ConversationNpc);
 
         var variantParts = sceneState.ConversationVariantId.Split('_', StringSplitOptions.RemoveEmptyEntries);
         if (variantParts.Length >= 2

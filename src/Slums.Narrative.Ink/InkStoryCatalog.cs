@@ -38,6 +38,8 @@ public static class InkStoryCatalog
             , ["mona_trust"] = typeof(int)
             , ["salma_trust"] = typeof(int)
             , ["conversation_variant"] = typeof(string)
+            , ["conversation_context"] = typeof(string)
+            , ["conversation_npc"] = typeof(string)
             , ["conversation_opener"] = typeof(int)
             , ["conversation_body"] = typeof(int)
             , ["crisis_phase"] = typeof(string)

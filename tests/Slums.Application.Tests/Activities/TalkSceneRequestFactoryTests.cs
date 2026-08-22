@@ -29,5 +29,8 @@ internal sealed class TalkSceneRequestFactoryTests
         request.SceneState.Day.Should().Be(gameSession.Clock.Day);
         request.SceneState.Money.Should().Be(gameSession.Player.Stats.Money);
         request.SceneState.ConversationVariantId.Should().Be(request.VariantId);
+        request.KnotName.Should().Be(ConversationPoolRegistry.RecurringConversationKnot);
+        request.SceneState.ConversationContext.Should().Be(ConversationContexts.Default);
+        request.SceneState.ConversationNpc.Should().Be(NpcId.LandlordHajjMahmoud.ToString());
     }
 }

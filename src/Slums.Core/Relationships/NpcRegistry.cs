@@ -127,6 +127,29 @@ public static class NpcRegistry
 #pragma warning restore CA5394
     }
 
+    public static string GetConversationContext(
+        NpcId npcId,
+        RelationshipState relationshipState,
+        int policePressure,
+        int currentDay,
+        int honestShiftsCompleted,
+        int crimesCommitted,
+        int currentMoney = 100,
+        int motherHealth = 70)
+    {
+        ArgumentNullException.ThrowIfNull(relationshipState);
+
+        return ConversationPoolRegistry.DetermineContext(
+            npcId,
+            relationshipState.GetNpcRelationship(npcId),
+            policePressure,
+            currentDay,
+            honestShiftsCompleted,
+            crimesCommitted,
+            currentMoney,
+            motherHealth);
+    }
+
     public static string GetConversationVariantId(
         NpcId npcId,
         RelationshipState relationshipState,

@@ -40,6 +40,8 @@ public sealed record NarrativeSceneState(
     public IReadOnlyList<string> ActiveNews { get; init; } = [];
     public IReadOnlyDictionary<string, string> Infrastructure { get; init; } = new Dictionary<string, string>();
     public string ConversationVariantId { get; init; } = string.Empty;
+    public string ConversationContext { get; init; } = string.Empty;
+    public string ConversationNpc { get; init; } = string.Empty;
     public CityCrisisPhase CrisisPhase { get; init; }
     public int CrisisEvidenceCollected { get; init; }
     public int CrisisResourcesCommitted { get; init; }

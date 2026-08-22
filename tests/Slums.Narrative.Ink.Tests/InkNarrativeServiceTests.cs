@@ -35,6 +35,33 @@ internal sealed class InkNarrativeServiceTests
     }
 
     [Test]
+    public void RecurringConversation_ShouldRenderOneHundredDistinctVariants()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+        var state = new NarrativeSceneState(100, 100, 100, 100, 0, 80, 3, 1, "MedicalSchoolDropout", "female")
+        {
+            ConversationContext = ConversationContexts.Default,
+            ConversationNpc = NpcId.LandlordHajjMahmoud.ToString()
+        };
+        var rendered = new HashSet<string>(StringComparer.Ordinal);
+
+        for (var opener = 1; opener <= 10; opener++)
+        {
+            for (var body = 1; body <= 10; body++)
+            {
+                state = state with
+                {
+                    ConversationVariantId = $"landlord_default_{opener}_{body}"
+                };
+                service.StartScene(ConversationPoolRegistry.RecurringConversationKnot, state);
+                rendered.Add(Normalize(service.CurrentText));
+            }
+        }
+
+        rendered.Should().HaveCount(100);
+    }
+
+    [Test]
     public void StartScene_ShouldBranchOnSynchronizedMoney()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
@@ -51,6 +78,11 @@ internal sealed class InkNarrativeServiceTests
 
         service.CurrentText.Should().Contain("count the notes twice");
         service.CurrentText.Should().NotContain("wallet is already thin");
+    }
+
+    private static string Normalize(string? text)
+    {
+        return string.Join(' ', (text ?? string.Empty).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
     }
 
     [Test]
