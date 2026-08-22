@@ -4,7 +4,7 @@
       "Value": "home"
     },
     "Name": "Your Apartment",
-    "Description": "A small two-room flat you share with your mother, lit by a rooftop solar co-op when the neighborhood supply holds.",
+    "Description": "A small two-room flat you share with your mother, lit by a rooftop solar-and-storage co-op when the neighborhood supply holds.",
     "District": "Imbaba",
     "HasJobOpportunities": false,
     "HasCrimeOpportunities": false,
@@ -15,7 +15,7 @@
       "Value": "market"
     },
     "Name": "Souk Al-Gom'a",
-    "Description": "The Friday market, busy with vendors, shoppers, repair stalls, and the occasional delivery drone above the roofs.",
+    "Description": "The Friday market, busy with vendors, shoppers, repair stalls, and autonomous delivery craft above the roofs.",
     "District": "Imbaba",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,
@@ -27,7 +27,7 @@
       "Value": "bakery"
     },
     "Name": "Al-Forn Al-Baladi",
-    "Description": "A traditional bakery where bread is baked in stone ovens and a temperamental solar inverter helps keep the lights on.",
+    "Description": "A traditional bakery where bread is baked in stone ovens and a temperamental microgrid controller helps keep the lights on.",
     "District": "Imbaba",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
@@ -49,7 +49,7 @@
       "Value": "square"
     },
     "Name": "Midan Al-Tahrir",
-    "Description": "The busy central square where electric taxis, old buses, street sellers, and the city's first delivery drones share the road.",
+    "Description": "The busy central square where autonomous taxis, old buses, street sellers, and delivery drones share the road.",
     "District": "DowntownCairo",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,
@@ -61,7 +61,7 @@
       "Value": "clinic"
     },
     "Name": "Rahma Clinic",
-    "Description": "A cramped low-cost clinic where waiting patients spill into the hallway and even a working ultrasound is a precious resource.",
+    "Description": "A cramped low-cost clinic where waiting patients spill into the hallway and even a working diagnostic scanner is a precious resource.",
     "District": "ArdAlLiwa",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
@@ -75,7 +75,7 @@
       "Value": "workshop"
     },
     "Name": "Abu Samir Sewing Workshop",
-    "Description": "A noisy garment workshop with irons hissing, fabric dust in the air, and a side bench for repairing imported mobility aids.",
+    "Description": "A noisy garment workshop with irons hissing, fabric dust in the air, and a side bench for repairing imported service robots and mobility aids.",
     "District": "ArdAlLiwa",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,
@@ -86,7 +86,7 @@
       "Value": "cafe"
     },
     "Name": "Ahwa El-Galaa",
-    "Description": "A Dokki street cafe serving tea, shai, and endless neighborhood gossip beside a marked lane for electric taxis.",
+    "Description": "A Dokki street cafe serving tea, shai, and endless neighborhood gossip beside a marked lane for autonomous electric taxis.",
     "District": "Dokki",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
@@ -113,7 +113,7 @@
       "Value": "depot"
     },
     "Name": "Bulaq Microbus Depot",
-    "Description": "A chaotic transport yard where electric-taxi routes are argued over beside idling microbuses and everybody is late for something.",
+    "Description": "A chaotic transport yard where autonomous-taxi routes are argued over beside idling microbuses and everybody is late for something.",
     "District": "BulaqAlDakrour",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,

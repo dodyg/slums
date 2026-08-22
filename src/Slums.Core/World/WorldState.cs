@@ -31,7 +31,7 @@ public sealed class WorldState
         {
             Id = LocationId.Home,
             Name = "Your Apartment",
-            Description = "A small two-room flat you share with your mother, lit by a rooftop solar co-op when the neighborhood supply holds.",
+            Description = "A small two-room flat you share with your mother, lit by a rooftop solar-and-storage co-op when the neighborhood supply holds.",
             District = DistrictId.Imbaba,
             HasJobOpportunities = false,
             HasCrimeOpportunities = false,
@@ -41,7 +41,7 @@ public sealed class WorldState
         {
             Id = LocationId.Market,
             Name = "Souk Al-Gom'a",
-            Description = "The Friday market, busy with vendors, shoppers, repair stalls, and the occasional delivery drone above the roofs.",
+            Description = "The Friday market, busy with vendors, shoppers, repair stalls, and autonomous delivery craft above the roofs.",
             District = DistrictId.Imbaba,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
@@ -52,7 +52,7 @@ public sealed class WorldState
         {
             Id = LocationId.Bakery,
             Name = "Al-Forn Al-Baladi",
-            Description = "A traditional bakery where bread is baked in stone ovens and a temperamental solar inverter helps keep the lights on.",
+            Description = "A traditional bakery where bread is baked in stone ovens and a temperamental microgrid controller helps keep the lights on.",
             District = DistrictId.Imbaba,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
@@ -72,7 +72,7 @@ public sealed class WorldState
         {
             Id = LocationId.Square,
             Name = "Midan Al-Tahrir",
-            Description = "The busy central square where electric taxis, old buses, street sellers, and the city's first delivery drones share the road.",
+            Description = "The busy central square where autonomous taxis, old buses, street sellers, and delivery drones share the road.",
             District = DistrictId.DowntownCairo,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
@@ -83,7 +83,7 @@ public sealed class WorldState
         {
             Id = LocationId.Clinic,
             Name = "Rahma Clinic",
-            Description = "A cramped low-cost clinic where waiting patients spill into the hallway and even a working ultrasound is a precious resource.",
+            Description = "A cramped low-cost clinic where waiting patients spill into the hallway and even a working diagnostic scanner is a precious resource.",
             District = DistrictId.ArdAlLiwa,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
@@ -96,7 +96,7 @@ public sealed class WorldState
         {
             Id = LocationId.Workshop,
             Name = "Abu Samir Sewing Workshop",
-            Description = "A noisy garment workshop with irons hissing, fabric dust in the air, and a side bench for repairing imported mobility aids.",
+            Description = "A noisy garment workshop with irons hissing, fabric dust in the air, and a side bench for repairing imported service robots and mobility aids.",
             District = DistrictId.ArdAlLiwa,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
@@ -106,7 +106,7 @@ public sealed class WorldState
         {
             Id = LocationId.Cafe,
             Name = "Ahwa El-Galaa",
-            Description = "A Dokki street cafe serving tea, shai, and endless neighborhood gossip beside a marked lane for electric taxis.",
+            Description = "A Dokki street cafe serving tea, shai, and endless neighborhood gossip beside a marked lane for autonomous electric taxis.",
             District = DistrictId.Dokki,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
@@ -131,7 +131,7 @@ public sealed class WorldState
         {
             Id = LocationId.Depot,
             Name = "Bulaq Microbus Depot",
-            Description = "A chaotic transport yard where electric-taxi routes are argued over beside idling microbuses and everybody is late for something.",
+            Description = "A chaotic transport yard where autonomous-taxi routes are argued over beside idling microbuses and everybody is late for something.",
             District = DistrictId.BulaqAlDakrour,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,

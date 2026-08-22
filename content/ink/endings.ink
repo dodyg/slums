@@ -75,5 +75,5 @@ You stay afloat because Hanan knows how to survive a city built on selective mem
 === ending_crime_kingpin ===
 The money finally arrives in amounts that change how people look at you. Doors open faster. Favors come wrapped as respect. Even the ones above you speak more carefully now.
 
-But every rung you climbed belongs to someone else too: stolen delivery routes, hijacked taxi accounts, phone batteries that should have gone to a clinic. The errands are bigger, the witnesses closer, the punishment for hesitation clearer. From the outside it looks like power. Up close it is only a better-lit cage, and Cairo knows exactly how to keep the key.
+But every rung you climbed belongs to someone else too: stolen delivery routes, hijacked fleet accounts, clinic power cells that should have kept a diagnostic fridge alive. The errands are bigger, the witnesses closer, the punishment for hesitation clearer. From the outside it looks like power. Up close it is only a better-lit cage, and Cairo knows exactly how to keep the key.
 -> DONE

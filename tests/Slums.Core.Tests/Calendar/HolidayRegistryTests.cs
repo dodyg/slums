@@ -15,7 +15,7 @@ internal sealed class HolidayRegistryTests
     [Test]
     public async Task GetHolidayState_WhenNoHoliday_ShouldReturnNone()
     {
-        var date = new DateOnly(2030, 10, 15);
+        var date = new DateOnly(2060, 10, 15);
 
         var state = HolidayRegistry.GetHolidayState(date);
 
@@ -26,7 +26,7 @@ internal sealed class HolidayRegistryTests
     [Test]
     public async Task GetHolidayState_WhenCopticChristmas_ShouldReturnActiveState()
     {
-        var date = new DateOnly(2031, 1, 7);
+        var date = new DateOnly(2061, 1, 7);
 
         var state = HolidayRegistry.GetHolidayState(date);
 
@@ -39,7 +39,7 @@ internal sealed class HolidayRegistryTests
     [Test]
     public async Task GetHolidayState_WhenRamadanStart_ShouldReturnRamadanState()
     {
-        var date = new DateOnly(2031, 2, 28);
+        var date = new DateOnly(2061, 2, 28);
 
         var state = HolidayRegistry.GetHolidayState(date);
 
@@ -52,7 +52,7 @@ internal sealed class HolidayRegistryTests
     [Test]
     public async Task GetHolidayState_WhenRamadanMiddle_ShouldReturnCorrectDay()
     {
-        var date = new DateOnly(2031, 3, 10);
+        var date = new DateOnly(2061, 3, 10);
 
         var state = HolidayRegistry.GetHolidayState(date);
 
@@ -64,7 +64,7 @@ internal sealed class HolidayRegistryTests
     [Test]
     public async Task GetHolidayState_WhenEidAlFitr_ShouldReturnActiveState()
     {
-        var date = new DateOnly(2031, 3, 30);
+        var date = new DateOnly(2061, 3, 30);
 
         var state = HolidayRegistry.GetHolidayState(date);
 
@@ -76,7 +76,7 @@ internal sealed class HolidayRegistryTests
     [Test]
     public async Task IsRamadanActive_WhenRamadanDate_ShouldReturnTrue()
     {
-        var date = new DateOnly(2031, 3, 15);
+        var date = new DateOnly(2061, 3, 15);
 
         var isRamadan = HolidayRegistry.IsRamadanActive(date);
 
@@ -86,7 +86,7 @@ internal sealed class HolidayRegistryTests
     [Test]
     public async Task IsRamadanActive_WhenNotRamadanDate_ShouldReturnFalse()
     {
-        var date = new DateOnly(2031, 1, 15);
+        var date = new DateOnly(2061, 1, 15);
 
         var isRamadan = HolidayRegistry.IsRamadanActive(date);
 
@@ -96,7 +96,7 @@ internal sealed class HolidayRegistryTests
     [Test]
     public async Task GetRamadanDay_WhenRamadanDate_ShouldReturnCorrectDay()
     {
-        var date = new DateOnly(2031, 3, 5);
+        var date = new DateOnly(2061, 3, 5);
 
         var day = HolidayRegistry.GetRamadanDay(date);
 
@@ -106,7 +106,7 @@ internal sealed class HolidayRegistryTests
     [Test]
     public async Task GetRamadanDay_WhenNotRamadanDate_ShouldReturnZero()
     {
-        var date = new DateOnly(2031, 1, 15);
+        var date = new DateOnly(2061, 1, 15);
 
         var day = HolidayRegistry.GetRamadanDay(date);
 

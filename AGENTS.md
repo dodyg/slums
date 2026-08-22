@@ -241,10 +241,10 @@ Prefer finishing one thin playable slice over partially building many systems.
 Respect the requirements file:
 
 - keep the setting grounded in Cairo
-- set the story in Cairo in 2030, where recognizable digital technology coexists with severe inequality and aging infrastructure
-- use smartphones, digital wallets, solar panels, electric vehicles, delivery drones, biometric systems, telemedicine, and limited machine-learning services as sources of access, labor, surveillance, risk, and consequence rather than effortless solutions
+- set the story in Cairo in 2060, where mature but uneven digital technology coexists with severe inequality and aging infrastructure
+- use repairable smart handsets, digital wallets, solar-and-storage microgrids, autonomous electric transit, delivery drones and ground robots, biometric systems, telemedicine, and bounded machine-learning services as sources of access, labor, surveillance, risk, and consequence rather than effortless solutions
 - write through a realistic Afrofuturist lens: Cairo's African communities, languages, faiths, repair cultures, mutual-aid networks, and local institutions shape the future instead of serving as scenery for imported technology
-- do not treat persistent omniscient AI, everyday cybernetics, or portable nuclear power as normal 2030 infrastructure; keep them absent, rare, or speculative when they appear
+- do not treat persistent omniscient AI, everyday cybernetics, or portable nuclear power as normal 2060 infrastructure; keep them absent, rare, or speculative when they appear
 - keep the tone gritty and realistic
 - keep crime consequence-heavy
 - do not glamorize harmful activity

@@ -2,7 +2,7 @@
   {
     "Type": "BakeryWork",
     "Name": "Bakery Work (Forn)",
-    "Description": "Work at Al-Forn Al-Baladi beside stone ovens, hand-loaded flour bins, and a solar inverter that fails when the heat rises",
+    "Description": "Work at Al-Forn Al-Baladi beside stone ovens, hand-loaded flour bins, and a microgrid controller that fails when the heat rises",
     "BasePay": 21,
     "EnergyCost": 25,
     "StressCost": 3,
@@ -57,7 +57,7 @@
   {
     "Type": "CafeService",
     "Name": "Cafe Service",
-    "Description": "Carry tea trays beside a marked electric-taxi lane while the cafe's ordering tablet quietly rates every table",
+    "Description": "Carry tea trays beside a marked autonomous-taxi lane while the cafe's ordering tablet quietly rates every table",
     "BasePay": 22,
     "EnergyCost": 20,
     "StressCost": 8,
@@ -101,7 +101,7 @@
   {
     "Type": "StreetVending",
     "Name": "Street Vendor Shift",
-    "Description": "Set up a folding table outside Midan Al-Tahrir and sell phone cases, power banks, and cheap accessories to commuters.",
+    "Description": "Set up a folding table outside Midan Al-Tahrir and sell handset cases, power cells, and cheap accessories to commuters.",
     "BasePay": 19,
     "EnergyCost": 22,
     "StressCost": 10,
@@ -134,7 +134,7 @@
   {
     "Type": "RoboticsScavenging",
     "Name": "Robotics Scavenging Shift",
-    "Description": "Strip broken delivery drones, discarded inspection cameras, and obsolete street hardware for reusable parts at Abu Samir's workshop.",
+    "Description": "Strip broken delivery drones, discarded recognition cameras, and obsolete street hardware for reusable parts at Abu Samir's workshop.",
     "BasePay": 24,
     "EnergyCost": 24,
     "StressCost": 11,

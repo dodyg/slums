@@ -21,13 +21,13 @@ INCLUDE community.ink
 INCLUDE debt.ink
 
 === intro_medical ===
-Cairo, 2030.
+Cairo, 2060.
 
-The future arrived in layers, as it always does. Wealthy roads carry imported electric cars, delivery drones cross the roofs when the wind allows it, and new towers advertise solar glass that never reaches Imbaba. Down here, three buildings share a rooftop solar co-op and argue over whose turn it is to charge the batteries. Most phones are second-hand. Most repairs are local. A translation app can help you find work, but it can also decide your accent sounds expensive to insure.
+The future arrived in layers, as it always does. Wealthy roads carry autonomous electric taxis along mapped corridors, cargo drones cross the roofs when the wind allows it, and new towers advertise self-tinting solar glass that never reaches Imbaba. Down here, three buildings share a rooftop solar-and-storage co-op and argue over whose turn it is to draw from the batteries. Most handsets are refurbished. Most repairs are local. A pocket translation model can help you find work, but it can also decide your accent sounds expensive to insure.
 
-This is not a borrowed future. It is Cairo making room for itself: rooftop gardens beside satellite dishes, Nubian and Sudanese recipes traded through voice notes, old women running savings circles, and young people turning broken imports into tools the neighborhood can afford.
+This is not a borrowed future. It is Cairo making room for itself: rooftop gardens beside old satellite dishes and mesh relays, Nubian and Sudanese recipes traded through voice notes, old women running savings circles, and young people turning retired delivery bots and broken imports into tools the neighborhood can afford.
 
-The city sells AI as convenience: a call-center script, a route planner, an eligibility check. It is useful, narrow, and wrong in ways that cost poor people more than rich ones. Your mother waits for a nurse with a cracked diagnostic tablet and a cupboard of ordinary medicine.
+The city sells machine learning as convenience: a call-center script, a route planner, an eligibility check, a medical triage service. Each system is useful, narrow, and wrong in ways that cost poor people more than rich ones. Your mother waits for a nurse with a cracked diagnostic patch reader and a cupboard of ordinary medicine.
 
 Three years of medical school.
 
@@ -35,7 +35,7 @@ Three years of dreaming of a white coat, of a stethoscope around your neck, of r
 
 Then Baba died, and the tuition money evaporated with him.
 
-Now you sit in your single room in Imbaba, listening to your mother cough into a washed-thin handkerchief while an electric taxi loses a fight with an old microbus below. The cough sounds wet. Worse than yesterday.
+Now you sit in your single room in Imbaba, listening to your mother cough into a washed-thin handkerchief while an autonomous taxi gives up at a broken lane beacon and an old microbus leans on its horn below. The cough sounds wet. Worse than yesterday.
 
 *   [Check on her]
     You kneel beside her mattress. Her forehead is clammy, her breathing labored.
@@ -50,7 +50,7 @@ Now you sit in your single room in Imbaba, listening to your mother cough into a
 *   [Look for work instead]
     You can't help her if you can't pay for medicine.
     
-    You step into the alley behind the building. The first ahwa chairs are scraping the pavement as a delivery drone searches for a safe landing. Oil hisses at the taameya cart while a neighbour tries to revive a discarded phone with a screwdriver. Somebody upstairs is already shouting about money.
+    You step into the alley behind the building. The first ahwa chairs are scraping the pavement as a cargo drone searches for a safe landing and a ground courier bot waits for a route signal. Oil hisses at the taameya cart while a neighbour tries to revive a discarded handset with a screwdriver. Somebody upstairs is already shouting about money.
     
     This is your world now. Not the bright corridors of the faculty hospital. Not the life people used to promise you.
     
@@ -82,9 +82,9 @@ Now you sit in your single room in Imbaba, listening to your mother cough into a
     -> intro_done
 
 === intro_prisoner ===
-Cairo, 2030. The city remembers everything that can be uploaded.
+Cairo, 2060. The city remembers everything that can be uploaded.
 
-The cameras are cheaper now. Some hang over shop doors, some sit in public-service kiosks, and some ride on small drones during a police sweep. The state calls it safety. The people who live under it call it being watched by a phone, a landlord, a platform, or a person with the right connection. A face match can be wrong, but the appeal still costs a day's wages.
+The cameras are cheaper now. Some hang over shop doors, some sit in public-service kiosks, and some ride on small drones during a police sweep. The state calls it safety. The people who live under it call it being watched by a handset, a landlord, a platform, or a person with the right connection. A biometric match can be wrong, but the appeal still costs a day's wages.
 
 The cell door opened eight months ago.
 
@@ -121,7 +121,7 @@ You are twenty-six years old. You have a criminal record, a gap in your employme
     -> intro_done
 
 === intro_sudanese ===
-Cairo, 2030. Above the roofs, delivery drones blink when their batteries hold. At street level, families still carry water by hand when the neighborhood pump fails.
+Cairo, 2060. Above the roofs, delivery drones blink when their batteries hold and courier bots wait behind locked gates. At street level, families still carry water by hand when the neighborhood pump fails.
 
 You still dream of the Nile in Khartoum.
 
@@ -160,7 +160,7 @@ Cairo was supposed to be temporary. A station between one life and the next. But
     -> intro_done
 
 === intro_done ===
-Your story begins in Cairo, 2030: a city where an electric car can cross the river, a drone can photograph a block before breakfast, and a platform can know your name before your neighbour does. None of that guarantees food, medicine, privacy, or a way out.
+Your story begins in Cairo, 2060: a city where an autonomous taxi can cross the river, a drone can map a block before breakfast, and a platform can know your name before your neighbour does. None of that guarantees food, medicine, privacy, or a way out.
 
 The day stretches before you, one more day in a city that can hold twelve million people and still find ways to make one {gender == "male": man | woman} feel cornered.
 

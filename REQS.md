@@ -53,17 +53,17 @@ Interview-complete working requirements draft based on the user's answers.
 - The world should support tension between survival, dignity, loyalty, ambition, and danger.
 
 ## Setting Scope
-- Time period: Cairo in 2030.
+- Time period: Cairo in 2060.
 - Core playable and referenced Cairo areas should include Dokki, Imbaba, and Ard al-Liwa.
 - Real Cairo institutions and district identities should shape the social and economic landscape.
 
-### Cairo 2030 Technology Layer
+### Cairo 2060 Technology Layer
 
-- The story takes place in Cairo in 2030. Technology is recognizably contemporary and uneven: smartphones, digital wallets, solar panels, electric vehicles, delivery drones, biometric systems, telemedicine, and machine-learning services exist beside aging buildings, paper records, handcarts, and unreliable utilities.
+- The story takes place in Cairo in 2060. Technology has advanced substantially but remains unevenly distributed: repairable smart handsets, digital wallets, neighborhood solar-and-storage microgrids, autonomous electric transit on mapped corridors, delivery drones and ground couriers, biometric systems, telemedicine, and bounded machine-learning services exist beside aging buildings, paper records, handcarts, human-driven microbuses, and unreliable utilities.
 - Use a realistic Afrofuturist lens: African people and communities shape the future through repair, mutual aid, local knowledge, language, faith, music, design, and political imagination. Technology should be something people appropriate and negotiate, not a foreign spectacle that replaces Cairo's own culture.
-- In poorer neighborhoods, technology is most visible through second-hand phones, shared Wi-Fi, informal charging, e-bike and EV repairs, cheap sensors, platform work, CCTV, and the labor required to keep imported systems running. A drone may deliver medicine to a wealthy tower and still be stripped for parts in Imbaba.
-- AI should mean limited, fallible services: call-center scripts, translation tools, route pricing, identity checks, and automated eligibility decisions. These systems can be useful, biased, opaque, and easy for employers or authorities to misuse; there is no omniscient persistent AI.
-- Cybernetics and portable nuclear power are not ordinary technologies in this setting. Medical prostheses remain specialist, expensive care, and nuclear generators are not part of everyday neighborhood infrastructure. Keep advanced ideas as distant, aspirational, or clearly speculative rather than treating them as common facts.
+- In poorer neighborhoods, technology is most visible through refurbished handsets, local mesh networks, informal charging, water and battery monitors, e-bike and EV repairs, shared diagnostic kits, platform work, CCTV, and the labor required to keep imported systems running. An autonomous cargo drone may deliver medicine to a wealthy tower and still be cannibalized for parts in Imbaba.
+- Machine learning should remain bounded and fallible: call-center speech scoring, translation, route pricing, identity checks, medical triage, and automated eligibility decisions. These systems can be useful, biased, opaque, and easy for employers or authorities to misuse; there is no omniscient persistent AI running the city.
+- Everyday cybernetics and portable nuclear power are not ordinary technologies in this setting. Medical implants and advanced prostheses remain specialist, expensive care, while neighborhood power comes from the grid, solar generation, storage, and fuel-backed emergency systems. Keep more advanced ideas rare, inaccessible, or clearly speculative.
 - Technology must intensify the existing survival, dignity, migration, crime, and state-pressure themes without removing the need for community solidarity. The future should feel possible, lived-in, and specifically African rather than a generic cyberpunk backdrop.
 
 ## Protagonist and Household

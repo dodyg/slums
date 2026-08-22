@@ -6,7 +6,7 @@ public static class JobRegistry
     {
         Type = JobType.BakeryWork,
         Name = "Bakery Work (Forn)",
-        Description = "Work at Al-Forn Al-Baladi beside stone ovens, hand-loaded flour bins, and a solar inverter that fails when the heat rises",
+        Description = "Work at Al-Forn Al-Baladi beside stone ovens, hand-loaded flour bins, and a microgrid controller that fails when the heat rises",
         BasePay = 19,
         EnergyCost = 25,
         StressCost = 5,
@@ -71,7 +71,7 @@ public static class JobRegistry
     {
         Type = JobType.CafeService,
         Name = "Cafe Service",
-        Description = "Carry tea trays beside a marked electric-taxi lane while the cafe's ordering tablet quietly rates every table",
+        Description = "Carry tea trays beside a marked autonomous-taxi lane while the cafe's ordering tablet quietly rates every table",
         BasePay = 20,
         EnergyCost = 20,
         StressCost = 10,
@@ -97,7 +97,7 @@ public static class JobRegistry
     {
         Type = JobType.MicrobusDispatch,
         Name = "Electric Taxi Dispatch",
-        Description = "Correct route-app errors, load passengers, and keep tempers under control at the Bulaq depot",
+        Description = "Correct route-model errors, load passengers, and keep tempers under control at the Bulaq depot",
         BasePay = 23,
         EnergyCost = 24,
         StressCost = 16,
@@ -110,7 +110,7 @@ public static class JobRegistry
     {
         Type = JobType.LaundryPressing,
         Name = "Laundry Pressing Shift",
-        Description = "Press shirts, supervise half-broken folding arms, and survive the battery heat at Shubra Steam Laundry",
+        Description = "Press shirts, supervise half-broken folding arms, and survive the storage-cell heat at Shubra Steam Laundry",
         BasePay = 20,
         EnergyCost = 28,
         StressCost = 9,
@@ -123,7 +123,7 @@ public static class JobRegistry
     {
         Type = JobType.StreetVending,
         Name = "Street Vendor Shift",
-        Description = "Set up a folding table outside Midan Al-Tahrir and sell phone cases, power banks, and cheap accessories to commuters.",
+        Description = "Set up a folding table outside Midan Al-Tahrir and sell handset cases, power cells, and cheap accessories to commuters.",
         BasePay = 17,
         EnergyCost = 22,
         StressCost = 12,
@@ -162,7 +162,7 @@ public static class JobRegistry
     {
         Type = JobType.RoboticsScavenging,
         Name = "Robotics Scavenging Shift",
-        Description = "Strip broken delivery drones, discarded inspection cameras, and obsolete street hardware for reusable parts at Abu Samir's workshop.",
+        Description = "Strip broken delivery drones, discarded recognition cameras, and obsolete street hardware for reusable parts at Abu Samir's workshop.",
         BasePay = 24,
         EnergyCost = 24,
         StressCost = 11,

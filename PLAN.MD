@@ -128,7 +128,7 @@ Acceptance targets:
 - Authored branching scenes belong in `content/ink/` and must be compiled to `content/ink/main.json` after source edits.
 - C# owns deterministic simulation rules, action guards, calculations, and ending conditions.
 - Ink owns prose, choices, and tagged narrative outcomes.
-- Cairo-specific writing should remain grounded in Cairo 2030 through a realistic Afrofuturist lens: recognizable digital technology, local ingenuity, African cultural continuity, and older infrastructure coexist without turning the setting into generic cyberpunk. Content must remain consistent with the safety constraints in `REQS.md` and `AGENTS.md`.
+- Cairo-specific writing should remain grounded in Cairo 2060 through a realistic Afrofuturist lens: mature but unequal digital technology, local ingenuity, African cultural continuity, and older infrastructure coexist without turning the setting into generic cyberpunk. Content must remain consistent with the safety constraints in `REQS.md` and `AGENTS.md`.
 
 ## Validation
 

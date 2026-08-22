@@ -2,7 +2,7 @@
   {
     "Type": "SalvageCrawler",
     "Name": "Salvage Crawler",
-    "Description": "A second-hand tracked crawler that can pull useful circuit boards and motor parts from dead infrastructure.",
+    "Description": "A retired municipal salvage crawler that can pull useful power electronics and motor parts from dead infrastructure.",
     "PurchaseCost": 125,
     "RepairCost": 18,
     "RepairCondition": 45,
@@ -11,7 +11,7 @@
   {
     "Type": "RepairDrone",
     "Name": "Repair Drone",
-    "Description": "A battered inspection quadcopter with a solder arm; its flight controller remembers every hard landing.",
+    "Description": "A battered maintenance quadcopter with a solder arm; its navigation package remembers every hard landing.",
     "PurchaseCost": 165,
     "RepairCost": 24,
     "RepairCondition": 40,
@@ -20,7 +20,7 @@
   {
     "Type": "CargoMule",
     "Name": "Cargo Mule",
-    "Description": "A squat remote-assisted cargo hauler built for alleys where delivery firms stopped sending drivers.",
+    "Description": "A squat cargo hauler built for alleys where delivery firms stopped sending autonomous vehicles and human drivers.",
     "PurchaseCost": 210,
     "RepairCost": 30,
     "RepairCondition": 35,

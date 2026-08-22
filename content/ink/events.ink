@@ -38,7 +38,7 @@ A neighbour lowers her voice and says plainclothes men were asking for names two
 -> DONE
 
 === event_home_water_cut_collection ===
-The water cuts out before noon and the whole building turns into a chain of borrowed buckets, muttered apologies, and stair-climbing labor. The building's shared batteries still have charge, but the municipal pump is waiting on a part and the complaint app keeps routing every ticket into a closed category. Every household is short on something, so help arrives mixed with irritation and the shame of needing it.
+The water cuts out before noon and the whole building turns into a chain of borrowed buckets, muttered apologies, and stair-climbing labor. The building's shared batteries still have charge, but the municipal pump is waiting on a pressure sensor and the service portal keeps routing every ticket into a closed category. Every household is short on something, so help arrives mixed with irritation and the shame of needing it.
 -> DONE
 
 === event_bakery_flour_shortage ===
@@ -86,7 +86,7 @@ The line at the Bulaq pharmacy is already doubled back on itself by mid-morning.
 -> DONE
 
 === event_depot_fare_shakeup ===
-At the depot, electric-taxi drivers, human dispatchers, and passengers spend half an hour arguing over fares as if volume might create justice. The route app changed the tariff before dawn and assigned the surcharge to the people least able to contest it. It creates heat, bad tempers, and a little money for whoever stays standing the longest.
+At the depot, autonomous fleet supervisors, human dispatchers, and passengers spend half an hour arguing over fares as if volume might create justice. The route model changed the tariff before dawn and assigned the surcharge to the people least able to contest it. It creates heat, bad tempers, and a little money for whoever stays standing the longest.
 -> DONE
 
 === event_shubra_steam_break ===

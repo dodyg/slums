@@ -48,7 +48,7 @@ By maghrib, the talk on the street has already turned. Men lower their voices wh
     -> DONE
 
 === crime_police_encounter ===
-The patrol appears at the corner where the alley meets the main road. Two uniforms, a plainclothes officer, and a borrowed police drone that keeps its camera pointed at chest height. The officer watches faces with the patience of a man who has all day and no particular target. Your pulse spikes. You have done nothing wrong today, but in Cairo, "nothing wrong" is not the same as "nothing to hide."
+The patrol appears at the corner where the alley meets the main road. Two uniforms, a plainclothes officer, and a borrowed police quadcopter running an outdated recognition package. The officer watches faces with the patience of a man who has all day and no particular target. Your pulse spikes. You have done nothing wrong today, but in Cairo, "nothing wrong" is not the same as "nothing to hide."
 
 *   [Walk past normally]
     You force your shoulders to relax, your pace to stay even, your eyes to look bored instead of frightened. The plainclothes officer glances at you, then past you, then back at the stream of faces. You round the corner and do not start breathing again until you are half a block away.
