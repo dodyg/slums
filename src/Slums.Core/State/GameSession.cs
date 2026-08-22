@@ -629,7 +629,18 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
     public bool CommitCrisisResources(int amount) => CityCrisis.CommitResources(amount);
 
-    public bool ChooseCrisisDecision(CityCrisisDecision decision) => CityCrisis.ChooseDecision(decision);
+    public bool ChooseCrisisDecision(CityCrisisDecision decision) => CityCrisis.ChooseDecision(decision, Clock.Day);
+
+    public bool MarkCrisisCallbackQueued()
+    {
+        if (!CityCrisis.HasDueCallback(Clock.Day))
+        {
+            return false;
+        }
+
+        CityCrisis.MarkCallbackQueued();
+        return true;
+    }
 
     public bool ResolveCityCrisis(CityCrisisResolution resolution) => CityCrisis.Resolve(resolution);
 
@@ -638,9 +649,29 @@ public sealed class GameSession : INarrativeOutcomeTarget
         DistrictHeat.AddHeat(World.CurrentDistrict, delta);
     }
 
-    public void RestoreCityCrisisState(int beatIndex, int evidenceCollected, int resourcesCommitted, int cooperativeCondition, CityCrisisDecision decision, CityCrisisResolution resolution)
+    public void RestoreCityCrisisState(
+        int beatIndex,
+        int evidenceCollected,
+        int resourcesCommitted,
+        int cooperativeCondition,
+        CityCrisisDecision decision,
+        CityCrisisResolution resolution,
+        int decisionDay = 0,
+        int callbackDueDay = 0,
+        CityCrisisDecision pendingCallbackDecision = CityCrisisDecision.None,
+        bool callbackQueued = false)
     {
-        CityCrisis.Restore(beatIndex, evidenceCollected, resourcesCommitted, cooperativeCondition, decision, resolution);
+        CityCrisis.Restore(
+            beatIndex,
+            evidenceCollected,
+            resourcesCommitted,
+            cooperativeCondition,
+            decision,
+            resolution,
+            decisionDay,
+            callbackDueDay,
+            pendingCallbackDecision,
+            callbackQueued);
     }
 
     private void RollTerritoryEvents(Random random)
@@ -3362,6 +3393,12 @@ public sealed class GameSession : INarrativeOutcomeTarget
         }
 
         TryQueueNarrativeTrigger(NarrativeFollowUpPlanner.GetCommunityAftermathTrigger(EventAttendance, _storyFlags));
+
+        var crisisCallback = CityCrisisPlanner.GetDelayedCallback(Clock.Day, CityCrisis, _storyFlags);
+        if (crisisCallback is not null && TryQueueNarrativeTrigger(crisisCallback))
+        {
+            CityCrisis.MarkCallbackQueued();
+        }
     }
 
     private CrimeModifierEvaluation EvaluateCrimeModifiers(CrimeAttempt attempt)

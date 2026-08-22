@@ -11,6 +11,8 @@ public sealed record CityCrisisStatus(
     int CooperativeCondition,
     CityCrisisDecision Decision,
     CityCrisisResolution Resolution,
+    CityCrisisDecision PendingCallbackDecision,
+    int CallbackDueDay,
     string ImmediateObligation);
 
 public static class CityCrisisStatusQuery
@@ -29,6 +31,11 @@ public static class CityCrisisStatusQuery
             _ => "Listen for the next cooperative update."
         };
 
+        if (crisis.PendingCallbackDecision != CityCrisisDecision.None && !crisis.CallbackQueued)
+        {
+            obligation = $"A consequence of the {crisis.PendingCallbackDecision} decision is due on day {crisis.CallbackDueDay}.";
+        }
+
         return new CityCrisisStatus(
             crisis.Phase,
             crisis.BeatIndex,
@@ -37,6 +44,8 @@ public static class CityCrisisStatusQuery
             crisis.CooperativeCondition,
             crisis.Decision,
             crisis.Resolution,
+            crisis.PendingCallbackDecision,
+            crisis.CallbackDueDay,
             obligation);
     }
 }

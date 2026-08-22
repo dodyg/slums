@@ -21,4 +21,36 @@ public static class CityCrisisPlanner
 
         return Beats.FirstOrDefault(beat => beat.Index == state.BeatIndex && currentDay >= beat.EarliestDay && state.Resolution == CityCrisisResolution.Unresolved);
     }
+
+    /// <summary>Returns the one delayed callback created by the current crisis decision.</summary>
+    public static NarrativeSceneTrigger? GetDelayedCallback(
+        int currentDay,
+        CityCrisisState state,
+        IReadOnlySet<string> storyFlags)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(storyFlags);
+
+        if (!state.HasDueCallback(currentDay))
+        {
+            return null;
+        }
+
+        return state.PendingCallbackDecision switch
+        {
+            CityCrisisDecision.EvidenceAppeal => CreateCallback(StoryFlags.CrisisEvidenceCallbackSeen, NarrativeKnots.CrisisEvidenceCallback, storyFlags),
+            CityCrisisDecision.MutualAid => CreateCallback(StoryFlags.CrisisMutualAidCallbackSeen, NarrativeKnots.CrisisMutualAidCallback, storyFlags),
+            CityCrisisDecision.Diversion => CreateCallback(StoryFlags.CrisisDiversionCallbackSeen, NarrativeKnots.CrisisDiversionCallback, storyFlags),
+            CityCrisisDecision.PublicPressure => CreateCallback(StoryFlags.CrisisPublicPressureCallbackSeen, NarrativeKnots.CrisisPublicPressureCallback, storyFlags),
+            _ => null
+        };
+    }
+
+    private static NarrativeSceneTrigger? CreateCallback(
+        string flagName,
+        string knotName,
+        IReadOnlySet<string> storyFlags)
+    {
+        return storyFlags.Contains(flagName) ? null : new NarrativeSceneTrigger(flagName, knotName);
+    }
 }

@@ -43,4 +43,19 @@ internal sealed class CityCrisisStateTests
         state.ChooseDecision(CityCrisisDecision.None).Should().BeFalse();
         state.Resolve(CityCrisisResolution.AccessRestricted).Should().BeFalse();
     }
+
+    [Test]
+    public void Decision_SchedulesDelayedCallback()
+    {
+        var state = new CityCrisisState();
+        state.Restore(2, 0, 0, 70, CityCrisisDecision.None, CityCrisisResolution.Unresolved);
+
+        state.ChooseDecision(CityCrisisDecision.MutualAid, currentDay: 12).Should().BeTrue();
+        state.HasDueCallback(14).Should().BeFalse();
+        state.HasDueCallback(15).Should().BeTrue();
+        state.PendingCallbackDecision.Should().Be(CityCrisisDecision.MutualAid);
+
+        state.MarkCallbackQueued();
+        state.HasDueCallback(16).Should().BeFalse();
+    }
 }

@@ -107,6 +107,11 @@ public static class StoryFlags
     public const string DebtRumorWarningSeen = "debt_rumor_warning_seen";
     public const string DebtCommunityCircleSeen = "debt_community_circle_seen";
 
+    public const string CrisisEvidenceCallbackSeen = "crisis_evidence_callback_seen";
+    public const string CrisisMutualAidCallbackSeen = "crisis_mutual_aid_callback_seen";
+    public const string CrisisDiversionCallbackSeen = "crisis_diversion_callback_seen";
+    public const string CrisisPublicPressureCallbackSeen = "crisis_public_pressure_callback_seen";
+
     public static IReadOnlyList<string> GetCrimeRouteAftermathFlags(CrimeType crimeType)
     {
         return crimeType switch

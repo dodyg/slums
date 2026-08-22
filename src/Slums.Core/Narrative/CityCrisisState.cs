@@ -9,6 +9,10 @@ public sealed class CityCrisisState
     public int CooperativeCondition { get; private set; } = 70;
     public CityCrisisDecision Decision { get; private set; }
     public CityCrisisResolution Resolution { get; private set; }
+    public int DecisionDay { get; private set; }
+    public int CallbackDueDay { get; private set; }
+    public CityCrisisDecision PendingCallbackDecision { get; private set; }
+    public bool CallbackQueued { get; private set; }
 
     public CityCrisisPhase Phase => Resolution != CityCrisisResolution.Unresolved
         ? CityCrisisPhase.Resolved
@@ -53,7 +57,7 @@ public sealed class CityCrisisState
         return true;
     }
 
-    public bool ChooseDecision(CityCrisisDecision decision)
+    public bool ChooseDecision(CityCrisisDecision decision, int currentDay = 0)
     {
         if (decision == CityCrisisDecision.None || Phase is CityCrisisPhase.NotDiscovered or CityCrisisPhase.Resolved)
         {
@@ -61,7 +65,25 @@ public sealed class CityCrisisState
         }
 
         Decision = decision;
+        DecisionDay = Math.Max(0, currentDay);
+        CallbackDueDay = Math.Max(0, currentDay + 3);
+        PendingCallbackDecision = decision;
+        CallbackQueued = false;
         return true;
+    }
+
+    /// <summary>Returns whether the selected route has a callback ready to enter.</summary>
+    public bool HasDueCallback(int currentDay)
+    {
+        return PendingCallbackDecision != CityCrisisDecision.None
+            && !CallbackQueued
+            && currentDay >= CallbackDueDay
+            && Resolution == CityCrisisResolution.Unresolved;
+    }
+
+    public void MarkCallbackQueued()
+    {
+        CallbackQueued = true;
     }
 
     public bool Resolve(CityCrisisResolution resolution)
@@ -83,7 +105,17 @@ public sealed class CityCrisisState
         return true;
     }
 
-    public void Restore(int beatIndex, int evidenceCollected, int resourcesCommitted, int cooperativeCondition, CityCrisisDecision decision, CityCrisisResolution resolution)
+    public void Restore(
+        int beatIndex,
+        int evidenceCollected,
+        int resourcesCommitted,
+        int cooperativeCondition,
+        CityCrisisDecision decision,
+        CityCrisisResolution resolution,
+        int decisionDay = 0,
+        int callbackDueDay = 0,
+        CityCrisisDecision pendingCallbackDecision = CityCrisisDecision.None,
+        bool callbackQueued = false)
     {
         BeatIndex = Math.Clamp(beatIndex, 0, 6);
         EvidenceCollected = Math.Clamp(evidenceCollected, 0, 5);
@@ -91,5 +123,9 @@ public sealed class CityCrisisState
         CooperativeCondition = Math.Clamp(cooperativeCondition, 0, 100);
         Decision = decision;
         Resolution = resolution;
+        DecisionDay = Math.Max(0, decisionDay);
+        CallbackDueDay = Math.Max(0, callbackDueDay);
+        PendingCallbackDecision = pendingCallbackDecision;
+        CallbackQueued = callbackQueued;
     }
 }

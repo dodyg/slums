@@ -105,3 +105,32 @@ Day thirty arrives with no clean victory. The office has answered, the roof has 
     # CRISIS_RESOLUTION:AccessRestricted
     # MESSAGE:Your household gains certainty while the wider block carries the shortage.
     -> DONE
+
+=== crisis_evidence_callback ===
+Three days after you file the appeal, the clerk calls back with a question about a meter reading. The question is not a victory. It is proof that a person opened the file, which is sometimes the first public service available.
+
+# CRISIS_EVIDENCE:1
+# MESSAGE:The formal appeal creates a human follow-up. The cooperative must answer with more evidence.
+-> DONE
+
+=== crisis_mutual_aid_callback ===
+The pump rota has become a real document. People add names, cross out hours, and argue over medicine storage without pretending the arguments are a failure. The cooperative is learning to govern the shortage in public.
+
+# CRISIS_RESOURCES:2
+# MESSAGE:The mutual-aid roster keeps working, but it asks for another small contribution.
+-> DONE
+
+=== crisis_diversion_callback ===
+The diverted access key works for six days before the allocation model flags a new irregularity. Nobody calls it a betrayal. They call it a trace, and everybody understands that traces have owners.
+
+# POLICE:3
+# CRISIS_RESOURCES:1
+# MESSAGE:The shortcut buys time and leaves another mark on the neighborhood's record.
+-> DONE
+
+=== crisis_public_pressure_callback ===
+The public statements reach the office and the neighborhood at once. A local reporter asks for names. Salma wants the medicine evidence visible; Mahmoud wants the roof's residents protected from becoming a story.
+
+# STRESS:3
+# MESSAGE:Public pressure makes the cooperative harder to ignore and harder to keep private.
+-> DONE

@@ -8,6 +8,10 @@ public static class NarrativeKnots
     public const string CrisisHeatEmergency = "crisis_heat_emergency";
     public const string CrisisCommitment = "crisis_commitment";
     public const string CrisisResolution = "crisis_resolution";
+    public const string CrisisEvidenceCallback = "crisis_evidence_callback";
+    public const string CrisisMutualAidCallback = "crisis_mutual_aid_callback";
+    public const string CrisisDiversionCallback = "crisis_diversion_callback";
+    public const string CrisisPublicPressureCallback = "crisis_public_pressure_callback";
     public const string CrimeFirstSuccess = "crime_first_success";
     public const string CrimeWarning = "crime_warning";
     public const string MotherClinicFirstVisit = "mother_clinic_first_visit";

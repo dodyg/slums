@@ -11,6 +11,10 @@ public sealed record GameSessionCrisisSnapshot
     public int CooperativeCondition { get; init; } = 70;
     public CityCrisisDecision Decision { get; init; }
     public CityCrisisResolution Resolution { get; init; }
+    public int DecisionDay { get; init; }
+    public int CallbackDueDay { get; init; }
+    public CityCrisisDecision PendingCallbackDecision { get; init; }
+    public bool CallbackQueued { get; init; }
 
     public static GameSessionCrisisSnapshot Capture(GameSession gameSession)
     {
@@ -23,13 +27,27 @@ public sealed record GameSessionCrisisSnapshot
             ResourcesCommitted = gameSession.CityCrisis.ResourcesCommitted,
             CooperativeCondition = gameSession.CityCrisis.CooperativeCondition,
             Decision = gameSession.CityCrisis.Decision,
-            Resolution = gameSession.CityCrisis.Resolution
+            Resolution = gameSession.CityCrisis.Resolution,
+            DecisionDay = gameSession.CityCrisis.DecisionDay,
+            CallbackDueDay = gameSession.CityCrisis.CallbackDueDay,
+            PendingCallbackDecision = gameSession.CityCrisis.PendingCallbackDecision,
+            CallbackQueued = gameSession.CityCrisis.CallbackQueued
         };
     }
 
     public void Restore(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
-        gameSession.RestoreCityCrisisState(BeatIndex, EvidenceCollected, ResourcesCommitted, CooperativeCondition, Decision, Resolution);
+        gameSession.RestoreCityCrisisState(
+            BeatIndex,
+            EvidenceCollected,
+            ResourcesCommitted,
+            CooperativeCondition,
+            Decision,
+            Resolution,
+            DecisionDay,
+            CallbackDueDay,
+            PendingCallbackDecision,
+            CallbackQueued);
     }
 }
