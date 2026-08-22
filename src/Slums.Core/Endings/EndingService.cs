@@ -7,14 +7,9 @@ namespace Slums.Core.Endings;
 
 public static class EndingService
 {
-    public static EndingId? CheckEndings(GameSession gameState)
+    public static EndingId? CheckFailureEndings(GameSession gameState)
     {
         ArgumentNullException.ThrowIfNull(gameState);
-
-        var networkTrust = gameState.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust +
-            gameState.Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust +
-            gameState.Relationships.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust +
-            gameState.Relationships.GetNpcRelationship(NpcId.FenceHanan).Trust;
 
         if (!gameState.Player.Household.MotherAlive)
         {
@@ -46,38 +41,125 @@ public static class EndingService
             return EndingId.Destitution;
         }
 
-        if (gameState.DaysSurvived >= 30 &&
+        return null;
+    }
+
+    public static IReadOnlyList<EndingId> GetAvailableEndings(GameSession gameState)
+    {
+        ArgumentNullException.ThrowIfNull(gameState);
+
+        if (CheckFailureEndings(gameState) is not null || gameState.IsGameOver)
+        {
+            return [];
+        }
+
+        var endings = new List<EndingId>();
+        if (CanChooseHonestStability(gameState))
+        {
+            endings.Add(EndingId.StabilityHonestWork);
+        }
+
+        if (CanChooseNetworkShelter(gameState))
+        {
+            endings.Add(EndingId.NetworkShelter);
+        }
+
+        if (CanChooseLuxor(gameState))
+        {
+            endings.Add(EndingId.QuitTheLuxorDream);
+        }
+
+        if (CanChooseCrimeKingpin(gameState))
+        {
+            endings.Add(EndingId.CrimeKingpin);
+        }
+
+        return endings;
+    }
+
+    public static EndingId? CheckEndings(GameSession gameState)
+    {
+        ArgumentNullException.ThrowIfNull(gameState);
+
+        if (CheckFailureEndings(gameState) is { } failure)
+        {
+            return failure;
+        }
+
+        var available = GetAvailableEndings(gameState);
+        return available.Count > 0 ? available[0] : null;
+    }
+
+    public static string GetChoiceLabel(EndingId endingId)
+    {
+        return endingId switch
+        {
+            EndingId.StabilityHonestWork => "Commit to honest stability",
+            EndingId.NetworkShelter => "Accept community shelter",
+            EndingId.QuitTheLuxorDream => "Leave for Luxor",
+            EndingId.CrimeKingpin => "Deepen criminal power",
+            _ => throw new ArgumentOutOfRangeException(nameof(endingId), endingId, "Only non-failure endings can be chosen.")
+        };
+    }
+
+    public static string GetChoiceRequirements(EndingId endingId)
+    {
+        return endingId switch
+        {
+            EndingId.StabilityHonestWork => "30 days, 6 honest shifts, 180 LE earned, and five clean days.",
+            EndingId.NetworkShelter => "30 days, 140 combined support trust, and 120 LE saved.",
+            EndingId.QuitTheLuxorDream => "30 days, 550 LE for the train and first weeks, low crime, and a healthy mother.",
+            EndingId.CrimeKingpin => "1,000 LE in crime earnings, 8 crimes, faction control, and standing above 50.",
+            _ => throw new ArgumentOutOfRangeException(nameof(endingId), endingId, "Only non-failure endings can be chosen.")
+        };
+    }
+
+    private static bool CanChooseHonestStability(GameSession gameState)
+    {
+        return gameState.DaysSurvived >= 30 &&
             gameState.TotalHonestWorkEarnings >= 180 &&
+            gameState.HonestShiftsCompleted >= 6 &&
             gameState.Player.Household.MotherAlive &&
             gameState.PolicePressure < 60 &&
-            (gameState.LastCrimeDay == 0 || gameState.Clock.Day - gameState.LastCrimeDay >= 5))
-        {
-            return EndingId.StabilityHonestWork;
-        }
+            HasBeenCleanForFiveDays(gameState);
+    }
 
-        if (gameState.DaysSurvived >= 30 &&
-            networkTrust >= 140 &&
+    private static bool CanChooseNetworkShelter(GameSession gameState)
+    {
+        return gameState.DaysSurvived >= 30 &&
+            GetNetworkTrust(gameState) >= 140 &&
             gameState.Player.Household.MotherAlive &&
-            gameState.Player.Stats.Money >= 120)
-        {
-            return EndingId.NetworkShelter;
-        }
+            gameState.Player.Stats.Money >= 120;
+    }
 
-        if (gameState.DaysSurvived >= 30 &&
-            gameState.Player.Stats.Money > 500 &&
+    private static bool CanChooseLuxor(GameSession gameState)
+    {
+        return gameState.DaysSurvived >= 30 &&
+            gameState.Player.Stats.Money >= 550 &&
             gameState.CrimesCommitted <= 3 &&
-            gameState.Player.Household.MotherHealth > 60)
-        {
-            return EndingId.QuitTheLuxorDream;
-        }
+            gameState.Player.Household.MotherHealth > 60 &&
+            HasBeenCleanForFiveDays(gameState);
+    }
 
-        if (gameState.TotalCrimeEarnings >= 1000 &&
-            gameState.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation > 50)
-        {
-            return EndingId.CrimeKingpin;
-        }
+    private static bool CanChooseCrimeKingpin(GameSession gameState)
+    {
+        var imbabaStanding = gameState.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation;
+        var controlsTerritory = gameState.Territory.Districts.Values.Any(control => control.ControllingFaction == FactionId.ImbabaCrew);
+        return gameState.TotalCrimeEarnings >= 1000 && gameState.CrimesCommitted >= 8 && imbabaStanding > 50 && controlsTerritory;
+    }
 
-        return null;
+    private static int GetNetworkTrust(GameSession gameState)
+    {
+        return gameState.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust +
+            gameState.Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust +
+            gameState.Relationships.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust +
+            gameState.Relationships.GetNpcRelationship(NpcId.FenceHanan).Trust;
+    }
+
+    private static bool HasBeenCleanForFiveDays(GameSession gameState)
+    {
+        var elapsedDays = Math.Max(gameState.DaysSurvived, gameState.Clock.Day);
+        return gameState.LastCrimeDay == 0 || elapsedDays - gameState.LastCrimeDay >= 5;
     }
 
     public static string GetMessage(EndingId endingId)

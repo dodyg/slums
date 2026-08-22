@@ -210,6 +210,29 @@ public sealed class GameSession : INarrativeOutcomeTarget
         return opportunities;
     }
 
+    public IReadOnlyList<EndingId> GetAvailableEndingChoices()
+    {
+        return EndingService.GetAvailableEndings(this);
+    }
+
+    public bool TryChooseEnding(EndingId endingId)
+    {
+        var before = CaptureStats();
+        if (!EndingService.GetAvailableEndings(this).Contains(endingId))
+        {
+            RaiseEvent("That long-term path is not ready yet.");
+            RecordMutation(MutationCategories.GuardRejected, "ChooseEnding", before, CaptureStats(), $"Ending {endingId} is not available");
+            return false;
+        }
+
+        EndingId = endingId;
+        IsGameOver = true;
+        GameOverReason = EndingService.GetMessage(endingId);
+        PendingEndingKnot = EndingService.GetInkKnot(this, endingId);
+        RecordMutation(MutationCategories.EndingTriggered, "ChooseEnding", before, CaptureStats(), $"Ending chosen: {endingId}");
+        return true;
+    }
+
     public void AdvanceTime(int minutes)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(minutes);
@@ -2991,7 +3014,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
     private void CheckGameOverConditions()
     {
-        var ending = EndingService.CheckEndings(this);
+        var ending = EndingService.CheckFailureEndings(this);
         if (ending is null)
         {
             return;

@@ -2,6 +2,7 @@ using SadConsole;
 using Slums.Application.Activities;
 using Slums.Application.HouseholdAssets;
 using Slums.Application.Investments;
+using Slums.Application.Endings;
 using Slums.Core.State;
 
 namespace Slums.Game.Screens;
@@ -46,6 +47,7 @@ internal sealed class GameScreenNavigator
             GameActionId.Travel => ShowTravelMenu(),
             GameActionId.Phone => ShowPhoneMenu(),
             GameActionId.News => ShowNewsMenu(),
+            GameActionId.Endings => ShowEndingChoices(),
             GameActionId.SaveGame => ShowSaveMenu(),
             _ => false
         };
@@ -135,6 +137,20 @@ internal sealed class GameScreenNavigator
     public bool ShowEventLogViewer()
     {
         NavigateTo(new EventLogViewerScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _parentScreen, _parentScreen.GetEventLogEntries()));
+        return true;
+    }
+
+    private bool ShowEndingChoices()
+    {
+        var context = EndingChoiceMenuContext.Create(_gameState);
+        var options = EndingChoiceMenuQuery.GetOptions(context);
+        if (options.Count == 0)
+        {
+            _parentScreen.AddEventLogEntry("No long-term path is ready yet.");
+            return false;
+        }
+
+        NavigateTo(new EndingChoiceScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, options, _parentScreen));
         return true;
     }
 

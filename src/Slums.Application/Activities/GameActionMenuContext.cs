@@ -15,7 +15,8 @@ public sealed record GameActionMenuContext(
     bool PhoneIsOperational,
     bool HasPhoneMessages,
     bool PhoneNeedsCredit,
-    bool HasUndeliveredTips)
+    bool HasUndeliveredTips,
+    bool HasEndingChoices)
 {
     public static GameActionMenuContext Create(GameSession gameSession)
     {
@@ -33,6 +34,7 @@ public sealed record GameActionMenuContext(
             gameSession.Phone.IsOperational(),
             gameSession.PhoneMessages.GetUnrespondedCount(gameSession.Clock.Day) > 0,
             gameSession.Phone.IsOperational() == false && gameSession.Phone.HasPhone && !gameSession.Phone.PhoneLost,
-            gameSession.Tips.GetUndeliveredTips(gameSession.Clock.Day).Count > 0);
+            gameSession.Tips.GetUndeliveredTips(gameSession.Clock.Day).Count > 0,
+            gameSession.GetAvailableEndingChoices().Count > 0);
     }
 }

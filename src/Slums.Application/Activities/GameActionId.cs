@@ -22,5 +22,6 @@ public enum GameActionId
     HomeImprovement,
     CommunityEvent,
     Phone,
-    News
+    News,
+    Endings
 }
