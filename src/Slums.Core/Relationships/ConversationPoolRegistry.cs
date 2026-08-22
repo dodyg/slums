@@ -2,6 +2,8 @@ namespace Slums.Core.Relationships;
 
 public static class ConversationPoolRegistry
 {
+    private const int ConversationPoolSize = 4;
+
     public static IReadOnlyList<string> GetConversationPool(NpcId npcId, string context) => npcId switch
     {
         NpcId.LandlordHajjMahmoud => GetLandlordPool(context),
@@ -186,8 +188,9 @@ public static class ConversationPoolRegistry
 
     private static List<string> GeneratePool(string prefix, int count)
     {
-        var pool = new List<string>(count);
-        for (var i = 1; i <= count; i++)
+        var effectiveCount = Math.Min(count, ConversationPoolSize);
+        var pool = new List<string>(effectiveCount);
+        for (var i = 1; i <= effectiveCount; i++)
         {
             pool.Add($"{prefix}_{i}");
         }

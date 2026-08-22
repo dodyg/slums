@@ -180,7 +180,7 @@ internal sealed class NpcRegistryTests
     }
 
     [Test]
-    public void ConversationPoolRegistry_ShouldHave100ConversationsPerNpcContext()
+    public void ConversationPoolRegistry_ShouldHaveFourAuthoredConversationsPerNpcContext()
     {
         foreach (NpcId npcId in Enum.GetValues<NpcId>())
         {
@@ -188,7 +188,7 @@ internal sealed class NpcRegistryTests
             foreach (var context in contexts)
             {
                 var pool = ConversationPoolRegistry.GetConversationPool(npcId, context);
-                pool.Count.Should().BeGreaterOrEqualTo(90);
+                pool.Count.Should().Be(4);
             }
         }
     }
