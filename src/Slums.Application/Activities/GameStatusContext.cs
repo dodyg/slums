@@ -43,13 +43,15 @@ public sealed record GameStatusContext(
     IReadOnlySet<string> StoryFlags,
     IReadOnlyList<NewsFlashDefinition> ActiveNews,
     IReadOnlyCollection<InfrastructureServiceState> InfrastructureServices,
-    IReadOnlyDictionary<string, int> Inventory)
+    IReadOnlyDictionary<string, int> Inventory,
+    SurvivalForecast SurvivalForecast)
 {
     public static GameStatusContext Create(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
 
         var clinicStatus = gameSession.GetCurrentLocationClinicStatus();
+        var survivalForecast = Activities.SurvivalForecast.Create(gameSession);
 
         return new GameStatusContext(
             gameSession.Clock,
@@ -83,7 +85,8 @@ public sealed record GameStatusContext(
     gameSession.StoryFlags.ToHashSet(StringComparer.Ordinal),
     gameSession.GetActiveNewsDefinitions(),
     gameSession.Infrastructure.Services,
-    gameSession.Inventory.Quantities);
+    gameSession.Inventory.Quantities,
+    survivalForecast);
     }
 
     public bool HasStoryFlag(string flag)

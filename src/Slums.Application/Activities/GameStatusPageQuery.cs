@@ -50,6 +50,11 @@ public sealed class GameStatusPageQuery
                 : "Street cat encounter: none waiting right now."
         };
 
+        var forecast = context.SurvivalForecast;
+        lines.Add($"Morning forecast: rent {forecast.RentDueToday} LE | food {forecast.FoodBundleCost} LE/{forecast.MealsPerFoodBundle} meals | transport reserve {forecast.TransportReserve} LE");
+        lines.Add($"Medicine: {forecast.MedicineBundleCost} LE/{forecast.DosesPerMedicineBundle} doses | cash runway {forecast.CashRunwayDays}d ({forecast.CashRunwayAfterMedicineDays}d after medicine reserve)");
+        lines.Add($"Cash: {forecast.CashOnHand} LE | food on hand {forecast.FoodMealsOnHand} meals | medicine on hand {forecast.MedicineDosesOnHand} doses");
+
         if (assets.Plants.Count > 0)
         {
             foreach (var grouping in assets.Plants

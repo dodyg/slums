@@ -132,6 +132,23 @@ internal sealed class GameStatusPageQueryTests
     }
 
     [Test]
+    public void GetPages_ShouldExposeMorningSurvivalForecast()
+    {
+        var query = new GameStatusPageQuery();
+        var gameState = new GameSession();
+        gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+
+        var household = query.GetPages(GameStatusContext.Create(gameState))
+            .Single(static page => page.Title == "Household");
+
+        household.Lines.Should().Contain(static line => line.Contains("Morning forecast: rent 20 LE", StringComparison.Ordinal));
+        household.Lines.Should().Contain(static line => line.Contains("food 13 LE/3 meals", StringComparison.Ordinal));
+        household.Lines.Should().Contain(static line => line.Contains("transport reserve 2 LE", StringComparison.Ordinal));
+        household.Lines.Should().Contain(static line => line.Contains("Medicine: 50 LE/2 doses", StringComparison.Ordinal));
+        household.Lines.Should().Contain(static line => line.Contains("cash runway 1d", StringComparison.Ordinal));
+    }
+
+    [Test]
     public void GetPages_ShouldExposeProgressTrajectoryHints()
     {
         var query = new GameStatusPageQuery();
