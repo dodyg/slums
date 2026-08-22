@@ -16,6 +16,8 @@ public sealed record TalkNpcContext(
     NarrativeSceneState SceneState,
     IReadOnlyDictionary<NpcId, NpcAvailability> Availability)
 {
+    public Random Random { get; init; } = Random.Shared;
+
     public static TalkNpcContext Create(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
@@ -29,6 +31,9 @@ public sealed record TalkNpcContext(
             gameSession.CrimesCommitted,
             gameSession.PolicePressure,
             NarrativeSceneState.Create(gameSession),
-            gameSession.GetNpcAvailability().ToDictionary(static item => item.Npc));
+            gameSession.GetNpcAvailability().ToDictionary(static item => item.Npc))
+        {
+            Random = gameSession.SharedRandom
+        };
     }
 }

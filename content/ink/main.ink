@@ -25,6 +25,15 @@ VAR active_news_count = 0
 VAR infrastructure_disruption_count = 0
 VAR mona_trust = 0
 VAR salma_trust = 0
+VAR conversation_variant = ""
+VAR conversation_opener = 0
+VAR conversation_body = 0
+VAR crisis_phase = "NotDiscovered"
+VAR crisis_evidence = 0
+VAR crisis_resources = 0
+VAR crisis_condition = 70
+VAR crisis_decision = "None"
+VAR crisis_resolution_state = "Unresolved"
 
 INCLUDE crime.ink
 INCLUDE events.ink
@@ -34,6 +43,7 @@ INCLUDE weather.ink
 INCLUDE seasons.ink
 INCLUDE community.ink
 INCLUDE debt.ink
+INCLUDE crisis.ink
 
 === intro_medical ===
 Cairo, 2060.

@@ -138,6 +138,33 @@ public sealed class RelationshipState
         _npcRelationships[npcId] = existing with { SeenConversationKnots = knotSet };
     }
 
+    public void RecordSeenConversationVariant(NpcId npcId, string variantId)
+    {
+        if (string.IsNullOrWhiteSpace(variantId))
+        {
+            return;
+        }
+
+        var existing = GetNpcRelationship(npcId);
+        var variantIds = new HashSet<string>(existing.SeenConversationVariantIds, StringComparer.Ordinal) { variantId };
+        _npcRelationships[npcId] = existing with { SeenConversationVariantIds = variantIds };
+    }
+
+    public void RestoreConversationVariantHistory(NpcId npcId, IEnumerable<string> variantIds)
+    {
+        ArgumentNullException.ThrowIfNull(variantIds);
+
+        var existing = GetNpcRelationship(npcId);
+        var variantSet = new HashSet<string>(variantIds.Where(static id => !string.IsNullOrWhiteSpace(id)), StringComparer.Ordinal);
+        _npcRelationships[npcId] = existing with { SeenConversationVariantIds = variantSet };
+    }
+
+    public bool HasSeenConversationVariant(NpcId npcId, string variantId)
+    {
+        return !string.IsNullOrWhiteSpace(variantId)
+            && GetNpcRelationship(npcId).SeenConversationVariantIds.Contains(variantId);
+    }
+
     public bool HasSeenConversation(NpcId npcId, string knotName)
     {
         if (string.IsNullOrWhiteSpace(knotName))

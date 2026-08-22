@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Slums.Application.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.Economy;
+using Slums.Core.Narrative;
 
 namespace Slums.Narrative.Ink;
 
@@ -222,6 +223,34 @@ public sealed class InkNarrativeService : INarrativeService
                 _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [new RamadanFastingEffect(isFasting)] });
                 return;
 
+            case "CRISIS_EVIDENCE":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [new CrisisEvidenceEffect(ParsePositiveIntEffect(tag, valueStr))] });
+                return;
+
+            case "CRISIS_RESOURCES":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [new CrisisResourcesEffect(ParsePositiveIntEffect(tag, valueStr))] });
+                return;
+
+            case "CRISIS_DECISION":
+                if (!Enum.TryParse<CityCrisisDecision>(valueStr, out var decision) || !Enum.IsDefined(decision) || decision == CityCrisisDecision.None)
+                {
+                    throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': unknown crisis decision '{valueStr}'.");
+                }
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [new CrisisDecisionEffect(decision)] });
+                return;
+
+            case "CRISIS_RESOLUTION":
+                if (!Enum.TryParse<CityCrisisResolution>(valueStr, out var resolution) || !Enum.IsDefined(resolution) || resolution == CityCrisisResolution.Unresolved)
+                {
+                    throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': unknown crisis resolution '{valueStr}'.");
+                }
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [new CrisisResolutionEffect(resolution)] });
+                return;
+
+            case "POLICE":
+                _pendingOutcome = MergeOutcome(_pendingOutcome, new NarrativeOutcome { Effects = [new PolicePressureEffect(ParseIntEffect(tag, valueStr))] });
+                return;
+
             default:
                 // Not an effect tag; scene markers (e.g. weather/season tags) are ignored.
                 return;
@@ -233,6 +262,17 @@ public sealed class InkNarrativeService : INarrativeService
         if (!int.TryParse(valueStr, out var value))
         {
             throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected an integer value.");
+        }
+
+        return value;
+    }
+
+    private static int ParsePositiveIntEffect(string tag, string valueStr)
+    {
+        var value = ParseIntEffect(tag, valueStr);
+        if (value <= 0)
+        {
+            throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected a positive integer value.");
         }
 
         return value;
@@ -330,6 +370,23 @@ public sealed class InkNarrativeService : INarrativeService
         TrySetGlobalVariable(story, "infrastructure_disruption_count", sceneState.Infrastructure.Count);
         TrySetGlobalVariable(story, "mona_trust", sceneState.RelationshipTrust.GetValueOrDefault("NeighborMona"));
         TrySetGlobalVariable(story, "salma_trust", sceneState.RelationshipTrust.GetValueOrDefault("NurseSalma"));
+        TrySetGlobalVariable(story, "conversation_variant", sceneState.ConversationVariantId);
+
+        var variantParts = sceneState.ConversationVariantId.Split('_', StringSplitOptions.RemoveEmptyEntries);
+        if (variantParts.Length >= 2
+            && int.TryParse(variantParts[^2], out var opener)
+            && int.TryParse(variantParts[^1], out var body))
+        {
+        TrySetGlobalVariable(story, "conversation_opener", opener);
+            TrySetGlobalVariable(story, "conversation_body", body);
+        }
+
+        TrySetGlobalVariable(story, "crisis_phase", sceneState.CrisisPhase.ToString());
+        TrySetGlobalVariable(story, "crisis_evidence", sceneState.CrisisEvidenceCollected);
+        TrySetGlobalVariable(story, "crisis_resources", sceneState.CrisisResourcesCommitted);
+        TrySetGlobalVariable(story, "crisis_condition", sceneState.CrisisCooperativeCondition);
+        TrySetGlobalVariable(story, "crisis_decision", sceneState.CrisisDecision.ToString());
+        TrySetGlobalVariable(story, "crisis_resolution_state", sceneState.CrisisResolution.ToString());
 
         if (!string.IsNullOrWhiteSpace(sceneState.Background))
         {

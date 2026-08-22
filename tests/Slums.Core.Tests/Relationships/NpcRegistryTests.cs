@@ -192,4 +192,41 @@ internal sealed class NpcRegistryTests
             }
         }
     }
+
+    [Test]
+    public void ConversationPoolRegistry_ShouldExposeOneHundredStableVariantsPerContext()
+    {
+        foreach (NpcId npcId in Enum.GetValues<NpcId>())
+        {
+            var variants = ConversationPoolRegistry.GetConversationVariantPool(npcId, "default");
+
+            variants.Should().HaveCount(ConversationPoolRegistry.ConversationVariantCount);
+            variants.Should().OnlyHaveUniqueItems();
+            variants.Should().AllSatisfy(variant => variant.Should().MatchRegex("_[1-9][0-9]*_[1-9][0-9]*$"));
+        }
+    }
+
+    [Test]
+    public void GetConversationVariantId_ShouldNotRepeatUntilDeckIsExhausted()
+    {
+        var state = new RelationshipState();
+        var selected = new HashSet<string>(StringComparer.Ordinal);
+
+        for (var index = 0; index < ConversationPoolRegistry.ConversationVariantCount; index++)
+        {
+            var variant = NpcRegistry.GetConversationVariantId(
+                NpcId.NeighborMona,
+                state,
+                policePressure: 0,
+                currentDay: index + 1,
+                honestShiftsCompleted: 0,
+                crimesCommitted: 0,
+                random: new Random(index));
+
+            selected.Add(variant).Should().BeTrue();
+            state.RecordSeenConversationVariant(NpcId.NeighborMona, variant);
+        }
+
+        selected.Should().HaveCount(ConversationPoolRegistry.ConversationVariantCount);
+    }
 }

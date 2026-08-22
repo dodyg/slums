@@ -37,6 +37,15 @@ public static class InkStoryCatalog
             , ["infrastructure_disruption_count"] = typeof(int)
             , ["mona_trust"] = typeof(int)
             , ["salma_trust"] = typeof(int)
+            , ["conversation_variant"] = typeof(string)
+            , ["conversation_opener"] = typeof(int)
+            , ["conversation_body"] = typeof(int)
+            , ["crisis_phase"] = typeof(string)
+            , ["crisis_evidence"] = typeof(int)
+            , ["crisis_resources"] = typeof(int)
+            , ["crisis_condition"] = typeof(int)
+            , ["crisis_decision"] = typeof(string)
+            , ["crisis_resolution_state"] = typeof(string)
         };
 
     /// <summary>Gets the gameplay globals that every compiled story must declare.</summary>

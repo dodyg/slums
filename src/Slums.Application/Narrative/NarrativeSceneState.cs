@@ -1,5 +1,6 @@
 using Slums.Core.State;
 using Slums.Core.World;
+using Slums.Core.Narrative;
 
 namespace Slums.Application.Narrative;
 
@@ -38,6 +39,13 @@ public sealed record NarrativeSceneState(
     public IReadOnlyList<string> OperationalRobots { get; init; } = [];
     public IReadOnlyList<string> ActiveNews { get; init; } = [];
     public IReadOnlyDictionary<string, string> Infrastructure { get; init; } = new Dictionary<string, string>();
+    public string ConversationVariantId { get; init; } = string.Empty;
+    public CityCrisisPhase CrisisPhase { get; init; }
+    public int CrisisEvidenceCollected { get; init; }
+    public int CrisisResourcesCommitted { get; init; }
+    public int CrisisCooperativeCondition { get; init; }
+    public CityCrisisDecision CrisisDecision { get; init; }
+    public CityCrisisResolution CrisisResolution { get; init; }
 
     public static NarrativeSceneState Create(GameSession gameSession)
     {
@@ -72,7 +80,13 @@ public sealed record NarrativeSceneState(
             ActiveNews = gameSession.GetActiveNewsDefinitions().Select(static news => news.Id).ToArray(),
             Infrastructure = gameSession.Infrastructure.Services
                 .Where(static service => service.IsActive)
-                .ToDictionary(static service => $"{service.District}:{service.Service}", static service => service.Severity.ToString())
+                .ToDictionary(static service => $"{service.District}:{service.Service}", static service => service.Severity.ToString()),
+            CrisisPhase = gameSession.CityCrisis.Phase,
+            CrisisEvidenceCollected = gameSession.CityCrisis.EvidenceCollected,
+            CrisisResourcesCommitted = gameSession.CityCrisis.ResourcesCommitted,
+            CrisisCooperativeCondition = gameSession.CityCrisis.CooperativeCondition,
+            CrisisDecision = gameSession.CityCrisis.Decision,
+            CrisisResolution = gameSession.CityCrisis.Resolution
         };
 
         return sceneState;

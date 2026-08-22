@@ -1,11 +1,12 @@
 using System.Text.Json;
 using Slums.Core.Relationships;
+using Slums.Core.Narrative;
 
 namespace Slums.Narrative.Ink;
 
 internal static class InkStoryValidator
 {
-    private static readonly string[] IntegerTags = ["MONEY", "HEALTH", "ENERGY", "HUNGER", "STRESS", "MOTHER_HEALTH", "FOOD", "RENT_PAYMENT", "RENT_GRACE_DAYS"];
+    private static readonly string[] IntegerTags = ["MONEY", "HEALTH", "ENERGY", "HUNGER", "STRESS", "MOTHER_HEALTH", "FOOD", "RENT_PAYMENT", "RENT_GRACE_DAYS", "POLICE"];
 
     public static void Validate(string json)
     {
@@ -82,6 +83,19 @@ internal static class InkStoryValidator
                     throw InvalidTag(tag, "expected true|false");
                 }
                 break;
+            case "CRISIS_EVIDENCE":
+            case "CRISIS_RESOURCES":
+                if (!int.TryParse(payload, out var crisisAmount) || crisisAmount <= 0)
+                {
+                    throw InvalidTag(tag, "expected a positive integer value");
+                }
+                break;
+            case "CRISIS_DECISION":
+                ValidateEnumValue<CityCrisisDecision>(tag, payload, CityCrisisDecision.None);
+                break;
+            case "CRISIS_RESOLUTION":
+                ValidateEnumValue<CityCrisisResolution>(tag, payload, CityCrisisResolution.Unresolved);
+                break;
             default:
                 if (IntegerTags.Contains(key, StringComparer.Ordinal) && !int.TryParse(payload, out _))
                 {
@@ -142,6 +156,15 @@ internal static class InkStoryValidator
         if (parts.Length != 2 || !Enum.TryParse<Slums.Core.Economy.DebtSource>(parts[0], out _) || !int.TryParse(parts[1], out var amount) || amount <= 0)
         {
             throw InvalidTag(tag, "expected 'DebtSource,positiveAmount'");
+        }
+    }
+
+    private static void ValidateEnumValue<TEnum>(string tag, string payload, TEnum invalidValue)
+        where TEnum : struct, Enum
+    {
+        if (!Enum.TryParse<TEnum>(payload, out var value) || !Enum.IsDefined(value) || EqualityComparer<TEnum>.Default.Equals(value, invalidValue))
+        {
+            throw InvalidTag(tag, $"unknown {typeof(TEnum).Name} value '{payload}'");
         }
     }
 

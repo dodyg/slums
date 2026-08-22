@@ -3,6 +3,7 @@ namespace Slums.Core.Relationships;
 public static class ConversationPoolRegistry
 {
     private const int ConversationPoolSize = 4;
+    public const int ConversationVariantCount = 100;
 
     public static IReadOnlyList<string> GetConversationPool(NpcId npcId, string context) => npcId switch
     {
@@ -21,6 +22,27 @@ public static class ConversationPoolRegistry
         NpcId.VendorTarek => GetTarekPool(context),
         _ => throw new ArgumentOutOfRangeException(nameof(npcId))
     };
+
+    public static IReadOnlyList<string> GetConversationVariantPool(NpcId npcId, string context)
+    {
+        var basePool = GetConversationPool(npcId, context);
+        if (basePool.Count == 0)
+        {
+            return [];
+        }
+
+        var prefix = basePool[0][..basePool[0].LastIndexOf('_')];
+        var variants = new List<string>(ConversationVariantCount);
+        for (var opener = 1; opener <= 10; opener++)
+        {
+            for (var body = 1; body <= 10; body++)
+            {
+                variants.Add($"{prefix}_{opener}_{body}");
+            }
+        }
+
+        return variants;
+    }
 
     public static string DetermineContext(NpcId npcId, NpcRelationship relationship, int policePressure, int currentDay, int honestShiftsCompleted, int crimesCommitted, int currentMoney, int motherHealth)
     {

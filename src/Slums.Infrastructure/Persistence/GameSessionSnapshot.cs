@@ -66,6 +66,8 @@ public sealed record GameSessionSnapshot
 
     public GameSessionInfrastructureSnapshot Infrastructure { get; init; } = new();
 
+    public GameSessionCrisisSnapshot CityCrisis { get; init; } = new();
+
     public GameSessionInventorySnapshot Inventory { get; init; } = new();
 
     /// <summary>
@@ -107,6 +109,7 @@ public sealed record GameSessionSnapshot
             Journal = gameSession.EventJournal.Entries.ToArray(),
             News = GameSessionNewsSnapshot.Capture(gameSession),
             Infrastructure = GameSessionInfrastructureSnapshot.Capture(gameSession),
+            CityCrisis = GameSessionCrisisSnapshot.Capture(gameSession),
             Inventory = GameSessionInventorySnapshot.Capture(gameSession),
             RandomState = gameSession.RandomState
         };
@@ -240,6 +243,7 @@ public sealed record GameSessionSnapshot
             gameSession.RestoreEventJournal(Journal);
             News.Restore(gameSession);
             Infrastructure.Restore(gameSession);
+            CityCrisis.Restore(gameSession);
             Inventory.Restore(gameSession);
 
             foreach (var npcId in Enum.GetValues<NpcId>())
@@ -255,6 +259,7 @@ public sealed record GameSessionSnapshot
                     relationship.WasHelped,
                     relationship.RecentContactCount);
                 gameSession.Relationships.RestoreConversationHistory(npcId, relationship.SeenConversationKnots);
+                gameSession.Relationships.RestoreConversationVariantHistory(npcId, relationship.SeenConversationVariantIds);
             }
 
             foreach (var factionId in Enum.GetValues<FactionId>())

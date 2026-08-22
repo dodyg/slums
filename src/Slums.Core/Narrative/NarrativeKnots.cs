@@ -2,6 +2,12 @@ namespace Slums.Core.Narrative;
 
 public static class NarrativeKnots
 {
+    public const string CrisisIntroduction = "crisis_introduction";
+    public const string CrisisClassification = "crisis_classification";
+    public const string CrisisAppeal = "crisis_appeal";
+    public const string CrisisHeatEmergency = "crisis_heat_emergency";
+    public const string CrisisCommitment = "crisis_commitment";
+    public const string CrisisResolution = "crisis_resolution";
     public const string CrimeFirstSuccess = "crime_first_success";
     public const string CrimeWarning = "crime_warning";
     public const string MotherClinicFirstVisit = "mother_clinic_first_visit";

@@ -112,4 +112,36 @@ public static class NpcRegistry
             : pool[rng.Next(pool.Count)];
 #pragma warning restore CA5394
     }
+
+    public static string GetConversationVariantId(
+        NpcId npcId,
+        RelationshipState relationshipState,
+        int policePressure,
+        int currentDay,
+        int honestShiftsCompleted,
+        int crimesCommitted,
+        int currentMoney = 100,
+        int motherHealth = 70,
+        Random? random = null)
+    {
+        ArgumentNullException.ThrowIfNull(relationshipState);
+
+        var relationship = relationshipState.GetNpcRelationship(npcId);
+        var context = ConversationPoolRegistry.DetermineContext(
+            npcId,
+            relationship,
+            policePressure,
+            currentDay,
+            honestShiftsCompleted,
+            crimesCommitted,
+            currentMoney,
+            motherHealth);
+        var pool = ConversationPoolRegistry.GetConversationVariantPool(npcId, context);
+        var available = pool.Where(variant => !relationship.SeenConversationVariantIds.Contains(variant)).ToList();
+        var rng = random ?? Random.Shared;
+
+#pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
+        return (available.Count > 0 ? available : pool)[rng.Next(available.Count > 0 ? available.Count : pool.Count)];
+#pragma warning restore CA5394
+    }
 }

@@ -92,6 +92,21 @@ public static class NarrativeSceneExtensions
                 case RamadanFastingEffect fasting:
                     state.SetRamadanFasting(fasting.IsFasting);
                     break;
+                case CrisisEvidenceEffect evidence:
+                    state.CollectCrisisEvidence(evidence.Amount);
+                    break;
+                case CrisisResourcesEffect resources:
+                    state.CommitCrisisResources(resources.Amount);
+                    break;
+                case CrisisDecisionEffect decision:
+                    state.ChooseCrisisDecision(decision.Decision);
+                    break;
+                case CrisisResolutionEffect resolution:
+                    state.ResolveCityCrisis(resolution.Resolution);
+                    break;
+                case PolicePressureEffect police:
+                    state.AdjustPolicePressure(police.Change);
+                    break;
                 default:
                     throw new InvalidOperationException($"Unknown narrative effect type: {effect.GetType().Name}");
             }

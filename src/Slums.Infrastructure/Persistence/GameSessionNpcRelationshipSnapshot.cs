@@ -23,6 +23,8 @@ public sealed record GameSessionNpcRelationshipSnapshot
 
     public Collection<string> SeenConversationKnots { get; init; } = [];
 
+    public Collection<string> SeenConversationVariantIds { get; init; } = [];
+
     public static GameSessionNpcRelationshipSnapshot Capture(NpcRelationship relationship)
     {
         ArgumentNullException.ThrowIfNull(relationship);
@@ -37,7 +39,8 @@ public sealed record GameSessionNpcRelationshipSnapshot
             WasEmbarrassed = relationship.WasEmbarrassed,
             WasHelped = relationship.WasHelped,
             RecentContactCount = relationship.RecentContactCount,
-            SeenConversationKnots = new Collection<string>([.. relationship.SeenConversationKnots])
+            SeenConversationKnots = new Collection<string>([.. relationship.SeenConversationKnots]),
+            SeenConversationVariantIds = new Collection<string>([.. relationship.SeenConversationVariantIds])
         };
     }
 }

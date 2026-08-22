@@ -24,7 +24,10 @@ internal sealed class TalkSceneRequestFactoryTests
         relationship.RecentContactCount.Should().Be(1);
         relationship.LastSeenDay.Should().Be(gameSession.Clock.Day);
         gameSession.Relationships.HasSeenConversation(NpcId.LandlordHajjMahmoud, request.KnotName).Should().BeTrue();
+        gameSession.Relationships.HasSeenConversationVariant(NpcId.LandlordHajjMahmoud, request.VariantId).Should().BeTrue();
+        request.VariantId.Should().NotBeNullOrWhiteSpace();
         request.SceneState.Day.Should().Be(gameSession.Clock.Day);
         request.SceneState.Money.Should().Be(gameSession.Player.Stats.Money);
+        request.SceneState.ConversationVariantId.Should().Be(request.VariantId);
     }
 }

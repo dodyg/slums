@@ -158,6 +158,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
     public TipState Tips { get; } = new();
     public NewsState News { get; } = new();
     public InfrastructureState Infrastructure { get; } = new();
+    public CityCrisisState CityCrisis { get; } = new();
     public InventoryState Inventory { get; } = new();
     private RamadanState _ramadanState = RamadanState.Inactive;
     public RamadanState RamadanState => _ramadanState;
@@ -527,6 +528,8 @@ public sealed class GameSession : INarrativeOutcomeTarget
             ResolveWeeklyEconomy(random ?? _sharedRandom);
         }
 
+        QueueCityCrisisBeat();
+
         Player.Nutrition.BeginNewDay();
         Player.Household.BeginNewDay();
         _trainedSkillsToday.Clear();
@@ -607,6 +610,37 @@ public sealed class GameSession : INarrativeOutcomeTarget
         ProcessDailyTips(random ?? _sharedRandom);
         CheckGameOverConditions();
         RecordMutation(MutationCategories.DayTransition, "EndDay", before, CaptureStats(), $"Day {CurrentDay} completed");
+    }
+
+    private void QueueCityCrisisBeat()
+    {
+        var beat = CityCrisisPlanner.GetNextBeat(Clock.Day, CityCrisis);
+        if (beat is null)
+        {
+            return;
+        }
+
+        CityCrisis.MarkBeatQueued();
+        QueueNarrativeScene(beat.KnotName);
+        RaiseEvent($"Crisis update: {beat.Phase}.");
+    }
+
+    public bool CollectCrisisEvidence(int amount = 1) => CityCrisis.CollectEvidence(amount);
+
+    public bool CommitCrisisResources(int amount) => CityCrisis.CommitResources(amount);
+
+    public bool ChooseCrisisDecision(CityCrisisDecision decision) => CityCrisis.ChooseDecision(decision);
+
+    public bool ResolveCityCrisis(CityCrisisResolution resolution) => CityCrisis.Resolve(resolution);
+
+    public void AdjustPolicePressure(int delta)
+    {
+        DistrictHeat.AddHeat(World.CurrentDistrict, delta);
+    }
+
+    public void RestoreCityCrisisState(int beatIndex, int evidenceCollected, int resourcesCommitted, int cooperativeCondition, CityCrisisDecision decision, CityCrisisResolution resolution)
+    {
+        CityCrisis.Restore(beatIndex, evidenceCollected, resourcesCommitted, cooperativeCondition, decision, resolution);
     }
 
     private void RollTerritoryEvents(Random random)

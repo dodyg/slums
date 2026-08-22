@@ -1,5 +1,6 @@
 using Slums.Core.Economy;
 using Slums.Core.Relationships;
+using Slums.Core.Narrative;
 
 namespace Slums.Core.State;
 
@@ -27,5 +28,10 @@ public interface INarrativeOutcomeTarget
     public void ApplyDebtPayment(DebtSource source, int amount);
     public void ExtendDebtDueDate(DebtSource source, int days);
     public void SetRamadanFasting(bool isFasting);
+    public bool CollectCrisisEvidence(int amount);
+    public bool CommitCrisisResources(int amount);
+    public bool ChooseCrisisDecision(CityCrisisDecision decision);
+    public bool ResolveCityCrisis(CityCrisisResolution resolution);
+    public void AdjustPolicePressure(int delta);
     public void AddEventMessage(string message);
 }

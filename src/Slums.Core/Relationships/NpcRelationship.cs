@@ -12,4 +12,5 @@ public sealed record NpcRelationship(
 	int RecentContactCount = 0)
 {
 	public IReadOnlySet<string> SeenConversationKnots { get; init; } = new HashSet<string>();
+	public IReadOnlySet<string> SeenConversationVariantIds { get; init; } = new HashSet<string>();
 }

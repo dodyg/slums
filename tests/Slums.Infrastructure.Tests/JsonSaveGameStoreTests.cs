@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Slums.Application.Persistence;
 using Slums.Core.Characters;
+using Slums.Core.Narrative;
 using Slums.Core.Investments;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
@@ -53,6 +54,7 @@ internal sealed class JsonSaveGameStoreTests
             gameSession.RestoreJobTrack(JobType.ClinicReception, 74, 5, 9);
             gameSession.Relationships.RecordFavor(NpcId.NurseSalma, 7, hasUnpaidDebt: true);
             gameSession.Relationships.RecordSeenConversation(NpcId.NurseSalma, "nurse_intro_1");
+            gameSession.Relationships.RecordSeenConversationVariant(NpcId.NurseSalma, "salma_default_7_4");
             gameSession.Relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 11);
             gameSession.RecordEventHistory("DokkiCheckpointSweep", 2);
             gameSession.RestoreHouseholdAssetsState(
@@ -76,6 +78,7 @@ internal sealed class JsonSaveGameStoreTests
             gameSession.Player.Skills.SetLevel(Slums.Core.Skills.SkillId.Physical, 2);
             gameSession.RestoreTrainedSkillsToday(
                 new Dictionary<Slums.Core.Skills.SkillId, bool> { { Slums.Core.Skills.SkillId.Physical, true } });
+            gameSession.RestoreCityCrisisState(4, 3, 8, 82, CityCrisisDecision.MutualAid, CityCrisisResolution.SharedEmergencyPlan);
 
             await store.SaveAsync(SaveGameRequest.Create(gameSession, "crime_warning"), "slot1").ConfigureAwait(false);
             var result = await store.LoadAsync("slot1").ConfigureAwait(false);
@@ -113,6 +116,7 @@ internal sealed class JsonSaveGameStoreTests
                     restoredSession.JobProgress.GetTrack(JobType.ClinicReception).LockoutUntilDay.Should().Be(9);
                     restoredSession.Relationships.GetNpcRelationship(NpcId.NurseSalma).HasUnpaidDebt.Should().BeTrue();
                     restoredSession.Relationships.HasSeenConversation(NpcId.NurseSalma, "nurse_intro_1").Should().BeTrue();
+                    restoredSession.Relationships.HasSeenConversationVariant(NpcId.NurseSalma, "salma_default_7_4").Should().BeTrue();
                     restoredSession.Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation.Should().Be(11);
                     restoredSession.GetEventCount("DokkiCheckpointSweep").Should().Be(2);
                     restoredSession.Player.HouseholdAssets.Pets.Should().ContainSingle();
@@ -132,6 +136,11 @@ internal sealed class JsonSaveGameStoreTests
                     restoredSession.ActiveInvestments[0].WeeksActive.Should().Be(3);
                     restoredSession.TrainedSkillsToday.Should().ContainKey(SkillId.Physical);
                     restoredSession.Player.Skills.GetLevel(SkillId.Physical).Should().BeGreaterThan(0);
+                    restoredSession.CityCrisis.Phase.Should().Be(CityCrisisPhase.Resolved);
+                    restoredSession.CityCrisis.EvidenceCollected.Should().Be(3);
+                    restoredSession.CityCrisis.ResourcesCommitted.Should().Be(8);
+                    restoredSession.CityCrisis.Decision.Should().Be(CityCrisisDecision.MutualAid);
+                    restoredSession.CityCrisis.Resolution.Should().Be(CityCrisisResolution.SharedEmergencyPlan);
                 }
             }
         }
