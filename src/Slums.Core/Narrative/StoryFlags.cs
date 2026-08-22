@@ -55,6 +55,31 @@ public static class StoryFlags
     public const string EventYoussefEmbeddedSeen = "event_youssef_embedded_seen";
     public const string EventNadiaSuspicionSeen = "event_nadia_suspicion_seen";
 
+    public const string WeatherKhamsinSeen = "weather_khamsin_seen";
+    public const string WeatherKhamsinPrisonerSeen = "weather_khamsin_prisoner_seen";
+    public const string WeatherKhamsinSudaneseSeen = "weather_khamsin_sudanese_seen";
+    public const string WeatherRainLeakSeen = "weather_rain_leak_seen";
+    public const string WeatherRainLeakWithCurtainSeen = "weather_rain_leak_with_curtain_seen";
+    public const string WeatherRainOutsideSeen = "weather_rain_outside_seen";
+    public const string WeatherRainPrisonerSeen = "weather_rain_prisoner_seen";
+    public const string WeatherHeatwaveSeen = "weather_heatwave_seen";
+    public const string WeatherHeatwaveMedicalSeen = "weather_heatwave_medical_seen";
+    public const string WeatherCoolDaySeen = "weather_cool_day_seen";
+    public const string WeatherWindyDaySeen = "weather_windy_day_seen";
+    public const string WeatherWinterChillSeen = "weather_winter_chill_seen";
+
+    public const string SeasonRamadanStartSeen = "season_ramadan_start_seen";
+    public const string SeasonRamadanIftarSeen = "season_ramadan_iftar_seen";
+    public const string SeasonRamadanIftarSudaneseSeen = "season_ramadan_iftar_sudanese_seen";
+    public const string SeasonEidAlFitrSeen = "season_eid_al_fitr_seen";
+    public const string SeasonEidAlAdhaSeen = "season_eid_al_adha_seen";
+    public const string SeasonCopticChristmasSeen = "season_coptic_christmas_seen";
+    public const string SeasonShamElNessimSeen = "season_sham_el_nessim_seen";
+    public const string SeasonSummerSolsticeSeen = "season_summer_solstice_seen";
+    public const string SeasonAutumnFirstSeen = "season_autumn_first_seen";
+    public const string SeasonWinterFirstRainSeen = "season_winter_first_rain_seen";
+    public const string SeasonSpringKhamsinWarningSeen = "season_spring_khamsin_warning_seen";
+
     public static IReadOnlyList<string> GetCrimeRouteAftermathFlags(CrimeType crimeType)
     {
         return crimeType switch

@@ -15,8 +15,9 @@ The first implementation pass is committed in review-sized changes:
 - Added 100-entry recurring conversation decks with persisted non-repetition history and stable variant state, plus the compiled-story choice audit.
 - Added bounded robot capabilities for salvage recovery, clinic triage, and assisted transit; each requires an operational machine and creates condition wear.
 - Replaced rumor-location duplication with canonical NPC district data.
+- Added deterministic, persisted one-time reachability planning for all 23 weather and seasonal/holiday knots, including background and home-upgrade variants.
 
-The central-character arc bible and the full 48-scene weather/season/community/debt trigger migration remain follow-up work. They are deliberately left visible in the packages below rather than being represented as completed by scaffolding alone.
+The central-character arc bible and the remaining 25 community/debt scenes in the 48-scene migration remain follow-up work. They are deliberately left visible in the packages below rather than being represented as completed by scaffolding alone.
 
 ## Guardrails
 

@@ -3288,6 +3288,21 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
     private void QueueNarrativeFollowUpScenes()
     {
+        var reachabilityContext = new NarrativeReachabilityContext(
+            Clock.Day,
+            CurrentWeather.Type,
+            GetCurrentSeason(),
+            GetActiveHolidayState().Id,
+            GetActiveHolidayState().CurrentDay,
+            Player.BackgroundType,
+            GetCurrentDayOfWeek(),
+            World.CurrentLocationId == LocationId.Home,
+            HomeUpgrades.HasUpgrade(HomeUpgrade.Curtain),
+            Player.Household.MotherHealth);
+
+        TryQueueNarrativeTrigger(NarrativeReachabilityPlanner.GetWeatherTrigger(reachabilityContext, _storyFlags));
+        TryQueueNarrativeTrigger(NarrativeReachabilityPlanner.GetSeasonalTrigger(reachabilityContext, _storyFlags));
+
         foreach (var trigger in NarrativeFollowUpPlanner.GetEndOfDayTriggers(
                      CrimeCommittedToday,
                      Player,
