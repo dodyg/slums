@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FluentAssertions;
+using InkStoryException = Ink.Runtime.StoryException;
 using Slums.Core.Endings;
 using Slums.Narrative.Ink.Tests.Helpers;
 using TUnit;
@@ -88,7 +89,7 @@ internal sealed class StoryArtifactValidationTests
                     untraversable.Add($"{knot} (no text or choices produced)");
                 }
             }
-            catch (Exception exception) when (exception is InvalidOperationException or ArgumentException)
+            catch (Exception exception) when (exception is InkStoryException or InvalidOperationException or ArgumentException)
             {
                 untraversable.Add($"{knot} ({exception.GetType().Name}: {exception.Message})");
             }

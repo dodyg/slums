@@ -3,6 +3,11 @@
 === ending_commitment ===
 The month has narrowed the future to one decision. The choice is not a promise that Cairo will become kind. It is a decision about what you will spend, protect, or leave behind when the next morning arrives.
 
+{pending_ending != "StabilityHonestWork" && pending_ending != "NetworkShelter" && pending_ending != "QuitTheLuxorDream" && pending_ending != "CrimeKingpin":
+The final commitment is waiting for an eligible ending to be selected.
+-> DONE
+}
+
 {pending_ending == "StabilityHonestWork":
     *   [Keep the clinic hours and reserve the last money for your mother's care]
         You choose care over a faster escape. The work will remain tiring and underpaid, but the decision keeps a reliable hand beside the people who cannot afford a second mistake.

@@ -2,6 +2,10 @@
 # Core selects a stable context and a non-repeating opener/body pair.
 
 === recurring_conversation ===
+{conversation_variant == "":
+This contact is waiting for the conversation details to arrive through the repaired handset or a face-to-face introduction.
+}
+
 {conversation_npc == "LandlordHajjMahmoud":
 Hajj Mahmoud taps the ledger with one finger and waits for the answer behind your answer.
 }
