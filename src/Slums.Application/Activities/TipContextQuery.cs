@@ -9,67 +9,53 @@ public sealed class TipContextQuery
     public IReadOnlyList<TipContextHint> GetCrimeHints(GameSession gameSession)
 #pragma warning restore CA1822
     {
-        ArgumentNullException.ThrowIfNull(gameSession);
-        var day = gameSession.Clock.Day;
-        var hints = new List<TipContextHint>();
-
-        foreach (var tip in gameSession.Tips.GetActiveTips(day))
-        {
-            if (tip.Type == TipType.CrimeWarning && !tip.Ignored)
-            {
-                hints.Add(new TipContextHint(tip.Content, true, tip.IsEmergency));
-            }
-
-            if (tip.Type == TipType.PoliceTip && !tip.Ignored && tip.RelevantDistrict is not null)
-            {
-                hints.Add(new TipContextHint(tip.Content, true, tip.IsEmergency));
-            }
-        }
-
-        return hints;
+        return GetHints(
+            gameSession,
+            static tip => tip.Type == TipType.CrimeWarning ||
+                          (tip.Type == TipType.PoliceTip && tip.RelevantDistrict is not null),
+            isWarning: true,
+            includeEmergency: true);
     }
 
 #pragma warning disable CA1822
     public IReadOnlyList<TipContextHint> GetWorkHints(GameSession gameSession)
 #pragma warning restore CA1822
     {
-        ArgumentNullException.ThrowIfNull(gameSession);
-        var day = gameSession.Clock.Day;
-        var hints = new List<TipContextHint>();
-
-        foreach (var tip in gameSession.Tips.GetActiveTips(day))
-        {
-            if (tip.Type == TipType.JobLead && !tip.Ignored)
-            {
-                hints.Add(new TipContextHint(tip.Content, false, false));
-            }
-
-            if (tip.Type == TipType.MarketIntel && !tip.Ignored)
-            {
-                hints.Add(new TipContextHint(tip.Content, false, false));
-            }
-        }
-
-        return hints;
+        return GetHints(
+            gameSession,
+            static tip => tip.Type is TipType.JobLead or TipType.MarketIntel,
+            isWarning: false,
+            includeEmergency: false);
     }
 
 #pragma warning disable CA1822
     public IReadOnlyList<TipContextHint> GetTravelHints(GameSession gameSession)
 #pragma warning restore CA1822
     {
+        return GetHints(
+            gameSession,
+            static tip => tip.Type == TipType.PoliceTip && tip.RelevantDistrict is not null,
+            isWarning: true,
+            includeEmergency: true);
+    }
+
+    private static TipContextHint[] GetHints(
+        GameSession gameSession,
+        Func<Tip, bool> isRelevant,
+        bool isWarning,
+        bool includeEmergency)
+    {
         ArgumentNullException.ThrowIfNull(gameSession);
-        var day = gameSession.Clock.Day;
-        var hints = new List<TipContextHint>();
+        ArgumentNullException.ThrowIfNull(isRelevant);
 
-        foreach (var tip in gameSession.Tips.GetActiveTips(day))
-        {
-            if (tip.Type == TipType.PoliceTip && !tip.Ignored && tip.RelevantDistrict is not null)
-            {
-                hints.Add(new TipContextHint(tip.Content, true, tip.IsEmergency));
-            }
-        }
-
-        return hints;
+        return gameSession.Tips
+            .GetActiveTips(gameSession.Clock.Day)
+            .Where(tip => !tip.Ignored && isRelevant(tip))
+            .Select(tip => new TipContextHint(
+                tip.Content,
+                isWarning,
+                includeEmergency && tip.IsEmergency))
+            .ToArray();
     }
 }
 
