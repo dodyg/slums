@@ -2,6 +2,7 @@ using Slums.Core.Characters;
 using Slums.Core.Calendar;
 using Slums.Core.Diagnostics;
 using Slums.Core.Economy;
+using Slums.Core.Home;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.State;
@@ -27,7 +28,7 @@ internal static class FoodShopService
         }
 
         baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(session.Territory, session.World.CurrentDistrict);
-        baseModifier += GetUmmKarimFoodDiscount(session);
+        baseModifier += MealService.GetUmmKarimFoodDiscount(session);
         baseModifier += NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict);
 
         var modifiedCost = session.LocationPricing.GetFoodCost(session.World.CurrentDistrict) + baseModifier;
@@ -47,7 +48,7 @@ internal static class FoodShopService
         }
 
         baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(session.Territory, session.World.CurrentDistrict);
-        baseModifier += GetUmmKarimFoodDiscount(session);
+        baseModifier += MealService.GetUmmKarimFoodDiscount(session);
         baseModifier += NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict);
 
         var modifiedCost = session.LocationPricing.GetStreetFoodCost(session.World.CurrentDistrict) + baseModifier;
@@ -107,11 +108,5 @@ internal static class FoodShopService
         session.RaiseEvent($"Bought medicine for {medicineCost} LE. Medicine stock: {session.Player.Household.MedicineStock}");
         session.RecordMutation(MutationCategories.Shop, "BuyMedicine", before, session.CaptureStats(), $"Bought medicine for {medicineCost} LE");
         return true;
-    }
-
-    private static int GetUmmKarimFoodDiscount(GameSession session)
-    {
-        var ummKarimEconomy = session.NpcEconomies.GetEconomy(NpcId.FixerUmmKarim);
-        return ummKarimEconomy.WealthLevel == NpcWealthLevel.Comfortable ? -1 : 0;
     }
 }

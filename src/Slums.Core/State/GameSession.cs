@@ -386,51 +386,10 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public bool EatAtHome()
-    {
-        var before = CaptureStats();
-        if (!Player.Household.FeedMother())
-        {
-            RecordMutation(MutationCategories.GuardRejected, "EatAtHome", before, CaptureStats(), "Not enough food at home");
-            RaiseEvent("There is not enough food at home.");
-            return false;
-        }
-
-        Player.Nutrition.Eat(MealQuality.Basic);
-        SyncLegacyHunger();
-        var cookingBonus = Player.HouseholdAssets.GetHomeCookingBonus(CurrentWeek);
-        if (cookingBonus > 0)
-        {
-            Player.Stats.ModifyStress(-cookingBonus);
-        }
-
-        RaiseEvent("You eat a simple meal at home and make sure your mother eats too.");
-        if (cookingBonus > 0)
-        {
-            RaiseEvent($"Fresh herbs soften the meal a little. Stress -{cookingBonus}.");
-        }
-
-        RecordMutation(MutationCategories.Food, "EatAtHome", before, CaptureStats(), "Ate at home");
-        return true;
-    }
+        => MealService.EatAtHome(this);
 
     public bool EatStreetFood()
-    {
-        var before = CaptureStats();
-        var streetFoodCost = GetStreetFoodCost();
-        if (Player.Stats.Money < streetFoodCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "EatStreetFood", before, CaptureStats(), $"Not enough money (need {streetFoodCost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent($"You do not have enough money for street food. It costs {streetFoodCost} LE here.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-streetFoodCost);
-        Player.Nutrition.Eat(MealQuality.Basic);
-        SyncLegacyHunger();
-        RaiseEvent($"You grab a cheap meal from the street for {streetFoodCost} LE.");
-        RecordMutation(MutationCategories.Food, "EatStreetFood", before, CaptureStats(), $"Ate street food for {streetFoodCost} LE");
-        return true;
-    }
+        => MealService.EatStreetFood(this);
 
     public void CheckOnMother()
         => ClinicVisitService.CheckOnMother(this);
@@ -974,12 +933,6 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
             PendingEndingKnot = EndingKnotCatalog.Destitution;
             RecordMutation(MutationCategories.EndingTriggered, "ProcessDailyDebt", before, CaptureStats(), "Destitution ending triggered by loan shark violence");
         }
-    }
-
-    private int GetUmmKarimFoodDiscount()
-    {
-        var ummKarimEconomy = NpcEconomies.GetEconomy(NpcId.FixerUmmKarim);
-        return ummKarimEconomy.WealthLevel == NpcWealthLevel.Comfortable ? -1 : 0;
     }
 
     public (bool Success, int Amount, string Message) TryBorrowFromNpc(NpcId npc, int amount)
