@@ -7,8 +7,7 @@ Your mother pulls the thin curtain across her face and breathes through cloth. T
 
 *   [Stay inside and seal the gaps]
     You stuff newspaper into the window frames and dampen a sheet with yesterday's wash water. The apartment becomes a cave, dark and close, but the sand stays mostly outside. Your mother coughs less. By afternoon, the two of you sit in the dim quiet listening to the wind tire itself out.
-    # STRESS:3
-    # STRESS:-2
+    # STRESS:1
     # ENERGY:-5
     # MESSAGE:The khamsin howls outside. You make the flat as tight as you can and wait.
     -> DONE

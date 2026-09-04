@@ -57,6 +57,17 @@ internal sealed class StoryArtifactValidationTests
     }
 
     [Test]
+    public void InkValidator_RejectsDuplicateStatTagsWithinChoice()
+    {
+        const string invalidStory = "{\"root\":[{\"c-0\":[\"^STRESS:1\",\"^STRESS:-1\"]}]}";
+
+        var act = () => InkStoryValidator.Validate(invalidStory);
+
+        act.Should().Throw<InvalidOperationException>()
+            .Which.Message.Should().Contain("more than one STRESS effect tag");
+    }
+
+    [Test]
     public async Task EveryAuthoredKnot_IsTraversable()
     {
         var story = StoryTraversalHelper.LoadStory();

@@ -68,8 +68,7 @@ The celebration demands participation. The neighbors are buying gifts. The build
 
 *   [Attend but explain you cannot afford gifts this year]
     You show up empty-handed and say so plainly. The women at the gathering nod without judgment and press sweets into your hands anyway, because Eid generosity has its own economy that does not require matching funds. The shame stings, but the warmth does too.
-    # STRESS:5
-    # STRESS:-3
+    # STRESS:2
     # NPC_TRUST:NeighborMona,1
     # MESSAGE:Eid finds you broke. The community feeds you anyway, and the gratitude has edges.
     -> DONE

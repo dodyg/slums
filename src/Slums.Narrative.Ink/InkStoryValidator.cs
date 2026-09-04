@@ -7,6 +7,7 @@ namespace Slums.Narrative.Ink;
 internal static class InkStoryValidator
 {
     private static readonly string[] IntegerTags = ["MONEY", "HEALTH", "ENERGY", "HUNGER", "STRESS", "MOTHER_HEALTH", "FOOD", "RENT_PAYMENT", "RENT_GRACE_DAYS", "POLICE"];
+    private static readonly string[] ChoiceEffectTags = ["MONEY", "HEALTH", "ENERGY", "STRESS"];
 
     public static void Validate(string json)
     {
@@ -23,6 +24,11 @@ internal static class InkStoryValidator
             case JsonValueKind.Object:
                 foreach (var property in element.EnumerateObject())
                 {
+                    if (property.Name.StartsWith("c-", StringComparison.Ordinal) && property.Value.ValueKind == JsonValueKind.Array)
+                    {
+                        ValidateChoiceEffectTags(property.Value);
+                    }
+
                     ValidateElement(property.Value);
                 }
 
@@ -36,6 +42,59 @@ internal static class InkStoryValidator
                 break;
             case JsonValueKind.String:
                 ValidateString(element.GetString());
+                break;
+        }
+    }
+
+    private static void ValidateChoiceEffectTags(JsonElement choice)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        CollectChoiceEffectTags(choice, seen);
+    }
+
+    private static void CollectChoiceEffectTags(JsonElement element, HashSet<string> seen)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                foreach (var property in element.EnumerateObject())
+                {
+                    if (property.Name.StartsWith("c-", StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    CollectChoiceEffectTags(property.Value, seen);
+                }
+
+                break;
+            case JsonValueKind.Array:
+                foreach (var child in element.EnumerateArray())
+                {
+                    CollectChoiceEffectTags(child, seen);
+                }
+
+                break;
+            case JsonValueKind.String:
+                var value = element.GetString();
+                if (string.IsNullOrWhiteSpace(value) || !value.StartsWith('^'))
+                {
+                    return;
+                }
+
+                var tag = value[1..];
+                var separator = tag.IndexOf(':', StringComparison.Ordinal);
+                if (separator <= 0)
+                {
+                    return;
+                }
+
+                var key = tag[..separator].Trim().ToUpperInvariant();
+                if (ChoiceEffectTags.Contains(key, StringComparer.Ordinal) && !seen.Add(key))
+                {
+                    throw InvalidTag(tag, $"choice contains more than one {key} effect tag");
+                }
+
                 break;
         }
     }
