@@ -1047,7 +1047,7 @@ She mentions better shifts coming up.
 	-> DONE
 
 === nadia_warm_2 ===
-The cafe feels more welcoming now.
+The cafe feels more welcoming now. Nadia has started keeping a quiet cup aside for the women who finish late shifts and do not want to cross the square alone.
 
 *   [Settle in]
 	# STRESS:-3
@@ -1119,7 +1119,7 @@ The cafe owner notices the shadows under your eyes.
 	-> DONE
 
 === nadia_double_life_3 ===
-Nadia's knowing look is uncomfortable.
+Nadia's knowing look is uncomfortable. She has seen the same person arrive from a public shift and leave by a back door with a story that does not fit the receipt.
 
 *   [Accept her discretion]
 	# STRESS:2
@@ -1431,7 +1431,7 @@ She has routes if you are ready. {gender == "male": The depot can put you on the
 	-> DONE
 
 === safaa_default_2 ===
-The depot hums with electric motors, old engines, charging fans, and voices arguing over the shaded routes.
+The depot hums with electric motors, old engines, charging fans, and voices arguing over the shaded routes. Safaa has moved one driver off the late route to keep a clinic delivery on the board; now the driver is shouting, and the dispatcher will lose her own rest slot if she holds the line.
 
 *   [Find your place]
 	# STRESS:2
@@ -1527,7 +1527,7 @@ She points to an empty station. {gender == "male": The dawn pump-hour shift is o
 	-> DONE
 
 === iman_default_2 ===
-The laundry is hot before the irons come on. Iman checks the water allotment twice before she starts the first boiler.
+The laundry is hot before the irons come on. Iman checks the water allotment twice before she starts the first boiler, then points to the station of a worker who stayed home sick. Covering it keeps the dawn pump-hour delivery moving, but it puts another hour of heat on your back.
 
 *   [Find your rhythm]
 	# STRESS:2
