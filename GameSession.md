@@ -310,7 +310,7 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 | W1.4 | 1 | Household assets (pets/plants/robots) | Done | `HouseholdAssetsService` owns household asset actions, restoration, street-cat encounters, and weekly neglect resolution; GameSession.cs = 3,576 lines |
 | W1.5 | 1 | Home upgrades / rest | Done | `HomeUpgradeService` owns purchase, restore, availability, and rest policy; GameSession.cs = 4,123 lines |
 | W2.1 | 2 | Travel | Done | `TravelService` owns paid/walking travel, condition summaries, pricing composition, and Cargo Mule wear; GameSession.cs = 3,366 lines |
-| W2.2 | 2 | Clinic & mother care | In progress | Claim: extract clinic status, mother care, and travel-plus-clinic composition into `ClinicVisitService`; preserve cost, guard, event, and time ordering. |
+| W2.2 | 2 | Clinic & mother care | Done | `ClinicVisitService` owns mother care, clinic pricing/status, and travel-plus-clinic composition; GameSession.cs = 3,113 lines |
 | W2.3 | 2 | Community events & emergency support | Not started | |
 | W3.1 | 3 | Debt & loans | Not started | |
 | W3.2 | 3 | Investments | Not started | Reuse evaluators/calculators |

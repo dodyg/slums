@@ -1088,88 +1088,13 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public void CheckOnMother()
-    {
-        var before = CaptureStats();
-        Player.Household.CheckOnMother();
-        RaiseEvent(GetMotherStatusMessage());
-        RecordMutation(MutationCategories.Clinic, "CheckOnMother", before, CaptureStats(), GetMotherStatusMessage());
-    }
+        => ClinicVisitService.CheckOnMother(this);
 
     public bool GiveMotherMedicine()
-    {
-        var before = CaptureStats();
-        if (!Player.Household.GiveMedicine())
-        {
-            RecordMutation(MutationCategories.GuardRejected, "GiveMotherMedicine", before, CaptureStats(), "No medicine available");
-            RaiseEvent("You have no medicine to give.");
-            return false;
-        }
-
-        RaiseEvent("You give your mother her medicine.");
-        RecordMutation(MutationCategories.Clinic, "GiveMotherMedicine", before, CaptureStats(), "Gave mother medicine");
-        return true;
-    }
+        => ClinicVisitService.GiveMotherMedicine(this);
 
     public MotherClinicVisitResult TakeMotherToClinic()
-    {
-        var before = CaptureStats();
-        var clinicStatus = GetCurrentLocationClinicStatus();
-        if (!clinicStatus.HasClinicServices)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TakeMotherToClinic", before, CaptureStats(), "No clinic at this location");
-            RaiseEvent("There is no clinic service at this location.");
-            return new MotherClinicVisitResult(false, 0, 0);
-        }
-
-        if (!clinicStatus.IsOpenToday)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TakeMotherToClinic", before, CaptureStats(), $"{clinicStatus.LocationName} closed today");
-            RaiseEvent($"{clinicStatus.LocationName} is closed today. Open days: {clinicStatus.OpenDaysSummary}.");
-            return new MotherClinicVisitResult(false, clinicStatus.VisitCost, 0);
-        }
-
-        if (Player.Stats.Money < clinicStatus.VisitCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TakeMotherToClinic", before, CaptureStats(), $"Not enough money (need {clinicStatus.VisitCost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent($"Not enough money. A clinic visit costs {clinicStatus.VisitCost} LE here.");
-            return new MotherClinicVisitResult(false, clinicStatus.VisitCost, 0);
-        }
-
-        const int clinicVisitMinutes = 90;
-
-        var healthBonus = 0;
-        if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout)
-        {
-            healthBonus += 5;
-        }
-
-        if (World.CurrentLocationId == LocationId.Clinic && Relationships.GetNpcRelationship(NpcId.NurseSalma).Trust >= 15)
-        {
-            healthBonus += 3;
-        }
-
-        if (World.CurrentLocationId == LocationId.Pharmacy && Relationships.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= 12)
-        {
-            healthBonus += 2;
-        }
-
-        var healthChange = Math.Clamp(15 + healthBonus, 0, 100 - Player.Household.MotherHealth);
-
-        Player.Stats.ModifyMoney(-clinicStatus.VisitCost);
-        Player.Household.UpdateMotherHealth(healthChange);
-        Player.Stats.ModifyEnergy(-10);
-        ApplySkillGain(SkillId.Medical);
-
-        RaiseEvent($"You take your mother into {clinicStatus.LocationName}. The visit costs {clinicStatus.VisitCost} LE. Her health improves by {healthChange}.");
-        if (NarrativeSignalRules.HasPendingClinicFirstVisit(_storyFlags))
-        {
-            TryQueueNarrativeTrigger(new NarrativeSceneTrigger(NarrativeStoryFlags.MotherClinicFirstVisit, NarrativeKnots.MotherClinicFirstVisit));
-        }
-
-        RecordMutation(MutationCategories.Clinic, "TakeMotherToClinic", before, CaptureStats(), $"Clinic visit at {clinicStatus.LocationName} (cost {clinicStatus.VisitCost} LE, health +{healthChange})");
-        AdvanceTime(clinicVisitMinutes);
-        return new MotherClinicVisitResult(true, clinicStatus.VisitCost, healthChange);
-    }
+        => ClinicVisitService.TakeMotherToClinic(this);
 
 #pragma warning disable CA1024
     public int GetFoodCost()
@@ -1183,152 +1108,19 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public CurrentLocationClinicStatus GetCurrentLocationClinicStatus()
-    {
-        var location = World.GetCurrentLocation();
-        var currentDay = GetCurrentDayOfWeek();
-        var currentDayName = currentDay.ToString();
-
-        if (location is null || !location.HasClinicServices)
-        {
-            return new CurrentLocationClinicStatus(
-                HasClinicServices: false,
-                IsOpenToday: false,
-                VisitCost: 0,
-                LocationName: location?.Name ?? "Unknown",
-                CurrentDayName: currentDayName,
-                OpenDaysSummary: "No clinic here");
-        }
-
-        return new CurrentLocationClinicStatus(
-            HasClinicServices: true,
-            IsOpenToday: location.ClinicOpenDays.Contains(currentDay.ToSystemDayOfWeek()),
-            VisitCost: GetClinicVisitCost(location),
-            LocationName: location.Name,
-            CurrentDayName: currentDayName,
-            OpenDaysSummary: FormatOpenDays(location.ClinicOpenDays));
-    }
+        => ClinicVisitService.GetCurrentLocationClinicStatus(this);
 #pragma warning restore CA1024
 
 #pragma warning disable CA1822
     public IReadOnlyList<Location> GetClinicLocations()
 #pragma warning restore CA1822
-    {
-        return WorldState.AllLocations
-            .Where(l => l.HasClinicServices)
-            .ToList();
-    }
+        => ClinicVisitService.GetClinicLocations(this);
 
     public ClinicTravelOption GetClinicTravelOption(LocationId clinicLocationId)
-    {
-        var location = WorldState.AllLocations.FirstOrDefault(l => l.Id == clinicLocationId);
-        if (location is null || !location.HasClinicServices)
-        {
-            return new ClinicTravelOption(
-                LocationId: clinicLocationId,
-                LocationName: "Unknown",
-                DistrictName: "Unknown",
-                TravelCost: 0,
-                ClinicCost: 0,
-                TotalCost: 0,
-                IsOpenToday: false,
-                OpenDaysSummary: "No clinic at this location",
-                TravelTimeMinutes: 0,
-                CanAfford: false,
-                IsValidOption: false);
-        }
-
-        var travelCost = GetTravelCost(location);
-        var clinicCost = GetClinicVisitCost(location);
-        var totalCost = travelCost + clinicCost;
-        var currentDay = GetCurrentDayOfWeek();
-
-        var travelBlocked = WeatherActivityRules.BlocksTravelTo(CurrentWeather, location.District);
-        return new ClinicTravelOption(
-            LocationId: clinicLocationId,
-            LocationName: location.Name,
-            DistrictName: location.District.ToString(),
-            TravelCost: travelCost,
-            ClinicCost: clinicCost,
-            TotalCost: totalCost,
-            IsOpenToday: location.ClinicOpenDays.Contains(currentDay.ToSystemDayOfWeek()),
-            OpenDaysSummary: FormatOpenDays(location.ClinicOpenDays),
-            TravelTimeMinutes: GetTravelTimeMinutes(location),
-            CanAfford: Player.Stats.Money >= totalCost,
-            IsValidOption: !travelBlocked);
-    }
+        => ClinicVisitService.GetClinicTravelOption(this, clinicLocationId);
 
     public TravelAndClinicVisitResult TravelAndTakeMotherToClinic(LocationId clinicLocationId)
-    {
-        var before = CaptureStats();
-        var clinicLocation = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == clinicLocationId);
-        if (clinicLocation is not null && WeatherActivityRules.BlocksTravelTo(CurrentWeather, clinicLocation.District))
-        {
-            var reason = WeatherActivityRules.GetTravelBlockReason(CurrentWeather, clinicLocation.District);
-            RecordMutation(MutationCategories.GuardRejected, "TravelAndTakeMotherToClinic", before, CaptureStats(), reason);
-            RaiseEvent(reason);
-            return new TravelAndClinicVisitResult(false, 0, 0, 0, 0);
-        }
-
-        var option = GetClinicTravelOption(clinicLocationId);
-        if (!option.IsValidOption)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TravelAndTakeMotherToClinic", before, CaptureStats(), "No clinic at that location");
-            RaiseEvent("There is no clinic service at that location.");
-            return new TravelAndClinicVisitResult(false, 0, 0, 0, 0);
-        }
-
-        if (!option.IsOpenToday)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TravelAndTakeMotherToClinic", before, CaptureStats(), $"{option.LocationName} closed today");
-            RaiseEvent($"{option.LocationName} is closed today. Open days: {option.OpenDaysSummary}.");
-            return new TravelAndClinicVisitResult(false, option.TravelCost, option.ClinicCost, option.TotalCost, 0);
-        }
-
-        if (Player.Stats.Money < option.TotalCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TravelAndTakeMotherToClinic", before, CaptureStats(), $"Not enough money (need {option.TotalCost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent($"Not enough money. Travel + clinic visit costs {option.TotalCost} LE ({option.TravelCost} LE travel + {option.ClinicCost} LE clinic).");
-            return new TravelAndClinicVisitResult(false, option.TravelCost, option.ClinicCost, option.TotalCost, 0);
-        }
-
-        var travelEnergyCost = GetTravelEnergyCost(
-            WorldState.AllLocations.First(l => l.Id == clinicLocationId));
-
-        Player.Stats.ModifyMoney(-option.TravelCost);
-        Player.Stats.ModifyEnergy(-travelEnergyCost);
-        ApplyCargoMuleWear();
-        AdvanceTime(option.TravelTimeMinutes);
-        World.TravelTo(clinicLocationId);
-
-        if (Player.BackgroundType == BackgroundType.SudaneseRefugee)
-        {
-            var location = WorldState.AllLocations.First(l => l.Id == clinicLocationId);
-            if (location.District == DistrictId.Dokki)
-            {
-                Player.Stats.ModifyStress(2);
-                RaiseEvent("Dokki's questions land harder when your accent gets there before your name does.");
-            }
-        }
-
-        RaiseEvent($"Traveled to {option.LocationName} with your mother.");
-
-        var repairDrone = Player.Robotics.Robots.FirstOrDefault(robot => robot.Type == RobotType.RepairDrone && robot.IsOperational);
-        if (repairDrone is not null)
-        {
-            repairDrone.Damage(RobotCapabilityRules.ClinicWear);
-            RaiseEvent($"The Repair Drone's triage reader takes {RobotCapabilityRules.ClinicWear} condition wear. Condition: {repairDrone.Condition}%.");
-        }
-
-        var clinicResult = TakeMotherToClinic();
-
-        RecordMutation(MutationCategories.Clinic, "TravelAndTakeMotherToClinic", before, CaptureStats(), $"Travel+clinic to {option.LocationName} (total cost {option.TravelCost + clinicResult.TotalCost} LE)");
-        return new TravelAndClinicVisitResult(
-            clinicResult.Success,
-            option.TravelCost,
-            clinicResult.TotalCost,
-            option.TravelCost + clinicResult.TotalCost,
-            clinicResult.HealthChange);
-    }
+        => ClinicVisitService.TravelAndTakeMotherToClinic(this, clinicLocationId);
 
     public int GetMedicineCost()
     {
@@ -1378,35 +1170,6 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
     public string? GetTravelConditionSummary(LocationId locationId)
         => TravelService.GetTravelConditionSummary(this, locationId);
-
-    private int GetClinicVisitCost(Location location)
-    {
-        var districtCondition = GetActiveDistrictConditionDefinition(location.District);
-        var schedule = GetCurrentSchedule();
-        var scheduleDiscount = schedule.ClinicDiscount ? schedule.ClinicDiscountAmount : 0;
-        if (scheduleDiscount > 0 && Player.BackgroundType == BackgroundType.MedicalSchoolDropout)
-        {
-            scheduleDiscount *= 2;
-        }
-
-        var modifiedCost = _locationPricingService.GetClinicVisitCost(location, Relationships, Player.Skills)
-            + (districtCondition?.Effect.ClinicVisitCostModifier ?? 0)
-            - scheduleDiscount
-            - RobotCapabilityRules.GetClinicCostReduction(Player.Robotics);
-        return Math.Max(1, modifiedCost);
-    }
-
-    private int GetTravelCost(Location destination)
-        => TravelService.GetTravelCost(this, destination);
-
-    private int GetTravelEnergyCost(Location destination)
-        => TravelService.GetTravelEnergyCost(this, destination);
-
-    private int GetTravelTimeMinutes(Location destination)
-        => TravelService.GetTravelTimeMinutes(this, destination);
-
-    private void ApplyCargoMuleWear()
-        => TravelService.ApplyCargoMuleWear(this);
 
     public int CurrentDay => Clock.Day;
 
@@ -2549,22 +2312,6 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
             PlayerIsFasting = isFasting,
             DaysRemaining = holidayState.DaysRemaining
         };
-    }
-
-    private string GetMotherStatusMessage()
-    {
-        return Player.Household.MotherCondition switch
-        {
-            MotherCondition.Stable => "Your mother seems stable today.",
-            MotherCondition.Fragile => "Your mother looks fragile and needs attention.",
-            MotherCondition.Crisis => "Your mother is in crisis. She needs care immediately.",
-            _ => "You check on your mother."
-        };
-    }
-
-    private static string FormatOpenDays(IEnumerable<DayOfWeek> openDays)
-    {
-        return string.Join(", ", openDays.Select(static day => day.ToString()[..3]));
     }
 
     private static SkillId GetSkillForJob(JobType jobType)
