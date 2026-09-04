@@ -1612,7 +1612,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
         var modifierEvaluation = EvaluateCrimeModifiers(attempt);
         var modifiedAttempt = modifierEvaluation.Attempt;
-        ApplyCrimeModifierSideEffects(modifierEvaluation.ActiveModifiers);
+        ApplyCrimeModifierSideEffects(modifierEvaluation.Signals);
         var districtHeat = DistrictHeat.GetHeat(World.CurrentDistrict);
         var result = _crimeService.AttemptCrime(modifiedAttempt, Player, districtHeat, random ?? _sharedRandom);
         Player.Stats.ModifyEnergy(-result.EnergyCost);
@@ -3460,10 +3460,11 @@ public sealed class GameSession : INarrativeOutcomeTarget
         }
     }
 
-    private CrimeModifierEvaluation EvaluateCrimeModifiers(CrimeAttempt attempt)
+    internal CrimeModifierEvaluation EvaluateCrimeModifiers(CrimeAttempt attempt)
     {
         var modifiedAttempt = attempt;
         var activeModifiers = new List<string>();
+        var signals = new HashSet<CrimeModifierSignal>();
 
         if (LastPublicFacingWorkDay == Clock.Day)
         {
@@ -3473,6 +3474,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
                 PolicePressureIncrease = Math.Max(1, modifiedAttempt.PolicePressureIncrease - 4)
             };
             activeModifiers.Add("Same-day public-facing work gives you a thin alibi: lower risk and lower pressure.");
+            signals.Add(CrimeModifierSignal.ThinAlibi);
         }
 
         if (Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner)
@@ -3483,6 +3485,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
                 PolicePressureIncrease = modifiedAttempt.PolicePressureIncrease + 5
             };
             activeModifiers.Add("Released political prisoner background increases scrutiny and pressure.");
+            signals.Add(CrimeModifierSignal.PrisonerScrutiny);
         }
 
         if (Player.Skills.GetLevel(SkillId.StreetSmarts) >= 3)
@@ -3530,17 +3533,17 @@ public sealed class GameSession : INarrativeOutcomeTarget
             activeModifiers.Add($"{WeatherModifiers.GetDisplayName(CurrentWeather.Type)} weather: crime detection {CurrentWeather.CrimeDetectionModifier:+#;-#;0}.");
         }
 
-        return new CrimeModifierEvaluation(modifiedAttempt, activeModifiers);
+        return new CrimeModifierEvaluation(modifiedAttempt, activeModifiers, signals);
     }
 
-    private void ApplyCrimeModifierSideEffects(IReadOnlyList<string> activeModifiers)
+    private void ApplyCrimeModifierSideEffects(IReadOnlySet<CrimeModifierSignal> signals)
     {
-        if (activeModifiers.Contains("Same-day public-facing work gives you a thin alibi: lower risk and lower pressure."))
+        if (signals.Contains(CrimeModifierSignal.ThinAlibi))
         {
             RaiseEvent("The shift you worked today gives you a thin alibi and a cleaner reason to be seen moving.");
         }
 
-        if (activeModifiers.Contains("Released political prisoner background increases scrutiny and pressure."))
+        if (signals.Contains(CrimeModifierSignal.PrisonerScrutiny))
         {
             TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetPrisonerHeatTrigger(Player.BackgroundType, _storyFlags));
         }
