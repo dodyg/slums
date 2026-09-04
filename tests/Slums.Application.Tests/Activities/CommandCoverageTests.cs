@@ -7,8 +7,10 @@ using Slums.Application.Technology;
 using Slums.Core.Characters;
 using Slums.Core.Crimes;
 using Slums.Core.Endings;
+using Slums.Core.Entertainment;
 using Slums.Core.Jobs;
 using Slums.Core.State;
+using Slums.Core.Training;
 using Slums.Core.World;
 using TUnit;
 
@@ -76,6 +78,28 @@ internal sealed class CommandCoverageTests
         var result = new CrimeCommand().Execute(session, attempt, new Random(7));
 
         result.Message.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Test]
+    public void TrainingCommand_PerformsAnAvailableEveningActivity()
+    {
+        var session = new GameSession();
+        session.Clock.SetTime(1, 18, 0);
+        session.Player.Stats.SetEnergy(100);
+        var activity = TrainingRegistry.AllActivities.Single(static candidate => candidate.Type == TrainingActivityType.RooftopExercise);
+
+        new TrainingCommand().Execute(session, activity).Should().BeTrue();
+    }
+
+    [Test]
+    public void EntertainmentCommand_PerformsAnActivityAtTheCurrentCafe()
+    {
+        var session = new GameSession();
+        session.World.TravelTo(LocationId.Cafe);
+        session.Player.Stats.SetMoney(100);
+        var activity = session.GetAvailableEntertainmentActivities().First(static candidate => candidate.Type == EntertainmentActivityType.Coffee);
+
+        new EntertainmentCommand().Execute(session, activity).Should().BeTrue();
     }
 
     [Test]
