@@ -326,7 +326,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         }
     }
 
-    private bool CanCompleteActivityToday(int durationMinutes)
+    internal bool CanCompleteActivityToday(int durationMinutes)
     {
         return DailyActivityWindow.CanComplete(Clock, durationMinutes, EndOfDayHour);
     }
@@ -340,6 +340,11 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     /// <summary>Daily-pipeline access to the random event service.</summary>
     internal RandomEventService RandomEventService => _randomEventService;
     internal LocationPricingService LocationPricing => _locationPricingService;
+
+    internal void ClaimEmergencySupport()
+    {
+        _runState.EmergencySupportClaimed = true;
+    }
 
     /// <summary>Processes one day of rent against the session's recurring rent cost.</summary>
     internal RentResult ProcessRentDay()
@@ -551,205 +556,16 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public IReadOnlyList<CommunityEventDefinition> GetAvailableCommunityEvents()
-    {
-        var events = new List<CommunityEventDefinition>();
-        var dayOfWeek = Clock.DayOfWeek;
-        var isRamadan = RamadanState.IsActive;
-
-        foreach (var evt in CommunityEventRegistry.AllEvents)
-        {
-            if (evt.RequiresFriday && dayOfWeek != GameDayOfWeek.Friday)
-            {
-                continue;
-            }
-
-            if (evt.RequiresRamadan && !isRamadan)
-            {
-                continue;
-            }
-
-            if (evt.RequiresNpcInvitation && !EventAttendance.HasTeaCircleInvitation)
-            {
-                continue;
-            }
-
-            if (evt.HasPickpocketRisk && World.CurrentDistrict != DistrictId.Imbaba)
-            {
-                continue;
-            }
-
-            events.Add(evt);
-        }
-
-        return events;
-    }
+        => CommunityEventService.GetAvailable(this);
 
     public bool AttendCommunityEvent(CommunityEventId eventId, Random? random = null)
-    {
-        var definition = CommunityEventRegistry.GetById(eventId);
-        if (definition is null)
-        {
-            return false;
-        }
-
-        var before = CaptureStats();
-        random ??= _sharedRandom;
-
-        var available = GetAvailableCommunityEvents();
-        if (available.All(e => e.Id != eventId))
-        {
-            RaiseEvent($"{definition.Name} is not available right now.");
-            RecordMutation(MutationCategories.GuardRejected, "AttendCommunityEvent", before, CaptureStats(), "Event not available");
-            return false;
-        }
-
-        if (EventAttendance.AttendedThisWeek.Contains(eventId))
-        {
-            RaiseEvent($"You already attended {definition.Name} this week.");
-            RecordMutation(MutationCategories.GuardRejected, "AttendCommunityEvent", before, CaptureStats(), "Already attended this week");
-            return false;
-        }
-
-        if (Player.Stats.Money < definition.MoneyCost)
-        {
-            RaiseEvent($"You cannot afford the {definition.MoneyCost} LE contribution.");
-            RecordMutation(MutationCategories.GuardRejected, "AttendCommunityEvent", before, CaptureStats(), $"Cannot afford {definition.MoneyCost} LE");
-            return false;
-        }
-
-        if (!CanCompleteActivityToday(definition.TimeCostMinutes))
-        {
-            RaiseEvent("Not enough time in the day for that.");
-            RecordMutation(MutationCategories.GuardRejected, "AttendCommunityEvent", before, CaptureStats(), "Not enough time");
-            return false;
-        }
-
-        if (definition.MoneyCost > 0)
-        {
-            Player.Stats.ModifyMoney(-definition.MoneyCost);
-        }
-
-        Player.Stats.ModifyStress(definition.StressChange);
-
-        var trustGained = ApplyCommunityEventTrust(definition, random);
-        var backgroundBonus = ApplyBackgroundEventBonus(definition);
-
-        if (definition.ProvidesFoodAccess)
-        {
-            Player.Nutrition.Eat(MealQuality.Basic);
-        }
-
-        if (definition.HasPickpocketRisk)
-        {
-#pragma warning disable CA5394
-            var roll = random.Next(100);
-            if (roll < 10)
-            {
-                var stolen = random.Next(5, 16);
-#pragma warning restore CA5394
-                Player.Stats.ModifyMoney(-stolen);
-                RaiseEvent($"A pickpocket slips away with {stolen} LE from your pocket!");
-            }
-        }
-
-        EventAttendance.RecordAttendance(eventId, Clock.Day);
-
-        var trustMessage = trustGained > 0 ? $" Trust +{trustGained} with neighbors." : "";
-        var backgroundMessage = backgroundBonus > 0 ? $" Background bonus: +{backgroundBonus} trust." : "";
-        RaiseEvent($"You attend {definition.Name}. Stress {definition.StressChange}.{trustMessage}{backgroundMessage}");
-        RecordMutation(MutationCategories.Community, "AttendCommunityEvent", before, CaptureStats(), $"{definition.Name} (stress {definition.StressChange}, trust gained: {trustGained})");
-        AdvanceTime(definition.TimeCostMinutes);
-        return true;
-    }
+        => CommunityEventService.Attend(this, eventId, random);
 
     /// <summary>
     /// Accepts one early-run emergency support package tied to the selected background.
     /// </summary>
     public bool RequestEmergencySupport()
-    {
-        var before = CaptureStats();
-        if (!CanRequestEmergencySupport)
-        {
-            RaiseEvent("No emergency community support is available for this run.");
-            RecordMutation(MutationCategories.GuardRejected, "RequestEmergencySupport", before, CaptureStats(), "Support already claimed, expired, or background not selected");
-            return false;
-        }
-
-        _runState.EmergencySupportClaimed = true;
-        switch (Player.BackgroundType)
-        {
-            case BackgroundType.MedicalSchoolDropout:
-                Player.Household.AddMedicine(2);
-                Relationships.ModifyNpcTrust(NpcId.NurseSalma, 2);
-                RaiseEvent("Salma puts two clinic doses aside for your mother. You spend an hour collecting them and promising to return the favor.");
-                break;
-            case BackgroundType.ReleasedPoliticalPrisoner:
-                Player.Stats.ModifyMoney(30);
-                Player.Household.AddStaples(1);
-                Relationships.ModifyNpcTrust(NpcId.NeighborMona, 2);
-                RaiseEvent("Mona gathers a small mutual-aid envelope and one food parcel. It is help, not a solution, and it costs an hour to arrange safely.");
-                break;
-            case BackgroundType.SudaneseRefugee:
-                Player.Household.AddStaples(3);
-                Player.Stats.ModifyStress(-4);
-                Relationships.ModifyNpcTrust(NpcId.NeighborMona, 2);
-                RaiseEvent("The Sudanese women's kitchen sends bread, beans, and tea upstairs. You spend an hour carrying containers back through the lane.");
-                break;
-            default:
-                throw new InvalidOperationException($"Unsupported background {Player.BackgroundType}.");
-        }
-
-        AdvanceTime(EmergencySupportDurationMinutes);
-        RecordMutation(MutationCategories.Community, "RequestEmergencySupport", before, CaptureStats(), $"Emergency support claimed for {Player.BackgroundType}");
-        return true;
-    }
-
-    private int ApplyCommunityEventTrust(CommunityEventDefinition definition, Random random)
-    {
-        var communityNpcs = new[] { NpcId.LandlordHajjMahmoud, NpcId.FixerUmmKarim, NpcId.NeighborMona, NpcId.NurseSalma, NpcId.CafeOwnerNadia };
-        var count = Math.Min(definition.TrustGainCount, communityNpcs.Length);
-#pragma warning disable CA5394
-        var selected = communityNpcs.OrderBy(_ => random.Next()).Take(count).ToArray();
-#pragma warning restore CA5394
-
-        var totalTrust = 0;
-        foreach (var npcId in selected)
-        {
-            var trust = definition.TrustGainAmount;
-            Relationships.ModifyNpcTrust(npcId, trust);
-            totalTrust += trust;
-        }
-
-        return totalTrust;
-    }
-
-    private int ApplyBackgroundEventBonus(CommunityEventDefinition definition)
-    {
-        var bonus = 0;
-        var background = Player.BackgroundType;
-
-        if (background == BackgroundType.SudaneseRefugee && definition.Id == CommunityEventId.FridayRooftopGathering)
-        {
-            bonus = 2;
-            Relationships.ModifyNpcTrust(NpcId.NeighborMona, bonus);
-        }
-        else if (background == BackgroundType.ReleasedPoliticalPrisoner)
-        {
-            if (EventAttendance.TotalAttended <= 3)
-            {
-                return 0;
-            }
-
-            bonus = 1;
-        }
-        else if (background == BackgroundType.MedicalSchoolDropout)
-        {
-            bonus = 1;
-            Relationships.ModifyNpcTrust(NpcId.NurseSalma, bonus);
-        }
-
-        return bonus;
-    }
+        => CommunityEventService.RequestEmergencySupport(this);
 
     public IReadOnlyList<TrainingActivity> GetAvailableTrainingActivities()
     {
