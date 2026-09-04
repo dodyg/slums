@@ -321,7 +321,7 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 | W4.3 | 4 | Random events | Done | `RandomEventService` now owns session-integrated event application and effective-weight rules while preserving event history, journal order, and public signatures; `GameSession.cs` = 1,542 lines |
 | W5.1 | 5 | Calendar/season/schedule | Done | `CalendarService` owns calendar, schedule, holiday, fasting, and weather query/restore helpers while preserving public signatures and state hydration; `GameSession.cs` = 1,509 lines |
 | W5.2 | 5 | District condition rolls | Done | `DistrictConditionRoller` owns daily condition rolling, baseline setup, and condition queries while preserving seeded selection order and public signatures; `GameSession.cs` = 1,446 lines |
-| W5.3 | 5 | Territory events | Not started | |
+| W5.3 | 5 | Territory events | In progress | Claim: extract territory conflict, crackdown, flip, and refugee-solidarity event orchestration into `TerritoryEventRoller`; preserve seeded event order and exact outcomes. |
 | W5.4 | 5 | Endings & game over glue | Not started | Two-stage endings sensitive |
 
 Baseline: `GameSession.cs` = 4,292 lines at time of writing (2026-09-04).
