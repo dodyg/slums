@@ -1,4 +1,3 @@
-using System.Globalization;
 using Slums.Core.Characters;
 using Slums.Core.Clock;
 using Slums.Core.Crimes;
@@ -56,6 +55,9 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     private readonly bool _useDynamicDistrictConditions;
     private readonly List<GameMutationRecord> _mutations = [];
     private readonly Dictionary<SkillId, bool> _trainedSkillsToday = [];
+
+    internal CrimeService CrimeService => _crimeService;
+    internal GameCrimeState CrimeState => _crimeState;
 
     public GameSession(Random? sharedRandom = null)
     {
@@ -391,9 +393,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public void AdjustPolicePressure(int delta)
-    {
-        DistrictHeat.AddHeat(World.CurrentDistrict, delta);
-    }
+        => CrimeSessionService.AdjustPolicePressure(this, delta);
 
     internal void RestoreCityCrisisState(
         int beatIndex,
@@ -591,145 +591,13 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => WorkSessionService.GetAvailable(this);
 
     public IReadOnlyList<CrimeAttempt> GetAvailableCrimes()
-    {
-        if (GetCrimeBlockReason() is not null)
-        {
-            return [];
-        }
-
-        var location = World.GetCurrentLocation();
-        if (location is null)
-        {
-            return [];
-        }
-
-        var crimes = CrimeRegistry.GetAvailableCrimes(location, Relationships).ToList();
-
-        if (location.Id == LocationId.Square &&
-            crimes.All(static attempt => attempt.Type != CrimeType.DokkiDrop) &&
-            (JobProgress.GetTrack(JobType.CallCenterWork).Reliability >= 60 || JobProgress.GetTrack(JobType.CafeService).Reliability >= 60))
-        {
-            crimes.Add(new CrimeAttempt(CrimeType.DokkiDrop, 95, 42, 24, 0, 18));
-        }
-
-        if (location.Id == LocationId.Market &&
-            crimes.All(static attempt => attempt.Type != CrimeType.NetworkErrand) &&
-            Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner &&
-            Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation >= 10)
-        {
-            crimes.Add(new CrimeAttempt(CrimeType.NetworkErrand, 130, 48, 28, 0, 24));
-        }
-
-        if (location.Id == LocationId.Depot &&
-            crimes.All(static attempt => attempt.Type != CrimeType.DepotFareSkim) &&
-            JobProgress.GetTrack(JobType.MicrobusDispatch).Reliability >= 60)
-        {
-            crimes.Add(new CrimeAttempt(CrimeType.DepotFareSkim, 78, 28, 14, 0, 16));
-        }
-
-        if (location.Id == LocationId.Laundry &&
-            crimes.All(static attempt => attempt.Type != CrimeType.ShubraBundleLift) &&
-            JobProgress.GetTrack(JobType.LaundryPressing).Reliability >= 60)
-        {
-            crimes.Add(new CrimeAttempt(CrimeType.ShubraBundleLift, 68, 24, 12, 0, 15));
-        }
-
-        return crimes;
-    }
+        => CrimeSessionService.GetAvailableCrimes(this);
 
     public string? GetCrimeBlockReason()
-    {
-        if (CurrentWeather.BlocksCrime)
-        {
-            return WeatherActivityRules.GetCrimeBlockReason(CurrentWeather);
-        }
-
-        return TerritoryDynamicsCalculator.IsCrimeBlocked(Territory, World.CurrentDistrict)
-            ? "The streets are too dangerous for any criminal activity right now."
-            : null;
-    }
+        => CrimeSessionService.GetCrimeBlockReason(this);
 
     public CrimeResult CommitCrime(CrimeAttempt attempt, Random? random = null)
-    {
-        ArgumentNullException.ThrowIfNull(attempt);
-
-        var before = CaptureStats();
-        var blockReason = GetCrimeBlockReason();
-        if (blockReason is not null)
-        {
-            var blockedResult = new CrimeResult { Message = blockReason };
-            RecordMutation(MutationCategories.GuardRejected, "CommitCrime", before, CaptureStats(), blockReason);
-            RaiseEvent(blockReason);
-            return blockedResult;
-        }
-
-        var modifierEvaluation = EvaluateCrimeModifiers(attempt);
-        var modifiedAttempt = modifierEvaluation.Attempt;
-        ApplyCrimeModifierSideEffects(modifierEvaluation.Signals);
-        var districtHeat = DistrictHeat.GetHeat(World.CurrentDistrict);
-        var result = _crimeService.AttemptCrime(modifiedAttempt, Player, districtHeat, random ?? _sharedRandom);
-        Player.Stats.ModifyEnergy(-result.EnergyCost);
-        Player.Stats.ModifyStress(result.StressCost);
-        ActivityLedgerSystem.RecordCrimeOutcome(_crimeState, Clock, result);
-
-        if (result.Success)
-        {
-            Player.Stats.ModifyMoney(result.MoneyEarned);
-            ApplySkillGain(SkillId.StreetSmarts);
-            ModifyFactionReputation(GetFactionForCurrentCrimeRoute(), 4);
-            if (Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner)
-            {
-                ModifyFactionReputation(FactionId.ExPrisonerNetwork, 5);
-            }
-            TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetFirstSuccessTrigger(_storyFlags));
-        }
-
-        TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetRouteSceneTrigger(attempt.Type, result));
-
-        DistrictHeat.AddHeat(World.CurrentDistrict, result.PolicePressureDelta);
-        var updatedDistrictHeat = DistrictHeat.GetHeat(World.CurrentDistrict);
-        TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetPoliceEncounterTrigger(
-            World.CurrentDistrict,
-            districtHeat,
-            updatedDistrictHeat,
-            _storyFlags));
-        TerritoryDynamicsCalculator.ApplyCrimeImpact(Territory, World.CurrentDistrict, null);
-        RaiseEvent(result.Message);
-        ApplyCrimeContactAftermath(result);
-
-        TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetGangRetaliationTrigger(
-            result.Detected,
-            World.CurrentDistrict,
-            Territory.GetControl(World.CurrentDistrict).ControllingFaction,
-            Relationships,
-            _storyFlags));
-
-        if (TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetCrimeWarningTrigger(PolicePressure, _storyFlags)))
-        {
-            RaiseEvent("People are whispering that the police are getting close.");
-        }
-
-        AdvanceTime(attempt.DurationMinutes);
-        CheckGameOverConditions();
-        RecordMutation(MutationCategories.Crime, "CommitCrime", before, CaptureStats(), $"{attempt.Type}: success={result.Success}, detected={result.Detected}");
-        return result;
-    }
-
-    private FactionId GetFactionForCurrentCrimeRoute()
-    {
-        var controllingFaction = Territory.GetControl(World.CurrentDistrict).ControllingFaction;
-        if (controllingFaction.HasValue)
-        {
-            return controllingFaction.Value;
-        }
-
-        return World.CurrentDistrict switch
-        {
-            DistrictId.Dokki => FactionId.DokkiThugs,
-            DistrictId.ArdAlLiwa => FactionId.ExPrisonerNetwork,
-            _ => FactionId.ImbabaCrew
-        };
-    }
+        => CrimeSessionService.CommitCrime(this, attempt, random);
 
     public bool BuyFood()
     {
@@ -1110,19 +978,10 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     public IReadOnlyList<string> PendingNarrativeScenes => [.. _pendingNarrativeScenes];
 
     internal void SetPolicePressure(int value)
-    {
-        DistrictHeat.SetHeatAll(value);
-    }
+        => CrimeSessionService.SetPolicePressure(this, value);
 
     public CrimeRoutePreview PreviewCrime(CrimeAttempt attempt)
-    {
-        ArgumentNullException.ThrowIfNull(attempt);
-
-        var modifierEvaluation = EvaluateCrimeModifiers(attempt);
-        var districtHeat = DistrictHeat.GetHeat(World.CurrentDistrict);
-        var resolution = _crimeService.PreviewCrime(modifierEvaluation.Attempt, Player, districtHeat);
-        return new CrimeRoutePreview(modifierEvaluation.Attempt, resolution, modifierEvaluation.ActiveModifiers);
-    }
+        => CrimeSessionService.PreviewCrime(this, attempt);
 
     public int GetEffectiveRandomEventWeight(RandomEvent randomEvent)
     {
@@ -1146,61 +1005,6 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         }
 
         return weight;
-    }
-
-    private void ApplyCrimeContactAftermath(CrimeResult result)
-    {
-        var aftermath = CrimeNarrativePlanner.GetDetectedContactAftermath(World.CurrentLocationId, Relationships, result);
-        if (aftermath is null)
-        {
-            return;
-        }
-
-        ReduceCrimeHeat(aftermath.PolicePressureReduction, aftermath.HeatMessage, aftermath.HeatTrigger);
-
-        if (!result.Success && !string.IsNullOrWhiteSpace(aftermath.FailureMessage))
-        {
-            ApplyCrimeFailureMitigation(
-                aftermath.FailureMoneyGain,
-                aftermath.FailureStressRelief,
-                aftermath.FailureMessage,
-                aftermath.FailureTrigger);
-        }
-    }
-
-    private void ReduceCrimeHeat(int amount, string message, NarrativeSceneTrigger trigger)
-    {
-        if (amount <= 0)
-        {
-            return;
-        }
-
-        var currentHeat = DistrictHeat.GetHeat(World.CurrentDistrict);
-        var updatedHeat = Math.Max(0, currentHeat - amount);
-        if (updatedHeat == currentHeat)
-        {
-            return;
-        }
-
-        DistrictHeat.SetHeat(World.CurrentDistrict, updatedHeat);
-        RaiseEvent(message);
-        TryQueueNarrativeTrigger(trigger);
-    }
-
-    private void ApplyCrimeFailureMitigation(int moneyGain, int stressRelief, string message, NarrativeSceneTrigger? trigger)
-    {
-        if (moneyGain > 0)
-        {
-            Player.Stats.ModifyMoney(moneyGain);
-        }
-
-        if (stressRelief > 0)
-        {
-            Player.Stats.ModifyStress(-stressRelief);
-        }
-
-        RaiseEvent(message);
-        TryQueueNarrativeTrigger(trigger);
     }
 
     internal void SetRunId(Guid runId)
@@ -1236,23 +1040,13 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     internal void SetCrimeCounters(int totalCrimeEarnings, int crimesCommitted)
-    {
-        SetCrimeCounters(totalCrimeEarnings, crimesCommitted, LastCrimeDay);
-    }
+        => CrimeSessionService.SetCrimeCounters(this, totalCrimeEarnings, crimesCommitted);
 
     internal void SetCrimeCounters(int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay)
-    {
-        TotalCrimeEarnings = Math.Max(0, totalCrimeEarnings);
-        CrimesCommitted = Math.Max(0, crimesCommitted);
-        LastCrimeDay = Math.Max(0, lastCrimeDay);
-    }
+        => CrimeSessionService.SetCrimeCounters(this, totalCrimeEarnings, crimesCommitted, lastCrimeDay);
 
     internal void RestoreCrimeState(int policePressure, int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay, bool hasCrimeCommittedToday)
-    {
-        DistrictHeat.SetHeatAll(policePressure);
-        SetCrimeCounters(totalCrimeEarnings, crimesCommitted, lastCrimeDay);
-        CrimeCommittedToday = hasCrimeCommittedToday;
-    }
+        => CrimeSessionService.RestoreCrimeState(this, policePressure, totalCrimeEarnings, crimesCommitted, lastCrimeDay, hasCrimeCommittedToday);
 
     internal void RestoreWorkState(int totalHonestWorkEarnings, int honestShiftsCompleted, int lastHonestWorkDay, int lastPublicFacingWorkDay)
     {
@@ -1424,29 +1218,6 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         return candidates[^1];
     }
 
-    private static string BuildCrimeDistrictModifierText(DistrictConditionDefinition districtCondition)
-    {
-        var parts = new List<string>();
-        if (districtCondition.Effect.CrimeDetectionRiskModifier != 0)
-        {
-            parts.Add($"detection {FormatSignedValue(districtCondition.Effect.CrimeDetectionRiskModifier)}");
-        }
-
-        if (districtCondition.Effect.CrimeRewardModifier != 0)
-        {
-            parts.Add($"reward {FormatSignedValue(districtCondition.Effect.CrimeRewardModifier)} LE");
-        }
-
-        return $"{districtCondition.Title} affects street work today: {string.Join(", ", parts)}.";
-    }
-
-    private static string FormatSignedValue(int value)
-    {
-        return value >= 0
-            ? $"+{value.ToString(CultureInfo.InvariantCulture)}"
-            : value.ToString(CultureInfo.InvariantCulture);
-    }
-
     internal void CheckGameOverConditions()
     {
         var ending = EndingService.CheckFailureEndings(this);
@@ -1566,93 +1337,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     internal CrimeModifierEvaluation EvaluateCrimeModifiers(CrimeAttempt attempt)
-    {
-        var modifiedAttempt = attempt;
-        var activeModifiers = new List<string>();
-        var signals = new HashSet<CrimeModifierSignal>();
-
-        if (LastPublicFacingWorkDay == Clock.Day)
-        {
-            modifiedAttempt = modifiedAttempt with
-            {
-                DetectionRisk = Math.Max(5, modifiedAttempt.DetectionRisk - 8),
-                PolicePressureIncrease = Math.Max(1, modifiedAttempt.PolicePressureIncrease - 4)
-            };
-            activeModifiers.Add("Same-day public-facing work gives you a thin alibi: lower risk and lower pressure.");
-            signals.Add(CrimeModifierSignal.ThinAlibi);
-        }
-
-        if (Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner)
-        {
-            modifiedAttempt = modifiedAttempt with
-            {
-                DetectionRisk = Math.Min(95, modifiedAttempt.DetectionRisk + 5),
-                PolicePressureIncrease = modifiedAttempt.PolicePressureIncrease + 5
-            };
-            activeModifiers.Add("Released political prisoner background increases scrutiny and pressure.");
-            signals.Add(CrimeModifierSignal.PrisonerScrutiny);
-        }
-
-        if (Player.Skills.GetLevel(SkillId.StreetSmarts) >= 3)
-        {
-            activeModifiers.Add("Street Smarts 3 lowers detection chance by 10.");
-        }
-
-        if (PolicePressure >= 60)
-        {
-            activeModifiers.Add("Current police pressure is materially increasing detection risk.");
-        }
-
-        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
-        if (districtCondition is not null)
-        {
-            var effect = districtCondition.Effect;
-            if (effect.CrimeDetectionRiskModifier != 0 || effect.CrimeRewardModifier != 0)
-            {
-                modifiedAttempt = modifiedAttempt with
-                {
-                    DetectionRisk = Math.Clamp(modifiedAttempt.DetectionRisk + effect.CrimeDetectionRiskModifier, 1, 95),
-                    BaseReward = Math.Max(0, modifiedAttempt.BaseReward + effect.CrimeRewardModifier)
-                };
-
-                activeModifiers.Add(BuildCrimeDistrictModifierText(districtCondition));
-            }
-        }
-
-        var schedule = GetCurrentSchedule();
-        if (schedule.CrimeDetectionModifier != 0)
-        {
-            modifiedAttempt = modifiedAttempt with
-            {
-                DetectionRisk = Math.Clamp(modifiedAttempt.DetectionRisk + schedule.CrimeDetectionModifier, 1, 95)
-            };
-            activeModifiers.Add($"{schedule.DayName}: crime detection {schedule.CrimeDetectionModifier} (schedule effect).");
-        }
-
-        if (CurrentWeather.CrimeDetectionModifier != 0)
-        {
-            modifiedAttempt = modifiedAttempt with
-            {
-                DetectionRisk = Math.Clamp(modifiedAttempt.DetectionRisk + CurrentWeather.CrimeDetectionModifier, 1, 95)
-            };
-            activeModifiers.Add($"{WeatherModifiers.GetDisplayName(CurrentWeather.Type)} weather: crime detection {CurrentWeather.CrimeDetectionModifier:+#;-#;0}.");
-        }
-
-        return new CrimeModifierEvaluation(modifiedAttempt, activeModifiers, signals);
-    }
-
-    private void ApplyCrimeModifierSideEffects(IReadOnlySet<CrimeModifierSignal> signals)
-    {
-        if (signals.Contains(CrimeModifierSignal.ThinAlibi))
-        {
-            RaiseEvent("The shift you worked today gives you a thin alibi and a cleaner reason to be seen moving.");
-        }
-
-        if (signals.Contains(CrimeModifierSignal.PrisonerScrutiny))
-        {
-            TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetPrisonerHeatTrigger(Player.BackgroundType, _storyFlags));
-        }
-    }
+        => CrimeSessionService.EvaluateCrimeModifiers(this, attempt);
 
     internal void ApplyRandomEvent(RandomEvent randomEvent)
     {
