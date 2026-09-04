@@ -4,6 +4,7 @@ using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
 using Slums.Core.State;
+using Slums.Game.Rendering;
 using Slums.Game.Input;
 
 namespace Slums.Game.Screens;
@@ -221,7 +222,7 @@ internal sealed class CrimeScreen : ScreenSurface
 
         y++;
         var summary = selected.IsAvailable ? selected.StatusText ?? "Route is open." : selected.BlockReason ?? "Route is blocked.";
-        foreach (var line in WrapText(summary, detailWidth))
+        foreach (var line in TextWrap.WrapText(summary, detailWidth))
         {
             Surface.Print(DetailX, y++, line, selected.IsAvailable ? Color.Green : Color.Orange);
         }
@@ -232,7 +233,7 @@ internal sealed class CrimeScreen : ScreenSurface
             Surface.Print(DetailX, y++, "Requirements:", Color.Cyan);
             foreach (var signal in selected.AccessSignals)
             {
-                foreach (var line in WrapText($"- {signal}", detailWidth))
+                foreach (var line in TextWrap.WrapText($"- {signal}", detailWidth))
                 {
                     Surface.Print(DetailX, y++, line, Color.LightGray);
                     if (y >= Surface.Height - 3)
@@ -249,7 +250,7 @@ internal sealed class CrimeScreen : ScreenSurface
             Surface.Print(DetailX, y++, "Risk details:", Color.Cyan);
             foreach (var note in selected.RiskNotes)
             {
-                foreach (var line in WrapText($"- {note}", detailWidth))
+                foreach (var line in TextWrap.WrapText($"- {note}", detailWidth))
                 {
                     Surface.Print(DetailX, y++, line, Color.Gray);
                     if (y >= Surface.Height - 3)
@@ -266,7 +267,7 @@ internal sealed class CrimeScreen : ScreenSurface
             Surface.Print(DetailX, y++, "Active effects:", Color.Cyan);
             foreach (var modifier in selected.ActiveModifiers)
             {
-                foreach (var line in WrapText($"- {modifier}", detailWidth))
+                foreach (var line in TextWrap.WrapText($"- {modifier}", detailWidth))
                 {
                     Surface.Print(DetailX, y++, line, Color.Gray);
                 }
@@ -279,7 +280,7 @@ internal sealed class CrimeScreen : ScreenSurface
             Surface.Print(DetailX, y++, "Story triggers:", Color.Cyan);
             foreach (var signal in selected.NarrativeSignals)
             {
-                foreach (var line in WrapText($"- {signal}", detailWidth))
+                foreach (var line in TextWrap.WrapText($"- {signal}", detailWidth))
                 {
                     Surface.Print(DetailX, y++, line, Color.LightGray);
                     if (y >= Surface.Height - 3)
@@ -291,28 +292,4 @@ internal sealed class CrimeScreen : ScreenSurface
         }
     }
 
-    private static IEnumerable<string> WrapText(string text, int maxWidth)
-    {
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var current = string.Empty;
-
-        foreach (var word in words)
-        {
-            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
-            if (candidate.Length > maxWidth && current.Length > 0)
-            {
-                yield return current;
-                current = word;
-            }
-            else
-            {
-                current = candidate;
-            }
-        }
-
-        if (current.Length > 0)
-        {
-            yield return current;
-        }
-    }
 }

@@ -5,6 +5,7 @@ using SadRogue.Primitives;
 using Slums.Application.Narrative;
 using Slums.Core.State;
 using Slums.Game.Input;
+using Slums.Game.Rendering;
 
 namespace Slums.Game.Screens;
 
@@ -192,7 +193,7 @@ internal sealed class NarrativeScreen : ScreenSurface
                 continue;
             }
 
-            _wrappedLines.AddRange(WrapLine(paragraph.Trim(), Surface.Width - 4));
+            _wrappedLines.AddRange(TextWrap.WrapText(paragraph.Trim(), Surface.Width - 4));
             _wrappedLines.Add(string.Empty);
         }
 
@@ -226,28 +227,4 @@ internal sealed class NarrativeScreen : ScreenSurface
         ScreenTransition.SwitchTo(_nextScreen);
     }
 
-    private static IEnumerable<string> WrapLine(string text, int maxWidth)
-    {
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var current = string.Empty;
-
-        foreach (var word in words)
-        {
-            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
-            if (candidate.Length > maxWidth && current.Length > 0)
-            {
-                yield return current;
-                current = word;
-            }
-            else
-            {
-                current = candidate;
-            }
-        }
-
-        if (current.Length > 0)
-        {
-            yield return current;
-        }
-    }
 }

@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Slums.Game.Rendering;
 using Slums.Game.Screens;
 using TUnit.Core;
 
@@ -29,28 +30,28 @@ internal sealed class GameScreenHudRendererTests
     [Test]
     public void WrapText_ShortLine_ReturnsSingleLine()
     {
-        var result = GameScreenHudRenderer.WrapText("hello world", 50).ToList();
+        var result = TextWrap.WrapText("hello world", 50).ToList();
         result.Should().ContainSingle().Which.Should().Be("hello world");
     }
 
     [Test]
     public void WrapText_LongLine_WrapsToMultipleLines()
     {
-        var result = GameScreenHudRenderer.WrapText("one two three four five", 8).ToList();
+        var result = TextWrap.WrapText("one two three four five", 8).ToList();
         result.Should().Equal("one two", "three", "four", "five");
     }
 
     [Test]
     public void WrapText_EmptyString_ReturnsNothing()
     {
-        var result = GameScreenHudRenderer.WrapText("", 50).ToList();
+        var result = TextWrap.WrapText("", 50).ToList();
         result.Should().BeEmpty();
     }
 
     [Test]
     public void WrapText_SingleWord_FitsAnyWidth()
     {
-        var result = GameScreenHudRenderer.WrapText("hello", 3).ToList();
+        var result = TextWrap.WrapText("hello", 3).ToList();
         result.Should().ContainSingle().Which.Should().Be("hello");
     }
 }

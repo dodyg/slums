@@ -9,6 +9,7 @@ using Slums.Core.Clock;
 using Slums.Core.State;
 using Slums.Core.World;
 using Slums.Game.Input;
+using Slums.Game.Rendering;
 
 namespace Slums.Game.Screens;
 
@@ -445,7 +446,7 @@ internal sealed class GameScreen : ScreenSurface
 
             foreach (var line in page.Lines)
             {
-                foreach (var wrappedLine in GameScreenHudRenderer.WrapText(line, width).Take(3))
+                foreach (var wrappedLine in TextWrap.WrapText(line, width).Take(3))
                 {
                     if (y >= Surface.Height - 1)
                     {
