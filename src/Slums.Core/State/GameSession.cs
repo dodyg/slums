@@ -2225,125 +2225,14 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => PhoneService.RestoreMessages(this, messages);
 
     internal void ProcessDailyTips(Random random)
-    {
-        var newTips = TipGenerator.GenerateTips(
-            Clock.Day, Relationships, DistrictHeat, NpcEconomies,
-            Player.BackgroundType, CrimesCommitted,
-            Relationships.GetNpcRelationship(NpcId.LandlordHajjMahmoud).Trust,
-            random);
-
-        foreach (var tip in newTips)
-        {
-            Tips.AddTip(tip);
-
-            var deliveryMethod = TipDeliveryConfig.GetDeliveryMethod(tip, World.CurrentDistrict);
-            if (deliveryMethod == TipDeliveryMethod.Phone || deliveryMethod == TipDeliveryMethod.Emergency)
-            {
-                if (Phone.IsOperational())
-                {
-                    PhoneMessages.AddMessage(new PhoneMessage
-                    {
-                        Type = PhoneMessageType.Tip,
-                        Sender = NpcRegistry.GetName(tip.Source),
-                        SenderNpcId = tip.Source.ToString(),
-                        Content = tip.Content,
-                        DayReceived = tip.DayGenerated,
-                        ExpiresAfterDay = tip.ExpiresAfterDay,
-                        RequiresResponse = false,
-                        ResponseTimeCost = 0,
-                        ResponseMoneyCost = 0
-                    });
-                    Tips.MarkAsDelivered(tip.Id);
-                }
-            }
-        }
-
-        ApplyTipIgnoreErosion();
-
-        var removed = Tips.RemoveExpired(Clock.Day);
-        if (newTips.Count > 0 || removed > 0)
-        {
-            var before = CaptureStats();
-            RecordMutation(MutationCategories.Information, "ProcessDailyTips", before, CaptureStats(),
-                $"Generated {newTips.Count} tip(s), expired {removed}");
-        }
-    }
-
-    private void ApplyTipIgnoreErosion()
-    {
-        foreach (NpcId npc in Enum.GetValues<NpcId>())
-        {
-            var ignoredCount = Tips.GetIgnoredCount(npc);
-            var trust = Relationships.GetNpcRelationship(npc).Trust;
-            if (!ContactErosionRule.ShouldErode(trust, ignoredCount))
-            {
-                continue;
-            }
-
-            Relationships.ModifyNpcTrust(npc, -1);
-            RaiseEvent($"{NpcRegistry.GetName(npc)} seems annoyed that you keep ignoring their advice. Trust -1.");
-        }
-    }
+        => TipService.ProcessDaily(this, random);
 
     public (bool Success, string Message) AcknowledgeTip(string tipId)
-    {
-        var tip = Tips.GetTip(tipId);
-        if (tip is null)
-        {
-            return (false, "Tip not found.");
-        }
-
-        if (tip.Acknowledged)
-        {
-            return (false, "Already acknowledged.");
-        }
-
-        if (tip.Ignored)
-        {
-            return (false, "Tip was ignored.");
-        }
-
-        var before = CaptureStats();
-        Tips.AcknowledgeTip(tipId);
-
-        RecordMutation(MutationCategories.Information, "AcknowledgeTip", before, CaptureStats(),
-            $"Acknowledged tip from {NpcRegistry.GetName(tip.Source)}: {tip.Content}");
-
-        return (true, $"Acknowledged tip from {NpcRegistry.GetName(tip.Source)}.");
-    }
+        => TipService.Acknowledge(this, tipId);
 
     public (bool Success, string Message, int TrustLoss) IgnoreTipAction(string tipId)
-    {
-        var tip = Tips.GetTip(tipId);
-        if (tip is null)
-        {
-            return (false, "Tip not found.", 0);
-        }
-
-        if (tip.Acknowledged || tip.Ignored)
-        {
-            return (false, "Tip already handled.", 0);
-        }
-
-        var before = CaptureStats();
-        var ignoreCount = Tips.IgnoreTip(tipId);
-
-        var trustLoss = 0;
-        var trust = Relationships.GetNpcRelationship(tip.Source).Trust;
-        if (ContactErosionRule.ShouldErode(trust, ignoreCount))
-        {
-            trustLoss = 1;
-            Relationships.ModifyNpcTrust(tip.Source, -trustLoss);
-        }
-
-        RecordMutation(MutationCategories.Information, "IgnoreTip", before, CaptureStats(),
-            $"Ignored tip from {NpcRegistry.GetName(tip.Source)}");
-
-        return (true, $"Ignored tip from {NpcRegistry.GetName(tip.Source)}.", trustLoss);
-    }
+        => TipService.Ignore(this, tipId);
 
     internal void RestoreTips(IEnumerable<Tip> tips, Dictionary<NpcId, int> ignoredCounts)
-    {
-        Tips.RestoreTips(tips, ignoredCounts);
-    }
+        => TipService.Restore(this, tips, ignoredCounts);
 }
