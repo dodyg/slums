@@ -107,7 +107,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
     public GameRandomState? RandomState => (_sharedRandom as GameRandom)?.CaptureState();
 
     /// <summary>Restores the shared random source to an exact captured state.</summary>
-    public void RestoreRandomState(GameRandomState state)
+    internal void RestoreRandomState(GameRandomState state)
     {
         ArgumentNullException.ThrowIfNull(state);
         _sharedRandom = new GameRandom(state);
@@ -721,7 +721,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         DistrictHeat.AddHeat(World.CurrentDistrict, delta);
     }
 
-    public void RestoreCityCrisisState(
+    internal void RestoreCityCrisisState(
         int beatIndex,
         int evidenceCollected,
         int resourcesCommitted,
@@ -1437,7 +1437,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         }
     }
 
-    public void RestoreTrainedSkillsToday(Dictionary<SkillId, bool> trainedSkillsToday)
+    internal void RestoreTrainedSkillsToday(Dictionary<SkillId, bool> trainedSkillsToday)
     {
         ArgumentNullException.ThrowIfNull(trainedSkillsToday);
         _trainedSkillsToday.Clear();
@@ -1449,7 +1449,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
     public IReadOnlyDictionary<SkillId, bool> TrainedSkillsToday => _trainedSkillsToday;
 
-    public void RestoreHomeUpgrades(IEnumerable<HomeUpgrade> upgrades)
+    internal void RestoreHomeUpgrades(IEnumerable<HomeUpgrade> upgrades)
     {
         ArgumentNullException.ThrowIfNull(upgrades);
         HomeUpgrades.Restore(upgrades);
@@ -2804,7 +2804,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         return _storyFlags.Contains(flag);
     }
 
-    public void RestoreStoryFlags(IEnumerable<string> flags)
+    internal void RestoreStoryFlags(IEnumerable<string> flags)
     {
         ArgumentNullException.ThrowIfNull(flags);
 
@@ -2862,7 +2862,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
     public IReadOnlyList<string> PendingNarrativeScenes => [.. _pendingNarrativeScenes];
 
-    public void SetPolicePressure(int value)
+    internal void SetPolicePressure(int value)
     {
         DistrictHeat.SetHeatAll(value);
     }
@@ -2956,12 +2956,12 @@ public sealed class GameSession : INarrativeOutcomeTarget
         TryQueueNarrativeTrigger(trigger);
     }
 
-    public void SetRunId(Guid runId)
+    internal void SetRunId(Guid runId)
     {
         RunId = runId;
     }
 
-    public void RestoreRunState(
+    internal void RestoreRunState(
         Guid runId,
         int daysSurvived,
         bool isGameOver,
@@ -2983,31 +2983,31 @@ public sealed class GameSession : INarrativeOutcomeTarget
         _runState.EmergencySupportClaimed = emergencySupportClaimed;
     }
 
-    public void SetDaysSurvived(int daysSurvived)
+    internal void SetDaysSurvived(int daysSurvived)
     {
         DaysSurvived = Math.Max(0, daysSurvived);
     }
 
-    public void SetCrimeCounters(int totalCrimeEarnings, int crimesCommitted)
+    internal void SetCrimeCounters(int totalCrimeEarnings, int crimesCommitted)
     {
         SetCrimeCounters(totalCrimeEarnings, crimesCommitted, LastCrimeDay);
     }
 
-    public void SetCrimeCounters(int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay)
+    internal void SetCrimeCounters(int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay)
     {
         TotalCrimeEarnings = Math.Max(0, totalCrimeEarnings);
         CrimesCommitted = Math.Max(0, crimesCommitted);
         LastCrimeDay = Math.Max(0, lastCrimeDay);
     }
 
-    public void RestoreCrimeState(int policePressure, int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay, bool hasCrimeCommittedToday)
+    internal void RestoreCrimeState(int policePressure, int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay, bool hasCrimeCommittedToday)
     {
         DistrictHeat.SetHeatAll(policePressure);
         SetCrimeCounters(totalCrimeEarnings, crimesCommitted, lastCrimeDay);
         CrimeCommittedToday = hasCrimeCommittedToday;
     }
 
-    public void RestoreWorkState(int totalHonestWorkEarnings, int honestShiftsCompleted, int lastHonestWorkDay, int lastPublicFacingWorkDay)
+    internal void RestoreWorkState(int totalHonestWorkEarnings, int honestShiftsCompleted, int lastHonestWorkDay, int lastPublicFacingWorkDay)
     {
         TotalHonestWorkEarnings = Math.Max(0, totalHonestWorkEarnings);
         HonestShiftsCompleted = Math.Max(0, honestShiftsCompleted);
@@ -3015,7 +3015,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         LastPublicFacingWorkDay = Math.Max(0, lastPublicFacingWorkDay);
     }
 
-    public void RestoreRentState(int unpaidRentDays, int accumulatedRentDebt, bool firstWarningGiven, bool finalWarningGiven, int graceDaysRemaining = 0)
+    internal void RestoreRentState(int unpaidRentDays, int accumulatedRentDebt, bool firstWarningGiven, bool finalWarningGiven, int graceDaysRemaining = 0)
     {
         _rentState.Restore(unpaidRentDays, accumulatedRentDebt, firstWarningGiven, finalWarningGiven);
         _rentState.RestoreGraceDays(graceDaysRemaining);
@@ -3031,7 +3031,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         _randomEventHistory[eventId] = Math.Max(0, count);
     }
 
-    public void RestoreNarrativeState(
+    internal void RestoreNarrativeState(
         IEnumerable<string> storyFlags,
         IEnumerable<KeyValuePair<string, int>> randomEventHistory,
         IEnumerable<string> pendingNarrativeScenes)
@@ -3054,7 +3054,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         }
     }
 
-    public void RestoreHouseholdAssetsState(
+    internal void RestoreHouseholdAssetsState(
         IEnumerable<OwnedPet> pets,
         IEnumerable<OwnedPlant> plants,
         bool hasStreetCatEncounter,
@@ -3067,7 +3067,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         Player.Robotics.Restore(robots ?? [], robotParts);
     }
 
-    public void RestoreRamadanState(bool isActive, bool playerIsFasting, int daysFasting, int daysRemaining)
+    internal void RestoreRamadanState(bool isActive, bool playerIsFasting, int daysFasting, int daysRemaining)
     {
         _ramadanState = new RamadanState
         {
@@ -3078,7 +3078,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         };
     }
 
-    public void RestoreCommunityEventAttendance(
+    internal void RestoreCommunityEventAttendance(
         int consecutiveSkips,
         int totalAttended,
         int lastAttendanceDay,
@@ -3100,7 +3100,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         }
     }
 
-    public void RestoreWeather(WeatherType weatherType)
+    internal void RestoreWeather(WeatherType weatherType)
     {
         CurrentWeather = WeatherModifiers.GetModifiers(weatherType);
     }
@@ -3115,7 +3115,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         return _randomEventHistory.GetValueOrDefault(eventId);
     }
 
-    public void RestoreJobTrack(JobType jobType, int reliability, int shiftsCompleted, int lockoutUntilDay)
+    internal void RestoreJobTrack(JobType jobType, int reliability, int shiftsCompleted, int lockoutUntilDay)
     {
         JobProgress.RestoreTrack(jobType, reliability, shiftsCompleted, lockoutUntilDay);
     }
@@ -3777,7 +3777,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
     }
 
     /// <summary>Replaces the event journal contents (used when restoring a save).</summary>
-    public void RestoreEventJournal(IEnumerable<EventJournalEntry> entries)
+    internal void RestoreEventJournal(IEnumerable<EventJournalEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);
 
@@ -3941,7 +3941,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         return summary;
     }
 
-    public void RestoreInvestmentState(
+    internal void RestoreInvestmentState(
         IEnumerable<InvestmentSnapshot> investments,
         int totalInvestmentEarnings)
     {
@@ -4213,7 +4213,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         return (true, result.Remaining, result.Message);
     }
 
-    public void RestoreEconomyState(
+    internal void RestoreEconomyState(
         IEnumerable<(NpcId Npc, NpcWealthLevel WealthLevel, int Generosity,
             Dictionary<DebtorId, int> OwedTo, Dictionary<DebtorId, int> OwedBy,
             int LastHardshipDay, int LastWindfallDay, int GenerousUntilDay)> npcEconomies,
@@ -4465,13 +4465,13 @@ public sealed class GameSession : INarrativeOutcomeTarget
         return (true, "New phone purchased. Credit refilled for 7 days.");
     }
 
-    public void RestorePhoneState(bool hasPhone, int creditRemaining, int daysSinceCreditRefill,
+    internal void RestorePhoneState(bool hasPhone, int creditRemaining, int daysSinceCreditRefill,
         bool phoneLost, int? phoneLostDay, bool phoneRecovered)
     {
         Phone.Restore(hasPhone, creditRemaining, daysSinceCreditRefill, phoneLost, phoneLostDay, phoneRecovered);
     }
 
-    public void RestorePhoneMessages(IEnumerable<PhoneMessage> messages)
+    internal void RestorePhoneMessages(IEnumerable<PhoneMessage> messages)
     {
         PhoneMessages.RestoreMessages(messages);
     }
@@ -4594,7 +4594,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         return (true, $"Ignored tip from {NpcRegistry.GetName(tip.Source)}.", trustLoss);
     }
 
-    public void RestoreTips(IEnumerable<Tip> tips, Dictionary<NpcId, int> ignoredCounts)
+    internal void RestoreTips(IEnumerable<Tip> tips, Dictionary<NpcId, int> ignoredCounts)
     {
         Tips.RestoreTips(tips, ignoredCounts);
     }
