@@ -532,145 +532,13 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public bool TryTravelTo(LocationId locationId)
-    {
-        var before = CaptureStats();
-        var location = WorldState.AllLocations.FirstOrDefault(l => l.Id == locationId);
-        if (location is null)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryTravelTo", before, CaptureStats(), $"Location {locationId} not found");
-            return false;
-        }
-
-        if (World.CurrentLocationId == locationId)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryTravelTo", before, CaptureStats(), $"Already at {location.Name}");
-            RaiseEvent($"You are already at {location.Name}.");
-            return false;
-        }
-
-        if (WeatherActivityRules.BlocksTravelTo(CurrentWeather, location.District))
-        {
-            var reason = WeatherActivityRules.GetTravelBlockReason(CurrentWeather, location.District);
-            RecordMutation(MutationCategories.GuardRejected, "TryTravelTo", before, CaptureStats(), reason);
-            RaiseEvent(reason);
-            return false;
-        }
-
-        var travelCost = GetTravelCost(location);
-        var travelEnergyCost = GetTravelEnergyCost(location);
-        var travelTimeMinutes = GetTravelTimeMinutes(location);
-
-        if (Player.Stats.Money < travelCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryTravelTo", before, CaptureStats(), $"Not enough money (need {travelCost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent("Not enough money for transport.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-travelCost);
-        Player.Stats.ModifyEnergy(-travelEnergyCost);
-        ApplyCargoMuleWear();
-        if (Player.BackgroundType == BackgroundType.SudaneseRefugee && location.District == DistrictId.Dokki)
-        {
-            Player.Stats.ModifyStress(2);
-            RaiseEvent("Dokki's questions land harder when your accent gets there before your name does.");
-        }
-
-        if (location.District == DistrictId.BulaqAlDakrour && Relationships.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= 12)
-        {
-            RaiseEvent("Safaa's route advice spares you one bad transfer and some wasted motion.");
-        }
-
-        if (location.District == DistrictId.Shubra && Relationships.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust >= 12)
-        {
-            Player.Stats.ModifyStress(-1);
-            RaiseEvent("Iman's directions keep you off the most exhausting side streets in Shubra.");
-        }
-
-        World.TravelTo(locationId);
-
-        RaiseEvent($"Traveled to {location.Name}.");
-        RecordMutation(MutationCategories.Travel, "TryTravelTo", before, CaptureStats(), $"Traveled to {location.Name} (cost {travelCost} LE)");
-        AdvanceTime(travelTimeMinutes);
-        return true;
-    }
+        => TravelService.TryTravelTo(this, locationId);
 
     public bool TryWalkTo(LocationId locationId)
-    {
-        var before = CaptureStats();
-        var location = WorldState.AllLocations.FirstOrDefault(l => l.Id == locationId);
-        if (location is null)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryWalkTo", before, CaptureStats(), $"Location {locationId} not found");
-            return false;
-        }
-
-        if (World.CurrentLocationId == locationId)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryWalkTo", before, CaptureStats(), $"Already at {location.Name}");
-            RaiseEvent($"You are already at {location.Name}.");
-            return false;
-        }
-
-        if (WeatherActivityRules.BlocksTravelTo(CurrentWeather, location.District))
-        {
-            var reason = WeatherActivityRules.GetTravelBlockReason(CurrentWeather, location.District);
-            RecordMutation(MutationCategories.GuardRejected, "TryWalkTo", before, CaptureStats(), reason);
-            RaiseEvent(reason);
-            return false;
-        }
-
-        var walkEnergyCost = GetWalkEnergyCost(location);
-        var walkTimeMinutes = GetWalkTimeMinutes(location);
-
-        if (Player.Stats.Energy < walkEnergyCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryWalkTo", before, CaptureStats(), $"Too exhausted (need {walkEnergyCost} energy, have {Player.Stats.Energy})");
-            RaiseEvent("You are too exhausted to walk that far.");
-            return false;
-        }
-
-        Player.Stats.ModifyEnergy(-walkEnergyCost);
-        Player.Stats.ModifyStress(3);
-
-        if (Player.BackgroundType == BackgroundType.SudaneseRefugee && location.District == DistrictId.Dokki)
-        {
-            Player.Stats.ModifyStress(2);
-            RaiseEvent("Dokki's stares follow you the entire way on foot.");
-        }
-
-        World.TravelTo(locationId);
-
-        RaiseEvent($"Walked to {location.Name}. The streets took their toll.");
-        RecordMutation(MutationCategories.Travel, "TryWalkTo", before, CaptureStats(), $"Walked to {location.Name}");
-        AdvanceTime(walkTimeMinutes);
-        return true;
-    }
+        => TravelService.TryWalkTo(this, locationId);
 
     public bool CanAffordTravel(LocationId locationId)
-    {
-        var location = WorldState.AllLocations.FirstOrDefault(l => l.Id == locationId);
-        if (location is null)
-        {
-            return false;
-        }
-
-        return Player.Stats.Money >= GetTravelCost(location);
-    }
-
-    private int GetWalkEnergyCost(Location destination)
-    {
-        ArgumentNullException.ThrowIfNull(destination);
-
-        return GetTravelEnergyCost(destination) * 3;
-    }
-
-    private int GetWalkTimeMinutes(Location destination)
-    {
-        ArgumentNullException.ThrowIfNull(destination);
-
-        return GetTravelTimeMinutes(destination) * 3;
-    }
+        => TravelService.CanAfford(this, locationId);
 
     public IReadOnlyList<EntertainmentActivity> GetAvailableEntertainmentActivities()
     {
@@ -1500,76 +1368,16 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public int GetTravelCost(LocationId locationId)
-    {
-        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
-        return location is null ? 0 : GetTravelCost(location);
-    }
+        => TravelService.GetTravelCost(this, locationId);
 
     public int GetTravelTimeMinutes(LocationId locationId)
-    {
-        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
-        return location is null ? 0 : GetTravelTimeMinutes(location);
-    }
+        => TravelService.GetTravelTimeMinutes(this, locationId);
 
     public int GetWalkTimeMinutes(LocationId locationId)
-    {
-        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
-        return location is null ? 0 : GetWalkTimeMinutes(location);
-    }
+        => TravelService.GetWalkTimeMinutes(this, locationId);
 
     public string? GetTravelConditionSummary(LocationId locationId)
-    {
-        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
-        if (location is null)
-        {
-            return null;
-        }
-
-        if (WeatherActivityRules.BlocksTravelTo(CurrentWeather, location.District))
-        {
-            return WeatherActivityRules.GetTravelBlockReason(CurrentWeather, location.District);
-        }
-
-        var summaries = new List<string>();
-        if (CurrentWeather.TravelCostModifier != 0)
-        {
-            summaries.Add($"{WeatherModifiers.GetDisplayName(CurrentWeather.Type)} weather adds {CurrentWeather.TravelCostModifier} LE to transport.");
-        }
-
-        var infrastructureTravel = InfrastructureImpactCalculator.GetTravelCostModifier(Infrastructure, location.District);
-        var newsTravel = NewsImpactCalculator.GetTravelCostModifier(News, location.District);
-        if (infrastructureTravel != 0)
-        {
-            summaries.Add($"Transport service pressure adds {infrastructureTravel} LE and time to this trip.");
-        }
-        if (newsTravel != 0)
-        {
-            summaries.Add($"City news adds {newsTravel} LE to fares in this area.");
-        }
-
-        var districtCondition = GetActiveDistrictConditionDefinition(location.District);
-        if (districtCondition is not null)
-        {
-            var effect = districtCondition.Effect;
-            if (effect.TravelCostModifier != 0 || effect.TravelTimeMinutesModifier != 0 || effect.TravelEnergyModifier != 0)
-            {
-                summaries.Add($"{districtCondition.Title}: {districtCondition.GameplaySummary}");
-            }
-        }
-
-        return summaries.Count == 0 ? null : string.Join(" ", summaries);
-    }
-
-    private int GetTravelCost(Location destination)
-    {
-        var districtCondition = GetActiveDistrictConditionDefinition(destination.District);
-        var modifiedCost = _locationPricingService.GetTravelCost(destination, Relationships)
-            + (districtCondition?.Effect.TravelCostModifier ?? 0)
-            + CurrentWeather.TravelCostModifier
-            + InfrastructureImpactCalculator.GetTravelCostModifier(Infrastructure, destination.District)
-            + NewsImpactCalculator.GetTravelCostModifier(News, destination.District);
-        return Math.Max(1, modifiedCost);
-    }
+        => TravelService.GetTravelConditionSummary(this, locationId);
 
     private int GetClinicVisitCost(Location location)
     {
@@ -1588,35 +1396,17 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         return Math.Max(1, modifiedCost);
     }
 
+    private int GetTravelCost(Location destination)
+        => TravelService.GetTravelCost(this, destination);
+
     private int GetTravelEnergyCost(Location destination)
-    {
-        var districtCondition = GetActiveDistrictConditionDefinition(destination.District);
-        var modifiedCost = _locationPricingService.GetTravelEnergyCost(destination, Relationships)
-            + (districtCondition?.Effect.TravelEnergyModifier ?? 0)
-            - RobotCapabilityRules.GetTransitEnergyReduction(Player.Robotics);
-        return Math.Max(1, modifiedCost);
-    }
-
-    private void ApplyCargoMuleWear()
-    {
-        var cargoMule = Player.Robotics.Robots.FirstOrDefault(robot => robot.Type == RobotType.CargoMule && robot.IsOperational);
-        if (cargoMule is null)
-        {
-            return;
-        }
-
-        cargoMule.Damage(RobotCapabilityRules.TransitWear);
-        RaiseEvent($"The Cargo Mule takes {RobotCapabilityRules.TransitWear} condition wear on the route. Condition: {cargoMule.Condition}%.");
-    }
+        => TravelService.GetTravelEnergyCost(this, destination);
 
     private int GetTravelTimeMinutes(Location destination)
-    {
-        var districtCondition = GetActiveDistrictConditionDefinition(destination.District);
-        var modifiedMinutes = destination.TravelTimeMinutes
-            + (districtCondition?.Effect.TravelTimeMinutesModifier ?? 0)
-            + InfrastructureImpactCalculator.GetTravelTimeModifier(Infrastructure, destination.District);
-        return Math.Max(1, modifiedMinutes);
-    }
+        => TravelService.GetTravelTimeMinutes(this, destination);
+
+    private void ApplyCargoMuleWear()
+        => TravelService.ApplyCargoMuleWear(this);
 
     public int CurrentDay => Clock.Day;
 
