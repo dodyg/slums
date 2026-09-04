@@ -303,7 +303,13 @@ public sealed class GameSession : INarrativeOutcomeTarget
         return DailyActivityWindow.CanComplete(Clock, durationMinutes, EndOfDayHour);
     }
 
+    /// <summary>Resolves the current day through the session-owned daily pipeline.</summary>
     public void EndDay(Random? random = null)
+    {
+        EndOfDayPipeline.Run(this, random);
+    }
+
+    internal void ResolveEndOfDay(Random? random)
     {
         var before = CaptureStats();
         var currentWeek = CurrentWeek;

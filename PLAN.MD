@@ -71,6 +71,8 @@ Critical loan-shark debt contributes to `Destitution`; it is not a separate `Deb
 
 ## Architecture Guardrails
 
+- End-of-day resolution is entered through the session-owned `EndOfDayPipeline`, preserving the existing ordered mutation and RNG flow while allowing the daily step groups to be extracted incrementally.
+
 - `GameSession` remains the canonical runtime state owner and integration boundary.
 - Core queries must be side-effect free. Commands must enforce their own guards even when the UI also filters unavailable actions.
 - Actions that cross 22:00 must resolve their action effects against the original context before nightly reset, then end at home on the next day.
