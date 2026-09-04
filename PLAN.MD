@@ -108,7 +108,7 @@ Acceptance targets:
 
 ### 3. Architecture hardening
 
-- continue extracting cohesive daily-resolution and action-policy rules from `GameSession`; entertainment, household asset, training, home, food-shop, travel, clinic, community, debt, investment, phone, tip, work, crime, random-event, calendar, and district-condition policy now live in focused core services
+- continue extracting cohesive daily-resolution and action-policy rules from `GameSession`; entertainment, household asset, training, home, food-shop, travel, clinic, community, debt, investment, phone, tip, work, crime, random-event, calendar, district-condition, and territory-event policy now live in focused core services
 - route snapshot hydration through one validated `GameSession.RestoreFromSnapshot` boundary while keeping `LoadedGameSession` as the persistence handoff
 - keep query builders immutable and free of event emission or state mutation
 - add catalog-level validation for cross-file assumptions where a valid individual JSON file can still create an invalid world
