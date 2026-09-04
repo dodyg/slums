@@ -1623,365 +1623,37 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     public int CurrentWeek => ((Clock.Day - 1) / 7) + 1;
 
     public bool CanUseHouseholdAssets()
-    {
-        return World.CurrentLocationId == LocationId.FishMarket
-            || World.CurrentLocationId == LocationId.PlantShop
-            || World.CurrentLocationId == LocationId.Workshop
-            || (World.CurrentLocationId == LocationId.Home
-                && (Player.HouseholdAssets.HasAnyAssets || Player.HouseholdAssets.HasStreetCatEncounter || Player.Robotics.HasAnyRobots));
-    }
+        => HouseholdAssetsService.CanUse(this);
 
     public bool AdoptStreetCat()
-    {
-        var before = CaptureStats();
-        if (World.CurrentLocationId != LocationId.Home)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "AdoptStreetCat", before, CaptureStats(), "Not at home");
-            RaiseEvent("You need to be home to bring a street cat inside.");
-            return false;
-        }
-
-        if (!Player.HouseholdAssets.AdoptCat(Clock.Day, CurrentWeek))
-        {
-            RecordMutation(MutationCategories.GuardRejected, "AdoptStreetCat", before, CaptureStats(), "No cat encounter available");
-            RaiseEvent("No stray cat is trusting you enough to come home right now.");
-            return false;
-        }
-
-        RaiseEvent("The cat slips inside, claims a corner, and your mother smiles for the first time all day.");
-        RecordMutation(MutationCategories.HouseholdAsset, "AdoptStreetCat", before, CaptureStats(), "Adopted street cat");
-        return true;
-    }
+        => HouseholdAssetsService.AdoptStreetCat(this);
 
     public bool BuyFishTank()
-    {
-        var before = CaptureStats();
-        if (World.CurrentLocationId != LocationId.FishMarket)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyFishTank", before, CaptureStats(), "Not at fish market");
-            RaiseEvent("You need to be at the fish market to buy a tank.");
-            return false;
-        }
-
-        if (!Player.HouseholdAssets.CanBuyFishTank)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyFishTank", before, CaptureStats(), "Already have a fish tank");
-            RaiseEvent("There is already a fish tank at home.");
-            return false;
-        }
-
-        var definition = PetRegistry.GetByType(PetType.Fish);
-        if (Player.Stats.Money < definition.OneTimeCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyFishTank", before, CaptureStats(), $"Not enough money (need {definition.OneTimeCost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent($"Not enough money. A fish tank costs {definition.OneTimeCost} LE.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-definition.OneTimeCost);
-        Player.HouseholdAssets.BuyFishTank(Clock.Day, CurrentWeek);
-        RaiseEvent($"You carry a modest fish tank home from the market for {definition.OneTimeCost} LE.");
-        RecordMutation(MutationCategories.HouseholdAsset, "BuyFishTank", before, CaptureStats(), $"Bought fish tank for {definition.OneTimeCost} LE");
-        return true;
-    }
+        => HouseholdAssetsService.BuyFishTank(this);
 
     public bool BuyPlant(PlantType plantType)
-    {
-        var before = CaptureStats();
-        if (World.CurrentLocationId != LocationId.PlantShop)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyPlant", before, CaptureStats(), "Not at plant shop");
-            RaiseEvent("You need to be at the plant shop to buy plants.");
-            return false;
-        }
-
-        if (!Player.HouseholdAssets.CanBuyPlant)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyPlant", before, CaptureStats(), "No room for more plants");
-            RaiseEvent("There is no room left for more plants at home.");
-            return false;
-        }
-
-        var definition = PlantRegistry.GetByType(plantType);
-        if (Player.Stats.Money < definition.OneTimeCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyPlant", before, CaptureStats(), $"Not enough money (need {definition.OneTimeCost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent($"Not enough money. {definition.Name} costs {definition.OneTimeCost} LE.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-definition.OneTimeCost);
-        Player.HouseholdAssets.BuyPlant(plantType, Clock.Day, CurrentWeek);
-        RaiseEvent($"You buy {definition.Name} for {definition.OneTimeCost} LE and carry it back home.");
-        RecordMutation(MutationCategories.HouseholdAsset, "BuyPlant", before, CaptureStats(), $"Bought {definition.Name} for {definition.OneTimeCost} LE");
-        return true;
-    }
+        => HouseholdAssetsService.BuyPlant(this, plantType);
 
     public bool BuyRobot(RobotType robotType)
-    {
-        var before = CaptureStats();
-        if (World.CurrentLocationId != LocationId.Workshop)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyRobot", before, CaptureStats(), "Not at workshop");
-            RaiseEvent("Abu Samir only sells machines from the workshop bench.");
-            return false;
-        }
-
-        var definition = RobotRegistry.GetByType(robotType);
-        if (!Player.Robotics.CanPurchaseRobot)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyRobot", before, CaptureStats(), "Robot limit reached");
-            RaiseEvent($"The flat and the alley can only support {RobotRegistry.MaxOwnedRobots} machines at once.");
-            return false;
-        }
-
-        if (Player.Robotics.Robots.Any(robot => robot.Type == robotType))
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyRobot", before, CaptureStats(), "Already own this robot model");
-            RaiseEvent($"You already own a {definition.Name}.");
-            return false;
-        }
-
-        if (Player.Stats.Money < definition.PurchaseCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyRobot", before, CaptureStats(), $"Not enough money (need {definition.PurchaseCost} LE)");
-            RaiseEvent($"You need {definition.PurchaseCost} LE for the {definition.Name}; the seller will not extend credit.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-definition.PurchaseCost);
-        Player.Robotics.PurchaseRobot(robotType, Clock.Day);
-        RaiseEvent($"You buy a {definition.Name} for {definition.PurchaseCost} LE. It works, but its warranty expired years ago.");
-        RecordMutation(MutationCategories.HouseholdAsset, "BuyRobot", before, CaptureStats(), $"Bought {definition.Name} for {definition.PurchaseCost} LE");
-        return true;
-    }
+        => HouseholdAssetsService.BuyRobot(this, robotType);
 
     public bool BuyRobotParts(int quantity = 1)
-    {
-        var before = CaptureStats();
-        if (World.CurrentLocationId != LocationId.Workshop)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyRobotParts", before, CaptureStats(), "Not at workshop");
-            RaiseEvent("You need Abu Samir's workshop bench to buy robot parts.");
-            return false;
-        }
-
-        if (quantity <= 0)
-        {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
-        }
-
-        var cost = quantity * RobotRegistry.PartsPurchaseCost;
-        if (!Player.Robotics.CanBuyParts(quantity))
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyRobotParts", before, CaptureStats(), "Parts storage limit reached");
-            RaiseEvent($"You can carry at most {RobotRegistry.MaxParts} spare robot parts in the flat.");
-            return false;
-        }
-
-        if (Player.Stats.Money < cost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyRobotParts", before, CaptureStats(), $"Not enough money (need {cost} LE)");
-            RaiseEvent($"You need {cost} LE for {quantity} robot part{(quantity == 1 ? string.Empty : "s")}.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-cost);
-        Player.Robotics.AddParts(quantity);
-        RaiseEvent($"You buy {quantity} robot part{(quantity == 1 ? string.Empty : "s")} for {cost} LE and wrap them against the dust.");
-        RecordMutation(MutationCategories.HouseholdAsset, "BuyRobotParts", before, CaptureStats(), $"Bought {quantity} robot parts for {cost} LE");
-        return true;
-    }
+        => HouseholdAssetsService.BuyRobotParts(this, quantity);
 
     public bool RepairRobot(Guid robotId)
-    {
-        var before = CaptureStats();
-        if (World.CurrentLocationId != LocationId.Workshop)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "RepairRobot", before, CaptureStats(), "Not at workshop");
-            RaiseEvent("Repairs have to happen at Abu Samir's workshop bench.");
-            return false;
-        }
-
-        var robot = Player.Robotics.GetRobot(robotId);
-        if (robot is null)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "RepairRobot", before, CaptureStats(), "Robot not found");
-            RaiseEvent("You cannot repair a machine that is not yours.");
-            return false;
-        }
-
-        if (robot.Condition >= 100)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "RepairRobot", before, CaptureStats(), "Robot already fully repaired");
-            RaiseEvent("That machine is already running as well as its old parts allow.");
-            return false;
-        }
-
-        if (Player.Robotics.Parts <= 0)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "RepairRobot", before, CaptureStats(), "No robot parts");
-            RaiseEvent("You need at least one spare robot part before Abu Samir will open the casing.");
-            return false;
-        }
-
-        var definition = RobotRegistry.GetByType(robot.Type);
-        if (Player.Stats.Money < definition.RepairCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "RepairRobot", before, CaptureStats(), $"Not enough money (need {definition.RepairCost} LE)");
-            RaiseEvent($"Bench time and solder cost {definition.RepairCost} LE, even when you bring the part.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-definition.RepairCost);
-        Player.Robotics.TryRepairRobot(robotId);
-        RaiseEvent($"Abu Samir uses one spare part to bring your {definition.Name} up to {robot.Condition}% condition.");
-        RecordMutation(MutationCategories.HouseholdAsset, "RepairRobot", before, CaptureStats(), $"Repaired {definition.Name} for {definition.RepairCost} LE and one part");
-        return true;
-    }
+        => HouseholdAssetsService.RepairRobot(this, robotId);
 
     public bool PayPetCare()
-    {
-        var before = CaptureStats();
-        if (World.CurrentLocationId != LocationId.Home)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "PayPetCare", before, CaptureStats(), "Not at home");
-            RaiseEvent("You need to be home to sort out pet care.");
-            return false;
-        }
-
-        var cost = Player.HouseholdAssets.GetPetCareCostDue(CurrentWeek);
-        if (cost <= 0)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "PayPetCare", before, CaptureStats(), "Pet care already covered");
-            RaiseEvent("Pet care is already covered for this week.");
-            return false;
-        }
-
-        if (Player.Stats.Money < cost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "PayPetCare", before, CaptureStats(), $"Not enough money (need {cost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent($"Not enough money. Pet food for the week costs {cost} LE.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-cost);
-        Player.HouseholdAssets.PayPetCare(CurrentWeek);
-        RaiseEvent($"You cover this week's pet food and care supplies for {cost} LE.");
-        RecordMutation(MutationCategories.HouseholdAsset, "PayPetCare", before, CaptureStats(), $"Paid pet care {cost} LE");
-        return true;
-    }
+        => HouseholdAssetsService.PayPetCare(this);
 
     public bool PayPlantCare()
-    {
-        var before = CaptureStats();
-        if (World.CurrentLocationId != LocationId.Home)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "PayPlantCare", before, CaptureStats(), "Not at home");
-            RaiseEvent("You need to be home to water and supply the plants.");
-            return false;
-        }
-
-        var cost = Player.HouseholdAssets.GetPlantCareCostDue(CurrentWeek);
-        if (cost <= 0)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "PayPlantCare", before, CaptureStats(), "Plant care already covered");
-            RaiseEvent("Plant care is already covered for this week.");
-            return false;
-        }
-
-        if (Player.Stats.Money < cost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "PayPlantCare", before, CaptureStats(), $"Not enough money (need {cost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent($"Not enough money. Plant care supplies cost {cost} LE this week.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-cost);
-        Player.HouseholdAssets.PayPlantCare(CurrentWeek);
-        RaiseEvent($"You pay {cost} LE to keep the plants watered and supplied this week.");
-        RecordMutation(MutationCategories.HouseholdAsset, "PayPlantCare", before, CaptureStats(), $"Paid plant care {cost} LE");
-        return true;
-    }
+        => HouseholdAssetsService.PayPlantCare(this);
 
     public bool UpgradePlant(Guid plantId, PlantUpgradeType upgradeType)
-    {
-        var before = CaptureStats();
-        if (World.CurrentLocationId != LocationId.Home)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "UpgradePlant", before, CaptureStats(), "Not at home");
-            RaiseEvent("You need to be home to work on the plants.");
-            return false;
-        }
-
-        var plant = Player.HouseholdAssets.GetPlant(plantId);
-        if (plant is null)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "UpgradePlant", before, CaptureStats(), "Plant not found");
-            RaiseEvent("That plant is not in your flat anymore.");
-            return false;
-        }
-
-        var cost = PlantUpgradeCatalog.GetCost(upgradeType);
-        if (Player.Stats.Money < cost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "UpgradePlant", before, CaptureStats(), $"Not enough money (need {cost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent($"Not enough money. {PlantUpgradeCatalog.GetName(upgradeType)} costs {cost} LE.");
-            return false;
-        }
-
-        if (!Player.HouseholdAssets.TryUpgradePlant(plantId, upgradeType, CurrentWeek))
-        {
-            RecordMutation(MutationCategories.GuardRejected, "UpgradePlant", before, CaptureStats(), $"{PlantUpgradeCatalog.GetName(upgradeType)} already active");
-            RaiseEvent($"{PlantUpgradeCatalog.GetName(upgradeType)} is already active for that plant.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-cost);
-        var definition = PlantRegistry.GetByType(plant.Type);
-        RaiseEvent($"{definition.Name}: {PlantUpgradeCatalog.GetName(upgradeType)} added for {cost} LE.");
-        RecordMutation(MutationCategories.HouseholdAsset, "UpgradePlant", before, CaptureStats(), $"Upgraded {definition.Name} with {PlantUpgradeCatalog.GetName(upgradeType)} for {cost} LE");
-        return true;
-    }
+        => HouseholdAssetsService.UpgradePlant(this, plantId, upgradeType);
 
     public bool UpgradeFishTank(FishTankUpgradeType upgradeType)
-    {
-        var before = CaptureStats();
-        if (World.CurrentLocationId != LocationId.Home)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "UpgradeFishTank", before, CaptureStats(), "Not at home");
-            RaiseEvent("You need to be home to work on the fish tank.");
-            return false;
-        }
-
-        var fishTank = Player.HouseholdAssets.GetFishTank();
-        if (fishTank is null)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "UpgradeFishTank", before, CaptureStats(), "No fish tank");
-            RaiseEvent("You don't have a fish tank to upgrade.");
-            return false;
-        }
-
-        var cost = FishTankUpgradeCatalog.GetCost(upgradeType);
-        if (Player.Stats.Money < cost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "UpgradeFishTank", before, CaptureStats(), $"Not enough money (need {cost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent($"Not enough money. {FishTankUpgradeCatalog.GetName(upgradeType)} costs {cost} LE.");
-            return false;
-        }
-
-        if (!Player.HouseholdAssets.TryUpgradeFishTank(upgradeType, CurrentWeek))
-        {
-            RecordMutation(MutationCategories.GuardRejected, "UpgradeFishTank", before, CaptureStats(), $"{FishTankUpgradeCatalog.GetName(upgradeType)} already active");
-            RaiseEvent($"{FishTankUpgradeCatalog.GetName(upgradeType)} is already active for the fish tank.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-cost);
-        RaiseEvent($"Fish Tank: {FishTankUpgradeCatalog.GetName(upgradeType)} added for {cost} LE.");
-        RecordMutation(MutationCategories.HouseholdAsset, "UpgradeFishTank", before, CaptureStats(), $"Upgraded fish tank with {FishTankUpgradeCatalog.GetName(upgradeType)} for {cost} LE");
-        return true;
-    }
+        => HouseholdAssetsService.UpgradeFishTank(this, upgradeType);
 
     public IReadOnlyList<NpcId> GetReachableNpcs()
     {
@@ -2446,10 +2118,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         int totalHerbEarnings,
         IEnumerable<OwnedRobot>? robots = null,
         int robotParts = 0)
-    {
-        Player.HouseholdAssets.Restore(pets, plants, hasStreetCatEncounter, lastStreetCatEncounterDay, totalHerbEarnings);
-        Player.Robotics.Restore(robots ?? [], robotParts);
-    }
+        => HouseholdAssetsService.Restore(this, pets, plants, hasStreetCatEncounter, lastStreetCatEncounterDay, totalHerbEarnings, robots, robotParts);
 
     internal void RestoreRamadanState(bool isActive, bool playerIsFasting, int daysFasting, int daysRemaining)
     {
@@ -3297,38 +2966,10 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     internal void ResolveWeeklyHouseholdAssets()
-    {
-        var resolution = Player.HouseholdAssets.ResolveWeeklyNeglect(CurrentWeek);
-        if (resolution.StressPenalty <= 0)
-        {
-            return;
-        }
-
-        Player.Stats.ModifyStress(resolution.StressPenalty);
-        RaiseAutoTransaction($"Skipping household care all week weighs on your mother. Stress +{resolution.StressPenalty}.");
-    }
+        => HouseholdAssetsService.ResolveWeekly(this);
 
     internal void TryRollStreetCatEncounter(Random random)
-    {
-#pragma warning disable CA5394
-        ArgumentNullException.ThrowIfNull(random);
-
-        if (World.CurrentLocationId != LocationId.Home || Clock.Day < 3)
-        {
-            return;
-        }
-
-        if (random.NextDouble() >= 0.15)
-        {
-            return;
-        }
-
-        if (Player.HouseholdAssets.TryTriggerStreetCatEncounter(Clock.Day))
-        {
-            RaiseEvent("A street cat starts waiting near your building door as if it has already chosen you.");
-        }
-#pragma warning restore CA5394
-    }
+        => HouseholdAssetsService.TryRollStreetCatEncounter(this, random);
 
     private InvestmentEligibilityContext CreateInvestmentEligibilityContext()
     {
