@@ -2590,34 +2590,28 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
     public void ApplyDebtPayment(DebtSource source, int amount)
     {
-        if (amount <= 0)
+        var result = DebtService.Repay(
+            source,
+            amount,
+            Player,
+            PlayerDebts,
+            Relationships,
+            DistrictHeat,
+            World.CurrentDistrict);
+        if (!result.Success || result.Payment <= 0)
         {
             return;
         }
 
-        var debt = PlayerDebts.Debts.FirstOrDefault(candidate => candidate.Source == source);
-        if (debt is null)
+        if (result.FullyRepaid)
         {
-            return;
+            var creditorName = result.CreditorNpc?.ToString() ?? source.ToString();
+            RaiseAutoTransaction($"Debt to {creditorName} fully repaid: {result.Payment} LE.");
         }
-
-        var payment = Math.Min(Math.Min(amount, debt.AmountOwed), Player.Stats.Money);
-        if (payment <= 0)
+        else
         {
-            return;
+            RaiseAutoTransaction($"Repaid {result.Payment} LE toward {source} debt. Remaining: {result.Remaining} LE.");
         }
-
-        Player.Stats.ModifyMoney(-payment);
-        PlayerDebts.RepayPartial(source, payment);
-        var remaining = PlayerDebts.Debts.FirstOrDefault(candidate => candidate.Source == source)?.AmountOwed ?? 0;
-        if (remaining == 0 && debt.CreditorNpcId is int creditorId && Enum.IsDefined(typeof(NpcId), creditorId))
-        {
-            var creditor = (NpcId)creditorId;
-            Relationships.SetDebtState(creditor, false);
-            Relationships.ModifyNpcTrust(creditor, 3);
-        }
-
-        RaiseAutoTransaction($"Repaid {payment} LE toward {source} debt. Remaining: {remaining} LE.");
     }
 
     public void ExtendDebtDueDate(DebtSource source, int days)
@@ -4029,36 +4023,20 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
     private void ProcessDailyDebt()
     {
-        var overdue = PlayerDebts.GetOverdueDebts(Clock.Day);
-        foreach (var debt in overdue)
+        var result = DebtService.ProcessDailyLoanShark(PlayerDebts, Player.Stats, Clock.Day);
+        if (!string.IsNullOrEmpty(result.Message))
         {
-            if (debt.Source == DebtSource.LoanShark)
-            {
-                var penalty = LoanSharkEscalation.ApplyDailyPenalty(debt, Clock.Day);
-                if (penalty.Stress != 0)
-                {
-                    Player.Stats.ModifyStress(penalty.Stress);
-                }
-                if (penalty.Health != 0)
-                {
-                    Player.Stats.ModifyHealth(penalty.Health);
-                }
-                if (!string.IsNullOrEmpty(penalty.Message))
-                {
-                    RaiseEvent(penalty.Message);
-                }
+            RaiseEvent(result.Message);
+        }
 
-                if (LoanSharkEscalation.ShouldTriggerViolence(debt, Clock.Day))
-                {
-                    var before = CaptureStats();
-                    EndingId = Endings.EndingId.Destitution;
-                    IsGameOver = true;
-                    GameOverReason = "The loan sharks come to collect. You cannot pay.";
-                    PendingEndingKnot = EndingKnotCatalog.Destitution;
-                    RecordMutation(MutationCategories.EndingTriggered, "ProcessDailyDebt", before, CaptureStats(), "Destitution ending triggered by loan shark violence");
-                    return;
-                }
-            }
+        if (result.TriggersDestitution)
+        {
+            var before = CaptureStats();
+            EndingId = Endings.EndingId.Destitution;
+            IsGameOver = true;
+            GameOverReason = "The loan sharks come to collect. You cannot pay.";
+            PendingEndingKnot = EndingKnotCatalog.Destitution;
+            RecordMutation(MutationCategories.EndingTriggered, "ProcessDailyDebt", before, CaptureStats(), "Destitution ending triggered by loan shark violence");
         }
     }
 
@@ -4070,156 +4048,56 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
     public (bool Success, int Amount, string Message) TryBorrowFromNpc(NpcId npc, int amount)
     {
-        if (amount <= 0)
+        var result = DebtService.BorrowFromNpc(npc, amount, Clock.Day, Player, Relationships, NpcEconomies, PlayerDebts);
+        if (!result.Success)
         {
-            return (false, 0, "Invalid amount.");
+            return result;
         }
-
-        var relationship = Relationships.GetNpcRelationship(npc);
-        if (relationship.Trust < 10)
-        {
-            return (false, 0, $"{npc} doesn't trust you enough for a loan.");
-        }
-
-        if (relationship.HasUnpaidDebt)
-        {
-            return (false, 0, $"You already owe {npc}.");
-        }
-
-        var economy = NpcEconomies.GetEconomy(npc);
-        if (economy.WealthLevel == NpcWealthLevel.Struggling)
-        {
-            return (false, 0, $"{npc} can't afford to lend right now.");
-        }
-
-        var maxAmount = economy.Generosity >= 7 ? 50 : 30;
-        var actualAmount = Math.Min(amount, maxAmount);
-
-        var source = npc == NpcId.LandlordHajjMahmoud ? DebtSource.LandlordAdvance : DebtSource.NeighborLoan;
-        if (Player.BackgroundType == BackgroundType.SudaneseRefugee && source == DebtSource.NeighborLoan)
-        {
-            source = DebtSource.CommunityMutualAid;
-        }
-
-        if (source == DebtSource.LandlordAdvance)
-        {
-            actualAmount = Math.Min(amount, 100);
-        }
-
-        var interestBps = 0;
-        var dueDay = Clock.Day + 14;
-
-        if (source == DebtSource.NeighborLoan && economy.Generosity < 5)
-        {
-            dueDay = Clock.Day + 7;
-        }
-
-        if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout && economy.Generosity >= 5)
-        {
-            dueDay = Clock.Day + 21;
-        }
-
-        Player.Stats.ModifyMoney(actualAmount);
-        Relationships.SetDebtState(npc, true);
-
-        PlayerDebts.AddDebt(new PlayerDebt
-        {
-            Source = source,
-            AmountOwed = actualAmount,
-            InterestWeeklyBasisPoints = interestBps,
-            DueDay = dueDay,
-            CollectionState = DebtCollectionState.Current,
-            OriginDay = Clock.Day,
-            CreditorNpcId = (int)npc
-        });
 
         var before = CaptureStats();
-        RecordMutation(MutationCategories.Economy, "TryBorrowFromNpc", before, CaptureStats(), $"Borrowed {actualAmount} LE from {npc} (due day {dueDay})");
-        RaiseAutoTransaction($"Borrowed {actualAmount} LE from {npc}.");
+        var debt = PlayerDebts.Debts[^1];
+        RecordMutation(MutationCategories.Economy, "TryBorrowFromNpc", before, CaptureStats(), $"Borrowed {result.Amount} LE from {npc} (due day {debt.DueDay})");
+        RaiseAutoTransaction($"Borrowed {result.Amount} LE from {npc}.");
 
-        return (true, actualAmount, $"{npc} lends you {actualAmount} LE. Pay it back by day {dueDay}.");
+        return result;
     }
 
     public (bool Success, int Amount, string Message) TryBorrowFromLandlord(int amount)
     {
-        if (amount <= 0)
+        var result = DebtService.BorrowFromLandlord(amount, Clock.Day, Player, Relationships, _rentState, PlayerDebts);
+        if (!result.Success)
         {
-            return (false, 0, "Invalid amount.");
+            return result;
         }
-
-        var relationship = Relationships.GetNpcRelationship(NpcId.LandlordHajjMahmoud);
-        if (relationship.Trust < 5)
-        {
-            return (false, 0, "Hajj Mahmoud won't advance you anything.");
-        }
-
-        if (relationship.HasUnpaidDebt)
-        {
-            return (false, 0, "You already owe the landlord.");
-        }
-
-        var actualAmount = Math.Clamp(amount, 50, 100);
-
-        Player.Stats.ModifyMoney(actualAmount);
-        Relationships.SetDebtState(NpcId.LandlordHajjMahmoud, true);
-        _rentState.PayPartialDebt(-actualAmount);
-
-        PlayerDebts.AddDebt(new PlayerDebt
-        {
-            Source = DebtSource.LandlordAdvance,
-            AmountOwed = actualAmount,
-            InterestWeeklyBasisPoints = 0,
-            DueDay = Clock.Day + 14,
-            CollectionState = DebtCollectionState.Current,
-            OriginDay = Clock.Day,
-            CreditorNpcId = (int)NpcId.LandlordHajjMahmoud
-        });
 
         var before = CaptureStats();
-        RecordMutation(MutationCategories.Economy, "TryBorrowFromLandlord", before, CaptureStats(), $"Landlord advance: {actualAmount} LE (added to rent debt)");
-        RaiseAutoTransaction($"Hajj Mahmoud advances you {actualAmount} LE. It's added to your rent debt.");
+        RecordMutation(MutationCategories.Economy, "TryBorrowFromLandlord", before, CaptureStats(), $"Landlord advance: {result.Amount} LE (added to rent debt)");
+        RaiseAutoTransaction($"Hajj Mahmoud advances you {result.Amount} LE. It's added to your rent debt.");
 
-        return (true, actualAmount, $"Hajj Mahmoud advances {actualAmount} LE. It goes on your rent account.");
+        return result;
     }
 
     public (bool Success, int Amount, string Message) TryBorrowFromLoanShark(int amount)
     {
-        if (amount <= 0)
+        var result = DebtService.BorrowFromLoanShark(
+            amount,
+            Clock.Day,
+            Player.BackgroundType,
+            Player,
+            PlayerDebts,
+            DistrictHeat,
+            World.CurrentDistrict,
+            _sharedRandom);
+        if (!result.Success)
         {
-            return (false, 0, "Invalid amount.");
+            return (false, 0, result.Message);
         }
-
-        var existingSharkDebt = PlayerDebts.Debts.FirstOrDefault(static d => d.Source == DebtSource.LoanShark);
-        if (existingSharkDebt is not null)
-        {
-            return (false, 0, "You already have an outstanding loan shark debt. Settle it first.");
-        }
-
-        var maxAmount = Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner ? 200 : 300;
-        var actualAmount = Math.Clamp(amount, 100, maxAmount);
-
-#pragma warning disable CA5394
-        var interestBps = _sharedRandom.Next(2000, 3000);
-#pragma warning restore CA5394
-
-        Player.Stats.ModifyMoney(actualAmount);
-        DistrictHeat.AddHeat(World.CurrentDistrict, 5);
-
-        PlayerDebts.AddDebt(new PlayerDebt
-        {
-            Source = DebtSource.LoanShark,
-            AmountOwed = actualAmount,
-            InterestWeeklyBasisPoints = interestBps,
-            DueDay = Clock.Day + 7,
-            CollectionState = DebtCollectionState.Current,
-            OriginDay = Clock.Day
-        });
 
         var before = CaptureStats();
-        RecordMutation(MutationCategories.Economy, "TryBorrowFromLoanShark", before, CaptureStats(), $"Loan shark: {actualAmount} LE at {interestBps}bps, due day {Clock.Day + 7}");
-        RaiseAutoTransaction($"A loan shark hands you {actualAmount} LE. The interest is brutal. Due in 7 days.");
+        RecordMutation(MutationCategories.Economy, "TryBorrowFromLoanShark", before, CaptureStats(), $"Loan shark: {result.Amount} LE at {result.InterestBasisPoints}bps, due day {Clock.Day + 7}");
+        RaiseAutoTransaction($"A loan shark hands you {result.Amount} LE. The interest is brutal. Due in 7 days.");
 
-        return (true, actualAmount, $"You take {actualAmount} LE from a loan shark. Interest compounds weekly. Due in 7 days. Police pressure rises.");
+        return (true, result.Amount, result.Message);
     }
 
     public (bool Success, string Message) TryLendToNpc(NpcId npc, int amount)
@@ -4265,51 +4143,26 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
     public (bool Success, int Remaining, string Message) RepayDebt(DebtSource source, int amount)
     {
-        if (amount <= 0)
+        var result = DebtService.Repay(source, amount, Player, PlayerDebts, Relationships, DistrictHeat, World.CurrentDistrict);
+        if (!result.Success)
         {
-            return (false, 0, "Invalid amount.");
+            return (false, result.Remaining, result.Message);
         }
 
-        var debt = PlayerDebts.Debts.FirstOrDefault(d => d.Source == source);
-        if (debt is null)
+        if (result.FullyRepaid)
         {
-            return (false, 0, "No such debt to repay.");
-        }
-
-        var payment = Math.Min(amount, debt.AmountOwed);
-        if (Player.Stats.Money < payment)
-        {
-            return (false, debt.AmountOwed, "Not enough money.");
-        }
-
-        Player.Stats.ModifyMoney(-payment);
-        PlayerDebts.RepayPartial(source, payment);
-
-        var remaining = PlayerDebts.Debts.FirstOrDefault(d => d.Source == source)?.AmountOwed ?? 0;
-
-        if (remaining <= 0 && debt.CreditorNpcId.HasValue)
-        {
-            var creditorNpc = (NpcId)debt.CreditorNpcId.Value;
-            Relationships.SetDebtState(creditorNpc, false);
-            Relationships.ModifyNpcTrust(creditorNpc, 3);
-            RaiseAutoTransaction($"Debt to {creditorNpc} fully repaid: {payment} LE.");
+            var creditorName = result.CreditorNpc?.ToString() ?? source.ToString();
+            RaiseAutoTransaction($"Debt to {creditorName} fully repaid: {result.Payment} LE.");
         }
         else
         {
-            RaiseAutoTransaction($"Repaid {payment} LE toward {source} debt. Remaining: {remaining} LE.");
-        }
-
-        if (source == DebtSource.LoanShark && remaining <= 0)
-        {
-            DistrictHeat.AddHeat(World.CurrentDistrict, -3);
+            RaiseAutoTransaction($"Repaid {result.Payment} LE toward {source} debt. Remaining: {result.Remaining} LE.");
         }
 
         var before = CaptureStats();
-        RecordMutation(MutationCategories.Economy, "RepayDebt", before, CaptureStats(), $"Repaid {payment} LE ({source}), remaining {remaining} LE");
+        RecordMutation(MutationCategories.Economy, "RepayDebt", before, CaptureStats(), $"Repaid {result.Payment} LE ({source}), remaining {result.Remaining} LE");
 
-        return (true, remaining, remaining > 0
-            ? $"Paid {payment} LE. {remaining} LE remaining on {source} debt."
-            : $"{source} debt fully repaid!");
+        return (true, result.Remaining, result.Message);
     }
 
     public void RestoreEconomyState(

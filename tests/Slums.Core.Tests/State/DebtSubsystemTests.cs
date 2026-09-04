@@ -333,4 +333,17 @@ internal sealed class DebtSubsystemTests
         var heatAfter = session.DistrictHeat.GetHeat(session.World.CurrentDistrict);
         await Assert.That(heatAfter).IsEqualTo(heatBefore - 3);
     }
+
+    [Test]
+    public async Task RepayDebt_FullRepaymentRestoresThreeCreditorTrust()
+    {
+        var session = CreateSession(money: 0);
+        session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 20, 0);
+        session.TryBorrowFromNpc(NpcId.NeighborMona, 30);
+        session.Player.Stats.SetMoney(30);
+
+        session.RepayDebt(DebtSource.NeighborLoan, 30);
+
+        await Assert.That(session.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust).IsEqualTo(23);
+    }
 }
