@@ -318,7 +318,7 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 | W3.4 | 3 | Tips | Done | `TipService` owns tip generation/delivery, acknowledgement, ignore erosion, and restoration; GameSession.cs = 2,238 lines |
 | W4.1 | 4 | Work session glue | Done | `WorkSessionService` owns work actions, availability, previews, modifiers, ledgers, and work restoration while reusing `JobService`; GameSession.cs = 1,946 lines |
 | W4.2 | 4 | Crime | Done | `CrimeSessionService` owns crime availability, commitment, previews, modifiers, contact aftermath, counters, and police-pressure state while preserving RNG, heat, narrative queue order, and public signatures; `GameSession.cs` = 1,630 lines |
-| W4.3 | 4 | Random events | Not started | |
+| W4.3 | 4 | Random events | In progress | Claim: extract random-event application and effective-weight rules into `RandomEventSessionService`; preserve event history, RNG-independent weighting, journal order, and public signatures. |
 | W5.1 | 5 | Calendar/season/schedule | Not started | |
 | W5.2 | 5 | District condition rolls | Not started | |
 | W5.3 | 5 | Territory events | Not started | |
