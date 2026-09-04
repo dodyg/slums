@@ -237,6 +237,8 @@ Each job has multiple variants unlocked by:
 - **Skills**: Physical 2/3, Persuasion 2, Medical 2/3
 - **Background**: Medical dropout gets clinic advantages
 
+Variant unlock checks and their preview hints share the centralized `JobVariantThresholds` table in `Slums.Core.Jobs`, so threshold changes cannot drift between execution and UI guidance.
+
 ### Mistake System
 Jobs can trigger mistakes based on high stress (60-65+) or low energy. Mistakes cause reduced pay, extra stress, reliability loss (-10 to -15), temporary lockout (1-2 days), and employer trust loss (-4).
 

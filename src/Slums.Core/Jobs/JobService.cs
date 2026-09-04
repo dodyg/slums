@@ -53,7 +53,7 @@ public sealed class JobService
 
         var pay = resolvedJob.CalculatePay(random);
         var energyCost = resolvedJob.EnergyCost;
-        if (player.Skills.GetLevel(SkillId.Physical) >= 3 &&
+        if (player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel3 &&
             (resolvedJob.Type == JobType.BakeryWork || resolvedJob.Type == JobType.HouseCleaning || resolvedJob.Type == JobType.WorkshopSewing || resolvedJob.Type == JobType.FishSorter || resolvedJob.Type == JobType.MarketPorter))
         {
             energyCost = Math.Max(0, energyCost - 5);
@@ -212,12 +212,12 @@ public sealed class JobService
     private static JobShift ResolveBakeryShift(PlayerCharacter player, JobTrackProgress track)
     {
         var baseShift = JobRegistry.BakeryWork;
-        if (track.Reliability >= 75 && player.Skills.GetLevel(SkillId.Physical) >= 3)
+        if (track.Reliability >= JobVariantThresholds.Reliability75 && player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel3)
         {
             return CreateShiftVariant(baseShift, "Bakery Dough Prep", "Start before dawn shaping and loading trays for the first rush.", 9, 5, 2, 30, 5);
         }
 
-        if (track.Reliability >= 55 || player.Skills.GetLevel(SkillId.Physical) >= 2)
+        if (track.Reliability >= JobVariantThresholds.Reliability55 || player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel2)
         {
             return CreateShiftVariant(baseShift, "Bakery Oven Shift", "Take the hotter early run near the ovens for steadier pay.", 5, 3, 1, 0, 0);
         }
@@ -228,12 +228,12 @@ public sealed class JobService
     private static JobShift ResolveHouseCleaningShift(JobTrackProgress track)
     {
         var baseShift = JobRegistry.HouseCleaning;
-        if (track.Reliability >= 80)
+        if (track.Reliability >= JobVariantThresholds.Reliability80)
         {
             return CreateShiftVariant(baseShift, "Full Apartment Cleaning", "A full-day flat cleaning for repeat clients who pay a little more and judge every detail.", 7, 4, 2, 60, 5);
         }
 
-        if (track.Reliability >= 60)
+        if (track.Reliability >= JobVariantThresholds.Reliability60)
         {
             return CreateShiftVariant(baseShift, "Regular Client Cleaning", "A steadier home cleaning route from households willing to call you back.", 4, 0, -1, 0, 0);
         }
@@ -244,12 +244,12 @@ public sealed class JobService
     private static JobShift ResolveCallCenterShift(PlayerCharacter player, JobTrackProgress track)
     {
         var baseShift = JobRegistry.CallCenterWork;
-        if (track.Reliability >= 70 && player.Skills.GetLevel(SkillId.Persuasion) >= 2)
+        if (track.Reliability >= JobVariantThresholds.Reliability70 && player.Skills.GetLevel(SkillId.Persuasion) >= JobVariantThresholds.SkillLevel2)
         {
             return CreateShiftVariant(baseShift, "Call Center Retention Queue", "Handle angry callers and the harder scripts that pay a little better.", 10, 0, 6, 0, 0);
         }
 
-        if (track.Reliability >= 55)
+        if (track.Reliability >= JobVariantThresholds.Reliability55)
         {
             return CreateShiftVariant(baseShift, "Call Center Follow-Up Shift", "Take the longer callbacks and survey queue when supervisors stop hovering.", 5, 0, 3, 0, 0);
         }
@@ -261,14 +261,14 @@ public sealed class JobService
     {
         var baseShift = JobRegistry.ClinicReception;
         var salmaTrust = relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust;
-        if (salmaTrust >= 20 && track.Reliability >= 70)
+        if (salmaTrust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70)
         {
             var payDelta = player.BackgroundType == BackgroundType.MedicalSchoolDropout ? 13 : 11;
             var stressDelta = player.BackgroundType == BackgroundType.MedicalSchoolDropout ? -5 : -3;
             return CreateShiftVariant(baseShift, "Clinic Triage Support", "Cover intake and basic triage support when the hallway starts overflowing.", payDelta, 0, stressDelta, 30, 0);
         }
 
-        if (salmaTrust >= 10 || player.Skills.GetLevel(SkillId.Medical) >= 2 || player.BackgroundType == BackgroundType.MedicalSchoolDropout)
+        if (salmaTrust >= JobVariantThresholds.Trust10 || player.Skills.GetLevel(SkillId.Medical) >= JobVariantThresholds.SkillLevel2 || player.BackgroundType == BackgroundType.MedicalSchoolDropout)
         {
             var payDelta = player.BackgroundType == BackgroundType.MedicalSchoolDropout ? 8 : 6;
             var stressDelta = player.BackgroundType == BackgroundType.MedicalSchoolDropout ? -4 : -2;
@@ -282,12 +282,12 @@ public sealed class JobService
     {
         var baseShift = JobRegistry.WorkshopSewing;
         var abuSamirTrust = relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust;
-        if (abuSamirTrust >= 20 && track.Reliability >= 75)
+        if (abuSamirTrust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability75)
         {
             return CreateShiftVariant(baseShift, "Workshop Rush Table", "Take the better table when Abu Samir has a rush order breathing down his neck.", 10, -2, 3, 0, 0);
         }
 
-        if (abuSamirTrust >= 10 || track.Reliability >= 60)
+        if (abuSamirTrust >= JobVariantThresholds.Trust10 || track.Reliability >= JobVariantThresholds.Reliability60)
         {
             return CreateShiftVariant(baseShift, "Workshop Finishing Table", "Work the cleaner finishing line instead of the worst packing pile.", 6, -3, 0, 0, 0);
         }
@@ -299,12 +299,12 @@ public sealed class JobService
     {
         var baseShift = JobRegistry.CafeService;
         var nadiaTrust = relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust;
-        if (nadiaTrust >= 20 && track.Reliability >= 70)
+        if (nadiaTrust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70)
         {
             return CreateShiftVariant(baseShift, "Cafe Front Tables", "Handle the customers Nadia trusts to tip, complain, and test you in equal measure.", 9, 0, 4, 0, 0);
         }
 
-        if (nadiaTrust >= 10 || player.Skills.GetLevel(SkillId.Persuasion) >= 2)
+        if (nadiaTrust >= JobVariantThresholds.Trust10 || player.Skills.GetLevel(SkillId.Persuasion) >= JobVariantThresholds.SkillLevel2)
         {
             var rushShift = CreateShiftVariant(baseShift, "Cafe Rush Tables", "Take the evening rush when the tea keeps moving and the room never quiets down.", 5, 0, 2, 0, 0);
             return ApplySudanesePenalty(player, rushShift);
@@ -317,12 +317,12 @@ public sealed class JobService
     {
         var baseShift = JobRegistry.PharmacyStock;
         var mariamTrust = relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust;
-        if (mariamTrust >= 20 && track.Reliability >= 70)
+        if (mariamTrust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70)
         {
             return CreateShiftVariant(baseShift, "Pharmacy Counter Support", "Handle the counter during the afternoon crush while Mariam checks scripts and shortages.", 9, 0, 2, 0, 0);
         }
 
-        if (mariamTrust >= 10 || player.Skills.GetLevel(SkillId.Medical) >= 2 || player.BackgroundType == BackgroundType.MedicalSchoolDropout)
+        if (mariamTrust >= JobVariantThresholds.Trust10 || player.Skills.GetLevel(SkillId.Medical) >= JobVariantThresholds.SkillLevel2 || player.BackgroundType == BackgroundType.MedicalSchoolDropout)
         {
             return CreateShiftVariant(baseShift, "Pharmacy Restock Run", "Rotate deliveries, sort invoices, and keep cheap painkillers from vanishing too fast.", 5, 0, -1, 0, 0);
         }
@@ -334,12 +334,12 @@ public sealed class JobService
     {
         var baseShift = JobRegistry.MicrobusDispatch;
         var safaaTrust = relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust;
-        if (safaaTrust >= 20 && track.Reliability >= 70)
+        if (safaaTrust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70)
         {
             return CreateShiftVariant(baseShift, "Depot Route Board", "Keep the board moving, settle queue fights, and fill the hungriest route first.", 10, -2, 3, 0, 0);
         }
 
-        if (safaaTrust >= 10 || player.Skills.GetLevel(SkillId.Persuasion) >= 2)
+        if (safaaTrust >= JobVariantThresholds.Trust10 || player.Skills.GetLevel(SkillId.Persuasion) >= JobVariantThresholds.SkillLevel2)
         {
             return CreateShiftVariant(baseShift, "Platform Caller", "Shout routes and keep impatient drivers from losing the line before noon.", 5, 0, 1, 0, 0);
         }
@@ -351,12 +351,12 @@ public sealed class JobService
     {
         var baseShift = JobRegistry.LaundryPressing;
         var imanTrust = relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust;
-        if (imanTrust >= 20 && track.Reliability >= 75)
+        if (imanTrust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability75)
         {
             return CreateShiftVariant(baseShift, "Laundry Front Counter", "Take customer handoffs and the better pressing table when Iman trusts you not to lose a ticket.", 9, -3, 2, 0, 0);
         }
 
-        if (imanTrust >= 10 || track.Reliability >= 60)
+        if (imanTrust >= JobVariantThresholds.Trust10 || track.Reliability >= JobVariantThresholds.Reliability60)
         {
             return CreateShiftVariant(baseShift, "Laundry Sorting Table", "Sort linens and finished bundles instead of standing at the hottest iron all shift.", 5, -4, 0, 0, 0);
         }
@@ -368,13 +368,13 @@ public sealed class JobService
     {
         var baseShift = JobRegistry.StreetVending;
         var tarekTrust = relationshipState.GetNpcRelationship(NpcId.VendorTarek).Trust;
-        if (tarekTrust >= 15 && track.Reliability >= 70)
+        if (tarekTrust >= JobVariantThresholds.Trust15 && track.Reliability >= JobVariantThresholds.Reliability70)
         {
             var shift = CreateShiftVariant(baseShift, "Prime Spot Vending", "Tarek saves you the corner spot where commuters bottleneck every morning.", 8, -2, 3, 0, 0);
             return ApplySudanesePenalty(player, shift);
         }
 
-        if (track.Reliability >= 55 || player.Skills.GetLevel(SkillId.Persuasion) >= 2)
+        if (track.Reliability >= JobVariantThresholds.Reliability55 || player.Skills.GetLevel(SkillId.Persuasion) >= JobVariantThresholds.SkillLevel2)
         {
             var shift = CreateShiftVariant(baseShift, "Rush Hour Vending", "Set up during the afternoon rush when foot traffic doubles.", 4, 0, 2, 0, 0);
             return ApplySudanesePenalty(player, shift);
@@ -386,12 +386,12 @@ public sealed class JobService
     private static JobShift ResolveFishSorterShift(PlayerCharacter player, JobTrackProgress track)
     {
         var baseShift = JobRegistry.FishSorter;
-        if (track.Reliability >= 75 && player.Skills.GetLevel(SkillId.Physical) >= 3)
+        if (track.Reliability >= JobVariantThresholds.Reliability75 && player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel3)
         {
             return CreateShiftVariant(baseShift, "Morning Auction Prep", "Sort the premium catch before the auctioneer arrives and the big buyers start bidding.", 8, -3, 1, 0, 0);
         }
 
-        if (track.Reliability >= 55 || player.Skills.GetLevel(SkillId.Physical) >= 2)
+        if (track.Reliability >= JobVariantThresholds.Reliability55 || player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel2)
         {
             return CreateShiftVariant(baseShift, "Ice Run Shift", "Haul ice blocks and keep the crates cold while the midday heat bears down.", 4, -3, 0, 0, 0);
         }
@@ -402,12 +402,12 @@ public sealed class JobService
     private static JobShift ResolveMarketPorterShift(JobTrackProgress track)
     {
         var baseShift = JobRegistry.MarketPorter;
-        if (track.Reliability >= 80)
+        if (track.Reliability >= JobVariantThresholds.Reliability80)
         {
             return CreateShiftVariant(baseShift, "Wholesale Carry", "Move bulk orders for the biggest stallholders who pay by weight and distance.", 7, -4, 2, 0, 0);
         }
 
-        if (track.Reliability >= 60)
+        if (track.Reliability >= JobVariantThresholds.Reliability60)
         {
             return CreateShiftVariant(baseShift, "Steady Route Porter", "Walk a fixed route between trusted vendors who set aside the heaviest loads for you.", 4, 0, -1, 0, 0);
         }
@@ -456,9 +456,9 @@ public sealed class JobService
     {
         return jobType switch
         {
-            JobType.CallCenterWork when track.Reliability >= 70 => 5,
-            JobType.ClinicReception when track.Reliability >= 70 => 5,
-            JobType.StreetVending when track.Reliability >= 70 => 6,
+            JobType.CallCenterWork when track.Reliability >= JobVariantThresholds.Reliability70 => 5,
+            JobType.ClinicReception when track.Reliability >= JobVariantThresholds.Reliability70 => 5,
+            JobType.StreetVending when track.Reliability >= JobVariantThresholds.Reliability70 => 6,
             _ => 7
         };
     }
@@ -536,41 +536,41 @@ public sealed class JobService
     {
         return jobType switch
         {
-            JobType.BakeryWork when track.Reliability >= 75 && player.Skills.GetLevel(SkillId.Physical) >= 3 => "Unlocked by reliability 75 and Physical 3.",
-            JobType.BakeryWork when track.Reliability >= 55 => "Unlocked by reliability 55.",
-            JobType.BakeryWork when player.Skills.GetLevel(SkillId.Physical) >= 2 => "Unlocked by Physical 2.",
-            JobType.HouseCleaning when track.Reliability >= 80 => "Unlocked by reliability 80.",
-            JobType.HouseCleaning when track.Reliability >= 60 => "Unlocked by reliability 60.",
-            JobType.CallCenterWork when track.Reliability >= 70 && player.Skills.GetLevel(SkillId.Persuasion) >= 2 => "Unlocked by reliability 70 and Persuasion 2.",
-            JobType.CallCenterWork when track.Reliability >= 55 => "Unlocked by reliability 55.",
-            JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust >= 20 && track.Reliability >= 70 => "Unlocked by Nurse Salma trust 20 and reliability 70.",
-            JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust >= 10 => "Unlocked by Nurse Salma trust 10.",
-            JobType.ClinicReception when player.Skills.GetLevel(SkillId.Medical) >= 2 => "Unlocked by Medical 2.",
+            JobType.BakeryWork when track.Reliability >= JobVariantThresholds.Reliability75 && player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel3 => "Unlocked by reliability 75 and Physical 3.",
+            JobType.BakeryWork when track.Reliability >= JobVariantThresholds.Reliability55 => "Unlocked by reliability 55.",
+            JobType.BakeryWork when player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel2 => "Unlocked by Physical 2.",
+            JobType.HouseCleaning when track.Reliability >= JobVariantThresholds.Reliability80 => "Unlocked by reliability 80.",
+            JobType.HouseCleaning when track.Reliability >= JobVariantThresholds.Reliability60 => "Unlocked by reliability 60.",
+            JobType.CallCenterWork when track.Reliability >= JobVariantThresholds.Reliability70 && player.Skills.GetLevel(SkillId.Persuasion) >= JobVariantThresholds.SkillLevel2 => "Unlocked by reliability 70 and Persuasion 2.",
+            JobType.CallCenterWork when track.Reliability >= JobVariantThresholds.Reliability55 => "Unlocked by reliability 55.",
+            JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70 => "Unlocked by Nurse Salma trust 20 and reliability 70.",
+            JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust >= JobVariantThresholds.Trust10 => "Unlocked by Nurse Salma trust 10.",
+            JobType.ClinicReception when player.Skills.GetLevel(SkillId.Medical) >= JobVariantThresholds.SkillLevel2 => "Unlocked by Medical 2.",
             JobType.ClinicReception when player.BackgroundType == BackgroundType.MedicalSchoolDropout => "Unlocked by your medical-school background.",
-            JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust >= 20 && track.Reliability >= 75 => "Unlocked by Abu Samir trust 20 and reliability 75.",
-            JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust >= 10 => "Unlocked by Abu Samir trust 10.",
-            JobType.WorkshopSewing when track.Reliability >= 60 => "Unlocked by reliability 60.",
-            JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust >= 20 && track.Reliability >= 70 => "Unlocked by Nadia trust 20 and reliability 70.",
-            JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust >= 10 => "Unlocked by Nadia trust 10.",
-            JobType.CafeService when player.Skills.GetLevel(SkillId.Persuasion) >= 2 => "Unlocked by Persuasion 2.",
-            JobType.PharmacyStock when relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= 20 && track.Reliability >= 70 => "Unlocked by Mariam trust 20 and reliability 70.",
-            JobType.PharmacyStock when relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= 10 => "Unlocked by Mariam trust 10.",
-            JobType.PharmacyStock when player.Skills.GetLevel(SkillId.Medical) >= 2 => "Unlocked by Medical 2.",
+            JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability75 => "Unlocked by Abu Samir trust 20 and reliability 75.",
+            JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust >= JobVariantThresholds.Trust10 => "Unlocked by Abu Samir trust 10.",
+            JobType.WorkshopSewing when track.Reliability >= JobVariantThresholds.Reliability60 => "Unlocked by reliability 60.",
+            JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70 => "Unlocked by Nadia trust 20 and reliability 70.",
+            JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust >= JobVariantThresholds.Trust10 => "Unlocked by Nadia trust 10.",
+            JobType.CafeService when player.Skills.GetLevel(SkillId.Persuasion) >= JobVariantThresholds.SkillLevel2 => "Unlocked by Persuasion 2.",
+            JobType.PharmacyStock when relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70 => "Unlocked by Mariam trust 20 and reliability 70.",
+            JobType.PharmacyStock when relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust >= JobVariantThresholds.Trust10 => "Unlocked by Mariam trust 10.",
+            JobType.PharmacyStock when player.Skills.GetLevel(SkillId.Medical) >= JobVariantThresholds.SkillLevel2 => "Unlocked by Medical 2.",
             JobType.PharmacyStock when player.BackgroundType == BackgroundType.MedicalSchoolDropout => "Unlocked by your medical-school background.",
-            JobType.MicrobusDispatch when relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= 20 && track.Reliability >= 70 => "Unlocked by Safaa trust 20 and reliability 70.",
-            JobType.MicrobusDispatch when relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= 10 => "Unlocked by Safaa trust 10.",
-            JobType.MicrobusDispatch when player.Skills.GetLevel(SkillId.Persuasion) >= 2 => "Unlocked by Persuasion 2.",
-            JobType.LaundryPressing when relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust >= 20 && track.Reliability >= 75 => "Unlocked by Iman trust 20 and reliability 75.",
-            JobType.LaundryPressing when relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust >= 10 => "Unlocked by Iman trust 10.",
-            JobType.LaundryPressing when track.Reliability >= 60 => "Unlocked by reliability 60.",
-            JobType.StreetVending when relationshipState.GetNpcRelationship(NpcId.VendorTarek).Trust >= 15 && track.Reliability >= 70 => "Unlocked by Tarek trust 15 and reliability 70.",
-            JobType.StreetVending when track.Reliability >= 55 => "Unlocked by reliability 55.",
-            JobType.StreetVending when player.Skills.GetLevel(SkillId.Persuasion) >= 2 => "Unlocked by Persuasion 2.",
-            JobType.FishSorter when track.Reliability >= 75 && player.Skills.GetLevel(SkillId.Physical) >= 3 => "Unlocked by reliability 75 and Physical 3.",
-            JobType.FishSorter when track.Reliability >= 55 => "Unlocked by reliability 55.",
-            JobType.FishSorter when player.Skills.GetLevel(SkillId.Physical) >= 2 => "Unlocked by Physical 2.",
-            JobType.MarketPorter when track.Reliability >= 80 => "Unlocked by reliability 80.",
-            JobType.MarketPorter when track.Reliability >= 60 => "Unlocked by reliability 60.",
+            JobType.MicrobusDispatch when relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70 => "Unlocked by Safaa trust 20 and reliability 70.",
+            JobType.MicrobusDispatch when relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust >= JobVariantThresholds.Trust10 => "Unlocked by Safaa trust 10.",
+            JobType.MicrobusDispatch when player.Skills.GetLevel(SkillId.Persuasion) >= JobVariantThresholds.SkillLevel2 => "Unlocked by Persuasion 2.",
+            JobType.LaundryPressing when relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability75 => "Unlocked by Iman trust 20 and reliability 75.",
+            JobType.LaundryPressing when relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust >= JobVariantThresholds.Trust10 => "Unlocked by Iman trust 10.",
+            JobType.LaundryPressing when track.Reliability >= JobVariantThresholds.Reliability60 => "Unlocked by reliability 60.",
+            JobType.StreetVending when relationshipState.GetNpcRelationship(NpcId.VendorTarek).Trust >= JobVariantThresholds.Trust15 && track.Reliability >= JobVariantThresholds.Reliability70 => "Unlocked by Tarek trust 15 and reliability 70.",
+            JobType.StreetVending when track.Reliability >= JobVariantThresholds.Reliability55 => "Unlocked by reliability 55.",
+            JobType.StreetVending when player.Skills.GetLevel(SkillId.Persuasion) >= JobVariantThresholds.SkillLevel2 => "Unlocked by Persuasion 2.",
+            JobType.FishSorter when track.Reliability >= JobVariantThresholds.Reliability75 && player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel3 => "Unlocked by reliability 75 and Physical 3.",
+            JobType.FishSorter when track.Reliability >= JobVariantThresholds.Reliability55 => "Unlocked by reliability 55.",
+            JobType.FishSorter when player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel2 => "Unlocked by Physical 2.",
+            JobType.MarketPorter when track.Reliability >= JobVariantThresholds.Reliability80 => "Unlocked by reliability 80.",
+            JobType.MarketPorter when track.Reliability >= JobVariantThresholds.Reliability60 => "Unlocked by reliability 60.",
             JobType.RoboticsScavenging => "Abu Samir's side bench is open to anyone willing to sort useful hardware from city waste.",
             _ => "Base shift."
         };
@@ -580,30 +580,30 @@ public sealed class JobService
     {
         return jobType switch
         {
-            JobType.BakeryWork when track.Reliability < 55 && player.Skills.GetLevel(SkillId.Physical) < 2 => "Reach reliability 55 or Physical 2 for Bakery Oven Shift.",
-            JobType.BakeryWork when track.Reliability < 75 || player.Skills.GetLevel(SkillId.Physical) < 3 => "Reach reliability 75 and Physical 3 for Bakery Dough Prep.",
-            JobType.HouseCleaning when track.Reliability < 60 => "Reach reliability 60 for Regular Client Cleaning.",
-            JobType.HouseCleaning when track.Reliability < 80 => "Reach reliability 80 for Full Apartment Cleaning.",
-            JobType.CallCenterWork when track.Reliability < 55 => "Reach reliability 55 for Call Center Follow-Up Shift.",
-            JobType.CallCenterWork when track.Reliability < 70 || player.Skills.GetLevel(SkillId.Persuasion) < 2 => "Reach reliability 70 and Persuasion 2 for Call Center Retention Queue.",
-            JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust < 10 && player.Skills.GetLevel(SkillId.Medical) < 2 && player.BackgroundType != BackgroundType.MedicalSchoolDropout => "Reach Nurse Salma trust 10, Medical 2, or use the medical-dropout background for Clinic Intake Desk.",
-            JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust < 20 || track.Reliability < 70 => "Reach Nurse Salma trust 20 and reliability 70 for Clinic Triage Support.",
-            JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust < 10 && track.Reliability < 60 => "Reach Abu Samir trust 10 or reliability 60 for Workshop Finishing Table.",
-            JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust < 20 || track.Reliability < 75 => "Reach Abu Samir trust 20 and reliability 75 for Workshop Rush Table.",
-            JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust < 10 && player.Skills.GetLevel(SkillId.Persuasion) < 2 => "Reach Nadia trust 10 or Persuasion 2 for Cafe Rush Tables.",
-            JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust < 20 || track.Reliability < 70 => "Reach Nadia trust 20 and reliability 70 for Cafe Front Tables.",
-            JobType.PharmacyStock when relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust < 10 && player.Skills.GetLevel(SkillId.Medical) < 2 && player.BackgroundType != BackgroundType.MedicalSchoolDropout => "Reach Mariam trust 10, Medical 2, or use the medical-dropout background for Pharmacy Restock Run.",
-            JobType.PharmacyStock when relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust < 20 || track.Reliability < 70 => "Reach Mariam trust 20 and reliability 70 for Pharmacy Counter Support.",
-            JobType.MicrobusDispatch when relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust < 10 && player.Skills.GetLevel(SkillId.Persuasion) < 2 => "Reach Safaa trust 10 or Persuasion 2 for Platform Caller.",
-            JobType.MicrobusDispatch when relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust < 20 || track.Reliability < 70 => "Reach Safaa trust 20 and reliability 70 for Depot Route Board.",
-            JobType.LaundryPressing when relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust < 10 && track.Reliability < 60 => "Reach Iman trust 10 or reliability 60 for Laundry Sorting Table.",
-            JobType.LaundryPressing when relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust < 20 || track.Reliability < 75 => "Reach Iman trust 20 and reliability 75 for Laundry Front Counter.",
-            JobType.StreetVending when track.Reliability < 55 && player.Skills.GetLevel(SkillId.Persuasion) < 2 => "Reach reliability 55 or Persuasion 2 for Rush Hour Vending.",
-            JobType.StreetVending when relationshipState.GetNpcRelationship(NpcId.VendorTarek).Trust < 15 || track.Reliability < 70 => "Reach Tarek trust 15 and reliability 70 for Prime Spot Vending.",
-            JobType.FishSorter when track.Reliability < 55 && player.Skills.GetLevel(SkillId.Physical) < 2 => "Reach reliability 55 or Physical 2 for Ice Run Shift.",
-            JobType.FishSorter when track.Reliability < 75 || player.Skills.GetLevel(SkillId.Physical) < 3 => "Reach reliability 75 and Physical 3 for Morning Auction Prep.",
-            JobType.MarketPorter when track.Reliability < 60 => "Reach reliability 60 for Steady Route Porter.",
-            JobType.MarketPorter when track.Reliability < 80 => "Reach reliability 80 for Wholesale Carry.",
+            JobType.BakeryWork when track.Reliability < JobVariantThresholds.Reliability55 && player.Skills.GetLevel(SkillId.Physical) < JobVariantThresholds.SkillLevel2 => "Reach reliability 55 or Physical 2 for Bakery Oven Shift.",
+            JobType.BakeryWork when track.Reliability < JobVariantThresholds.Reliability75 || player.Skills.GetLevel(SkillId.Physical) < JobVariantThresholds.SkillLevel3 => "Reach reliability 75 and Physical 3 for Bakery Dough Prep.",
+            JobType.HouseCleaning when track.Reliability < JobVariantThresholds.Reliability60 => "Reach reliability 60 for Regular Client Cleaning.",
+            JobType.HouseCleaning when track.Reliability < JobVariantThresholds.Reliability80 => "Reach reliability 80 for Full Apartment Cleaning.",
+            JobType.CallCenterWork when track.Reliability < JobVariantThresholds.Reliability55 => "Reach reliability 55 for Call Center Follow-Up Shift.",
+            JobType.CallCenterWork when track.Reliability < JobVariantThresholds.Reliability70 || player.Skills.GetLevel(SkillId.Persuasion) < JobVariantThresholds.SkillLevel2 => "Reach reliability 70 and Persuasion 2 for Call Center Retention Queue.",
+            JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust < JobVariantThresholds.Trust10 && player.Skills.GetLevel(SkillId.Medical) < JobVariantThresholds.SkillLevel2 && player.BackgroundType != BackgroundType.MedicalSchoolDropout => "Reach Nurse Salma trust 10, Medical 2, or use the medical-dropout background for Clinic Intake Desk.",
+            JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust < JobVariantThresholds.Trust20 || track.Reliability < JobVariantThresholds.Reliability70 => "Reach Nurse Salma trust 20 and reliability 70 for Clinic Triage Support.",
+            JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust < JobVariantThresholds.Trust10 && track.Reliability < JobVariantThresholds.Reliability60 => "Reach Abu Samir trust 10 or reliability 60 for Workshop Finishing Table.",
+            JobType.WorkshopSewing when relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust < JobVariantThresholds.Trust20 || track.Reliability < JobVariantThresholds.Reliability75 => "Reach Abu Samir trust 20 and reliability 75 for Workshop Rush Table.",
+            JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust < JobVariantThresholds.Trust10 && player.Skills.GetLevel(SkillId.Persuasion) < JobVariantThresholds.SkillLevel2 => "Reach Nadia trust 10 or Persuasion 2 for Cafe Rush Tables.",
+            JobType.CafeService when relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust < JobVariantThresholds.Trust20 || track.Reliability < JobVariantThresholds.Reliability70 => "Reach Nadia trust 20 and reliability 70 for Cafe Front Tables.",
+            JobType.PharmacyStock when relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust < JobVariantThresholds.Trust10 && player.Skills.GetLevel(SkillId.Medical) < JobVariantThresholds.SkillLevel2 && player.BackgroundType != BackgroundType.MedicalSchoolDropout => "Reach Mariam trust 10, Medical 2, or use the medical-dropout background for Pharmacy Restock Run.",
+            JobType.PharmacyStock when relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust < JobVariantThresholds.Trust20 || track.Reliability < JobVariantThresholds.Reliability70 => "Reach Mariam trust 20 and reliability 70 for Pharmacy Counter Support.",
+            JobType.MicrobusDispatch when relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust < JobVariantThresholds.Trust10 && player.Skills.GetLevel(SkillId.Persuasion) < JobVariantThresholds.SkillLevel2 => "Reach Safaa trust 10 or Persuasion 2 for Platform Caller.",
+            JobType.MicrobusDispatch when relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust < JobVariantThresholds.Trust20 || track.Reliability < JobVariantThresholds.Reliability70 => "Reach Safaa trust 20 and reliability 70 for Depot Route Board.",
+            JobType.LaundryPressing when relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust < JobVariantThresholds.Trust10 && track.Reliability < JobVariantThresholds.Reliability60 => "Reach Iman trust 10 or reliability 60 for Laundry Sorting Table.",
+            JobType.LaundryPressing when relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust < JobVariantThresholds.Trust20 || track.Reliability < JobVariantThresholds.Reliability75 => "Reach Iman trust 20 and reliability 75 for Laundry Front Counter.",
+            JobType.StreetVending when track.Reliability < JobVariantThresholds.Reliability55 && player.Skills.GetLevel(SkillId.Persuasion) < JobVariantThresholds.SkillLevel2 => "Reach reliability 55 or Persuasion 2 for Rush Hour Vending.",
+            JobType.StreetVending when relationshipState.GetNpcRelationship(NpcId.VendorTarek).Trust < JobVariantThresholds.Trust15 || track.Reliability < JobVariantThresholds.Reliability70 => "Reach Tarek trust 15 and reliability 70 for Prime Spot Vending.",
+            JobType.FishSorter when track.Reliability < JobVariantThresholds.Reliability55 && player.Skills.GetLevel(SkillId.Physical) < JobVariantThresholds.SkillLevel2 => "Reach reliability 55 or Physical 2 for Ice Run Shift.",
+            JobType.FishSorter when track.Reliability < JobVariantThresholds.Reliability75 || player.Skills.GetLevel(SkillId.Physical) < JobVariantThresholds.SkillLevel3 => "Reach reliability 75 and Physical 3 for Morning Auction Prep.",
+            JobType.MarketPorter when track.Reliability < JobVariantThresholds.Reliability60 => "Reach reliability 60 for Steady Route Porter.",
+            JobType.MarketPorter when track.Reliability < JobVariantThresholds.Reliability80 => "Reach reliability 80 for Wholesale Carry.",
             JobType.RoboticsScavenging => null,
             _ => null
         };
@@ -613,7 +613,7 @@ public sealed class JobService
     {
         var modifiers = new List<string>();
 
-        if (player.Skills.GetLevel(SkillId.Physical) >= 3 &&
+        if (player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel3 &&
             resolvedJob.Type is JobType.BakeryWork or JobType.HouseCleaning or JobType.WorkshopSewing or JobType.FishSorter or JobType.MarketPorter)
         {
             modifiers.Add("Physical 3 reduces energy cost by 5.");
@@ -629,7 +629,7 @@ public sealed class JobService
             modifiers.Add("Sudanese refugee background applies vending friction: lower pay, higher stress.");
         }
 
-        if (resolvedJob.Type == JobType.StreetVending && relationshipState.GetNpcRelationship(NpcId.VendorTarek).Trust >= 15)
+        if (resolvedJob.Type == JobType.StreetVending && relationshipState.GetNpcRelationship(NpcId.VendorTarek).Trust >= JobVariantThresholds.Trust15)
         {
             modifiers.Add("Tarek trusts you enough to save you a prime spot.");
         }
