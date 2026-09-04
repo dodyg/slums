@@ -522,62 +522,12 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
     public bool RestAtHome()
     {
-        var before = CaptureStats();
-        if (World.CurrentLocationId != LocationId.Home)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "RestAtHome", before, CaptureStats(), "Not at home");
-            RaiseEvent("You need to go home to rest.");
-            return false;
-        }
-
-        var seasonRestBonus = GetCurrentSeasonModifiers().RestRecoveryBonus;
-        var recovery = SleepQualityCalculator.CalculateRecovery(
-            Player.Stats, Player.Nutrition, Player.Household,
-            UnpaidRentDays, HomeUpgrades, seasonRestBonus);
-
-        Player.Stats.ModifyEnergy(recovery);
-        Player.Stats.ModifyHunger(-10);
-        Player.Stats.ModifyStress(-15);
-        AdvanceTime(8 * 60);
-
-        var breakdown = SleepQualityCalculator.BuildRecoveryBreakdown(
-            recovery, Player.Stats, Player.Nutrition, Player.Household,
-            UnpaidRentDays, HomeUpgrades, seasonRestBonus);
-        RaiseEvent($"You rest at home. Energy +{recovery}. ({breakdown})");
-        RecordMutation(MutationCategories.Rest, "RestAtHome", before, CaptureStats(), "Rested at home");
-        return true;
+        return HomeUpgradeService.RestAtHome(this);
     }
 
     public bool TryPurchaseHomeUpgrade(HomeUpgrade upgrade)
     {
-        var before = CaptureStats();
-        if (World.CurrentLocationId != LocationId.Home)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryPurchaseHomeUpgrade", before, CaptureStats(), "Not at home");
-            RaiseEvent("You need to be at home to improve it.");
-            return false;
-        }
-
-        if (HomeUpgrades.HasUpgrade(upgrade))
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryPurchaseHomeUpgrade", before, CaptureStats(), $"{upgrade} already purchased");
-            RaiseEvent($"You already have {HomeUpgradeDefinitions.GetDescription(upgrade)}.");
-            return false;
-        }
-
-        var cost = HomeUpgradeDefinitions.GetCost(upgrade);
-        if (Player.Stats.Money < cost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryPurchaseHomeUpgrade", before, CaptureStats(), $"Not enough money ({cost} LE)");
-            RaiseEvent($"You can't afford that. You need {cost} LE but only have {Player.Stats.Money} LE.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-cost);
-        HomeUpgrades.Purchase(upgrade);
-        RaiseEvent($"You bought {HomeUpgradeDefinitions.GetDescription(upgrade)} for {cost} LE.");
-        RecordMutation(MutationCategories.Shop, "TryPurchaseHomeUpgrade", before, CaptureStats(), $"Purchased {upgrade} for {cost} LE");
-        return true;
+        return HomeUpgradeService.Purchase(this, upgrade);
     }
 
     public bool TryTravelTo(LocationId locationId)
@@ -1076,15 +1026,12 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
     internal void RestoreHomeUpgrades(IEnumerable<HomeUpgrade> upgrades)
     {
-        ArgumentNullException.ThrowIfNull(upgrades);
-        HomeUpgrades.Restore(upgrades);
+        HomeUpgradeService.Restore(this, upgrades);
     }
 
     public IReadOnlyList<HomeUpgrade> GetAvailableHomeUpgrades()
     {
-        return HomeUpgradeDefinitions.AllUpgrades
-            .Where(u => !HomeUpgrades.HasUpgrade(u))
-            .ToList();
+        return HomeUpgradeService.GetAvailable(this);
     }
 
     private static string GetTrainingFlavorMessage(TrainingActivity activity)
