@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Slums.Core.Crimes;
+using Slums.Core.Endings;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
@@ -767,7 +768,7 @@ internal sealed class GameStateTests
         await Assert.That(state.IsGameOver).IsTrue();
         await Assert.That(state.GameOverReason).Contains("Destitution");
         await Assert.That(TryTakePendingEndingKnot(state, out var knotName)).IsTrue();
-        await Assert.That(knotName).IsEqualTo("ending_destitution");
+        await Assert.That(knotName).IsEqualTo(EndingKnotCatalog.DestitutionMedical);
     }
 
     [Test]

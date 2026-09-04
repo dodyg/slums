@@ -14,7 +14,7 @@ Your mother asks if you will fast this year. The question is not really about fa
     -> DONE
 
 *   [Decline to fast]
-    You tell her you cannot afford the weakness this year. She nods, but the nod carries a distance, a small gap opened by a choice she will not argue with but also will not forget. In Cairo, Ramadan is not only faith. It is also identity.
+    You tell her you cannot afford the weakness this year. She nods, but the nod carries a distance, a small gap opened by a choice she will not argue with but also will not forget. Ramadan is not only faith. It is also identity.
     # STRESS:2
     # RAMADAN_FASTING:false
     # MESSAGE:Ramadan begins. You do not fast, and the city notices in small, accumulating ways.
