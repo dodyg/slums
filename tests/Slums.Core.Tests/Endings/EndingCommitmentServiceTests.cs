@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Slums.Core.Diagnostics;
 using Slums.Core.Endings;
 using Slums.Core.State;
 using TUnit.Core;
@@ -30,6 +31,19 @@ internal sealed class EndingCommitmentServiceTests
         session.IsGameOver.Should().BeTrue();
         session.EndingId.Should().Be(EndingId.Arrested);
         session.PendingEndingKnot.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Test]
+    public void TriggerDestitution_ShouldSetEndingKnotAndRecordMutation()
+    {
+        var session = new GameSession();
+
+        EndingCommitmentService.TriggerDestitution(session);
+
+        session.PendingEndingKnot.Should().Be(EndingKnotCatalog.Destitution);
+        session.Mutations.Should().ContainSingle(mutation =>
+            mutation.Category == MutationCategories.EndingTriggered &&
+            mutation.Action == "ProcessDailyDebt");
     }
 
     private static GameSession CreateStableSession()

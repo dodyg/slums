@@ -81,4 +81,16 @@ internal static class EndingCommitmentService
         session.PendingEndingKnot = EndingService.GetInkKnot(session, ending.Value);
         session.RecordMutation(MutationCategories.EndingTriggered, "CheckGameOverConditions", before, session.CaptureStats(), $"Ending triggered: {ending}");
     }
+
+    internal static void TriggerDestitution(GameSession session)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+
+        var before = session.CaptureStats();
+        session.EndingId = EndingId.Destitution;
+        session.IsGameOver = true;
+        session.GameOverReason = "The loan sharks come to collect. You cannot pay.";
+        session.PendingEndingKnot = EndingKnotCatalog.Destitution;
+        session.RecordMutation(MutationCategories.EndingTriggered, "ProcessDailyDebt", before, session.CaptureStats(), "Destitution ending triggered by loan shark violence");
+    }
 }

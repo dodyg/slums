@@ -839,12 +839,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
         if (result.TriggersDestitution)
         {
-            var before = CaptureStats();
-            EndingId = Endings.EndingId.Destitution;
-            IsGameOver = true;
-            GameOverReason = "The loan sharks come to collect. You cannot pay.";
-            PendingEndingKnot = EndingKnotCatalog.Destitution;
-            RecordMutation(MutationCategories.EndingTriggered, "ProcessDailyDebt", before, CaptureStats(), "Destitution ending triggered by loan shark violence");
+            EndingCommitmentService.TriggerDestitution(this);
         }
     }
 
