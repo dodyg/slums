@@ -1,0 +1,2 @@
+# Authored content is stored with stable LF line endings across platforms.
+content/** text=auto eol=lf
