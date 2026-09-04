@@ -29,6 +29,7 @@ using Slums.Core.World.News;
 
 using Slums.Core.Randomness;
 using Slums.Core.Diagnostics;
+using Slums.Core.State.DailyResolution;
 using NarrativeStoryFlags = Slums.Core.Narrative.StoryFlags;
 
 namespace Slums.Core.State;
@@ -874,47 +875,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => HouseholdAssetsService.TryRollStreetCatEncounter(this, random);
 
     internal void ResolveWeeklyEconomy(Random random)
-    {
-        var hardshipModifier = NewsImpactCalculator.GetNpcHardshipModifier(News);
-        NpcEconomyResolver.ResolveWeek(NpcEconomies, Relationships, Clock.Day, random, hardshipModifier);
-        if (hardshipModifier > 0)
-        {
-            RaiseEvent($"City pressure is reaching household economies. Local hardship risk is up by {hardshipModifier}.");
-        }
-
-        var hajjEconomy = NpcEconomies.GetEconomy(NpcId.LandlordHajjMahmoud);
-        if (hajjEconomy.WealthLevel == NpcWealthLevel.Struggling || hajjEconomy.WealthLevel == NpcWealthLevel.Poor)
-        {
-            _rentState.PayPartialDebt(-10);
-            RaiseEvent("Hajj Mahmoud's money troubles make him meaner about rent. Rent pressure increases.");
-        }
-
-        var monaEconomy = NpcEconomies.GetEconomy(NpcId.NeighborMona);
-        if (monaEconomy.WealthLevel == NpcWealthLevel.Struggling)
-        {
-            Player.Stats.ModifyStress(3);
-            RaiseEvent("Mona is struggling. The worry weighs on you.");
-        }
-
-        var ummKarimEconomy = NpcEconomies.GetEconomy(NpcId.FixerUmmKarim);
-        if (ummKarimEconomy.WealthLevel == NpcWealthLevel.Comfortable)
-        {
-            RaiseEvent("Umm Karim is doing well. She slips you an extra portion.");
-        }
-
-        var needingLoan = NpcEconomyResolver.GetNpcNeedingLoan(NpcEconomies, Relationships);
-        if (needingLoan.HasValue)
-        {
-            var npcRel = Relationships.GetNpcRelationship(needingLoan.Value);
-            if (npcRel.Trust >= 10)
-            {
-                RaiseEvent($"{needingLoan.Value} is in rough shape. They could use help.");
-            }
-        }
-
-        PlayerDebts.ProcessInterest(Clock.Day);
-        PlayerDebts.UpdateCollectionStates(Clock.Day);
-    }
+        => WeeklyEconomyResolution.Resolve(this, random);
 
     internal void ProcessDailyDebt()
     {
