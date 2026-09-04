@@ -1,4 +1,7 @@
 using System.Linq;
+using Slums.Core.Jobs;
+using Slums.Core.Narrative;
+using Slums.Core.Relationships;
 using Slums.Core.World;
 
 namespace Slums.Infrastructure.Persistence;
@@ -71,6 +74,10 @@ public static class SaveGameValidator
             problems.Add($"current location '{snapshot.World.CurrentLocationId}' is not a declared location");
         }
 
+        ValidateRelationships(snapshot, problems);
+        ValidateJobTracks(snapshot, problems);
+        ValidateCrisis(snapshot, problems);
+
         if (snapshot.Crime.PolicePressure is < 0 or > 100)
         {
             problems.Add($"police pressure {snapshot.Crime.PolicePressure} is outside 0..100");
@@ -83,4 +90,112 @@ public static class SaveGameValidator
     }
 
     private static bool IsPercentage(int value) => value is >= 0 and <= 100;
+
+    private static void ValidateRelationships(GameSessionSnapshot snapshot, List<string> problems)
+    {
+        if (snapshot.Relationships is null)
+        {
+            problems.Add("relationships snapshot is missing");
+            return;
+        }
+
+        if (snapshot.Relationships.Npcs.Count != Enum.GetValues<NpcId>().Length)
+        {
+            problems.Add($"relationships contain {snapshot.Relationships.Npcs.Count} NPC entries; expected {Enum.GetValues<NpcId>().Length}");
+        }
+
+        foreach (var (npcName, relationship) in snapshot.Relationships.Npcs)
+        {
+            if (!Enum.TryParse<NpcId>(npcName, out var npcId) || !Enum.IsDefined(npcId))
+            {
+                problems.Add($"relationship NPC '{npcName}' is not declared");
+                continue;
+            }
+
+            if (relationship.Trust is < -100 or > 100)
+            {
+                problems.Add($"relationship trust for {npcId} is outside -100..100");
+            }
+
+            if (relationship.LastSeenDay < 0 || relationship.LastFavorDay < 0 || relationship.LastRefusalDay < 0 || relationship.RecentContactCount < 0)
+            {
+                problems.Add($"relationship memory for {npcId} contains a negative value");
+            }
+        }
+
+        if (snapshot.Relationships.Factions.Count != Enum.GetValues<FactionId>().Length)
+        {
+            problems.Add($"relationships contain {snapshot.Relationships.Factions.Count} faction entries; expected {Enum.GetValues<FactionId>().Length}");
+        }
+
+        foreach (var (factionName, reputation) in snapshot.Relationships.Factions)
+        {
+            if (!Enum.TryParse<FactionId>(factionName, out var factionId) || !Enum.IsDefined(factionId))
+            {
+                problems.Add($"relationship faction '{factionName}' is not declared");
+            }
+            else if (reputation is < -100 or > 100)
+            {
+                problems.Add($"faction reputation for {factionId} is outside -100..100");
+            }
+        }
+    }
+
+    private static void ValidateJobTracks(GameSessionSnapshot snapshot, List<string> problems)
+    {
+        if (snapshot.JobProgress is null)
+        {
+            problems.Add("job progress snapshot is missing");
+            return;
+        }
+
+        if (snapshot.JobProgress.Tracks.Count != Enum.GetValues<JobType>().Length)
+        {
+            problems.Add($"job tracks contain {snapshot.JobProgress.Tracks.Count} entries; expected {Enum.GetValues<JobType>().Length}");
+        }
+
+        foreach (var (jobName, track) in snapshot.JobProgress.Tracks)
+        {
+            if (!Enum.TryParse<JobType>(jobName, out var jobType) || !Enum.IsDefined(jobType))
+            {
+                problems.Add($"job track '{jobName}' is not declared");
+                continue;
+            }
+
+            if (!IsPercentage(track.Reliability))
+            {
+                problems.Add($"job reliability for {jobType} is outside 0..100");
+            }
+
+            if (track.ShiftsCompleted < 0 || track.LockoutUntilDay < 0)
+            {
+                problems.Add($"job track for {jobType} contains a negative value");
+            }
+        }
+    }
+
+    private static void ValidateCrisis(GameSessionSnapshot snapshot, List<string> problems)
+    {
+        var crisis = snapshot.CityCrisis;
+        if (crisis is null)
+        {
+            problems.Add("crisis snapshot is missing");
+            return;
+        }
+
+        if (crisis.BeatIndex < 0 || crisis.EvidenceCollected < 0 || crisis.ResourcesCommitted < 0 || crisis.DecisionDay < 0 || crisis.CallbackDueDay < 0)
+        {
+            problems.Add("crisis state contains a negative progression value");
+        }
+
+        if (!IsPercentage(crisis.CooperativeCondition))
+        {
+            problems.Add($"crisis cooperative condition {crisis.CooperativeCondition} is outside 0..100");
+        }
+
+        if (!Enum.IsDefined(crisis.Decision) || !Enum.IsDefined(crisis.Resolution) || !Enum.IsDefined(crisis.PendingCallbackDecision))
+        {
+            problems.Add("crisis state contains an unknown decision or resolution");
+        }
+    }
 }
