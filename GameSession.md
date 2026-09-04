@@ -309,7 +309,7 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 | W1.3 | 1 | Training | Done | `TrainingService` owns availability, guards, effects, and flavor; daily tracker remains session-owned; GameSession.cs = 3,999 lines |
 | W1.4 | 1 | Household assets (pets/plants/robots) | Done | `HouseholdAssetsService` owns household asset actions, restoration, street-cat encounters, and weekly neglect resolution; GameSession.cs = 3,576 lines |
 | W1.5 | 1 | Home upgrades / rest | Done | `HomeUpgradeService` owns purchase, restore, availability, and rest policy; GameSession.cs = 4,123 lines |
-| W2.1 | 2 | Travel | Not started | Reuse `LocationPricingService` |
+| W2.1 | 2 | Travel | In progress | Claim: extract travel actions, pricing, walking, and Cargo Mule wear into `TravelService`; preserve `LocationPricingService`, messages, and time/RNG behavior. |
 | W2.2 | 2 | Clinic & mother care | Not started | Compose with `MotherCareResolution` |
 | W2.3 | 2 | Community events & emergency support | Not started | |
 | W3.1 | 3 | Debt & loans | Not started | |
