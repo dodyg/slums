@@ -169,7 +169,7 @@ Cairo, 2060. The long hot season presses against the roofs well into autumn. Del
 
 You still dream of the Nile in Khartoum.
 
-Before the jets came. Before the explosions that shook your apartment building at 3 AM. Before your mother grabbed you by the wrist and said, "We leave now. Take only what you can carry."
+Before the jets came back. The first war never really ended; it only waited, patient as hunger, until the ceasefire rotted and the explosions began shaking your apartment building at 3 AM again. Before that night, your mother grabbed you by the wrist and said, "We leave now. Take only what you can carry."
 
 That was three years ago.
 
