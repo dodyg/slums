@@ -700,19 +700,10 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => WorkSessionService.Preview(this, jobType);
 
     public IReadOnlyList<DistrictConditionDefinition> GetDailyDistrictConditions()
-    {
-        return World.ActiveDistrictConditions
-            .Select(static activeCondition => (activeCondition, definition: DistrictConditionRegistry.GetById(activeCondition.ConditionId)))
-            .Where(static item => item.definition is not null)
-            .OrderBy(static item => item.activeCondition.District)
-            .Select(static item => item.definition!)
-            .ToArray();
-    }
+        => DistrictConditionRoller.GetDailyConditions(this);
 
     public DistrictConditionDefinition? GetActiveDistrictConditionDefinition(DistrictId districtId)
-    {
-        return DistrictConditionRegistry.GetById(World.GetActiveDistrictCondition(districtId)?.ConditionId);
-    }
+        => DistrictConditionRoller.GetActiveCondition(this, districtId);
 
     public int GetTravelCost(LocationId locationId)
         => TravelService.GetTravelCost(this, locationId);
@@ -1128,64 +1119,10 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     internal void RollDistrictConditionsForCurrentDay(Random random)
-    {
-        ArgumentNullException.ThrowIfNull(random);
-
-        var activeConditions = new List<ActiveDistrictCondition>();
-        foreach (var districtId in Enum.GetValues<DistrictId>())
-        {
-            var candidates = DistrictConditionRegistry.GetDefinitionsForDistrict(districtId)
-                .Where(definition => definition.IsEligible(Clock.Day, PolicePressure))
-                .ToArray();
-            if (candidates.Length == 0)
-            {
-                continue;
-            }
-
-            var selected = SelectWeightedDistrictCondition(candidates, random);
-            activeConditions.Add(new ActiveDistrictCondition
-            {
-                District = districtId,
-                ConditionId = selected.Id
-            });
-        }
-
-        World.SetActiveDistrictConditions(activeConditions);
-    }
+        => DistrictConditionRoller.RollForCurrentDay(this, random);
 
     internal void SetBaselineDistrictConditions()
-    {
-        World.SetActiveDistrictConditions(
-        [
-            new ActiveDistrictCondition { District = DistrictId.Imbaba, ConditionId = "imbaba_steady_day" },
-            new ActiveDistrictCondition { District = DistrictId.Dokki, ConditionId = "dokki_steady_day" },
-            new ActiveDistrictCondition { District = DistrictId.ArdAlLiwa, ConditionId = "ardalliwa_steady_day" },
-            new ActiveDistrictCondition { District = DistrictId.BulaqAlDakrour, ConditionId = "bulaq_steady_day" },
-            new ActiveDistrictCondition { District = DistrictId.Shubra, ConditionId = "shubra_steady_day" },
-            new ActiveDistrictCondition { District = DistrictId.DowntownCairo, ConditionId = "downtown_cairo_steady_day" }
-        ]);
-    }
-
-    private static DistrictConditionDefinition SelectWeightedDistrictCondition(
-        IReadOnlyList<DistrictConditionDefinition> candidates,
-        Random random)
-    {
-        var totalWeight = candidates.Sum(static definition => definition.Weight);
-#pragma warning disable CA5394
-        var roll = random.Next(1, totalWeight + 1);
-#pragma warning restore CA5394
-        var cumulativeWeight = 0;
-        foreach (var candidate in candidates)
-        {
-            cumulativeWeight += candidate.Weight;
-            if (roll <= cumulativeWeight)
-            {
-                return candidate;
-            }
-        }
-
-        return candidates[^1];
-    }
+        => DistrictConditionRoller.SetBaseline(this);
 
     internal void CheckGameOverConditions()
     {

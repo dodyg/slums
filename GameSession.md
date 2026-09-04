@@ -320,7 +320,7 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 | W4.2 | 4 | Crime | Done | `CrimeSessionService` owns crime availability, commitment, previews, modifiers, contact aftermath, counters, and police-pressure state while preserving RNG, heat, narrative queue order, and public signatures; `GameSession.cs` = 1,630 lines |
 | W4.3 | 4 | Random events | Done | `RandomEventService` now owns session-integrated event application and effective-weight rules while preserving event history, journal order, and public signatures; `GameSession.cs` = 1,542 lines |
 | W5.1 | 5 | Calendar/season/schedule | Done | `CalendarService` owns calendar, schedule, holiday, fasting, and weather query/restore helpers while preserving public signatures and state hydration; `GameSession.cs` = 1,509 lines |
-| W5.2 | 5 | District condition rolls | In progress | Claim: extract daily condition rolling, baseline setup, and condition queries into `DistrictConditionRoller`; preserve seeded selection order and public signatures. |
+| W5.2 | 5 | District condition rolls | Done | `DistrictConditionRoller` owns daily condition rolling, baseline setup, and condition queries while preserving seeded selection order and public signatures; `GameSession.cs` = 1,446 lines |
 | W5.3 | 5 | Territory events | Not started | |
 | W5.4 | 5 | Endings & game over glue | Not started | Two-stage endings sensitive |
 
