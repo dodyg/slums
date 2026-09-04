@@ -19,7 +19,7 @@ internal sealed class TravelScreen : ScreenSurface
     private int _selectedIndex;
     private int _mouseSelectedIndex = -1;
 
-    public TravelScreen(int width, int height, GameSession gameState, IReadOnlyList<Location> locations, GameScreen parentScreen) 
+    public TravelScreen(int width, int height, GameSession gameState, IReadOnlyList<Location> locations, GameScreen parentScreen)
         : base(width, height)
     {
         _gameState = gameState;
@@ -55,8 +55,8 @@ internal sealed class TravelScreen : ScreenSurface
             var nameColor = i == _selectedIndex ? Color.Cyan : canAffordTravel ? Color.White : Color.Orange;
 
             var displayName = $"{loc.Name} ({DistrictInfo.GetName(loc.District)})";
-            var travelInfo = canAffordTravel 
-                ? $"[{travelCost} LE | {travelMinutes} min]" 
+            var travelInfo = canAffordTravel
+                ? $"[{travelCost} LE | {travelMinutes} min]"
                 : $"[Walk: {walkMinutes} min]";
 
             var rowY = TravelScreenLayout.DestinationStartY + rowIndex;
@@ -169,7 +169,7 @@ internal sealed class TravelScreen : ScreenSurface
     {
         var location = _locations[_selectedIndex];
         var success = _travelCommand.Execute(_gameState, location.Id, TravelMode.Transport);
-        
+
         if (!success)
         {
             _parentScreen.IsFocused = true;
@@ -182,7 +182,7 @@ internal sealed class TravelScreen : ScreenSurface
     {
         var location = _locations[_selectedIndex];
         var success = _travelCommand.Execute(_gameState, location.Id, TravelMode.Walk);
-        
+
         if (!success)
         {
             _parentScreen.IsFocused = true;
@@ -194,9 +194,7 @@ internal sealed class TravelScreen : ScreenSurface
     private void ReturnToParentScreen()
     {
         IsFocused = false;
-        _parentScreen.SuppressActionKeysUntilRelease();
-        _parentScreen.IsFocused = true;
-        GameHost.Instance.Screen = _parentScreen;
+        ScreenTransition.ReturnTo(_parentScreen);
     }
 
     private void RenderSelectedLocationDetails(int detailStartY)

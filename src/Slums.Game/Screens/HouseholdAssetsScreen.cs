@@ -8,7 +8,7 @@ using Slums.Core.World;
 
 namespace Slums.Game.Screens;
 
-internal sealed class HouseholdAssetsScreen : ScreenSurface
+internal sealed class HouseholdAssetsScreen : ScreenSurface, IActionKeySuppressor
 {
     private const int ListX = 2;
     private const int ListY = 6;
@@ -217,8 +217,11 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface
     private void ReturnToParentScreen()
     {
         IsFocused = false;
+        ScreenTransition.ReturnTo(_parentScreen);
+    }
+
+    void IActionKeySuppressor.SuppressActionKeysUntilRelease()
+    {
         _parentScreen.SuppressActionKeysUntilRelease();
-        _parentScreen.IsFocused = true;
-        GameHost.Instance.Screen = _parentScreen;
     }
 }

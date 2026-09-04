@@ -286,8 +286,6 @@ internal sealed class WorkScreen : ScreenSurface
     private void ReturnToParentScreen()
     {
         IsFocused = false;
-        _parentScreen.SuppressActionKeysUntilRelease();
-        _parentScreen.IsFocused = true;
-        GameHost.Instance.Screen = _parentScreen;
+        ScreenTransition.ReturnTo(_parentScreen);
     }
 }

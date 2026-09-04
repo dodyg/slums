@@ -95,11 +95,7 @@ internal sealed class FishTankUpgradeScreen : ScreenSurface
         }
 
         _command.Execute(_gameState, status.UpgradeType);
-        _rootParentScreen.SuppressActionKeysUntilRelease();
-        _rootParentScreen.IsFocused = true;
-        IsFocused = false;
-        _parentScreen.IsFocused = false;
-        GameHost.Instance.Screen = _rootParentScreen;
+        ScreenTransition.ReturnTo(_rootParentScreen);
     }
 
     private void RenderSelectedDetails()
@@ -146,7 +142,6 @@ internal sealed class FishTankUpgradeScreen : ScreenSurface
     private void ReturnToParentScreen()
     {
         IsFocused = false;
-        _parentScreen.IsFocused = true;
-        GameHost.Instance.Screen = _parentScreen;
+        ScreenTransition.ReturnTo(_parentScreen);
     }
 }

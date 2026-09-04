@@ -149,10 +149,7 @@ internal sealed class NewsScreen : ScreenSurface
 
     private void ReturnToParentScreen()
     {
-        IsFocused = false;
-        _parentScreen.SuppressActionKeysUntilRelease();
-        _parentScreen.IsFocused = true;
-        ScreenTransition.SwitchTo(_parentScreen);
+        ScreenTransition.ReturnTo(_parentScreen);
     }
 
     private static IEnumerable<string> Wrap(string text, int width)

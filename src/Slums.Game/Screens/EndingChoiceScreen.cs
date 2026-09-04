@@ -64,8 +64,7 @@ internal sealed class EndingChoiceScreen : ScreenSurface
         {
             if (EndingChoiceCommand.Execute(_gameState, _options[_selectedIndex].Id))
             {
-                _parentScreen.SuppressActionKeysUntilRelease();
-                ScreenTransition.SwitchTo(_parentScreen);
+                ScreenTransition.ReturnTo(_parentScreen);
             }
 
             return true;
@@ -73,8 +72,7 @@ internal sealed class EndingChoiceScreen : ScreenSurface
 
         if (_actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape)))
         {
-            _parentScreen.SuppressActionKeysUntilRelease();
-            ScreenTransition.SwitchTo(_parentScreen);
+            ScreenTransition.ReturnTo(_parentScreen);
             return true;
         }
 

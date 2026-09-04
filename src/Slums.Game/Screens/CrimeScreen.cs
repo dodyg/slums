@@ -178,9 +178,7 @@ internal sealed class CrimeScreen : ScreenSurface
     private void ReturnToParentScreen()
     {
         IsFocused = false;
-        _parentScreen.SuppressActionKeysUntilRelease();
-        _parentScreen.IsFocused = true;
-        GameHost.Instance.Screen = _parentScreen;
+        ScreenTransition.ReturnTo(_parentScreen);
     }
 
     private static string GetRiskLabel(int risk) => risk switch

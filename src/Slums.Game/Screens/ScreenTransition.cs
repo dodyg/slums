@@ -29,4 +29,20 @@ internal static class ScreenTransition
         newScreen.IsFocused = true;
         GameHost.Instance.Screen = newScreen;
     }
+
+    internal static void ReturnTo(ScreenSurface parent)
+    {
+        ArgumentNullException.ThrowIfNull(parent);
+        if (parent is IActionKeySuppressor suppressor)
+        {
+            suppressor.SuppressActionKeysUntilRelease();
+        }
+
+        SwitchTo(parent);
+    }
+}
+
+internal interface IActionKeySuppressor
+{
+    public void SuppressActionKeysUntilRelease();
 }

@@ -13,7 +13,7 @@ using Slums.Game.Rendering;
 
 namespace Slums.Game.Screens;
 
-internal sealed class GameScreen : ScreenSurface
+internal sealed class GameScreen : ScreenSurface, IActionKeySuppressor
 {
     private static readonly TimeSpan RealTimePerGameMinute = TimeSpan.FromSeconds(1);
     private readonly GameRuntime _runtime;
@@ -170,6 +170,11 @@ internal sealed class GameScreen : ScreenSurface
     }
 
     internal void SuppressActionKeysUntilRelease()
+    {
+        _actionKeyGate.SuppressActionKeysUntilRelease();
+    }
+
+    void IActionKeySuppressor.SuppressActionKeysUntilRelease()
     {
         _actionKeyGate.SuppressActionKeysUntilRelease();
     }

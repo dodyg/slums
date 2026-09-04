@@ -114,9 +114,7 @@ internal sealed class EventLogViewerScreen : ScreenSurface
     private void ReturnToParentScreen()
     {
         IsFocused = false;
-        _parentScreen.SuppressActionKeysUntilRelease();
-        _parentScreen.IsFocused = true;
-        GameHost.Instance.Screen = _parentScreen;
+        ScreenTransition.ReturnTo(_parentScreen);
     }
 
     private static string TrimToWidth(string text, int maxLength)
