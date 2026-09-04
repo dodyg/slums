@@ -4535,7 +4535,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         if (Enum.TryParse<NpcId>(message.SenderNpcId, out var npc))
         {
             var trust = Relationships.GetNpcRelationship(npc).Trust;
-            if (trust >= 10 && ignoreCount > 3)
+            if (ContactErosionRule.ShouldErode(trust, ignoreCount))
             {
                 trustLoss = 1;
                 Relationships.ModifyNpcTrust(npc, -trustLoss);
@@ -4633,13 +4633,8 @@ public sealed class GameSession : INarrativeOutcomeTarget
         foreach (NpcId npc in Enum.GetValues<NpcId>())
         {
             var ignoredCount = Tips.GetIgnoredCount(npc);
-            if (ignoredCount < 3)
-            {
-                continue;
-            }
-
             var trust = Relationships.GetNpcRelationship(npc).Trust;
-            if (trust < 10)
+            if (!ContactErosionRule.ShouldErode(trust, ignoredCount))
             {
                 continue;
             }
@@ -4694,7 +4689,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
         var trustLoss = 0;
         var trust = Relationships.GetNpcRelationship(tip.Source).Trust;
-        if (trust >= 10 && ignoreCount >= 3)
+        if (ContactErosionRule.ShouldErode(trust, ignoreCount))
         {
             trustLoss = 1;
             Relationships.ModifyNpcTrust(tip.Source, -trustLoss);

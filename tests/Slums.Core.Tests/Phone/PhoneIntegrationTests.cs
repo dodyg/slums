@@ -169,7 +169,7 @@ internal sealed class PhoneIntegrationTests
         }
 
         var trust = session.Relationships.GetNpcRelationship(NpcId.FixerUmmKarim).Trust;
-        await Assert.That(trust).IsEqualTo(11);
+        await Assert.That(trust).IsEqualTo(10);
     }
 
     [Test]

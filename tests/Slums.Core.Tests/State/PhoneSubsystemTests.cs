@@ -263,7 +263,7 @@ internal sealed class PhoneSubsystemTests
     }
 
     [Test]
-    public async Task IgnoreMessage_NoTrustLossBeforeThreshold()
+    public async Task IgnoreMessage_CausesTrustLossAtThreshold()
     {
         var session = CreateSession();
         session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 15, 0);
@@ -276,7 +276,7 @@ internal sealed class PhoneSubsystemTests
         }
 
         var trust = session.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust;
-        await Assert.That(trust).IsEqualTo(15);
+        await Assert.That(trust).IsEqualTo(14);
     }
 
     [Test]
