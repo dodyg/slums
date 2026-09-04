@@ -108,7 +108,7 @@ Umm Karim watches the crowd instead of you. She says there are always errands fo
 	-> DONE
 
 === fixer_double_life ===
-Umm Karim smiles with half her mouth, as if even that is borrowed. In this part of Cairo, two stories belong to the same woman more often than one honest version ever could.
+Umm Karim smiles with half her mouth, as if even that is borrowed. In this part of Cairo, two stories belong to the same woman more often than one honest version ever could. {gender == "male": She warns you that the men's late roster is watched for easy recruits. | She tells you the women's savings circle keeps a second roster for anyone who cannot safely walk home after dark.}
 
 *   [Keep listening]
 	# STRESS:2
@@ -551,7 +551,7 @@ Mona's bowl of food is warm as she talks.
 	-> DONE
 
 === mona_default_4 ===
-Mona catches you on the landing with building news: a cheaper lentil seller, a changed pump hour, and a warning that tomorrow's heat alert may close outdoor work.
+Mona catches you on the landing with building news: a cheaper lentil seller, a changed pump hour, and a warning that tomorrow's heat alert may close outdoor work. {gender == "male": She adds that the men on the roof will walk back together after the late pump hour. | She adds that the women on the roof keep a night-walk roster, because an empty stairwell is not neutral ground.}
 
 *   [Listen to her updates]
 	# STRESS:-2
@@ -1423,7 +1423,7 @@ Mariam hears urgency before you explain.
 	-> DONE
 
 === safaa_default_1 ===
-She has routes if you are ready.
+She has routes if you are ready. {gender == "male": The depot can put you on the late loading roster if you accept the extra eyes. | The depot can put you on the safer daylight roster, but the better-paid late routes go first to men whose presence draws fewer questions.}
 
 *   [Accept]
 	# STRESS:1
@@ -1519,7 +1519,7 @@ Safaa barely looks surprised to see you.
 	-> DONE
 
 === iman_default_1 ===
-She points to an empty station.
+She points to an empty station. {gender == "male": The dawn pump-hour shift is open, though the heat will make the first hour costly. | The dawn pump-hour shift is open, and Iman quietly puts your name beside the women who can cover one another when the lane gets unsafe.}
 
 *   [Start working]
 	# STRESS:1
