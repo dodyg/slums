@@ -233,7 +233,7 @@ Mona stops by not to invite you, but to ask if you are alright. The question is 
     -> DONE
 
 === event_friday_prisoner ===
-Friday prayer in Imbaba. The men line up shoulder to shoulder, and the women gather behind. You stand in the back row because the front rows belong to women whose families have been in this building for generations, and you are still learning the texture of belonging.
+Friday prayer in Imbaba. The men line up shoulder to shoulder, and the women gather behind. You stand in the back row because the front rows belong to elders whose families have prayed in this building for generations, and you are still learning the texture of belonging.
 
 The imam speaks about patience. About endurance. About the difference between surviving and living. You know the difference. You learned it in a cell, and you are learning it again in a flat that costs more than it gives.
 
