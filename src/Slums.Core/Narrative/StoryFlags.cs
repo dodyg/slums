@@ -1,4 +1,5 @@
 using Slums.Core.Crimes;
+using Slums.Core.World;
 
 namespace Slums.Core.Narrative;
 
@@ -6,6 +7,8 @@ public static class StoryFlags
 {
     public const string CrimeFirstSuccess = "crime_first_success";
     public const string CrimeWarning = "crime_warning";
+    public const string CrimePoliceEncounter = "crime_police_encounter";
+    public const string CrimeGangRetaliation = "crime_gang_retaliation";
     public const string MotherClinicFirstVisit = "mother_clinic_first_visit";
     public const string EventPublicWorkHeatSeen = "event_public_work_heat_seen";
     public const string BackgroundMedicalClinicSeen = "background_medical_clinic_seen";
@@ -45,6 +48,8 @@ public static class StoryFlags
     public const string CrimeSafaaSalvageSeen = "crime_safaa_salvage_seen";
     public const string CrimeImanCoverSeen = "crime_iman_cover_seen";
     public const string CrimeImanExitSeen = "crime_iman_exit_seen";
+
+    public static string GetPoliceEncounterSeenFlag(DistrictId district) => $"crime_police_encounter_seen_{district}";
 
     public const string EventArrestCloseCallSeen = "event_arrest_close_call_seen";
     public const string EventHonestMilestoneSeen = "event_honest_milestone_seen";

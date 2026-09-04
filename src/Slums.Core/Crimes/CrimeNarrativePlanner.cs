@@ -7,6 +7,8 @@ namespace Slums.Core.Crimes;
 
 public static class CrimeNarrativePlanner
 {
+    private const int PoliceEncounterHeatThreshold = 60;
+
     public static NarrativeSceneTrigger? GetFirstSuccessTrigger(IReadOnlySet<string> storyFlags)
     {
         ArgumentNullException.ThrowIfNull(storyFlags);
@@ -22,6 +24,41 @@ public static class CrimeNarrativePlanner
 
         return NarrativeSignalRules.HasPendingCrimeWarning(policePressure, storyFlags)
             ? new NarrativeSceneTrigger(StoryFlags.CrimeWarning, NarrativeKnots.CrimeWarning)
+            : null;
+    }
+
+    public static NarrativeSceneTrigger? GetPoliceEncounterTrigger(
+        DistrictId district,
+        int previousHeat,
+        int currentHeat,
+        IReadOnlySet<string> storyFlags)
+    {
+        ArgumentNullException.ThrowIfNull(storyFlags);
+
+        var seenFlag = StoryFlags.GetPoliceEncounterSeenFlag(district);
+        return previousHeat < PoliceEncounterHeatThreshold &&
+            currentHeat >= PoliceEncounterHeatThreshold &&
+            !storyFlags.Contains(seenFlag)
+            ? new NarrativeSceneTrigger(seenFlag, NarrativeKnots.CrimePoliceEncounter)
+            : null;
+    }
+
+    public static NarrativeSceneTrigger? GetGangRetaliationTrigger(
+        bool crimeDetected,
+        DistrictId district,
+        FactionId? controllingFaction,
+        RelationshipState relationships,
+        IReadOnlySet<string> storyFlags)
+    {
+        ArgumentNullException.ThrowIfNull(relationships);
+        ArgumentNullException.ThrowIfNull(storyFlags);
+
+        return crimeDetected &&
+            district == DistrictId.Imbaba &&
+            controllingFaction == FactionId.ImbabaCrew &&
+            relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation >= 10 &&
+            !storyFlags.Contains(StoryFlags.CrimeGangRetaliation)
+            ? new NarrativeSceneTrigger(StoryFlags.CrimeGangRetaliation, NarrativeKnots.CrimeGangRetaliation)
             : null;
     }
 

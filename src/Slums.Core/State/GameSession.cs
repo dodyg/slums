@@ -1640,9 +1640,22 @@ public sealed class GameSession : INarrativeOutcomeTarget
         TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetRouteSceneTrigger(attempt.Type, result));
 
         DistrictHeat.AddHeat(World.CurrentDistrict, result.PolicePressureDelta);
+        var updatedDistrictHeat = DistrictHeat.GetHeat(World.CurrentDistrict);
+        TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetPoliceEncounterTrigger(
+            World.CurrentDistrict,
+            districtHeat,
+            updatedDistrictHeat,
+            _storyFlags));
         TerritoryDynamicsCalculator.ApplyCrimeImpact(Territory, World.CurrentDistrict, null);
         RaiseEvent(result.Message);
         ApplyCrimeContactAftermath(result);
+
+        TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetGangRetaliationTrigger(
+            result.Detected,
+            World.CurrentDistrict,
+            Territory.GetControl(World.CurrentDistrict).ControllingFaction,
+            Relationships,
+            _storyFlags));
 
         if (TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetCrimeWarningTrigger(PolicePressure, _storyFlags)))
         {

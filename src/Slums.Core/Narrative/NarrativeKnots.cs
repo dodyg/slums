@@ -14,6 +14,8 @@ public static class NarrativeKnots
     public const string CrisisPublicPressureCallback = "crisis_public_pressure_callback";
     public const string CrimeFirstSuccess = "crime_first_success";
     public const string CrimeWarning = "crime_warning";
+    public const string CrimePoliceEncounter = "crime_police_encounter";
+    public const string CrimeGangRetaliation = "crime_gang_retaliation";
     public const string MotherClinicFirstVisit = "mother_clinic_first_visit";
     public const string EventPublicWorkHeat = "event_public_work_heat";
     public const string BackgroundMedicalClinic = "background_medical_clinic";

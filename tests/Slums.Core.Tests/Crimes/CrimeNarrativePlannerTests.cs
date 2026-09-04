@@ -43,4 +43,36 @@ internal sealed class CrimeNarrativePlannerTests
         plan.HeatTrigger.Should().BeEquivalentTo(new NarrativeSceneTrigger(StoryFlags.CrimeYoussefTipoffSeen, NarrativeKnots.CrimeYoussefTipoff));
         plan.FailureTrigger.Should().BeEquivalentTo(new NarrativeSceneTrigger(StoryFlags.CrimeYoussefEscapeSeen, NarrativeKnots.CrimeYoussefEscape));
     }
+
+    [Test]
+    public void GetPoliceEncounterTrigger_ShouldFireOnlyOnFirstHeatThresholdCrossing()
+    {
+        var flags = new HashSet<string>();
+
+        var trigger = CrimeNarrativePlanner.GetPoliceEncounterTrigger(DistrictId.Imbaba, 59, 60, flags);
+
+        trigger.Should().BeEquivalentTo(new NarrativeSceneTrigger(
+            StoryFlags.GetPoliceEncounterSeenFlag(DistrictId.Imbaba),
+            NarrativeKnots.CrimePoliceEncounter));
+        CrimeNarrativePlanner.GetPoliceEncounterTrigger(DistrictId.Imbaba, 60, 65, flags).Should().BeNull();
+        CrimeNarrativePlanner.GetPoliceEncounterTrigger(
+            DistrictId.Imbaba,
+            59,
+            60,
+            new HashSet<string> { StoryFlags.GetPoliceEncounterSeenFlag(DistrictId.Imbaba) }).Should().BeNull();
+    }
+
+    [Test]
+    public void GetGangRetaliationTrigger_ShouldRequireDetectedCrimeInImbabaWithFactionStanding()
+    {
+        var relationships = new RelationshipState();
+        relationships.SetFactionStanding(FactionId.ImbabaCrew, 10);
+
+        CrimeNarrativePlanner.GetGangRetaliationTrigger(false, DistrictId.Imbaba, FactionId.ImbabaCrew, relationships, new HashSet<string>())
+            .Should().BeNull();
+        CrimeNarrativePlanner.GetGangRetaliationTrigger(true, DistrictId.Dokki, FactionId.ImbabaCrew, relationships, new HashSet<string>())
+            .Should().BeNull();
+        CrimeNarrativePlanner.GetGangRetaliationTrigger(true, DistrictId.Imbaba, FactionId.ImbabaCrew, relationships, new HashSet<string>())
+            .Should().BeEquivalentTo(new NarrativeSceneTrigger(StoryFlags.CrimeGangRetaliation, NarrativeKnots.CrimeGangRetaliation));
+    }
 }
