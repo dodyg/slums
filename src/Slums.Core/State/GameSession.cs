@@ -723,78 +723,12 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
     public IReadOnlyList<EntertainmentActivity> GetAvailableEntertainmentActivities()
     {
-        var location = World.GetCurrentLocation();
-        if (location is null)
-        {
-            return [];
-        }
-
-        return EntertainmentRegistry.GetActivitiesForLocation(
-            location.HasCafe,
-            location.HasBar,
-            location.HasBilliards).ToArray();
+        return EntertainmentService.GetAvailableActivities(this);
     }
 
     public bool TryPerformEntertainment(EntertainmentActivity activity)
     {
-        ArgumentNullException.ThrowIfNull(activity);
-        var before = CaptureStats();
-
-        if (Player.Stats.Money < activity.BaseCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryPerformEntertainment", before, CaptureStats(), $"Cannot afford {activity.Name} (cost {activity.BaseCost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent($"You cannot afford {activity.Name} right now.");
-            return false;
-        }
-
-        if (Player.Stats.Energy < activity.EnergyCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryPerformEntertainment", before, CaptureStats(), $"Too tired for {activity.Name} (need {activity.EnergyCost} energy, have {Player.Stats.Energy})");
-            RaiseEvent($"You are too tired for {activity.Name}.");
-            return false;
-        }
-
-        var location = World.GetCurrentLocation();
-        if (location is null)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryPerformEntertainment", before, CaptureStats(), "No current location");
-            RaiseEvent("You are nowhere.");
-            return false;
-        }
-
-        var availableActivities = GetAvailableEntertainmentActivities();
-        if (!availableActivities.Contains(activity))
-        {
-            RecordMutation(MutationCategories.GuardRejected, "TryPerformEntertainment", before, CaptureStats(), $"{activity.Name} not available here");
-            RaiseEvent($"{activity.Name} is not available here.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-activity.BaseCost);
-        Player.Stats.ModifyStress(-activity.StressReduction);
-        if (activity.EnergyCost > 0)
-        {
-            Player.Stats.ModifyEnergy(-activity.EnergyCost);
-        }
-
-        RaiseEvent(GetEntertainmentFlavorMessage(activity));
-        RecordMutation(MutationCategories.Entertainment, "TryPerformEntertainment", before, CaptureStats(), $"{activity.Name} (cost {activity.BaseCost} LE, stress -{activity.StressReduction})");
-        AdvanceTime(activity.DurationMinutes);
-        return true;
-    }
-
-    private static string GetEntertainmentFlavorMessage(EntertainmentActivity activity)
-    {
-        return activity.Type switch
-        {
-            EntertainmentActivityType.Coffee => "The coffee is strong and bitter. You feel a little lighter.",
-            EntertainmentActivityType.Shisha => "Apple smoke curls around you. The afternoon drifts by.",
-            EntertainmentActivityType.Billiards => "You win some, you lose some. The company is good.",
-            EntertainmentActivityType.BarDrinking => "The drink burns going down. For a while, things feel far away.",
-            EntertainmentActivityType.FootballWatching => "The crowd screams at the TV. You scream with them.",
-            EntertainmentActivityType.SocialHangout => "Just talking. Just listening. It helps.",
-            _ => $"You spent some time on {activity.Name}."
-        };
+        return EntertainmentService.Perform(this, activity);
     }
 
     public IReadOnlyList<CommunityEventDefinition> GetAvailableCommunityEvents()
