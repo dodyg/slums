@@ -306,7 +306,7 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 | W0.3 | 0 | Partial-class file split | In progress | Diagnostics boundary moved verbatim; remaining seams continue in extraction commits |
 | W1.1 | 1 | Food/medicine shop | Not started | |
 | W1.2 | 1 | Entertainment | Done | `EntertainmentService` owns availability, guards, effects, messages, and journal mutations; GameSession.cs = 4,176 lines |
-| W1.3 | 1 | Training | Not started | |
+| W1.3 | 1 | Training | In progress | Extracting training policy while retaining the session-owned daily tracker |
 | W1.4 | 1 | Household assets (pets/plants/robots) | Not started | |
 | W1.5 | 1 | Home upgrades / rest | Done | `HomeUpgradeService` owns purchase, restore, availability, and rest policy; GameSession.cs = 4,123 lines |
 | W2.1 | 2 | Travel | Not started | Reuse `LocationPricingService` |
