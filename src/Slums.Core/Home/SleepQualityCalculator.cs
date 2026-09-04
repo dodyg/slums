@@ -1,3 +1,4 @@
+using System.Globalization;
 using Slums.Core.Characters;
 
 namespace Slums.Core.Home;
@@ -9,6 +10,16 @@ public static class SleepQualityCalculator
     public const int OvernightBaseRecovery = 15;
     public const int OvernightMinimumRecovery = 5;
 
+    private static readonly SleepModifierDefinition[] ModifierDefinitions =
+    [
+        new(static context => context.Stats.Stress > 80, -10, -5, "High stress"),
+        new(static context => context.Stats.Stress > 60 && context.Stats.Stress <= 80, -5, -3, "Stress"),
+        new(static context => !context.Nutrition.AteToday, -5, -3, "No meal today"),
+        new(static context => context.Nutrition.DaysUndereating > 2, -5, -3, "Undereating"),
+        new(static context => context.Household.MotherCondition == MotherCondition.Crisis, -5, -3, "Mother in crisis"),
+        new(static context => context.UnpaidRentDays > 3, -3, -2, "Rent anxiety")
+    ];
+
     public static int CalculateRecovery(
         SurvivalStats stats,
         NutritionState nutrition,
@@ -17,42 +28,8 @@ public static class SleepQualityCalculator
         HomeUpgradeState upgrades,
         int seasonRestBonus = 0)
     {
-        ArgumentNullException.ThrowIfNull(stats);
-        ArgumentNullException.ThrowIfNull(nutrition);
-        ArgumentNullException.ThrowIfNull(household);
-        ArgumentNullException.ThrowIfNull(upgrades);
-
-        var recovery = BaseRecovery;
-
-        if (stats.Stress > 80)
-        {
-            recovery -= 10;
-        }
-        else if (stats.Stress > 60)
-        {
-            recovery -= 5;
-        }
-
-        if (!nutrition.AteToday)
-        {
-            recovery -= 5;
-        }
-
-        if (nutrition.DaysUndereating > 2)
-        {
-            recovery -= 5;
-        }
-
-        if (household.MotherCondition == MotherCondition.Crisis)
-        {
-            recovery -= 5;
-        }
-
-        if (unpaidRentDays > 3)
-        {
-            recovery -= 3;
-        }
-
+        var context = CreateContext(stats, nutrition, household, unpaidRentDays, upgrades);
+        var recovery = BaseRecovery + GetAppliedModifiers(context).Sum(static modifier => modifier.RecoveryPenalty);
         recovery += upgrades.GetEnergyRecoveryBonus();
         recovery += seasonRestBonus;
 
@@ -67,42 +44,8 @@ public static class SleepQualityCalculator
         HomeUpgradeState upgrades,
         int seasonRestBonus = 0)
     {
-        ArgumentNullException.ThrowIfNull(stats);
-        ArgumentNullException.ThrowIfNull(nutrition);
-        ArgumentNullException.ThrowIfNull(household);
-        ArgumentNullException.ThrowIfNull(upgrades);
-
-        var recovery = OvernightBaseRecovery;
-
-        if (stats.Stress > 80)
-        {
-            recovery -= 5;
-        }
-        else if (stats.Stress > 60)
-        {
-            recovery -= 3;
-        }
-
-        if (!nutrition.AteToday)
-        {
-            recovery -= 3;
-        }
-
-        if (nutrition.DaysUndereating > 2)
-        {
-            recovery -= 3;
-        }
-
-        if (household.MotherCondition == MotherCondition.Crisis)
-        {
-            recovery -= 3;
-        }
-
-        if (unpaidRentDays > 3)
-        {
-            recovery -= 2;
-        }
-
+        var context = CreateContext(stats, nutrition, household, unpaidRentDays, upgrades);
+        var recovery = OvernightBaseRecovery + GetAppliedModifiers(context).Sum(static modifier => modifier.OvernightPenalty);
         recovery += upgrades.GetEnergyRecoveryBonus() / 2;
         recovery += seasonRestBonus;
 
@@ -118,45 +61,18 @@ public static class SleepQualityCalculator
         HomeUpgradeState upgrades,
         int seasonRestBonus = 0)
     {
-        ArgumentNullException.ThrowIfNull(stats);
-        ArgumentNullException.ThrowIfNull(nutrition);
-        ArgumentNullException.ThrowIfNull(household);
-        ArgumentNullException.ThrowIfNull(upgrades);
-
+        var context = CreateContext(stats, nutrition, household, unpaidRentDays, upgrades);
         var factors = new List<string> { $"Base: {BaseRecovery}" };
 
-        if (stats.Stress > 80)
+        foreach (var modifier in GetAppliedModifiers(context))
         {
-            factors.Add("High stress: -10");
-        }
-        else if (stats.Stress > 60)
-        {
-            factors.Add("Stress: -5");
+            factors.Add($"{modifier.Label}: {FormatSigned(modifier.RecoveryPenalty)}");
         }
 
-        if (!nutrition.AteToday)
+        var upgradeBonus = upgrades.GetEnergyRecoveryBonus();
+        if (upgradeBonus > 0)
         {
-            factors.Add("No meal today: -5");
-        }
-
-        if (nutrition.DaysUndereating > 2)
-        {
-            factors.Add("Undereating: -5");
-        }
-
-        if (household.MotherCondition == MotherCondition.Crisis)
-        {
-            factors.Add("Mother in crisis: -5");
-        }
-
-        if (unpaidRentDays > 3)
-        {
-            factors.Add("Rent anxiety: -3");
-        }
-
-        if (upgrades.GetEnergyRecoveryBonus() > 0)
-        {
-            factors.Add($"Home upgrades: +{upgrades.GetEnergyRecoveryBonus()}");
+            factors.Add($"Home upgrades: +{upgradeBonus}");
         }
 
         if (seasonRestBonus > 0)
@@ -167,4 +83,40 @@ public static class SleepQualityCalculator
         factors.Add($"Recovery: {recovery}");
         return string.Join(" | ", factors);
     }
+
+    private static SleepContext CreateContext(
+        SurvivalStats stats,
+        NutritionState nutrition,
+        HouseholdCareState household,
+        int unpaidRentDays,
+        HomeUpgradeState upgrades)
+    {
+        ArgumentNullException.ThrowIfNull(stats);
+        ArgumentNullException.ThrowIfNull(nutrition);
+        ArgumentNullException.ThrowIfNull(household);
+        ArgumentNullException.ThrowIfNull(upgrades);
+        return new SleepContext(stats, nutrition, household, unpaidRentDays);
+    }
+
+    private static IEnumerable<SleepModifierDefinition> GetAppliedModifiers(SleepContext context)
+    {
+        return ModifierDefinitions.Where(modifier => modifier.Applies(context));
+    }
+
+    private static string FormatSigned(int value)
+    {
+        return value.ToString("+#;-#;0", CultureInfo.InvariantCulture);
+    }
+
+    private sealed record SleepContext(
+        SurvivalStats Stats,
+        NutritionState Nutrition,
+        HouseholdCareState Household,
+        int UnpaidRentDays);
+
+    private sealed record SleepModifierDefinition(
+        Func<SleepContext, bool> Applies,
+        int RecoveryPenalty,
+        int OvernightPenalty,
+        string Label);
 }

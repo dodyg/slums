@@ -220,4 +220,24 @@ internal sealed class SleepQualityTests
             state.UnpaidRentDays, state.HomeUpgrades);
         await Assert.That(breakdown).Contains("Stress: -5", StringComparison.Ordinal);
     }
+
+    [Test]
+    public async Task BuildRecoveryBreakdown_ShouldUseTheSameStackedModifiersAsRecovery()
+    {
+        var state = new GameSession();
+        state.Player.Stats.SetStress(85);
+        state.Player.Nutrition.SetDaysUndereating(3);
+        state.Player.Household.SetMotherHealth(20);
+
+        var recovery = SleepQualityCalculator.CalculateRecovery(
+            state.Player.Stats, state.Player.Nutrition, state.Player.Household,
+            4, state.HomeUpgrades);
+        var breakdown = SleepQualityCalculator.BuildRecoveryBreakdown(
+            recovery, state.Player.Stats, state.Player.Nutrition, state.Player.Household,
+            4, state.HomeUpgrades);
+
+        await Assert.That(recovery).IsEqualTo(10);
+        await Assert.That(breakdown).IsEqualTo(
+            "Base: 30 | High stress: -10 | No meal today: -5 | Undereating: -5 | Mother in crisis: -5 | Rent anxiety: -3 | Recovery: 10");
+    }
 }
