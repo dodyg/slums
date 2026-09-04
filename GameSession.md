@@ -312,7 +312,7 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 | W2.1 | 2 | Travel | Done | `TravelService` owns paid/walking travel, condition summaries, pricing composition, and Cargo Mule wear; GameSession.cs = 3,366 lines |
 | W2.2 | 2 | Clinic & mother care | Done | `ClinicVisitService` owns mother care, clinic pricing/status, and travel-plus-clinic composition; GameSession.cs = 3,113 lines |
 | W2.3 | 2 | Community events & emergency support | Done | `CommunityEventService` owns availability, attendance rolls, background trust effects, and emergency support; GameSession.cs = 2,929 lines |
-| W3.1 | 3 | Debt & loans | Not started | |
+| W3.1 | 3 | Debt & loans | In progress | Claim: extract debt payments, borrowing/lending, rent support, and economy restoration into `DebtAndLoanService`; preserve tuple APIs, relationship effects, and journal messages. |
 | W3.2 | 3 | Investments | Not started | Reuse evaluators/calculators |
 | W3.3 | 3 | Phone | Not started | |
 | W3.4 | 3 | Tips | Not started | |
