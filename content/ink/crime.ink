@@ -10,7 +10,7 @@ The cash in your pocket feels warmer than it should. It smells faintly of sweat 
     -> DONE
 
 *   [Buy something for your mother on the way home]
-    You stop at the pharmacy and pick up the heart medication she has been rationing for a week. The pharmacist does not ask where the money came from. In Cairo, pharmacies do not question the origin of cash any more than the buildings question the origin of rent.
+    You stop at the pharmacy and pick up the heart medication she has been rationing for a week. The pharmacist does not ask where the money came from. Pharmacies do not question the origin of cash any more than buildings question the origin of rent.
     # STRESS:3
     # MONEY:-15
     # MOTHER_HEALTH:5
@@ -98,7 +98,7 @@ Hanan never admits she helped. She only mutters that market people survive by de
 -> DONE
 
 === crime_youssef_tipoff ===
-Youssef catches you half a block too early and changes your route with a glance and two clipped words. In Cairo, sometimes warning is the only mercy anyone can afford.
+Youssef catches you half a block too early and changes your route with a glance and two clipped words. Sometimes warning is the only mercy anyone can afford.
 # STRESS:-1
 # MESSAGE:Youssef gets word to you before the dragnet tightens.
 -> DONE

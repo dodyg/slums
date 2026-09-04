@@ -97,7 +97,7 @@ The smell of fried dough, incense, and animal sweat mingles in the narrow lanes.
 The shouting starts before noon. Two men from different factions standing in the middle of the market, voices rising over a territory dispute that nobody can fully explain but everybody understands. The women pull their children closer. The shopkeepers close their shutters halfway. The argument is not really about territory. It is about who gets to decide what territory means.
 
 *   [Leave the area immediately]
-    You take the long way home, three blocks out of your path, but away from the voices that have started to attract a crowd. In Cairo, crowds around arguments have a way of becoming crowds around incidents, and incidents have a way of becoming statistics that nobody reads.
+    You take the long way home, three blocks out of your path, but away from the voices that have started to attract a crowd. Crowds around arguments have a way of becoming crowds around incidents, and incidents have a way of becoming statistics that nobody reads.
     # STRESS:3
     # MESSAGE:A street argument erupts. You leave before it becomes something worse.
     -> DONE

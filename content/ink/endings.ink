@@ -72,7 +72,7 @@ You bury your mother with help, debt, and the stunned courtesy people reserve fo
 -> DONE
 
 === ending_stability ===
-Stability is rent paid on time, bread on the table, water stored before the pump cuts, and a place in the building's cooling roster when the nights stay hot. Mornings no longer begin with panic already in your throat. In Cairo, that is enough to build on.
+Stability is rent paid on time, bread on the table, water stored before the pump cuts, and a place in the building's cooling roster when the nights stay hot. Mornings no longer begin with panic already in your throat. That is enough to build on.
 -> ending_crisis_reflection
 
 === ending_stability_medical ===

@@ -46,6 +46,11 @@ Iman folds a shirt while she listens, making the ordinary work carry the weight 
 Tarek leans against the cart and smiles without promising that the day will become easier.
 }
 
+{conversation_npc == "NeighborMona" && conversation_context == "helped": Mona remembers the bread you carried upstairs when her knees were bad. She does not call it a favor; she simply puts your name back on the first warning list.}
+{conversation_npc == "NurseSalma" && conversation_context == "debt_warm": Salma remembers the debt without turning it into a sermon. Her trust is practical: she tells you which medicine can wait and which cannot.}
+{conversation_context == "recent_refusal": The refused favor remains in the room. Nobody raises it, but the next kindness is measured before it is offered.}
+{conversation_context == "heat": The protection money and the police attention have reached the same conversation. There is no clean way to pretend they are separate.}
+
 {conversation_context == "default": The subject is ordinary until one detail makes it less so.}
 {conversation_context == "warm": Trust makes room for a little honesty, not a guarantee.}
 {conversation_context == "cold": The silence between sentences has become part of the negotiation.}

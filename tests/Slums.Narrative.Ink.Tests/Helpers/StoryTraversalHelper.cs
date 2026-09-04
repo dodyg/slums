@@ -170,6 +170,9 @@ internal static class StoryTraversalHelper
         TrySetGlobalVariable(story, "food_stockpile", sceneState.FoodStockpile);
         TrySetGlobalVariable(story, "day", sceneState.Day);
         TrySetGlobalVariable(story, "gender", sceneState.Gender ?? string.Empty);
+        TrySetGlobalVariable(story, "conversation_context", sceneState.ConversationContext);
+        TrySetGlobalVariable(story, "conversation_npc", sceneState.ConversationNpc);
+        TrySetGlobalVariable(story, "crisis_resolution_state", sceneState.CrisisResolution.ToString());
 
         if (!string.IsNullOrWhiteSpace(sceneState.Background))
         {

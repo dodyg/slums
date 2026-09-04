@@ -208,7 +208,7 @@ You laugh at the joke. You do not mention the note in your pocket.
     -> DONE
 
 *   [Keep your head down and say nothing]
-    You drink your tea and nod and file the information away with all the other things you know but cannot act on. In Cairo, knowing is not the same as being able to protect yourself.
+    You drink your tea and nod and file the information away with all the other things you know but cannot act on. Knowledge is not the same as protection when every useful answer has a price.
     # STRESS:4
     # MESSAGE:You absorb the gossip silently. The debt presses harder against the walls of your chest.
     -> DONE
