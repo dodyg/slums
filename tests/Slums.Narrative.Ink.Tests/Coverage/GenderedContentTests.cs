@@ -13,6 +13,7 @@ internal sealed class GenderedContentTests
     [Arguments("safaa_default_1", "late loading roster")]
     [Arguments("iman_default_1", "dawn pump-hour shift")]
     [Arguments("crime_police_encounter", "questions are casual")]
+    [Arguments("officer_marked_4", "checkpoint officer")]
     public async Task AuthoredScenes_DivergeByGender(string knotName, string expectedSharedPhrase)
     {
         var male = StoryTraversalHelper.ExplorePath(knotName, CreateState("male"));

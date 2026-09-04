@@ -519,7 +519,7 @@ Officer Khalid makes a note in his book.
 	-> DONE
 
 === officer_marked_4 ===
-Khalid recognizes your face with uncomfortable precision.
+Khalid recognizes your face with uncomfortable precision. He notices the checkpoint officer has kept you waiting after the others move on, and shifts the conversation toward the broken permit scanner before the attention becomes personal. {gender == "male": "Go home with the depot group," he says. | "Use the women's roster on your way back," he says. "Do not let an empty road make you explain yourself twice."}
 
 *   [Keep your answers short]
 	# STRESS:8
