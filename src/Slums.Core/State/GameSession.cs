@@ -728,7 +728,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
     public int CurrentDay => Clock.Day;
 
-    public int CurrentWeek => ((Clock.Day - 1) / 7) + 1;
+    public int CurrentWeek => CalendarService.GetCurrentWeek(this);
 
     public bool CanUseHouseholdAssets()
         => HouseholdAssetsService.CanUse(this);
@@ -1085,15 +1085,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => HouseholdAssetsService.Restore(this, pets, plants, hasStreetCatEncounter, lastStreetCatEncounterDay, totalHerbEarnings, robots, robotParts);
 
     internal void RestoreRamadanState(bool isActive, bool playerIsFasting, int daysFasting, int daysRemaining)
-    {
-        RamadanState = new RamadanState
-        {
-            IsActive = isActive,
-            PlayerIsFasting = playerIsFasting,
-            DaysFasting = daysFasting,
-            DaysRemaining = daysRemaining
-        };
-    }
+        => CalendarService.RestoreRamadanState(this, isActive, playerIsFasting, daysFasting, daysRemaining);
 
     internal void RestoreCommunityEventAttendance(
         int consecutiveSkips,
@@ -1118,9 +1110,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     internal void RestoreWeather(WeatherType weatherType)
-    {
-        CurrentWeather = WeatherModifiers.GetModifiers(weatherType);
-    }
+        => CalendarService.RestoreWeather(this, weatherType);
 
     public int GetEventCount(string eventId)
     {
@@ -1335,45 +1325,22 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     internal GameDayOfWeek GetCurrentDayOfWeek()
-    {
-        return Clock.DayOfWeek;
-    }
+        => CalendarService.GetCurrentDayOfWeek(this);
 
     public DayScheduleModifiers GetCurrentSchedule()
-    {
-        return DayScheduleRegistry.GetModifiers(Clock.DayOfWeek);
-    }
+        => CalendarService.GetCurrentSchedule(this);
 
     public Season GetCurrentSeason()
-    {
-        return GameCalendar.GetSeason(Clock.Day);
-    }
+        => CalendarService.GetCurrentSeason(this);
 
     public SeasonModifiers GetCurrentSeasonModifiers()
-    {
-        return SeasonModifiersRegistry.GetModifiers(GetCurrentSeason());
-    }
+        => CalendarService.GetCurrentSeasonModifiers(this);
 
     public ActiveHolidayState GetActiveHolidayState()
-    {
-        return HolidayRegistry.GetHolidayState(GameCalendar.GetDate(Clock.Day));
-    }
+        => CalendarService.GetActiveHolidayState(this);
 
     public void SetRamadanFasting(bool isFasting)
-    {
-        var holidayState = GetActiveHolidayState();
-        if (!holidayState.IsRamadan)
-        {
-            return;
-        }
-
-        RamadanState = RamadanState with
-        {
-            IsActive = true,
-            PlayerIsFasting = isFasting,
-            DaysRemaining = holidayState.DaysRemaining
-        };
-    }
+        => CalendarService.SetRamadanFasting(this, isFasting);
 
     public IReadOnlyList<InvestmentDefinition> GetAvailableInvestments()
         => InvestmentPurchaseService.GetAvailable(this);

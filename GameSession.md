@@ -319,7 +319,7 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 | W4.1 | 4 | Work session glue | Done | `WorkSessionService` owns work actions, availability, previews, modifiers, ledgers, and work restoration while reusing `JobService`; GameSession.cs = 1,946 lines |
 | W4.2 | 4 | Crime | Done | `CrimeSessionService` owns crime availability, commitment, previews, modifiers, contact aftermath, counters, and police-pressure state while preserving RNG, heat, narrative queue order, and public signatures; `GameSession.cs` = 1,630 lines |
 | W4.3 | 4 | Random events | Done | `RandomEventService` now owns session-integrated event application and effective-weight rules while preserving event history, journal order, and public signatures; `GameSession.cs` = 1,542 lines |
-| W5.1 | 5 | Calendar/season/schedule | In progress | Claim: extract calendar, schedule, holiday, fasting, and weather query/restore helpers into `CalendarService`; preserve public signatures and state hydration. |
+| W5.1 | 5 | Calendar/season/schedule | Done | `CalendarService` owns calendar, schedule, holiday, fasting, and weather query/restore helpers while preserving public signatures and state hydration; `GameSession.cs` = 1,509 lines |
 | W5.2 | 5 | District condition rolls | Not started | |
 | W5.3 | 5 | Territory events | Not started | |
 | W5.4 | 5 | Endings & game over glue | Not started | Two-stage endings sensitive |
