@@ -206,6 +206,8 @@ Cairo was supposed to be temporary. A station between one life and the next. But
 === intro_done ===
 Your story begins in Cairo, 2060: a city where an autonomous taxi can cross the river, a drone can map a block before breakfast, and a platform can know your name before your neighbour does. None of that guarantees food, medicine, privacy, or a way out.
 
+The pounds in your pocket are new-series notes, reissued decades ago when the old ones stopped buying bread. The numbers are smaller now, but the arithmetic of survival never changed: rent first, medicine second, food with whatever is left.
+
 The day stretches before you, one more day in a city crowded far beyond what its water pipes, power lines, and shaded streets were built to carry. It can still find ways to make one {gender == "male": man | woman} feel cornered.
 
 { money < 40:
