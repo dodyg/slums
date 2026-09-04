@@ -66,10 +66,10 @@ At dusk, water tanks and patched solar panels cut dark shapes into a violet sky.
 === event_mulid ===
 The mulid takes over three blocks of Imbaba with tents, lights, music loud enough to reorganize your heartbeat, and the particular energy of a city celebrating a saint who has been dead for centuries but still draws a bigger crowd than any living person.
 
-The smell of fried dough, incense, and animal sweat mingles in the narrow lanes. Children run with spinning tops. A tent full of women is singing zikr with a fervour that makes the canvas walls tremble. Somewhere, a pickpocket is having the best night of his career.
+The smell of fried dough, incense, and animal sweat mingles in the narrow lanes. Children run with spinning tops. A tent full of women is singing zikr with a fervour that makes the canvas walls tremble. Between the tents, a mahraganat sound system wired to salvaged car batteries trades basslines with the incense sellers, and both sides turn the volume up rather than lose. Somewhere, a pickpocket is having the best night of his career.
 
 *   [Join the celebration]
-    You buy a bag of semsemya candy, watch a dervish spin until you feel dizzy by proxy, and dance for fifteen minutes in a circle of women who do not know your name but welcome you anyway. Your mother sits on a folding chair watching the lights with an expression that might be joy or might be memory.
+    You buy a bag of semsemya candy, watch a tanoura spinner whirl until you feel dizzy by proxy, and dance for fifteen minutes in a circle of women who do not know your name but welcome you anyway. Your mother sits on a folding chair watching the lights with an expression that might be joy or might be memory.
     # MONEY:-8
     # STRESS:-10
     # NPC_TRUST:NeighborMona,2
