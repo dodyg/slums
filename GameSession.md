@@ -301,9 +301,9 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 
 | ID | Wave | Domain | Status | Notes |
 |---|---|---|---|---|
-| W0.1 | 0 | Golden-run digest test | In progress | Safety net work started |
-| W0.2 | 0 | Public API surface pin | Not started | |
-| W0.3 | 0 | Partial-class file split | Not started | Verbatim moves only |
+| W0.1 | 0 | Golden-run digest test | Done | SHA-256 digest pinned in Core safety-net tests |
+| W0.2 | 0 | Public API surface pin | Done | Reflection pin covers declared public fields, properties, methods, and events |
+| W0.3 | 0 | Partial-class file split | In progress | Verbatim moves only |
 | W1.1 | 1 | Food/medicine shop | Not started | |
 | W1.2 | 1 | Entertainment | Not started | |
 | W1.3 | 1 | Training | Not started | |
