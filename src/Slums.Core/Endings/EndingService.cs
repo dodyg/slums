@@ -189,6 +189,7 @@ public static class EndingService
 
         return endingId switch
         {
+            EndingId.Destitution => EndingKnotCatalog.GetDestitutionKnot(gameState.Player.BackgroundType),
             EndingId.StabilityHonestWork => GetStabilityKnot(gameState.Player.BackgroundType),
             EndingId.NetworkShelter => GetNetworkShelterKnot(gameState),
             EndingId.QuitTheLuxorDream => EndingKnotCatalog.GetLuxorKnot(gameState.Player.BackgroundType),

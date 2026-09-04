@@ -50,7 +50,19 @@ The final commitment is waiting for an eligible ending to be selected.
 }
 
 === ending_destitution ===
-There is a point where the city stops offering you choices and starts offering you corners. Rent becomes arrears. Hunger becomes the plan for tomorrow too. You are still alive, but life narrows into borrowed shade, shut doors, and the humiliation of needing one more day from people who have none to spare.
+There is a point where the city stops offering you choices and starts offering you corners. The water roster is posted behind the pump room, and your name has moved to the bottom because you cannot pay your share. The cooling-room queue fills before dawn. Your mother's rationing makes every quiet cough sound like an accusation. You are still alive, but life has narrowed to borrowed shade, shut doors, and one more day from people who have none to spare.
+-> DONE
+
+=== ending_destitution_medical ===
+The clinic recognizes your old training before it recognizes your inability to pay. Salma lets you stand beside the triage screen, but the cooling-room queue is full and your mother's name is still waiting for a medicine allocation. You know exactly which readings are dangerous. You cannot turn that knowledge into a dose, a fan, or a place in the water roster. The work you once imagined becomes another thing you cannot afford to reach.
+-> DONE
+
+=== ending_destitution_prisoner ===
+The file with your name on it does not feed anyone. At the pump, a neighbor checks the ration list twice before saying the storage room is full. Your mother folds her portion smaller so yours can look like a meal. By afternoon the cooling-room queue has closed, and the streets are too hot to wait outside it. The state took years from you; poverty takes the remaining hours one careful refusal at a time.
+-> DONE
+
+=== ending_destitution_sudanese ===
+The kitchen committee keeps your place as long as it can, but the food parcel is smaller this week and the water roster has no spare slot. Your mother saves the last cool water for you, then denies doing it. At the cooling room, the queue has already curled around the building. Cairo continues to call your household temporary while the years accumulate, and hunger makes even belonging feel like another account you cannot settle.
 -> DONE
 
 === ending_mother_died ===

@@ -9,6 +9,9 @@ public static class EndingKnotCatalog
     public const string Arrested = "ending_arrested";
     public const string Eviction = "ending_eviction";
     public const string Destitution = "ending_destitution";
+    public const string DestitutionMedical = "ending_destitution_medical";
+    public const string DestitutionPrisoner = "ending_destitution_prisoner";
+    public const string DestitutionSudanese = "ending_destitution_sudanese";
     public const string StabilityHonestWork = "ending_stability";
     public const string CrimeKingpin = "ending_crime_kingpin";
     public const string QuitTheLuxorDream = "ending_luxor";
@@ -36,6 +39,9 @@ public static class EndingKnotCatalog
         Arrested,
         Eviction,
         Destitution,
+        DestitutionMedical,
+        DestitutionPrisoner,
+        DestitutionSudanese,
         StabilityHonestWork,
         CrimeKingpin,
         QuitTheLuxorDream,
@@ -89,6 +95,17 @@ public static class EndingKnotCatalog
             EndingId.QuitTheLuxorDream => QuitTheLuxorDream,
             EndingId.NetworkShelter => NetworkShelter,
             _ => throw new ArgumentOutOfRangeException(nameof(endingId))
+        };
+    }
+
+    public static string GetDestitutionKnot(BackgroundType backgroundType)
+    {
+        return backgroundType switch
+        {
+            BackgroundType.MedicalSchoolDropout => DestitutionMedical,
+            BackgroundType.ReleasedPoliticalPrisoner => DestitutionPrisoner,
+            BackgroundType.SudaneseRefugee => DestitutionSudanese,
+            _ => Destitution
         };
     }
 

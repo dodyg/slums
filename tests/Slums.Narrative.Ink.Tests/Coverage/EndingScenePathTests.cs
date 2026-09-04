@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Application.Narrative;
 using Slums.Core.Characters;
 using Slums.Core.Endings;
+using Slums.Core.State;
 using Slums.Narrative.Ink.Tests.Helpers;
 using TUnit;
 
@@ -44,6 +45,19 @@ internal sealed class EndingScenePathTests
     {
         var result = StoryTraversalHelper.ExplorePath(EndingKnotCatalog.Destitution, CreateDefaultSceneState());
         result.Text.Should().NotBeEmpty($"{EndingKnotCatalog.Destitution} should produce narrative text");
+    }
+
+    [Test]
+    [Arguments(BackgroundType.MedicalSchoolDropout, EndingKnotCatalog.DestitutionMedical)]
+    [Arguments(BackgroundType.ReleasedPoliticalPrisoner, EndingKnotCatalog.DestitutionPrisoner)]
+    [Arguments(BackgroundType.SudaneseRefugee, EndingKnotCatalog.DestitutionSudanese)]
+    public async Task Ending_Destitution_UsesBackgroundVariant(BackgroundType backgroundType, string expectedKnot)
+    {
+        var session = new GameSession();
+        session.Player.ApplyBackground(BackgroundRegistry.GetByType(backgroundType));
+
+        EndingService.GetInkKnot(session, EndingId.Destitution).Should().Be(expectedKnot);
+        StoryTraversalHelper.ExplorePath(expectedKnot, CreateDefaultSceneState()).Text.Should().NotBeEmpty();
     }
 
     [Test]
