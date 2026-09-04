@@ -290,7 +290,7 @@ public sealed class InkNarrativeService : INarrativeService
     private static NpcId ParseNpcTarget(string tag, string valueStr)
     {
         var npc = valueStr.Split(',', StringSplitOptions.TrimEntries)[0];
-        if (!Enum.TryParse<NpcId>(npc, out var npcId))
+        if (!Enum.TryParse<NpcId>(npc, out var npcId) || !Enum.IsDefined(npcId))
         {
             throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': unknown NPC '{npc}'.");
         }
@@ -301,7 +301,7 @@ public sealed class InkNarrativeService : INarrativeService
     private static NpcTrustEffect ParseNpcTrustEffect(string tag, string valueStr)
     {
         var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
-        if (parts.Length != 2 || !Enum.TryParse<NpcId>(parts[0], out var npcId) || !int.TryParse(parts[1], out var delta))
+        if (parts.Length != 2 || !Enum.TryParse<NpcId>(parts[0], out var npcId) || !Enum.IsDefined(npcId) || !int.TryParse(parts[1], out var delta))
         {
             throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected 'NPC,delta'.");
         }
@@ -312,7 +312,7 @@ public sealed class InkNarrativeService : INarrativeService
     private static FactionReputationEffect ParseFactionReputationEffect(string tag, string valueStr)
     {
         var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
-        if (parts.Length != 2 || !Enum.TryParse<FactionId>(parts[0], out var factionId) || !int.TryParse(parts[1], out var delta))
+        if (parts.Length != 2 || !Enum.TryParse<FactionId>(parts[0], out var factionId) || !Enum.IsDefined(factionId) || !int.TryParse(parts[1], out var delta))
         {
             throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected 'Faction,delta'.");
         }
@@ -323,7 +323,7 @@ public sealed class InkNarrativeService : INarrativeService
     private static DebtEffect ParseDebtEffect(string tag, string valueStr)
     {
         var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
-        if (parts.Length != 2 || !Enum.TryParse<NpcId>(parts[0], out var npcId) || !bool.TryParse(parts[1], out var debtState))
+        if (parts.Length != 2 || !Enum.TryParse<NpcId>(parts[0], out var npcId) || !Enum.IsDefined(npcId) || !bool.TryParse(parts[1], out var debtState))
         {
             throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected 'NPC,true|false'.");
         }
@@ -335,7 +335,7 @@ public sealed class InkNarrativeService : INarrativeService
         where TEffect : NarrativeEffect
     {
         var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
-        if (parts.Length != 2 || !Enum.TryParse<DebtSource>(parts[0], out var source) || !int.TryParse(parts[1], out var amount) || amount <= 0)
+        if (parts.Length != 2 || !Enum.TryParse<DebtSource>(parts[0], out var source) || !Enum.IsDefined(source) || !int.TryParse(parts[1], out var amount) || amount <= 0)
         {
             throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected 'DebtSource,positiveAmount'.");
         }
@@ -346,7 +346,7 @@ public sealed class InkNarrativeService : INarrativeService
     private static NarrativeEffect ParseBoolStateEffect(string tag, string valueStr, Func<NpcId, bool, NarrativeEffect> factory)
     {
         var parts = valueStr.Split(',', 2, StringSplitOptions.TrimEntries);
-        if (parts.Length != 2 || !Enum.TryParse<NpcId>(parts[0], out var npcId) || !bool.TryParse(parts[1], out var state))
+        if (parts.Length != 2 || !Enum.TryParse<NpcId>(parts[0], out var npcId) || !Enum.IsDefined(npcId) || !bool.TryParse(parts[1], out var state))
         {
             throw new InvalidOperationException($"Malformed narrative effect tag '{tag}': expected 'NPC,true|false'.");
         }
