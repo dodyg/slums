@@ -10,7 +10,7 @@ internal static class InkStoryLoader
 {
     public static string LoadStoryJson()
     {
-        var filesystemPath = System.IO.Path.Combine("content", "ink", "main.json");
+        var filesystemPath = Path.Combine(AppContext.BaseDirectory, "content", "ink", "main.json");
         if (File.Exists(filesystemPath))
         {
             return File.ReadAllText(filesystemPath);
