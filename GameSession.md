@@ -322,6 +322,6 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 | W5.1 | 5 | Calendar/season/schedule | Done | `CalendarService` owns calendar, schedule, holiday, fasting, and weather query/restore helpers while preserving public signatures and state hydration; `GameSession.cs` = 1,509 lines |
 | W5.2 | 5 | District condition rolls | Done | `DistrictConditionRoller` owns daily condition rolling, baseline setup, and condition queries while preserving seeded selection order and public signatures; `GameSession.cs` = 1,446 lines |
 | W5.3 | 5 | Territory events | Done | `TerritoryEventRoller` owns territory conflict, crackdown, flip, and refugee-solidarity event orchestration while preserving seeded event order and exact outcomes; `GameSession.cs` = 1,366 lines |
-| W5.4 | 5 | Endings & game over glue | In progress | Claim: extract ending choices, commitment, pending-knot handoff, and failure checks into `EndingCommitmentService`; preserve two-stage commitment and automatic failure ordering. |
+| W5.4 | 5 | Endings & game over glue | Done | `EndingCommitmentService` owns ending choices, commitment, pending-knot handoff, and failure checks while preserving two-stage commitment and automatic failure ordering; `GameSession.cs` = 1,313 lines |
 
 Baseline: `GameSession.cs` = 4,292 lines at time of writing (2026-09-04).

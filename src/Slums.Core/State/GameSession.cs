@@ -150,9 +150,9 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     public RelationshipState Relationships { get; }
     public JobProgressState JobProgress { get; }
     public JobService Jobs { get; }
-    public bool IsGameOver { get => _runState.IsGameOver; private set => _runState.IsGameOver = value; }
-    public string? GameOverReason { get => _runState.GameOverReason; private set => _runState.GameOverReason = value; }
-    public EndingId? EndingId { get => _runState.EndingId; private set => _runState.EndingId = value; }
+    public bool IsGameOver { get => _runState.IsGameOver; internal set => _runState.IsGameOver = value; }
+    public string? GameOverReason { get => _runState.GameOverReason; internal set => _runState.GameOverReason = value; }
+    public EndingId? EndingId { get => _runState.EndingId; internal set => _runState.EndingId = value; }
     public int PolicePressure => DistrictHeat.GetGlobalPressure();
     public int TotalCrimeEarnings { get => _crimeState.TotalCrimeEarnings; private set => _crimeState.TotalCrimeEarnings = value; }
     public int CrimesCommitted { get => _crimeState.CrimesCommitted; private set => _crimeState.CrimesCommitted = value; }
@@ -167,11 +167,11 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     public bool HasCrimeCommittedToday => CrimeCommittedToday;
     public bool HasClaimedEmergencySupport => _runState.EmergencySupportClaimed;
     public bool CanRequestEmergencySupport => Clock.Day <= 7 && Player.HasSelectedBackground && !HasClaimedEmergencySupport;
-    public string? PendingEndingKnot { get => _runState.PendingEndingKnot; private set => _runState.PendingEndingKnot = value; }
+    public string? PendingEndingKnot { get => _runState.PendingEndingKnot; internal set => _runState.PendingEndingKnot = value; }
 
-    public EndingId? PendingEndingId { get => _runState.PendingEndingId; private set => _runState.PendingEndingId = value; }
+    public EndingId? PendingEndingId { get => _runState.PendingEndingId; internal set => _runState.PendingEndingId = value; }
 
-    public string? FinalSacrifice { get => _runState.FinalSacrifice; private set => _runState.FinalSacrifice = value; }
+    public string? FinalSacrifice { get => _runState.FinalSacrifice; internal set => _runState.FinalSacrifice = value; }
     public IReadOnlyList<Investment> ActiveInvestments => _investmentState.ActiveInvestments;
     public int TotalInvestmentEarnings { get => _investmentState.TotalInvestmentEarnings; private set => _investmentState.TotalInvestmentEarnings = value; }
     public int TotalHerbEarnings => Player.HouseholdAssets.TotalHerbEarnings;
@@ -227,43 +227,13 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => InvestmentPurchaseService.GetCurrentOpportunities(this);
 
     public IReadOnlyList<EndingId> GetAvailableEndingChoices()
-    {
-        return EndingService.GetAvailableEndings(this);
-    }
+        => EndingCommitmentService.GetAvailableEndingChoices(this);
 
     public bool TryChooseEnding(EndingId endingId)
-    {
-        var before = CaptureStats();
-        if (PendingEndingId is not null || IsGameOver || !EndingService.GetAvailableEndings(this).Contains(endingId))
-        {
-            RaiseEvent("That long-term path is not ready yet.");
-            RecordMutation(MutationCategories.GuardRejected, "ChooseEnding", before, CaptureStats(), $"Ending {endingId} is not available");
-            return false;
-        }
-
-        PendingEndingId = endingId;
-        PendingEndingKnot = EndingKnotCatalog.Commitment;
-        RecordMutation(MutationCategories.EndingTriggered, "ChooseEnding", before, CaptureStats(), $"Ending commitment opened: {endingId}");
-        return true;
-    }
+        => EndingCommitmentService.TryChooseEnding(this, endingId);
 
     public void CommitEnding(EndingId endingId, string sacrifice)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(sacrifice);
-        var before = CaptureStats();
-        if (PendingEndingId != endingId || IsGameOver)
-        {
-            throw new InvalidOperationException($"Ending '{endingId}' is not the pending commitment.");
-        }
-
-        EndingId = endingId;
-        FinalSacrifice = sacrifice;
-        PendingEndingId = null;
-        IsGameOver = true;
-        GameOverReason = EndingService.GetMessage(endingId);
-        PendingEndingKnot = EndingService.GetInkKnot(this, endingId);
-        RecordMutation(MutationCategories.EndingTriggered, "CommitEnding", before, CaptureStats(), $"Ending committed: {endingId}; sacrifice: {sacrifice}");
-    }
+        => EndingCommitmentService.CommitEnding(this, endingId, sacrifice);
 
     public void AdvanceTime(int minutes)
     {
@@ -874,17 +844,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public bool TryTakePendingEndingKnot(out string knotName)
-    {
-        if (!string.IsNullOrWhiteSpace(PendingEndingKnot))
-        {
-            knotName = PendingEndingKnot;
-            PendingEndingKnot = null;
-            return true;
-        }
-
-        knotName = string.Empty;
-        return false;
-    }
+        => EndingCommitmentService.TryTakePendingEndingKnot(this, out knotName);
 
     public IReadOnlyList<string> PendingNarrativeScenes => [.. _pendingNarrativeScenes];
 
@@ -1045,20 +1005,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => DistrictConditionRoller.SetBaseline(this);
 
     internal void CheckGameOverConditions()
-    {
-        var ending = EndingService.CheckFailureEndings(this);
-        if (ending is null)
-        {
-            return;
-        }
-
-        var before = CaptureStats();
-        EndingId = ending;
-        IsGameOver = true;
-        GameOverReason = EndingService.GetMessage(ending.Value);
-        PendingEndingKnot = EndingService.GetInkKnot(this, ending.Value);
-        RecordMutation(MutationCategories.EndingTriggered, "CheckGameOverConditions", before, CaptureStats(), $"Ending triggered: {ending}");
-    }
+        => EndingCommitmentService.CheckGameOverConditions(this);
 
     internal void QueueNarrativeFollowUpScenes()
     {
