@@ -307,7 +307,7 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 | W1.1 | 1 | Food/medicine shop | Done | `FoodShopService` owns cost modifiers and food/medicine purchases; GameSession.cs = 3,935 lines |
 | W1.2 | 1 | Entertainment | Done | `EntertainmentService` owns availability, guards, effects, messages, and journal mutations; GameSession.cs = 4,176 lines |
 | W1.3 | 1 | Training | Done | `TrainingService` owns availability, guards, effects, and flavor; daily tracker remains session-owned; GameSession.cs = 3,999 lines |
-| W1.4 | 1 | Household assets (pets/plants/robots) | Not started | |
+| W1.4 | 1 | Household assets (pets/plants/robots) | In progress | Claim: extract household asset rules into `HouseholdAssetsService`; preserve state ownership, messages, and weekly resolution behavior. |
 | W1.5 | 1 | Home upgrades / rest | Done | `HomeUpgradeService` owns purchase, restore, availability, and rest policy; GameSession.cs = 4,123 lines |
 | W2.1 | 2 | Travel | Not started | Reuse `LocationPricingService` |
 | W2.2 | 2 | Clinic & mother care | Not started | Compose with `MotherCareResolution` |
