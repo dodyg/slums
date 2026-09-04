@@ -2203,247 +2203,26 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => DebtAndLoanService.RestoreEconomyState(this, npcEconomies, playerDebts);
 
     internal void ProcessDailyPhone(Random random)
-    {
-        if (!Phone.IsOperational())
-        {
-            Phone.DailyCreditDrain();
-            PhoneMessages.MarkPendingAsMissed();
-            return;
-        }
-
-        Phone.DailyCreditDrain();
-
-        var newMessages = PhoneMessageGenerator.GenerateMessages(
-            Clock.Day, Relationships, PolicePressure,
-            Player.Household.MotherHealth, DistrictHeat,
-            Player.BackgroundType, random);
-
-        foreach (var message in newMessages)
-        {
-            PhoneMessages.AddMessage(message);
-        }
-
-        PhoneMessages.RemoveExpired(Clock.Day);
-
-        if (newMessages.Count > 0)
-        {
-            var before = CaptureStats();
-            RecordMutation(MutationCategories.Phone, "ProcessDailyPhone", before, CaptureStats(),
-                $"Received {newMessages.Count} message(s)");
-        }
-    }
+        => PhoneService.ProcessDaily(this, random);
 
     public (bool Success, string Message) RefillPhoneCredit()
-    {
-        if (!Phone.IsOperational() && !Phone.HasPhone)
-        {
-            return (false, "You don't have a phone.");
-        }
-
-        if (Phone.PhoneLost)
-        {
-            return (false, "Your phone is lost.");
-        }
-
-        if (Player.Stats.Money < Phone.CreditWeekCost)
-        {
-            return (false, $"Not enough money (need {Phone.CreditWeekCost} LE, have {Player.Stats.Money} LE).");
-        }
-
-        var before = CaptureStats();
-        Player.Stats.ModifyMoney(-Phone.CreditWeekCost);
-        Phone.RefillCredit();
-        Technology.RecordHandsetUse();
-        PhoneMessages.DeliverMissedMessages();
-
-        RecordMutation(MutationCategories.Phone, "RefillPhoneCredit", before, CaptureStats(),
-            $"Refilled phone credit for {Phone.CreditWeekCost} LE");
-
-        return (true, "Phone credit refilled for 7 days.");
-    }
+        => PhoneService.RefillCredit(this);
 
     public (bool Success, string Message) RespondToMessage(string messageId)
-    {
-        if (!Phone.IsOperational())
-        {
-            return (false, "Phone is not operational.");
-        }
-
-        var message = PhoneMessages.GetMessage(messageId);
-        if (message is null)
-        {
-            return (false, "Message not found.");
-        }
-
-        if (message.Responded)
-        {
-            return (false, "Already responded to this message.");
-        }
-
-        if (message.Ignored)
-        {
-            return (false, "Message was ignored.");
-        }
-
-        if (message.IsExpired(Clock.Day))
-        {
-            return (false, "Message has expired.");
-        }
-
-        var missedCallCost = message.WasMissed ? 1 : 0;
-        var totalMoneyCost = missedCallCost + message.ResponseMoneyCost;
-        if (Player.Stats.Money < totalMoneyCost)
-        {
-            return message.WasMissed && message.ResponseMoneyCost == 0
-                ? (false, "Not enough money to return this missed call (1 LE).")
-                : (false, $"Not enough money (need {totalMoneyCost} LE).");
-        }
-
-        var responseTimeMinutes = message.ResponseTimeCost * 60;
-        if (!CanCompleteActivityToday(responseTimeMinutes))
-        {
-            return (false, "Not enough time to respond today.");
-        }
-
-        var before = CaptureStats();
-
-        if (totalMoneyCost > 0)
-        {
-            Player.Stats.ModifyMoney(-totalMoneyCost);
-        }
-
-        PhoneMessages.RespondToMessage(messageId);
-
-        ApplyMessageResponseEffects(message);
-
-        RecordMutation(MutationCategories.Phone, "RespondToMessage", before, CaptureStats(),
-            $"Responded to message from {message.Sender}: {message.Content}");
-
-        if (responseTimeMinutes > 0)
-        {
-            AdvanceTime(responseTimeMinutes);
-        }
-
-        return (true, $"Responded to {message.Sender}.");
-    }
-
-    private void ApplyMessageResponseEffects(PhoneMessage message)
-    {
-        switch (message.Type)
-        {
-            case PhoneMessageType.Opportunity:
-            {
-                if (Enum.TryParse<NpcId>(message.SenderNpcId, out var npc))
-                {
-                    Relationships.RecordFavor(npc, Clock.Day);
-                }
-
-                break;
-            }
-            case PhoneMessageType.Warning:
-            {
-                Player.Stats.ModifyStress(-3);
-                break;
-            }
-            case PhoneMessageType.FamilyAlert:
-            {
-                RaiseEvent("You check on your mother after Mona's message.");
-                break;
-            }
-            case PhoneMessageType.NetworkRequest:
-            {
-                if (Enum.TryParse<NpcId>(message.SenderNpcId, out var npc))
-                {
-                    Relationships.RecordFavor(npc, Clock.Day);
-                }
-
-                break;
-            }
-            case PhoneMessageType.Background:
-            {
-                if (Enum.TryParse<NpcId>(message.SenderNpcId, out var npc))
-                {
-                    Relationships.ModifyNpcTrust(npc, 1);
-                }
-
-                break;
-            }
-        }
-    }
+        => PhoneService.RespondToMessage(this, messageId);
 
     public (bool Success, string Message, int TrustLoss) IgnoreMessage(string messageId)
-    {
-        if (!Phone.IsOperational())
-        {
-            return (false, "Phone is not operational.", 0);
-        }
-
-        var message = PhoneMessages.GetMessage(messageId);
-        if (message is null)
-        {
-            return (false, "Message not found.", 0);
-        }
-
-        if (message.Responded || message.Ignored)
-        {
-            return (false, "Message already handled.", 0);
-        }
-
-        var before = CaptureStats();
-
-        var ignoreCount = PhoneMessages.IgnoreMessage(messageId);
-        var trustLoss = 0;
-
-        if (Enum.TryParse<NpcId>(message.SenderNpcId, out var npc))
-        {
-            var trust = Relationships.GetNpcRelationship(npc).Trust;
-            if (ContactErosionRule.ShouldErode(trust, ignoreCount))
-            {
-                trustLoss = 1;
-                Relationships.ModifyNpcTrust(npc, -trustLoss);
-            }
-        }
-
-        RecordMutation(MutationCategories.Phone, "IgnoreMessage", before, CaptureStats(),
-            $"Ignored message from {message.Sender}");
-
-        return (true, $"Ignored message from {message.Sender}.", trustLoss);
-    }
+        => PhoneService.IgnoreMessage(this, messageId);
 
     public (bool Success, string Message) ReplacePhone()
-    {
-        if (!Phone.PhoneLost)
-        {
-            return (false, "Your phone is not lost.");
-        }
-
-        const int replacementCost = PhoneState.ReplacementCost;
-        if (Player.Stats.Money < replacementCost)
-        {
-            return (false, $"Not enough money (need {replacementCost} LE for replacement + credit).");
-        }
-
-        var before = CaptureStats();
-        Player.Stats.ModifyMoney(-replacementCost);
-        Phone.ReplacePhone();
-        PhoneMessages.DeliverMissedMessages();
-
-        RecordMutation(MutationCategories.Phone, "ReplacePhone", before, CaptureStats(),
-            $"Replaced phone for {replacementCost} LE");
-
-        return (true, "New phone purchased. Credit refilled for 7 days.");
-    }
+        => PhoneService.ReplacePhone(this);
 
     internal void RestorePhoneState(bool hasPhone, int creditRemaining, int daysSinceCreditRefill,
         bool phoneLost, int? phoneLostDay, bool phoneRecovered)
-    {
-        Phone.Restore(hasPhone, creditRemaining, daysSinceCreditRefill, phoneLost, phoneLostDay, phoneRecovered);
-    }
+        => PhoneService.RestoreState(this, hasPhone, creditRemaining, daysSinceCreditRefill, phoneLost, phoneLostDay, phoneRecovered);
 
     internal void RestorePhoneMessages(IEnumerable<PhoneMessage> messages)
-    {
-        PhoneMessages.RestoreMessages(messages);
-    }
+        => PhoneService.RestoreMessages(this, messages);
 
     internal void ProcessDailyTips(Random random)
     {
