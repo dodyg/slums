@@ -222,33 +222,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     public event EventHandler<GameMutationEventArgs>? MutationRecorded;
 
     public IReadOnlyList<InvestmentDefinition> GetCurrentInvestmentOpportunities()
-    {
-        var reachableNpcs = GetReachableNpcs().ToHashSet();
-        var ownedTypes = _investmentState.ActiveInvestments.Select(static investment => investment.Type).ToHashSet();
-        var opportunities = new List<InvestmentDefinition>();
-
-        foreach (var definition in InvestmentRegistry.AllDefinitions)
-        {
-            if (ownedTypes.Contains(definition.Type))
-            {
-                continue;
-            }
-
-            if (definition.OpportunityLocationId != World.CurrentLocationId)
-            {
-                continue;
-            }
-
-            if (definition.OpportunityNpc is NpcId sponsorNpc && !reachableNpcs.Contains(sponsorNpc))
-            {
-                continue;
-            }
-
-            opportunities.Add(definition);
-        }
-
-        return opportunities;
-    }
+        => InvestmentPurchaseService.GetCurrentOpportunities(this);
 
     public IReadOnlyList<EndingId> GetAvailableEndingChoices()
     {
@@ -341,6 +315,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     internal RandomEventService RandomEventService => _randomEventService;
     internal LocationPricingService LocationPricing => _locationPricingService;
     internal RentState Rent => _rentState;
+    internal GameInvestmentState InvestmentState => _investmentState;
 
     internal void ClaimEmergencySupport()
     {
@@ -2097,199 +2072,27 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public IReadOnlyList<InvestmentDefinition> GetAvailableInvestments()
-    {
-        var results = new List<InvestmentDefinition>();
-
-        foreach (var definition in GetCurrentInvestmentOpportunities())
-        {
-            if (!CheckInvestmentEligibility(definition).IsEligible)
-            {
-                continue;
-            }
-
-            results.Add(definition);
-        }
-
-        return results;
-    }
+        => InvestmentPurchaseService.GetAvailable(this);
 
     public InvestmentEligibility CheckInvestmentEligibility(InvestmentDefinition definition)
-    {
-        ArgumentNullException.ThrowIfNull(definition);
-        return InvestmentEligibilityEvaluator.Evaluate(definition, CreateInvestmentEligibilityContext());
-    }
+        => InvestmentPurchaseService.CheckEligibility(this, definition);
 
     public MakeInvestmentResult MakeInvestment(InvestmentType type)
-    {
-        var before = CaptureStats();
-        var definition = InvestmentRegistry.GetByType(type);
-        if (definition is null)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "MakeInvestment", before, CaptureStats(), $"Unknown investment type: {type}");
-            return new MakeInvestmentResult(false, 0, "Unknown investment type.");
-        }
-
-        var eligibility = CheckInvestmentEligibility(definition);
-        if (!eligibility.IsEligible)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "MakeInvestment", before, CaptureStats(), string.Join(" ", eligibility.FailureReasons));
-            return new MakeInvestmentResult(false, 0, string.Join(" ", eligibility.FailureReasons));
-        }
-
-        Player.Stats.ModifyMoney(-definition.Cost);
-
-        var investment = new Investment(
-            type,
-            definition.Cost,
-            definition.WeeklyIncomeMin,
-            definition.WeeklyIncomeMax,
-            definition.RiskProfile);
-
-        _investmentState.ActiveInvestments.Add(investment);
-
-        RaiseEvent($"Invested {definition.Cost} LE in {definition.Name}.");
-
-        RecordMutation(MutationCategories.Investment, "MakeInvestment", before, CaptureStats(), $"Invested {definition.Cost} LE in {definition.Name}");
-        return new MakeInvestmentResult(true, definition.Cost, $"Successfully invested in {definition.Name}.");
-    }
+        => InvestmentPurchaseService.MakeInvestment(this, type);
 
     public InvestmentResolutionSummary ResolveWeeklyInvestments(Random? random = null)
-    {
-        var before = CaptureStats();
-        var rng = random ?? _sharedRandom;
-        var summary = new InvestmentResolutionSummary();
-        var schedule = GetCurrentSchedule();
-
-        var toRemove = new List<Investment>();
-
-        foreach (var investment in _investmentState.ActiveInvestments)
-        {
-            investment.IncrementWeek();
-
-            if (investment.IsSuspended)
-            {
-                var definition = InvestmentRegistry.GetByType(investment.Type);
-                summary.AddResult(new InvestmentResolution(
-                    investment.Type,
-                    0,
-                    WasLost: false,
-                    ExtortionPaid: 0,
-                    PolicePressureIncrease: 0,
-                    InvestedAmountLost: 0,
-                    $"{definition?.Name ?? investment.Type.ToString()} is recovering after last week's disruption and pays nothing this week."));
-                investment.Unsuspend();
-                continue;
-            }
-
-            var calculation = InvestmentResolutionCalculator.Resolve(
-                investment,
-                InvestmentRegistry.GetByType(investment.Type),
-                Player.Stats.Money,
-                rng);
-
-            if (calculation.ShouldSuspend)
-            {
-                investment.Suspend();
-                TryQueueNarrativeTrigger(new NarrativeSceneTrigger(NarrativeStoryFlags.EventInvestmentSuspensionSeen, NarrativeKnots.EventInvestmentSuspension));
-            }
-
-            var result = calculation.Resolution;
-
-            if (result.Income > 0 && schedule.InvestmentRevenueModifier != 0)
-            {
-                result = result with { Income = Math.Max(0, result.Income + schedule.InvestmentRevenueModifier) };
-            }
-            summary.AddResult(result);
-
-            if (result.WasLost)
-            {
-                toRemove.Add(investment);
-            }
-
-            if (result.Income > 0)
-            {
-                Player.Stats.ModifyMoney(result.Income);
-                TotalInvestmentEarnings += result.Income;
-                if (!result.WasLost && result.ExtortionPaid == 0 && result.PolicePressureIncrease == 0)
-                {
-                    var investmentDef = InvestmentRegistry.GetByType(investment.Type);
-                    var investmentName = investmentDef?.Name ?? investment.Type.ToString();
-                    RaiseAutoTransaction($"{investmentName}: +{result.Income} LE weekly income.");
-                }
-            }
-
-            if (result.ExtortionPaid > 0)
-            {
-                Player.Stats.ModifyMoney(-result.ExtortionPaid);
-            }
-
-            if (result.PolicePressureIncrease > 0)
-            {
-                DistrictHeat.AddHeat(World.CurrentDistrict, result.PolicePressureIncrease);
-            }
-
-            if (!string.IsNullOrWhiteSpace(result.Message) &&
-                (result.WasLost || result.ExtortionPaid > 0 || result.PolicePressureIncrease > 0))
-            {
-                RaiseAutoTransaction(result.Message);
-            }
-        }
-
-        foreach (var investment in toRemove)
-        {
-            _investmentState.ActiveInvestments.Remove(investment);
-        }
-
-        if (summary.TotalIncome > 0 || summary.TotalLosses > 0 || summary.TotalExtortion > 0)
-        {
-            RaiseAutoTransaction($"Weekly investments: +{summary.TotalIncome} LE income, -{summary.TotalExtortion} LE extortion, {summary.LostCount} lost.");
-        }
-
-        RecordMutation(MutationCategories.Investment, "ResolveWeeklyInvestments", before, CaptureStats(), $"Income +{summary.TotalIncome}, Extortion -{summary.TotalExtortion}, Lost {summary.LostCount}");
-        return summary;
-    }
+        => InvestmentPurchaseService.ResolveWeekly(this, random);
 
     internal void RestoreInvestmentState(
         IEnumerable<InvestmentSnapshot> investments,
         int totalInvestmentEarnings)
-    {
-        ArgumentNullException.ThrowIfNull(investments);
-
-        _investmentState.ActiveInvestments.Clear();
-        foreach (var snapshot in investments)
-        {
-            var definition = InvestmentRegistry.GetByType(snapshot.Type);
-            if (definition is null)
-            {
-                continue;
-            }
-
-            _investmentState.ActiveInvestments.Add(Investment.Restore(snapshot, definition.RiskProfile));
-        }
-
-        TotalInvestmentEarnings = totalInvestmentEarnings;
-    }
+        => InvestmentPurchaseService.Restore(this, investments, totalInvestmentEarnings);
 
     internal void ResolveWeeklyHouseholdAssets()
         => HouseholdAssetsService.ResolveWeekly(this);
 
     internal void TryRollStreetCatEncounter(Random random)
         => HouseholdAssetsService.TryRollStreetCatEncounter(this, random);
-
-    private InvestmentEligibilityContext CreateInvestmentEligibilityContext()
-    {
-        return new InvestmentEligibilityContext(
-            Player.Stats.Money,
-            World.CurrentLocationId,
-            GetReachableNpcs().ToHashSet(),
-            _investmentState.ActiveInvestments.Select(static investment => investment.Type).ToHashSet(),
-            Relationships,
-            TotalCrimeEarnings,
-            Player.Skills.GetLevel(SkillId.StreetSmarts),
-            Player.Skills.GetLevel(SkillId.Medical),
-            Player.Skills.GetLevel(SkillId.Physical),
-            Player.BackgroundType);
-    }
 
     public IReadOnlyList<string> GetStatusSummary()
     {
