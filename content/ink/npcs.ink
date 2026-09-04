@@ -1,4 +1,4 @@
-# Recurring NPC scenes - 100 conversations per NPC context for 100-day variety
+# Recurring NPC scenes - four authored conversations per NPC context, selected without repetition
 
 === landlord_default_1 ===
 The landlord checks his ledger while glancing at the stairs.
