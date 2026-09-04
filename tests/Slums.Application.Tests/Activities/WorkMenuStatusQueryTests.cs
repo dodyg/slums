@@ -80,7 +80,7 @@ internal sealed class WorkMenuStatusQueryTests
         gameState.Player.Household.SetMotherHealth(60);
         gameState.SetPolicePressure(65);
         gameState.SetCrimeCounters(0, 0, lastCrimeDay: 1);
-        gameState.SetWorkCounters(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
+        gameState.RestoreWorkState(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
 
         var statuses = query.GetStatuses(WorkMenuContext.Create(gameState));
 

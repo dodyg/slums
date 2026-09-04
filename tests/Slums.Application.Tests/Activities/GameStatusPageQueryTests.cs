@@ -176,7 +176,7 @@ internal sealed class GameStatusPageQueryTests
         gameState.World.TravelTo(LocationId.Clinic);
         gameState.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
         gameState.SetPolicePressure(65);
-        gameState.SetWorkCounters(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
+        gameState.RestoreWorkState(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
         gameState.SetCrimeCounters(150, 2, lastCrimeDay: 1);
         gameState.Player.Household.SetMotherHealth(55);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 18, 1);
@@ -200,7 +200,7 @@ internal sealed class GameStatusPageQueryTests
         gameState.SetPolicePressure(65);
         gameState.SetCrimeCounters(totalCrimeEarnings: 120, crimesCommitted: 2, lastCrimeDay: 1);
         gameState.Relationships.SetFactionStanding(FactionId.DokkiThugs, 14);
-        gameState.SetWorkCounters(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
+        gameState.RestoreWorkState(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
 
         var pages = query.GetPages(GameStatusContext.Create(gameState));
 

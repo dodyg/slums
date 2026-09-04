@@ -63,7 +63,7 @@ internal sealed class TalkNpcStatusQueryTests
         gameState.World.TravelTo(LocationId.Clinic);
         gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
         gameState.SetCrimeCounters(totalCrimeEarnings: 90, crimesCommitted: 2, lastCrimeDay: 1);
-        gameState.SetWorkCounters(totalHonestWorkEarnings: 120, honestShiftsCompleted: 3, lastHonestWorkDay: 2, lastPublicFacingWorkDay: 2);
+        gameState.RestoreWorkState(totalHonestWorkEarnings: 120, honestShiftsCompleted: 3, lastHonestWorkDay: 2, lastPublicFacingWorkDay: 2);
 
         var statuses = query.GetStatuses(TalkNpcContext.Create(gameState));
 

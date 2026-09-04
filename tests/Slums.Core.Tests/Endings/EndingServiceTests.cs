@@ -15,7 +15,7 @@ internal sealed class EndingServiceTests
         state.Player.Stats.SetMoney(250);
         state.SetDaysSurvived(30);
         state.SetPolicePressure(10);
-        state.SetWorkCounters(totalHonestWorkEarnings: 400, honestShiftsCompleted: 15, lastHonestWorkDay: 30, lastPublicFacingWorkDay: 30);
+        state.RestoreWorkState(totalHonestWorkEarnings: 400, honestShiftsCompleted: 15, lastHonestWorkDay: 30, lastPublicFacingWorkDay: 30);
 
         var ending = EndingService.CheckEndings(state);
 
@@ -67,7 +67,7 @@ internal sealed class EndingServiceTests
         state.SetPolicePressure(30);
         state.SetCrimeCounters(300, 5);
         state.SetCrimeCounters(300, 5, lastCrimeDay: 25);
-        state.SetWorkCounters(totalHonestWorkEarnings: 220, honestShiftsCompleted: 6, lastHonestWorkDay: 30, lastPublicFacingWorkDay: 30);
+        state.RestoreWorkState(totalHonestWorkEarnings: 220, honestShiftsCompleted: 6, lastHonestWorkDay: 30, lastPublicFacingWorkDay: 30);
         state.Clock.SetTime(30, 6, 0);
 
         var ending = EndingService.CheckEndings(state);

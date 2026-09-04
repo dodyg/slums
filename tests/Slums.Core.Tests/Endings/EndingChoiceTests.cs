@@ -59,7 +59,7 @@ internal sealed class EndingChoiceTests
         var session = new GameSession();
         session.SetDaysSurvived(30);
         session.Clock.SetTime(30, 8, 0);
-        session.SetWorkCounters(180, 6, 30, 30);
+        session.RestoreWorkState(180, 6, 30, 30);
         session.SetCrimeCounters(0, 0, 0);
         session.SetPolicePressure(10);
         return session;

@@ -12,7 +12,7 @@ internal sealed class CrimeModifierEvaluationTests
     public void EvaluateCrimeModifiers_ShouldEmitThinAlibiSignal_ForSameDayPublicFacingWork()
     {
         var session = new GameSession();
-        session.SetWorkCounters(0, 0, 0, session.Clock.Day);
+        session.RestoreWorkState(0, 0, 0, session.Clock.Day);
 
         var evaluation = session.EvaluateCrimeModifiers(CreateAttempt());
 

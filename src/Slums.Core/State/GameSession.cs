@@ -2965,14 +2965,6 @@ public sealed class GameSession : INarrativeOutcomeTarget
         CrimeCommittedToday = hasCrimeCommittedToday;
     }
 
-    public void SetWorkCounters(int totalHonestWorkEarnings, int honestShiftsCompleted, int lastHonestWorkDay, int lastPublicFacingWorkDay)
-    {
-        TotalHonestWorkEarnings = Math.Max(0, totalHonestWorkEarnings);
-        HonestShiftsCompleted = Math.Max(0, honestShiftsCompleted);
-        LastHonestWorkDay = Math.Max(0, lastHonestWorkDay);
-        LastPublicFacingWorkDay = Math.Max(0, lastPublicFacingWorkDay);
-    }
-
     public void RestoreWorkState(int totalHonestWorkEarnings, int honestShiftsCompleted, int lastHonestWorkDay, int lastPublicFacingWorkDay)
     {
         TotalHonestWorkEarnings = Math.Max(0, totalHonestWorkEarnings);

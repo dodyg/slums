@@ -91,7 +91,7 @@ internal sealed class GameStateBuilder
 
     public GameStateBuilder WithWorkCounters(int totalEarnings, int shiftsCompleted, int lastWorkDay = 0, int lastPublicWorkDay = 0)
     {
-        _session.SetWorkCounters(totalEarnings, shiftsCompleted, lastWorkDay, lastPublicWorkDay);
+        _session.RestoreWorkState(totalEarnings, shiftsCompleted, lastWorkDay, lastPublicWorkDay);
         return this;
     }
 

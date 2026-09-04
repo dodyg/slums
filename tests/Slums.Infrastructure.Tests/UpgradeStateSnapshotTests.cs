@@ -20,7 +20,7 @@ internal sealed class UpgradeStateSnapshotTests
         original.CentralCharacterArcs.RecordDecision(CentralCharacterId.NeighborMona, CentralArcDecision.MonaShareRota);
         original.SetDaysSurvived(30);
         original.Clock.SetTime(30, 8, 0);
-        original.SetWorkCounters(180, 6, 30, 30);
+        original.RestoreWorkState(180, 6, 30, 30);
         original.SetCrimeCounters(0, 0, 0);
         original.SetPolicePressure(10);
         original.TryChooseEnding(EndingId.StabilityHonestWork);

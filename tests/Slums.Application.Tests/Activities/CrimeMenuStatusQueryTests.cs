@@ -103,7 +103,7 @@ internal sealed class CrimeMenuStatusQueryTests
         gameState.SetPolicePressure(70);
         gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
         gameState.Player.Skills.SetLevel(SkillId.StreetSmarts, 3);
-        gameState.SetWorkCounters(totalHonestWorkEarnings: 0, honestShiftsCompleted: 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: gameState.Clock.Day);
+        gameState.RestoreWorkState(totalHonestWorkEarnings: 0, honestShiftsCompleted: 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: gameState.Clock.Day);
 
         var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
 

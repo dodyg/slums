@@ -533,7 +533,7 @@ internal sealed class GameStateTests
         state.World.TravelTo(LocationId.Workshop);
         state.SetPolicePressure(70);
         state.SetCrimeCounters(0, 0, lastCrimeDay: 1);
-        state.SetWorkCounters(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
+        state.RestoreWorkState(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
         state.Player.Stats.SetEnergy(35);
 
         var result = state.WorkJob(state.GetAvailableJobs().Single(static job => job.Type == Slums.Core.Jobs.JobType.WorkshopSewing));
@@ -581,7 +581,7 @@ internal sealed class GameStateTests
     public async Task CommitCrime_ShouldAdvanceCrimeLedgerWithoutMutatingWorkLedger()
     {
         var state = new GameSession();
-        state.SetWorkCounters(totalHonestWorkEarnings: 140, honestShiftsCompleted: 4, lastHonestWorkDay: 7, lastPublicFacingWorkDay: 7);
+        state.RestoreWorkState(totalHonestWorkEarnings: 140, honestShiftsCompleted: 4, lastHonestWorkDay: 7, lastPublicFacingWorkDay: 7);
         state.World.TravelTo(LocationId.Market);
 
         var result = state.CommitCrime(new CrimeAttempt(CrimeType.PettyTheft, 25, 20, 10, 0, 10), new Random(5));
@@ -605,7 +605,7 @@ internal sealed class GameStateTests
         state.World.TravelTo(LocationId.Clinic);
         state.SetPolicePressure(70);
         state.SetCrimeCounters(0, 0, lastCrimeDay: 1);
-        state.SetWorkCounters(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
+        state.RestoreWorkState(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
 
         var result = state.WorkJob(state.GetAvailableJobs().Single());
 
