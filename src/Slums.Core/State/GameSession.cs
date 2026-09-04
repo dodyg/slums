@@ -2611,7 +2611,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
     {
         var result = DebtService.Repay(
             source,
-            amount,
+            Math.Min(amount, Player.Stats.Money),
             Player,
             PlayerDebts,
             Relationships,
