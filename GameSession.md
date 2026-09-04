@@ -314,7 +314,7 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 | W2.3 | 2 | Community events & emergency support | Done | `CommunityEventService` owns availability, attendance rolls, background trust effects, and emergency support; GameSession.cs = 2,929 lines |
 | W3.1 | 3 | Debt & loans | Done | `DebtAndLoanService` owns debt payments, borrowing/lending, rent support, and economy restoration; GameSession.cs = 2,767 lines |
 | W3.2 | 3 | Investments | Done | `InvestmentPurchaseService` owns investment discovery, eligibility, purchase, weekly resolution, and restoration; GameSession.cs = 2,570 lines |
-| W3.3 | 3 | Phone | Not started | |
+| W3.3 | 3 | Phone | In progress | Claim: extract phone daily processing, credit, message responses, replacement, and restoration into `PhoneService`; preserve response effects and narrative queue order. |
 | W3.4 | 3 | Tips | Not started | |
 | W4.1 | 4 | Work session glue | Not started | Highest RNG surface |
 | W4.2 | 4 | Crime | Not started | Compose with `CrimeService`/planners |
