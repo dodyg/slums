@@ -23,7 +23,7 @@ public static class BackgroundRegistry
         Type = BackgroundType.ReleasedPoliticalPrisoner,
         Name = "Released Political Prisoner",
         Description = "You spent two years in detention for participating in a protest. Now you're out, but the shadow of your arrest follows you. Employers are wary.",
-        StoryIntro = "The cell door opened eight months ago. Your mother aged ten years in the two you were inside. The neighbors whisper, the biometric checkpoints remember, and the amn el-dawla file never really closes. But you're still here.",
+        StoryIntro = "The cell door opened eight months ago. Your mother aged ten years in the two you were inside. The neighbors whisper, the biometric checkpoints remember, and the amn el-dawla file — a name Cairo kept long after the ministry changed its own — never really closes. But you're still here.",
         StartingMoney = 30,
         StartingHealth = 80,
         StartingEnergy = 60,
