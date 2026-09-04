@@ -303,7 +303,7 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 |---|---|---|---|---|
 | W0.1 | 0 | Golden-run digest test | Done | SHA-256 digest pinned in Core safety-net tests |
 | W0.2 | 0 | Public API surface pin | Done | Reflection pin covers declared public fields, properties, methods, and events |
-| W0.3 | 0 | Partial-class file split | In progress | Diagnostics boundary moved verbatim; remaining seams continue in extraction commits |
+| W0.3 | 0 | Partial-class file split | Done | `GameSession` is split across state, snapshot, actions, resolvers, queries, and diagnostics partials; canonical `GameSession.cs` = 1,043 lines |
 | W1.1 | 1 | Food/medicine shop | Done | `FoodShopService` owns cost modifiers and food/medicine purchases; GameSession.cs = 3,935 lines |
 | W1.2 | 1 | Entertainment | Done | `EntertainmentService` owns availability, guards, effects, messages, and journal mutations; GameSession.cs = 4,176 lines |
 | W1.3 | 1 | Training | Done | `TrainingService` owns availability, guards, effects, and flavor; daily tracker remains session-owned; GameSession.cs = 3,999 lines |
