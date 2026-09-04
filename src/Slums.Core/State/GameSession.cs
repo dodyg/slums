@@ -714,52 +714,12 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
     internal void QueueNarrativeFollowUpScenes()
     {
-        var reachabilityContext = new NarrativeReachabilityContext(
-            Clock.Day,
-            CurrentWeather.Type,
-            GetCurrentSeason(),
-            GetActiveHolidayState().Id,
-            GetActiveHolidayState().CurrentDay,
-            Player.BackgroundType,
-            GetCurrentDayOfWeek(),
-            World.CurrentLocationId == LocationId.Home,
-            HomeUpgrades.HasUpgrade(HomeUpgrade.Curtain),
-            Player.Household.MotherHealth);
+        var reachabilityContext = NarrativeFollowUpContextBuilder.BuildReachabilityContext(this);
 
         TryQueueNarrativeTrigger(NarrativeReachabilityPlanner.GetWeatherTrigger(reachabilityContext, _storyFlags));
         TryQueueNarrativeTrigger(NarrativeReachabilityPlanner.GetSeasonalTrigger(reachabilityContext, _storyFlags));
 
-        var loanSharkDebt = PlayerDebts.Debts.FirstOrDefault(static debt => debt.Source == DebtSource.LoanShark);
-        var neighborDebt = PlayerDebts.Debts.Any(static debt => debt.Source is DebtSource.NeighborLoan or DebtSource.CommunityMutualAid);
-        var mona = Relationships.GetNpcRelationship(NpcId.NeighborMona);
-        var youssef = Relationships.GetNpcRelationship(NpcId.RunnerYoussef);
-        var nadia = Relationships.GetNpcRelationship(NpcId.CafeOwnerNadia);
-        var mariam = Relationships.GetNpcRelationship(NpcId.PharmacistMariam);
-        var imbaba = Territory.GetControl(DistrictId.Imbaba);
-        var communityDebtContext = new NarrativeCommunityDebtContext(
-            Clock.Day,
-            GetCurrentDayOfWeek(),
-            Player.BackgroundType,
-            EventAttendance.TotalAttended,
-            EventAttendance.ConsecutiveSkips,
-            EventAttendance.HasTeaCircleInvitation,
-            PolicePressure,
-            CrimesCommitted,
-            HonestShiftsCompleted,
-            mona.Trust,
-            youssef.Trust,
-            nadia.Trust,
-            mariam.Trust,
-            mona.WasHelped,
-            youssef.WasHelped,
-            loanSharkDebt is not null,
-            loanSharkDebt?.DaysOverdue(Clock.Day) ?? 0,
-            loanSharkDebt is null ? 0 : Math.Max(0, loanSharkDebt.DueDay - Clock.Day),
-            neighborDebt,
-            imbaba.Tension,
-            imbaba.TensionLevel,
-            imbaba.ControllingFaction == FactionId.DokkiThugs,
-            imbaba.ControllingFaction == FactionId.ExPrisonerNetwork);
+        var communityDebtContext = NarrativeFollowUpContextBuilder.BuildCommunityDebtContext(this);
 
         foreach (var trigger in NarrativeCommunityDebtPlanner.GetTriggers(communityDebtContext, _storyFlags))
         {
@@ -798,15 +758,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         var centralArc = CentralCharacterArcPlanner.GetNextTrigger(Clock.Day, _storyFlags);
         if (centralArc is not null && TryQueueNarrativeTrigger(centralArc))
         {
-            var character = centralArc.KnotName switch
-            {
-                var knot when knot.StartsWith("central_mother_", StringComparison.Ordinal) => CentralCharacterId.Mother,
-                var knot when knot.StartsWith("central_mona_", StringComparison.Ordinal) => CentralCharacterId.NeighborMona,
-                var knot when knot.StartsWith("central_salma_", StringComparison.Ordinal) => CentralCharacterId.NurseSalma,
-                var knot when knot.StartsWith("central_mahmoud_", StringComparison.Ordinal) => CentralCharacterId.HajjMahmoud,
-                var knot when knot.StartsWith("central_ummkarim_", StringComparison.Ordinal) => CentralCharacterId.UmmKarim,
-                _ => (CentralCharacterId?)null
-            };
+            var character = CentralCharacterKnotMap.ResolveCharacter(centralArc.KnotName);
             if (character is not null)
             {
                 CentralCharacterArcs.MarkBeat(character.Value);
