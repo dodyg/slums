@@ -339,6 +339,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
     /// <summary>Daily-pipeline access to the random event service.</summary>
     internal RandomEventService RandomEventService => _randomEventService;
+    internal LocationPricingService LocationPricing => _locationPricingService;
 
     /// <summary>Processes one day of rent against the session's recurring rent cost.</summary>
     internal RentResult ProcessRentDay()
@@ -1163,45 +1164,12 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
     public bool BuyFood()
     {
-        var before = CaptureStats();
-        var foodCost = GetFoodCost();
-        if (Player.Stats.Money < foodCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyFood", before, CaptureStats(), $"Not enough money (need {foodCost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent($"Not enough money. Food costs {foodCost} LE.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-foodCost);
-        Player.Household.AddStaples(3);
-        if (Player.BackgroundType == BackgroundType.SudaneseRefugee)
-        {
-            Player.Household.AddStaples(1);
-            RaiseEvent("A Sudanese women-led kitchen stretches the bread run a little farther for you.");
-        }
-
-        RaiseEvent($"Bought food supplies for {foodCost} LE in {DistrictInfo.GetName(World.CurrentDistrict)}. Stockpile: {Player.Household.FoodStockpile}");
-        RecordMutation(MutationCategories.Food, "BuyFood", before, CaptureStats(), $"Bought food for {foodCost} LE");
-        return true;
+        return FoodShopService.BuyFood(this);
     }
 
     public bool BuyMedicine()
     {
-        var before = CaptureStats();
-        var medicineCost = GetMedicineCost();
-        if (Player.Stats.Money < medicineCost)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "BuyMedicine", before, CaptureStats(), $"Not enough money (need {medicineCost} LE, have {Player.Stats.Money} LE)");
-            RaiseEvent($"Not enough money. Medicine costs {medicineCost} LE.");
-            return false;
-        }
-
-        Player.Stats.ModifyMoney(-medicineCost);
-        Player.Household.AddMedicine(2);
-        ApplySkillGain(SkillId.Medical);
-        RaiseEvent($"Bought medicine for {medicineCost} LE. Medicine stock: {Player.Household.MedicineStock}");
-        RecordMutation(MutationCategories.Shop, "BuyMedicine", before, CaptureStats(), $"Bought medicine for {medicineCost} LE");
-        return true;
+        return FoodShopService.BuyMedicine(this);
     }
 
     public bool EatAtHome()
@@ -1338,40 +1306,12 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 #pragma warning disable CA1024
     public int GetFoodCost()
     {
-        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
-        var schedule = GetCurrentSchedule();
-        var seasonModifiers = SeasonModifiersRegistry.GetModifiers(GetCurrentSeason());
-        var baseModifier = (districtCondition?.Effect.FoodCostModifier ?? 0) + schedule.FoodCostModifier + seasonModifiers.FoodCostModifier + CurrentWeather.FoodCostModifier;
-        if (Player.BackgroundType == BackgroundType.SudaneseRefugee && schedule.FoodCostModifier < 0)
-        {
-            baseModifier -= 1;
-        }
-
-        baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(Territory, World.CurrentDistrict);
-        baseModifier += GetUmmKarimFoodDiscount();
-        baseModifier += NewsImpactCalculator.GetFoodPriceModifier(News, World.CurrentDistrict);
-
-        var modifiedCost = _locationPricingService.GetFoodCost(World.CurrentDistrict) + baseModifier;
-        return Math.Max(1, modifiedCost);
+        return FoodShopService.GetFoodCost(this);
     }
 
     public int GetStreetFoodCost()
     {
-        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
-        var schedule = GetCurrentSchedule();
-        var seasonModifiers = SeasonModifiersRegistry.GetModifiers(GetCurrentSeason());
-        var baseModifier = (districtCondition?.Effect.StreetFoodCostModifier ?? 0) + schedule.FoodCostModifier + seasonModifiers.FoodCostModifier + CurrentWeather.FoodCostModifier;
-        if (Player.BackgroundType == BackgroundType.SudaneseRefugee && schedule.FoodCostModifier < 0)
-        {
-            baseModifier -= 1;
-        }
-
-        baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(Territory, World.CurrentDistrict);
-        baseModifier += GetUmmKarimFoodDiscount();
-        baseModifier += NewsImpactCalculator.GetFoodPriceModifier(News, World.CurrentDistrict);
-
-        var modifiedCost = _locationPricingService.GetStreetFoodCost(World.CurrentDistrict) + baseModifier;
-        return Math.Max(1, modifiedCost);
+        return FoodShopService.GetStreetFoodCost(this);
     }
 
     public CurrentLocationClinicStatus GetCurrentLocationClinicStatus()
@@ -1524,11 +1464,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
     public int GetMedicineCost()
     {
-        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
-        var modifiedCost = _locationPricingService.GetMedicineCost(World.CurrentDistrict, World.CurrentLocationId, Relationships, Player.Skills)
-            + (districtCondition?.Effect.MedicineCostModifier ?? 0)
-            + InfrastructureImpactCalculator.GetMedicinePriceModifier(Infrastructure, World.CurrentDistrict);
-        return Math.Max(1, modifiedCost);
+        return FoodShopService.GetMedicineCost(this);
     }
 
     public JobPreview PreviewJob(JobType jobType)
