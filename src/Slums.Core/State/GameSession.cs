@@ -340,6 +340,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     /// <summary>Daily-pipeline access to the random event service.</summary>
     internal RandomEventService RandomEventService => _randomEventService;
     internal LocationPricingService LocationPricing => _locationPricingService;
+    internal RentState Rent => _rentState;
 
     internal void ClaimEmergencySupport()
     {
@@ -1035,65 +1036,16 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public void ApplyRentPayment(int amount)
-    {
-        if (amount <= 0 || AccumulatedRentDebt <= 0)
-        {
-            return;
-        }
-
-        var payment = Math.Min(Math.Min(amount, AccumulatedRentDebt), Player.Stats.Money);
-        if (payment <= 0)
-        {
-            return;
-        }
-
-        Player.Stats.ModifyMoney(-payment);
-        _rentState.PayPartialDebt(payment);
-        RaiseAutoTransaction($"Paid {payment} LE toward rent arrears.");
-    }
+        => DebtAndLoanService.ApplyRentPayment(this, amount);
 
     public void GrantRentGraceDays(int days)
-    {
-        _rentState.AddGraceDays(days);
-        if (days > 0)
-        {
-            RaiseEvent($"The landlord grants {days} day{(days == 1 ? string.Empty : "s")} of rent grace.");
-        }
-    }
+        => DebtAndLoanService.GrantRentGraceDays(this, days);
 
     public void ApplyDebtPayment(DebtSource source, int amount)
-    {
-        var result = DebtService.Repay(
-            source,
-            Math.Min(amount, Player.Stats.Money),
-            Player,
-            PlayerDebts,
-            Relationships,
-            DistrictHeat,
-            World.CurrentDistrict);
-        if (!result.Success || result.Payment <= 0)
-        {
-            return;
-        }
-
-        if (result.FullyRepaid)
-        {
-            var creditorName = result.CreditorNpc?.ToString() ?? source.ToString();
-            RaiseAutoTransaction($"Debt to {creditorName} fully repaid: {result.Payment} LE.");
-        }
-        else
-        {
-            RaiseAutoTransaction($"Repaid {result.Payment} LE toward {source} debt. Remaining: {result.Remaining} LE.");
-        }
-    }
+        => DebtAndLoanService.ApplyDebtPayment(this, source, amount);
 
     public void ExtendDebtDueDate(DebtSource source, int days)
-    {
-        if (PlayerDebts.ExtendDueDate(source, days))
-        {
-            RaiseEvent($"The {source} due date moves back {days} day{(days == 1 ? string.Empty : "s")}.");
-        }
-    }
+        => DebtAndLoanService.ExtendDebtDueDate(this, source, days);
 
     /// <summary>
     /// Applies one complete authored narrative outcome inside the session mutation boundary.
@@ -2423,143 +2375,29 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public (bool Success, int Amount, string Message) TryBorrowFromNpc(NpcId npc, int amount)
-    {
-        var result = DebtService.BorrowFromNpc(npc, amount, Clock.Day, Player, Relationships, NpcEconomies, PlayerDebts);
-        if (!result.Success)
-        {
-            return result;
-        }
-
-        var before = CaptureStats();
-        var debt = PlayerDebts.Debts[^1];
-        RecordMutation(MutationCategories.Economy, "TryBorrowFromNpc", before, CaptureStats(), $"Borrowed {result.Amount} LE from {npc} (due day {debt.DueDay})");
-        RaiseAutoTransaction($"Borrowed {result.Amount} LE from {npc}.");
-
-        return result;
-    }
+        => DebtAndLoanService.BorrowFromNpc(this, npc, amount);
 
     public (bool Success, int Amount, string Message) TryBorrowFromLandlord(int amount)
-    {
-        var result = DebtService.BorrowFromLandlord(amount, Clock.Day, Player, Relationships, _rentState, PlayerDebts);
-        if (!result.Success)
-        {
-            return result;
-        }
-
-        var before = CaptureStats();
-        RecordMutation(MutationCategories.Economy, "TryBorrowFromLandlord", before, CaptureStats(), $"Landlord advance: {result.Amount} LE (added to rent debt)");
-        RaiseAutoTransaction($"Hajj Mahmoud advances you {result.Amount} LE. It's added to your rent debt.");
-
-        return result;
-    }
+        => DebtAndLoanService.BorrowFromLandlord(this, amount);
 
     public (bool Success, int Amount, string Message) TryBorrowFromLoanShark(int amount)
-    {
-        var result = DebtService.BorrowFromLoanShark(
-            amount,
-            Clock.Day,
-            Player.BackgroundType,
-            Player,
-            PlayerDebts,
-            DistrictHeat,
-            World.CurrentDistrict,
-            _sharedRandom);
-        if (!result.Success)
-        {
-            return (false, 0, result.Message);
-        }
-
-        var before = CaptureStats();
-        RecordMutation(MutationCategories.Economy, "TryBorrowFromLoanShark", before, CaptureStats(), $"Loan shark: {result.Amount} LE at {result.InterestBasisPoints}bps, due day {Clock.Day + 7}");
-        RaiseAutoTransaction($"A loan shark hands you {result.Amount} LE. The interest is brutal. Due in 7 days.");
-
-        return (true, result.Amount, result.Message);
-    }
+        => DebtAndLoanService.BorrowFromLoanShark(this, amount);
 
     public (bool Success, string Message) TryLendToNpc(NpcId npc, int amount)
-    {
-        if (amount <= 0)
-        {
-            return (false, "Invalid amount.");
-        }
-
-        if (Player.Stats.Money < amount)
-        {
-            return (false, "You can't afford that.");
-        }
-
-        Player.Stats.ModifyMoney(-amount);
-        Relationships.ModifyNpcTrust(npc, 4);
-        Relationships.RecordFavor(npc, Clock.Day, hasUnpaidDebt: true);
-        Relationships.SetHelpedState(npc, true);
-
-        NpcEconomies.AddDebt(DebtorId.Player, new DebtorId.NpcDebtor(npc), amount);
-
-        var before = CaptureStats();
-        RecordMutation(MutationCategories.Economy, "TryLendToNpc", before, CaptureStats(), $"Lent {amount} LE to {npc}");
-        RaiseAutoTransaction($"You lend {amount} LE to {npc}.");
-
-        return (true, $"You lend {npc} {amount} LE. They'll remember this.");
-    }
+        => DebtAndLoanService.LendToNpc(this, npc, amount);
 
     public (bool Success, string Message) RefuseNpcLoan(NpcId npc)
-    {
-#pragma warning disable CA5394
-        var trustLoss = _sharedRandom.Next(2, 6);
-#pragma warning restore CA5394
-
-        Relationships.ModifyNpcTrust(npc, -trustLoss);
-        Relationships.RecordRefusal(npc, Clock.Day);
-
-        var before = CaptureStats();
-        RecordMutation(MutationCategories.Economy, "RefuseNpcLoan", before, CaptureStats(), $"Refused loan to {npc}, trust -{trustLoss}");
-
-        return (true, $"{npc} asked for help. You said no. Trust -{trustLoss}.");
-    }
+        => DebtAndLoanService.RefuseNpcLoan(this, npc);
 
     public (bool Success, int Remaining, string Message) RepayDebt(DebtSource source, int amount)
-    {
-        var result = DebtService.Repay(source, amount, Player, PlayerDebts, Relationships, DistrictHeat, World.CurrentDistrict);
-        if (!result.Success)
-        {
-            return (false, result.Remaining, result.Message);
-        }
-
-        if (result.FullyRepaid)
-        {
-            var creditorName = result.CreditorNpc?.ToString() ?? source.ToString();
-            RaiseAutoTransaction($"Debt to {creditorName} fully repaid: {result.Payment} LE.");
-        }
-        else
-        {
-            RaiseAutoTransaction($"Repaid {result.Payment} LE toward {source} debt. Remaining: {result.Remaining} LE.");
-        }
-
-        var before = CaptureStats();
-        RecordMutation(MutationCategories.Economy, "RepayDebt", before, CaptureStats(), $"Repaid {result.Payment} LE ({source}), remaining {result.Remaining} LE");
-
-        return (true, result.Remaining, result.Message);
-    }
+        => DebtAndLoanService.RepayDebt(this, source, amount);
 
     internal void RestoreEconomyState(
         IEnumerable<(NpcId Npc, NpcWealthLevel WealthLevel, int Generosity,
             Dictionary<DebtorId, int> OwedTo, Dictionary<DebtorId, int> OwedBy,
             int LastHardshipDay, int LastWindfallDay, int GenerousUntilDay)> npcEconomies,
         IEnumerable<PlayerDebt> playerDebts)
-    {
-        ArgumentNullException.ThrowIfNull(npcEconomies);
-        ArgumentNullException.ThrowIfNull(playerDebts);
-
-        foreach (var entry in npcEconomies)
-        {
-            NpcEconomies.RestoreEntry(
-                entry.Npc, entry.WealthLevel, entry.Generosity,
-                entry.OwedTo, entry.OwedBy,
-                entry.LastHardshipDay, entry.LastWindfallDay, entry.GenerousUntilDay);
-        }
-
-        PlayerDebts.RestoreDebts(playerDebts);
-    }
+        => DebtAndLoanService.RestoreEconomyState(this, npcEconomies, playerDebts);
 
     internal void ProcessDailyPhone(Random random)
     {
