@@ -91,6 +91,8 @@ Meaningful conversations cost 45 minutes and crime routes carry route-specific c
    - Check ending conditions
    - Record EndDay mutation
 
+The step blocks are owned by `EndOfDayPipeline` and its `DailyResolution` collaborators (`DailyStatResolution`, `DailyEconomyResolution`, `DailyWorldResolution`, `DailyInformationResolution`); their execution order and random-draw sequence are observable behavior (persisted RNG state) and must not be reordered.
+
 ### Player Character
 
 **Identity and gender**:
@@ -467,7 +469,7 @@ GameSession maintains a pending narrative scenes queue. Scenes are dequeued by t
 
 - JSON serialization via `JsonSaveGameStore`
 - `GameSessionSnapshot` captures and restores full state including all subsystems
-- Snapshot hydration is entered through `GameSession.RestoreFromSnapshot`; Infrastructure validates the serialized aggregate before applying it and the session checks clock, relationship-registry, and job-track invariants afterward.
+- Snapshot hydration is entered through `GameSession.RestoreFromSnapshot`, the only public restore entry point; legacy per-system restore mutators are internal to the Core/persistence boundary. Infrastructure validates the serialized aggregate before applying it and the session checks clock, relationship-registry, and job-track invariants afterward.
 - `LoadedGameSession` wraps loaded metadata plus `GameSession` ownership across the persistence boundary
 - Loaded via `LoadGameUseCase`, saved via `SaveGameUseCase`
 

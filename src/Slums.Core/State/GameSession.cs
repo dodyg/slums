@@ -156,7 +156,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
     public int CrimesCommitted { get => _crimeState.CrimesCommitted; private set => _crimeState.CrimesCommitted = value; }
     public int TotalHonestWorkEarnings { get => _workState.TotalHonestWorkEarnings; private set => _workState.TotalHonestWorkEarnings = value; }
     public int HonestShiftsCompleted { get => _workState.HonestShiftsCompleted; private set => _workState.HonestShiftsCompleted = value; }
-    public int DaysSurvived { get => _runState.DaysSurvived; private set => _runState.DaysSurvived = value; }
+    public int DaysSurvived { get => _runState.DaysSurvived; internal set => _runState.DaysSurvived = value; }
     public int LastCrimeDay { get => _crimeState.LastCrimeDay; private set => _crimeState.LastCrimeDay = value; }
     public int LastHonestWorkDay { get => _workState.LastHonestWorkDay; private set => _workState.LastHonestWorkDay = value; }
     public int LastPublicFacingWorkDay { get => _workState.LastPublicFacingWorkDay; private set => _workState.LastPublicFacingWorkDay = value; }
@@ -181,7 +181,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
     private bool CrimeCommittedToday { get => _crimeState.CrimeCommittedToday; set => _crimeState.CrimeCommittedToday = value; }
     public HomeUpgradeState HomeUpgrades { get; } = new();
     public CommunityEventAttendance EventAttendance { get; } = new();
-    public WeatherState CurrentWeather { get; private set; } = WeatherState.Clear;
+    public WeatherState CurrentWeather { get; internal set; } = WeatherState.Clear;
     public RumorState Rumors { get; } = new();
     public DistrictHeatState DistrictHeat { get; } = new();
     public TerritoryState Territory { get; } = new();
@@ -196,8 +196,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
     public CentralCharacterArcState CentralCharacterArcs { get; } = new();
     public TechnologyObligationState Technology { get; } = new();
     public InventoryState Inventory { get; } = new();
-    private RamadanState _ramadanState = RamadanState.Inactive;
-    public RamadanState RamadanState => _ramadanState;
+    public RamadanState RamadanState { get; internal set; } = RamadanState.Inactive;
 
     public IReadOnlyList<ActiveNewsFlash> ActiveNews => News.ActiveFlashes;
 
@@ -338,339 +337,31 @@ public sealed class GameSession : INarrativeOutcomeTarget
         EndOfDayPipeline.Run(this, random);
     }
 
-    internal void ResolveEndOfDay(Random? random)
+    /// <summary>Daily-pipeline access to the random event service.</summary>
+    internal RandomEventService RandomEventService => _randomEventService;
+
+    /// <summary>Processes one day of rent against the session's recurring rent cost.</summary>
+    internal RentResult ProcessRentDay()
     {
-        var before = CaptureStats();
-        var currentWeek = CurrentWeek;
-        Player.Stats.ApplyDailyDecay();
-
-        var seasonModifiers = SeasonModifiersRegistry.GetModifiers(GetCurrentSeason());
-        if (seasonModifiers.EnergyDrainModifier != 0)
-        {
-            Player.Stats.ModifyEnergy(-seasonModifiers.EnergyDrainModifier);
-        }
-
-        if (seasonModifiers.StressModifier != 0)
-        {
-            Player.Stats.ModifyStress(seasonModifiers.StressModifier);
-        }
-
-        if (CurrentWeather.EnergyDrainModifier != 0)
-        {
-            Player.Stats.ModifyEnergy(-CurrentWeather.EnergyDrainModifier);
-        }
-
-        if (CurrentWeather.StressModifier != 0)
-        {
-            Player.Stats.ModifyStress(CurrentWeather.StressModifier);
-        }
-
-        if (CurrentWeather.HealthModifier != 0 && (CurrentWeather.Type == WeatherType.Heatwave && Player.Stats.Energy < 30))
-        {
-            Player.Stats.ModifyHealth(CurrentWeather.HealthModifier);
-        }
-
-        var holidayState = HolidayRegistry.GetHolidayState(GameCalendar.GetDate(Clock.Day));
-        if (holidayState.IsActive)
-        {
-            if (holidayState.StressModifier.HasValue && holidayState.StressModifier.Value != 0)
-            {
-                Player.Stats.ModifyStress(holidayState.StressModifier.Value);
-            }
-
-            if (holidayState.MotherHealthModifier.HasValue && holidayState.MotherHealthModifier.Value != 0)
-            {
-                Player.Household.UpdateMotherHealth(holidayState.MotherHealthModifier.Value);
-            }
-        }
-
-        if (holidayState.IsRamadan && _ramadanState.PlayerIsFasting)
-        {
-            if (_ramadanState.EnergyModifier != 0)
-            {
-                Player.Stats.ModifyEnergy(_ramadanState.EnergyModifier);
-            }
-            if (_ramadanState.StressModifier != 0)
-            {
-                Player.Stats.ModifyStress(_ramadanState.StressModifier);
-            }
-            if (_ramadanState.TrustModifierWithReligiousNpcs != 0)
-            {
-                Relationships.ModifyNpcTrust(NpcId.LandlordHajjMahmoud, _ramadanState.TrustModifierWithReligiousNpcs);
-            }
-        }
-
-        var nutritionResolution = Player.Nutrition.ResolveDay();
-        Player.Stats.ModifyEnergy(nutritionResolution.EnergyDelta);
-        Player.Stats.ModifyHealth(nutritionResolution.HealthDelta);
-        Player.Stats.ModifyStress(nutritionResolution.StressDelta);
-        SyncLegacyHunger();
-
-        var seasonRestBonus = seasonModifiers.RestRecoveryBonus;
-        var overnightRecovery = SleepQualityCalculator.CalculateOvernightRecovery(
-            Player.Stats, Player.Nutrition, Player.Household,
-            UnpaidRentDays, HomeUpgrades, seasonRestBonus);
-        Player.Stats.ModifyEnergy(overnightRecovery);
-
-        if (HomeUpgrades.GetStressBonus() > 0)
-        {
-            Player.Stats.ModifyStress(-HomeUpgrades.GetStressBonus());
-        }
-
-        var motherCareResolution = Player.Household.ResolveDay();
-        Player.Stats.ModifyStress(motherCareResolution.StressDelta);
-        var householdAssetsBonus = Player.HouseholdAssets.GetMotherDailyHealthBonus(currentWeek);
-        if (householdAssetsBonus > 0)
-        {
-            Player.Household.UpdateMotherHealth(householdAssetsBonus);
-        }
-
-        var overnightInfrastructureStress = InfrastructureImpactCalculator.GetSleepStressModifier(Infrastructure, World.CurrentDistrict);
-        if (overnightInfrastructureStress > 0)
-        {
-            Player.Stats.ModifyStress(overnightInfrastructureStress);
-            RaiseEvent($"Unreliable utilities make sleep harder. Stress +{overnightInfrastructureStress}.");
-        }
-
-        var rentResult = _rentState.ProcessDay(RecurringExpenses.DailyRentCost, Player.Stats.Money);
-        if (rentResult.GraceApplied)
-        {
-            RaiseAutoTransaction($"Rent grace used. {rentResult.GraceDaysRemaining} grace day{(rentResult.GraceDaysRemaining == 1 ? string.Empty : "s")} remain.");
-        }
-        else if (rentResult.Paid)
-        {
-            Player.Stats.ModifyMoney(-RecurringExpenses.DailyRentCost);
-            RaiseAutoTransaction($"Paid rent: {RecurringExpenses.DailyRentCost} LE");
-        }
-        else
-        {
-            RaiseAutoTransaction($"Could not pay rent! Debt: {rentResult.AccumulatedDebt} LE. Unpaid days: {rentResult.CurrentUnpaidDays}.");
-
-            if (rentResult.WarningType == RentWarningType.First)
-            {
-                RaiseEvent("The landlord's son knocks hard. \"Three days now. My father is patient, but not forever.\"");
-            }
-            else if (rentResult.WarningType == RentWarningType.Final)
-            {
-                RaiseEvent("The landlord himself appears. \"Five days. Two more and we put your things on the street.\"");
-                TryQueueNarrativeTrigger(new NarrativeSceneTrigger(NarrativeStoryFlags.EventRentFinalWarningSeen, NarrativeKnots.EventRentFinalWarning));
-            }
-        }
-
-        if (!Player.Nutrition.AteToday)
-        {
-            RaiseEvent("You go to sleep hungry.");
-        }
-
-        if (!Player.Household.FedMotherToday)
-        {
-            RaiseEvent("Your mother went without a proper meal today.");
-        }
-
-        if (!Player.Household.MedicationGivenToday && Player.Household.MotherNeedsCare)
-        {
-            RaiseEvent("Your mother needed medicine today and did not get it.");
-        }
-
-        if (Player.BackgroundType == BackgroundType.SudaneseRefugee)
-        {
-            DistrictHeat.SetBaselineHeat(DistrictId.Dokki, 10);
-        }
-
-        if (Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner)
-        {
-            DistrictHeat.DecayRateModifier = 0.5;
-        }
-
-        DistrictHeat.DecayAll();
-        DistrictHeat.ApplyBleedOver();
-
-        TerritoryDynamicsCalculator.ApplyDailyDecay(Territory);
-
-        foreach (DistrictId district in Enum.GetValues<DistrictId>())
-        {
-            var control = Territory.GetControl(district);
-            if (control.TensionLevel == TensionLevel.Dangerous)
-            {
-                DistrictHeat.AddHeat(district, 3);
-            }
-        }
-
-        RollTerritoryEvents(new Random(Clock.Day * 31 + 7919));
-
-        if (Player.BackgroundType == BackgroundType.MedicalSchoolDropout && Player.Household.MotherHealth < 60)
-        {
-            Player.Stats.ModifyStress(3);
-            RaiseEvent("Your training makes it harder to ignore every sign your mother's health is slipping.");
-        }
-
-        var genderDailyStress = GenderModifiers.DailyStressModifier(Player.Gender);
-        if (genderDailyStress != 0)
-        {
-            Player.Stats.ModifyStress(genderDailyStress);
-            RaiseEvent(genderDailyStress > 0
-                ? "The streets have their own weight today."
-                : "You move through the city a little easier today.");
-        }
-
-        var herbIncome = Player.HouseholdAssets.ResolveSellablePlantIncome(Clock.Day, currentWeek);
-        if (herbIncome > 0)
-        {
-            Player.Stats.ModifyMoney(herbIncome);
-            RaiseAutoTransaction($"The street vendor moves your herbs quietly. +{herbIncome} LE reaches home.");
-        }
-
-        Clock.AdvanceToNextDay();
-        DaysSurvived++;
-        World.TravelTo(LocationId.Home);
-
-        var newHolidayState = HolidayRegistry.GetHolidayState(GameCalendar.GetDate(Clock.Day));
-        if (newHolidayState.IsRamadan)
-        {
-            _ramadanState = _ramadanState.AdvanceDay() with
-            {
-                IsActive = true,
-                DaysRemaining = newHolidayState.DaysRemaining
-            };
-        }
-        else if (_ramadanState.IsActive)
-        {
-            _ramadanState = RamadanState.Inactive;
-        }
-
-        if (_useDynamicDistrictConditions)
-        {
-            RollDistrictConditionsForCurrentDay(random ?? _sharedRandom);
-        }
-        else
-        {
-            SetBaselineDistrictConditions();
-        }
-
-        var newSeason = GetCurrentSeason();
-        CurrentWeather = WeatherRoller.Roll(newSeason, random ?? _sharedRandom) switch
-        {
-            var type => WeatherModifiers.GetModifiers(type)
-        };
-        RaiseEvent($"Weather: {WeatherModifiers.GetDisplayName(CurrentWeather.Type)}");
-        RaiseEvent("You return home for the night.");
-
-        var newNews = NewsService.ResolveStartOfDay(News, Infrastructure, EventJournal, Clock.Day, random ?? _sharedRandom);
-        if (newNews is not null)
-        {
-            foreach (var district in newNews.AffectedDistricts)
-            {
-                var pressure = NewsImpactCalculator.GetPolicePressureModifier(News, district);
-                if (pressure > 0)
-                {
-                    DistrictHeat.AddHeat(district, pressure);
-                    RaiseEvent($"The {newNews.Headline} brings extra document pressure to {DistrictInfo.GetName(district)}.");
-                }
-            }
-
-            RecordMutation(MutationCategories.News, "ResolveStartOfDay", before, CaptureStats(), newNews.Headline);
-
-            if (newNews.InkKnot is not null)
-            {
-                QueueNarrativeScene(newNews.InkKnot);
-            }
-        }
-
-        if (GetCurrentDayOfWeek() == GameDayOfWeek.Monday)
-        {
-            ResolveWeeklyHouseholdAssets();
-            if (_investmentState.ActiveInvestments.Count > 0)
-            {
-                ResolveWeeklyInvestments(random ?? _sharedRandom);
-            }
-            ResolveWeeklyEconomy(random ?? _sharedRandom);
-        }
-
-        QueueCityCrisisBeat();
-
-        Player.Nutrition.BeginNewDay();
-        Player.Household.BeginNewDay();
-        _trainedSkillsToday.Clear();
-
-        if (EventAttendance.LastAttendanceDay < Clock.Day - 1 || Clock.Day == 1)
-        {
-            EventAttendance.RecordSkip();
-        }
-
-        EventAttendance.ResetWeeklyIfNeeded(Clock.Day);
-
-        if (EventAttendance.ConsecutiveSkips >= 3)
-        {
-            var struggling = Player.Stats.Money < 30 || Player.Stats.Health < 40 || Player.Stats.Stress > 60;
-            if (struggling)
-            {
-                var concernNpc = NpcId.NeighborMona;
-                Relationships.ModifyNpcTrust(concernNpc, 1);
-                RaiseEvent("Mona notices you struggling and drops off some bread. Trust +1.");
-            }
-        }
-
-        if (EventAttendance.ConsecutiveSkips >= 5)
-        {
-            Relationships.ModifyNpcTrust(NpcId.NeighborMona, -1);
-            Relationships.ModifyNpcTrust(NpcId.FixerUmmKarim, -1);
-            Relationships.ModifyNpcTrust(NpcId.NurseSalma, -1);
-            RaiseEvent("Neighbors are starting to talk. You never show up anymore.");
-        }
-
-        foreach (var randomEvent in _randomEventService.RollDailyEvents(this, random ?? _sharedRandom))
-        {
-            ApplyRandomEvent(randomEvent);
-        }
-
-        TryRollStreetCatEncounter(random ?? _sharedRandom);
-        QueueNarrativeFollowUpScenes();
-
-        Rumors.DecayAll();
-        RumorPropagator.Propagate(Rumors, Relationships, Clock.Day);
-        foreach (var rumor in Rumors.ActiveRumors)
-        {
-            foreach (var npcId in rumor.AffectedNpcs)
-            {
-                if (!rumor.NpcsWhoHeard.Contains(npcId))
-                {
-                    var modifier = rumor.TrustModifier;
-                    var relationship = Relationships.GetNpcRelationship(npcId);
-                    if (relationship.Trust > 30 && !rumor.IsPositive)
-                    {
-                        modifier = modifier / 2;
-                    }
-                    else if (relationship.Trust < -10 && !rumor.IsPositive)
-                    {
-                        modifier = (int)(modifier * 1.5);
-                    }
-
-                    if (modifier != 0)
-                    {
-                        Relationships.ModifyNpcTrust(npcId, modifier);
-                    }
-
-                    rumor.NpcsWhoHeard.Add(npcId);
-                }
-            }
-        }
-
-        Rumors.RemoveExpired();
-
-        if (EventAttendance.ConsecutiveSkips >= 3)
-        {
-            Rumors.AddRumor(RumorGenerator.OnSkippingCommunityEvents(EventAttendance.ConsecutiveSkips, Clock.Day));
-        }
-
-        ActivityLedgerSystem.BeginNewDay(_crimeState);
-        ProcessDailyDebt();
-        ProcessDailyPhone(random ?? _sharedRandom);
-        ProcessDailyTips(random ?? _sharedRandom);
-        CheckGameOverConditions();
-        RecordMutation(MutationCategories.DayTransition, "EndDay", before, CaptureStats(), $"Day {CurrentDay} completed");
+        return _rentState.ProcessDay(RecurringExpenses.DailyRentCost, Player.Stats.Money);
     }
 
-    private void QueueCityCrisisBeat()
+    /// <summary>Clears the per-day training flags during the daily resolution.</summary>
+    internal void ClearDailyTraining()
+    {
+        _trainedSkillsToday.Clear();
+    }
+
+    /// <summary>Indicates whether this run rolls dynamic daily district conditions.</summary>
+    internal bool UseDynamicDistrictConditions => _useDynamicDistrictConditions;
+
+    /// <summary>Starts a new day in the crime activity ledger during the daily resolution.</summary>
+    internal void BeginDailyActivityLedger()
+    {
+        ActivityLedgerSystem.BeginNewDay(_crimeState);
+    }
+
+    internal void QueueCityCrisisBeat()
     {
         var beat = CityCrisisPlanner.GetNextBeat(Clock.Day, CityCrisis);
         if (beat is null)
@@ -746,7 +437,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
             callbackQueued);
     }
 
-    private void RollTerritoryEvents(Random random)
+    internal void RollTerritoryEvents(Random random)
     {
         foreach (DistrictId district in Enum.GetValues<DistrictId>())
         {
@@ -1110,7 +801,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
     {
         var events = new List<CommunityEventDefinition>();
         var dayOfWeek = Clock.DayOfWeek;
-        var isRamadan = _ramadanState.IsActive;
+        var isRamadan = RamadanState.IsActive;
 
         foreach (var evt in CommunityEventRegistry.AllEvents)
         {
@@ -2823,7 +2514,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         }
     }
 
-    private bool TryQueueNarrativeTrigger(NarrativeSceneTrigger? trigger)
+    internal bool TryQueueNarrativeTrigger(NarrativeSceneTrigger? trigger)
     {
         if (trigger is null || HasStoryFlag(trigger.FlagName))
         {
@@ -3069,7 +2760,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
 
     internal void RestoreRamadanState(bool isActive, bool playerIsFasting, int daysFasting, int daysRemaining)
     {
-        _ramadanState = new RamadanState
+        RamadanState = new RamadanState
         {
             IsActive = isActive,
             PlayerIsFasting = playerIsFasting,
@@ -3120,7 +2811,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         JobProgress.RestoreTrack(jobType, reliability, shiftsCompleted, lockoutUntilDay);
     }
 
-    private void RollDistrictConditionsForCurrentDay(Random random)
+    internal void RollDistrictConditionsForCurrentDay(Random random)
     {
         ArgumentNullException.ThrowIfNull(random);
 
@@ -3146,7 +2837,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         World.SetActiveDistrictConditions(activeConditions);
     }
 
-    private void SetBaselineDistrictConditions()
+    internal void SetBaselineDistrictConditions()
     {
         World.SetActiveDistrictConditions(
         [
@@ -3328,7 +3019,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
             : value.ToString(CultureInfo.InvariantCulture);
     }
 
-    private void CheckGameOverConditions()
+    internal void CheckGameOverConditions()
     {
         var ending = EndingService.CheckFailureEndings(this);
         if (ending is null)
@@ -3392,7 +3083,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         }
     }
 
-    private void QueueNarrativeFollowUpScenes()
+    internal void QueueNarrativeFollowUpScenes()
     {
         var reachabilityContext = new NarrativeReachabilityContext(
             Clock.Day,
@@ -3583,7 +3274,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         }
     }
 
-    private void ApplyRandomEvent(RandomEvent randomEvent)
+    internal void ApplyRandomEvent(RandomEvent randomEvent)
     {
         ArgumentNullException.ThrowIfNull(randomEvent);
 
@@ -3662,12 +3353,12 @@ public sealed class GameSession : INarrativeOutcomeTarget
         }
     }
 
-    private void SyncLegacyHunger()
+    internal void SyncLegacyHunger()
     {
         Player.Stats.SetHunger(Player.Nutrition.Satiety);
     }
 
-    private GameDayOfWeek GetCurrentDayOfWeek()
+    internal GameDayOfWeek GetCurrentDayOfWeek()
     {
         return Clock.DayOfWeek;
     }
@@ -3700,7 +3391,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
             return;
         }
 
-        _ramadanState = _ramadanState with
+        RamadanState = RamadanState with
         {
             IsActive = true,
             PlayerIsFasting = isFasting,
@@ -3738,7 +3429,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         };
     }
 
-    private Dictionary<string, object?> CaptureStats() => new()
+    internal Dictionary<string, object?> CaptureStats() => new()
     {
         ["Money"] = Player.Stats.Money,
         ["Hunger"] = Player.Stats.Hunger,
@@ -3753,25 +3444,25 @@ public sealed class GameSession : INarrativeOutcomeTarget
         ["RentDaysUnpaid"] = UnpaidRentDays,
     };
 
-    private void RecordMutation(string category, string action, Dictionary<string, object?> before, Dictionary<string, object?> after, string reason)
+    internal void RecordMutation(string category, string action, Dictionary<string, object?> before, Dictionary<string, object?> after, string reason)
     {
         var record = new GameMutationRecord(RunId, DateTimeOffset.UtcNow, category, action, before, after, reason);
         _mutations.Add(record);
         MutationRecorded?.Invoke(this, new GameMutationEventArgs(record));
     }
 
-    private void RaiseEvent(string message)
+    internal void RaiseEvent(string message)
     {
         RaiseEvent(message, EventSource.GameEvent);
     }
 
-    private void RaiseEvent(string message, EventSource source)
+    internal void RaiseEvent(string message, EventSource source)
     {
         EventJournal.Add(Clock.Day, source, message);
         GameEvent?.Invoke(this, new GameEventArgs(message));
     }
 
-    private void RaiseAutoTransaction(string message)
+    internal void RaiseAutoTransaction(string message)
     {
         RaiseEvent($"[Day {CurrentDay}] {message}", EventSource.AutoTransaction);
     }
@@ -3962,7 +3653,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         TotalInvestmentEarnings = totalInvestmentEarnings;
     }
 
-    private void ResolveWeeklyHouseholdAssets()
+    internal void ResolveWeeklyHouseholdAssets()
     {
         var resolution = Player.HouseholdAssets.ResolveWeeklyNeglect(CurrentWeek);
         if (resolution.StressPenalty <= 0)
@@ -3974,7 +3665,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         RaiseAutoTransaction($"Skipping household care all week weighs on your mother. Stress +{resolution.StressPenalty}.");
     }
 
-    private void TryRollStreetCatEncounter(Random random)
+    internal void TryRollStreetCatEncounter(Random random)
     {
 #pragma warning disable CA5394
         ArgumentNullException.ThrowIfNull(random);
@@ -4026,7 +3717,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         ];
     }
 
-    private void ResolveWeeklyEconomy(Random random)
+    internal void ResolveWeeklyEconomy(Random random)
     {
         var hardshipModifier = NewsImpactCalculator.GetNpcHardshipModifier(News);
         NpcEconomyResolver.ResolveWeek(NpcEconomies, Relationships, Clock.Day, random, hardshipModifier);
@@ -4069,7 +3760,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         PlayerDebts.UpdateCollectionStates(Clock.Day);
     }
 
-    private void ProcessDailyDebt()
+    internal void ProcessDailyDebt()
     {
         var result = DebtService.ProcessDailyLoanShark(PlayerDebts, Player.Stats, Clock.Day);
         if (!string.IsNullOrEmpty(result.Message))
@@ -4233,7 +3924,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         PlayerDebts.RestoreDebts(playerDebts);
     }
 
-    private void ProcessDailyPhone(Random random)
+    internal void ProcessDailyPhone(Random random)
     {
         if (!Phone.IsOperational())
         {
@@ -4476,7 +4167,7 @@ public sealed class GameSession : INarrativeOutcomeTarget
         PhoneMessages.RestoreMessages(messages);
     }
 
-    private void ProcessDailyTips(Random random)
+    internal void ProcessDailyTips(Random random)
     {
         var newTips = TipGenerator.GenerateTips(
             Clock.Day, Relationships, DistrictHeat, NpcEconomies,
