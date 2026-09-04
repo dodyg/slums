@@ -984,28 +984,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => CrimeSessionService.PreviewCrime(this, attempt);
 
     public int GetEffectiveRandomEventWeight(RandomEvent randomEvent)
-    {
-        ArgumentNullException.ThrowIfNull(randomEvent);
-
-        var weight = randomEvent.Weight;
-        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
-        if (districtCondition is null)
-        {
-            return weight;
-        }
-
-        if (districtCondition.Effect.BoostedRandomEventIds.Contains(randomEvent.Id, StringComparer.Ordinal))
-        {
-            weight += 4;
-        }
-
-        if (districtCondition.Effect.SuppressedRandomEventIds.Contains(randomEvent.Id, StringComparer.Ordinal))
-        {
-            weight = Math.Max(1, weight - 3);
-        }
-
-        return weight;
-    }
+        => RandomEventService.GetEffectiveEventWeight(this, randomEvent);
 
     internal void SetRunId(Guid runId)
     {
@@ -1340,75 +1319,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => CrimeSessionService.EvaluateCrimeModifiers(this, attempt);
 
     internal void ApplyRandomEvent(RandomEvent randomEvent)
-    {
-        ArgumentNullException.ThrowIfNull(randomEvent);
-
-        var before = CaptureStats();
-        RecordEventHistory(randomEvent.Id, GetEventCount(randomEvent.Id) + 1);
-
-        var effect = randomEvent.Effect;
-        if (effect.MoneyChange != 0)
-        {
-            Player.Stats.ModifyMoney(effect.MoneyChange);
-        }
-
-        if (effect.HealthChange != 0)
-        {
-            Player.Stats.ModifyHealth(effect.HealthChange);
-        }
-
-        if (effect.EnergyChange != 0)
-        {
-            Player.Stats.ModifyEnergy(effect.EnergyChange);
-        }
-
-        if (effect.HungerChange != 0)
-        {
-            Player.Nutrition.ModifySatiety(effect.HungerChange);
-            SyncLegacyHunger();
-        }
-
-        if (effect.StressChange != 0)
-        {
-            Player.Stats.ModifyStress(effect.StressChange);
-        }
-
-        if (effect.PolicePressureChange != 0)
-        {
-            DistrictHeat.AddHeat(World.CurrentDistrict, effect.PolicePressureChange);
-        }
-
-        if (effect.MotherHealthChange != 0)
-        {
-            Player.Household.UpdateMotherHealth(effect.MotherHealthChange);
-        }
-
-        if (effect.FoodChange > 0)
-        {
-            Player.Household.AddFood(effect.FoodChange);
-        }
-        else if (effect.FoodChange < 0)
-        {
-            for (var i = 0; i < -effect.FoodChange; i++)
-            {
-                Player.Household.ConsumeFood();
-            }
-        }
-
-        RaiseEvent(randomEvent.Description);
-
-        if (NarrativeSignalRules.HasPendingSudaneseSolidarity(Player.BackgroundType, randomEvent.Id, _storyFlags))
-        {
-            TryQueueNarrativeTrigger(new NarrativeSceneTrigger(NarrativeStoryFlags.BackgroundSudaneseSolidaritySeen, NarrativeKnots.BackgroundSudaneseSolidarity));
-        }
-
-        if (!string.IsNullOrWhiteSpace(effect.InkKnot))
-        {
-            QueueNarrativeScene(effect.InkKnot);
-        }
-
-        RecordMutation(MutationCategories.RandomEvent, "ApplyRandomEvent", before, CaptureStats(), $"Event: {randomEvent.Id} - {randomEvent.Description}");
-    }
+        => RandomEventService.ApplyEvent(this, randomEvent);
 
     internal void ApplySkillGain(SkillId skillId)
     {
