@@ -154,7 +154,7 @@ After the gathering, the stairwell smells different. It is not cleaner, just liv
 -> DONE
 
 === event_embarrassment_recovery ===
-Abu Samir does not apologize. That is not how workshop forgiveness works. He hands you the better fabric this time, the kind he gives to women whose hands he trusts. The silence between you is no longer cold. You have both agreed never to mention the mistake again.
+Abu Samir does not apologize. That is not how workshop forgiveness works. He hands you the better fabric this time, the kind he reserves for {gender == "male": the workers whose hands he trusts | the women whose hands he trusts}. The silence between you is no longer cold. You have both agreed never to mention the mistake again.
 # NPC_TRUST:WorkshopBossAbuSamir,5
 -> DONE
 
@@ -176,7 +176,7 @@ Youssef stops calling you by name and starts using the route shorthand instead: 
 -> DONE
 
 === event_nadia_suspicion ===
-Nadia sets the tea down and does not move away. Her eyes track from your work-worn hands to the way you check the door before speaking. She does not accuse. She just says, carefully, that some women in this neighborhood carry two lives, and the ones who survive are the ones who stop pretending the cracks do not show.
+Nadia sets the tea down and does not move away. Her eyes track from your work-worn hands to the way you check the door before speaking. She does not accuse. She just says, carefully, that {gender == "male": some men in this neighborhood carry two lives | some women in this neighborhood carry two lives}, and the ones who survive are the ones who stop pretending the cracks do not show.
 # STRESS:4
 # NPC_TRUST:CafeOwnerNadia,-2
 -> DONE
