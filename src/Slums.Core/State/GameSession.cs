@@ -316,6 +316,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     internal LocationPricingService LocationPricing => _locationPricingService;
     internal RentState Rent => _rentState;
     internal GameInvestmentState InvestmentState => _investmentState;
+    internal GameWorkState WorkState => _workState;
 
     internal void ClaimEmergencySupport()
     {
@@ -584,102 +585,10 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public JobResult WorkJob(JobShift job, Random? random = null)
-    {
-        ArgumentNullException.ThrowIfNull(job);
-
-        var before = CaptureStats();
-        if (WeatherActivityRules.BlocksJob(CurrentWeather, job.Type))
-        {
-            var reason = WeatherActivityRules.GetJobBlockReason(CurrentWeather);
-            RecordMutation(MutationCategories.GuardRejected, "WorkJob", before, CaptureStats(), reason);
-            RaiseEvent(reason);
-            return JobResult.Failed(reason);
-        }
-
-        var location = World.GetCurrentLocation();
-        if (location is null)
-        {
-            RecordMutation(MutationCategories.GuardRejected, "WorkJob", before, CaptureStats(), "No current location");
-            return JobResult.Failed("You are nowhere.");
-        }
-
-        var result = Jobs.PerformJob(
-            job,
-            Player,
-            location,
-            Relationships,
-            JobProgress,
-            Clock.Day,
-            random ?? _sharedRandom,
-            NewsImpactCalculator.GetJobPayModifier(News, job.Type));
-
-        if (result.Success)
-        {
-            ActivityLedgerSystem.RecordWorkShift(_workState, Clock, job, result);
-            if (!result.MistakeMade)
-            {
-                ApplySkillGain(GetSkillForJob(job.Type));
-                ModifyEmployerTrust(job.Type, 2);
-            }
-            else
-            {
-                ModifyEmployerTrust(job.Type, -4);
-            }
-
-            ApplyWorkCrimeSpillover(job, result);
-            ApplyBackgroundWorkFlavor(job, result);
-            if (job.Type == JobType.RoboticsScavenging)
-            {
-                if (Player.Robotics.CanBuyParts(1))
-                {
-                    Player.Robotics.AddParts(1);
-                    RaiseEvent("You salvage one usable board or actuator from the pile. Robot parts +1.");
-                }
-
-                var workingRobot = Player.Robotics.Robots.FirstOrDefault(static robot => robot.IsOperational);
-                if (workingRobot is not null)
-                {
-                    workingRobot.Damage(10);
-                    RaiseEvent($"The {RobotRegistry.GetByType(workingRobot.Type).Name} takes wear on the scavenging run. Condition: {workingRobot.Condition}%.");
-                }
-
-                if (RobotCapabilityRules.GetSalvageBonusParts(Player.Robotics) > 0 && Player.Robotics.CanBuyParts(1))
-                {
-                    Player.Robotics.AddParts(1);
-                    RaiseEvent("The Salvage Crawler finds one extra usable actuator. Robot parts +1.");
-                }
-            }
-            TerritoryDynamicsCalculator.ApplyHonestWorkImpact(Territory, World.CurrentDistrict);
-
-            RaiseEvent(result.Message);
-            RecordMutation(MutationCategories.Work, "WorkJob", before, CaptureStats(), result.Message);
-            AdvanceTime(job.DurationMinutes);
-        }
-        else
-        {
-            RaiseEvent(result.Message);
-            RecordMutation(MutationCategories.GuardRejected, "WorkJob", before, CaptureStats(), result.Message);
-        }
-
-        CheckGameOverConditions();
-        return result;
-    }
+        => WorkSessionService.Work(this, job, random);
 
     public IReadOnlyList<JobShift> GetAvailableJobs()
-    {
-        var location = World.GetCurrentLocation();
-        if (location is null)
-        {
-            return [];
-        }
-
-        var schedule = GetCurrentSchedule();
-        return Jobs.GetAvailableJobs(location, Player, Relationships, JobProgress)
-            .Where(job => !schedule.BlockedJobTypes.Contains(job.Type.ToString()))
-            .Where(job => !WeatherActivityRules.BlocksJob(CurrentWeather, job.Type))
-            .Select(job => ApplyDayScheduleToJob(ApplyDistrictConditionToJob(job), schedule))
-            .ToArray();
-    }
+        => WorkSessionService.GetAvailable(this);
 
     public IReadOnlyList<CrimeAttempt> GetAvailableCrimes()
     {
@@ -920,21 +829,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public JobPreview PreviewJob(JobType jobType)
-    {
-        var preview = ApplyDistrictConditionToJobPreview(Jobs.PreviewJob(jobType, Player, Relationships, JobProgress));
-        var modifiers = preview.ActiveModifiers.ToList();
-        var payModifier = NewsImpactCalculator.GetJobPayModifier(News, jobType);
-        if (payModifier != 0)
-        {
-            modifiers.Add($"City news changes this shift's pay by {payModifier} LE.");
-        }
-        var infrastructure = Infrastructure.Get(World.CurrentDistrict, InfrastructureServiceType.Electricity);
-        if (infrastructure.IsActive)
-        {
-            modifiers.Add($"Electricity is {infrastructure.Severity} here; workshop and office work may be interrupted.");
-        }
-        return preview with { ActiveModifiers = modifiers };
-    }
+        => WorkSessionService.Preview(this, jobType);
 
     public IReadOnlyList<DistrictConditionDefinition> GetDailyDistrictConditions()
     {
@@ -1529,131 +1424,6 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         return candidates[^1];
     }
 
-    private JobPreview ApplyDistrictConditionToJobPreview(JobPreview preview)
-    {
-        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
-        var schedule = GetCurrentSchedule();
-        var hasDistrictModifiers = districtCondition is not null && (districtCondition.Effect.WorkPayModifier != 0 || districtCondition.Effect.WorkStressModifier != 0);
-        var hasScheduleModifiers = schedule.JobPayModifier != 0 || schedule.JobPayOverrides.Count > 0;
-
-        if (!hasDistrictModifiers && !hasScheduleModifiers)
-        {
-            return preview;
-        }
-
-        var activeModifiers = preview.ActiveModifiers.ToList();
-        if (hasDistrictModifiers)
-        {
-            activeModifiers.Add(BuildWorkDistrictModifierText(districtCondition!));
-        }
-
-        if (hasScheduleModifiers)
-        {
-            activeModifiers.Add($"{schedule.DayName}: pay {schedule.JobPayModifier:+#;-#;0} LE (schedule).");
-        }
-
-        if (schedule.JobPayOverrides.TryGetValue(preview.Job.Type.ToString(), out var jobPayOverride))
-        {
-            activeModifiers.Add($"{schedule.DayName}: {preview.Job.Type} pay {jobPayOverride:+#;-#;0} LE (schedule).");
-        }
-
-        var job = preview.Job;
-        if (hasDistrictModifiers)
-        {
-            job = ApplyDistrictConditionToJob(job);
-        }
-
-        if (hasScheduleModifiers)
-        {
-            job = ApplyDayScheduleToJob(job, schedule);
-        }
-
-        return new JobPreview(
-            job,
-            preview.VariantReason,
-            preview.NextUnlockHint,
-            activeModifiers,
-            preview.RiskWarning);
-    }
-
-    private JobShift ApplyDistrictConditionToJob(JobShift job)
-    {
-        ArgumentNullException.ThrowIfNull(job);
-
-        var districtCondition = GetActiveDistrictConditionDefinition(World.CurrentDistrict);
-        if (districtCondition is null)
-        {
-            return job;
-        }
-
-        var effect = districtCondition.Effect;
-        if (effect.WorkPayModifier == 0 && effect.WorkStressModifier == 0)
-        {
-            return job;
-        }
-
-        return CloneJobShift(
-            job,
-            Math.Max(0, job.BasePay + effect.WorkPayModifier),
-            Math.Max(0, job.StressCost + effect.WorkStressModifier));
-    }
-
-    private static JobShift ApplyDayScheduleToJob(JobShift job, DayScheduleModifiers schedule)
-    {
-        if (schedule.JobPayModifier == 0 && !schedule.JobPayOverrides.TryGetValue(job.Type.ToString(), out _))
-        {
-            return job;
-        }
-
-        var payModifier = schedule.JobPayModifier;
-        if (schedule.JobPayOverrides.TryGetValue(job.Type.ToString(), out var jobPayOverride))
-        {
-            payModifier += jobPayOverride;
-        }
-
-        if (payModifier == 0)
-        {
-            return job;
-        }
-
-        return CloneJobShift(
-            job,
-            Math.Max(0, job.BasePay + payModifier),
-            job.StressCost);
-    }
-
-    private static JobShift CloneJobShift(JobShift source, int basePay, int stressCost)
-    {
-        return new JobShift
-        {
-            Type = source.Type,
-            Name = source.Name,
-            Description = source.Description,
-            BasePay = basePay,
-            EnergyCost = source.EnergyCost,
-            StressCost = stressCost,
-            DurationMinutes = source.DurationMinutes,
-            MinEnergyRequired = source.MinEnergyRequired,
-            PayVariance = source.PayVariance
-        };
-    }
-
-    private static string BuildWorkDistrictModifierText(DistrictConditionDefinition districtCondition)
-    {
-        var parts = new List<string>();
-        if (districtCondition.Effect.WorkPayModifier != 0)
-        {
-            parts.Add($"pay {FormatSignedValue(districtCondition.Effect.WorkPayModifier)} LE");
-        }
-
-        if (districtCondition.Effect.WorkStressModifier != 0)
-        {
-            parts.Add($"stress {FormatSignedValue(districtCondition.Effect.WorkStressModifier)}");
-        }
-
-        return $"{districtCondition.Title} affects shifts today: {string.Join(", ", parts)}.";
-    }
-
     private static string BuildCrimeDistrictModifierText(DistrictConditionDefinition districtCondition)
     {
         var parts = new List<string>();
@@ -1691,54 +1461,6 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         GameOverReason = EndingService.GetMessage(ending.Value);
         PendingEndingKnot = EndingService.GetInkKnot(this, ending.Value);
         RecordMutation(MutationCategories.EndingTriggered, "CheckGameOverConditions", before, CaptureStats(), $"Ending triggered: {ending}");
-    }
-
-    private void ModifyEmployerTrust(JobType jobType, int delta)
-    {
-        var npcId = jobType switch
-        {
-            JobType.ClinicReception => NpcId.NurseSalma,
-            JobType.WorkshopSewing => NpcId.WorkshopBossAbuSamir,
-            JobType.CafeService => NpcId.CafeOwnerNadia,
-            JobType.PharmacyStock => NpcId.PharmacistMariam,
-            JobType.MicrobusDispatch => NpcId.DispatcherSafaa,
-            JobType.LaundryPressing => NpcId.LaundryOwnerIman,
-            _ => (NpcId?)null
-        };
-
-        if (npcId.HasValue)
-        {
-            ModifyNpcTrust(npcId.Value, delta);
-        }
-    }
-
-    private void ApplyWorkCrimeSpillover(JobShift job, JobResult result)
-    {
-        var publicWorkHeat = WorkNarrativePlanner.GetPublicWorkHeatPlan(Clock.Day, LastCrimeDay, PolicePressure, _storyFlags, job);
-        if (publicWorkHeat is not null)
-        {
-            Player.Stats.ModifyStress(publicWorkHeat.StressDelta);
-            ModifyEmployerTrust(job.Type, publicWorkHeat.EmployerTrustDelta);
-            RaiseEvent(publicWorkHeat.Message);
-            TryQueueNarrativeTrigger(publicWorkHeat.NarrativeTrigger);
-        }
-
-        if (WorkNarrativePlanner.ShouldEmbarrassWorkshopBoss(job, result))
-        {
-            Relationships.SetEmbarrassedState(NpcId.WorkshopBossAbuSamir, true);
-            Relationships.RecordRefusal(NpcId.WorkshopBossAbuSamir, Clock.Day);
-        }
-    }
-
-    private void ApplyBackgroundWorkFlavor(JobShift job, JobResult result)
-    {
-        TryQueueNarrativeTrigger(WorkNarrativePlanner.GetMedicalClinicTrigger(Player, job, result, _storyFlags));
-
-        if (WorkNarrativePlanner.ShouldGrantSalmaMedicineHelp(Player, job, result, Relationships))
-        {
-            Relationships.RecordFavor(NpcId.NurseSalma, Clock.Day, hasUnpaidDebt: true);
-            RaiseEvent("Nurse Salma quietly covers a little medicine for your mother. You owe her now.");
-        }
     }
 
     internal void QueueNarrativeFollowUpScenes()
@@ -2054,20 +1776,6 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
             IsActive = true,
             PlayerIsFasting = isFasting,
             DaysRemaining = holidayState.DaysRemaining
-        };
-    }
-
-    private static SkillId GetSkillForJob(JobType jobType)
-    {
-        return jobType switch
-        {
-            JobType.BakeryWork => SkillId.Physical,
-            JobType.HouseCleaning => SkillId.Physical,
-            JobType.CallCenterWork => SkillId.Persuasion,
-            JobType.PharmacyStock => SkillId.Medical,
-            JobType.MicrobusDispatch => SkillId.Persuasion,
-            JobType.LaundryPressing => SkillId.Physical,
-            _ => SkillId.StreetSmarts
         };
     }
 
