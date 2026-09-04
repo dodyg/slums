@@ -467,6 +467,7 @@ GameSession maintains a pending narrative scenes queue. Scenes are dequeued by t
 
 - JSON serialization via `JsonSaveGameStore`
 - `GameSessionSnapshot` captures and restores full state including all subsystems
+- Snapshot hydration is entered through `GameSession.RestoreFromSnapshot`; Infrastructure validates the serialized aggregate before applying it and the session checks clock, relationship-registry, and job-track invariants afterward.
 - `LoadedGameSession` wraps loaded metadata plus `GameSession` ownership across the persistence boundary
 - Loaded via `LoadGameUseCase`, saved via `SaveGameUseCase`
 

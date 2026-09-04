@@ -109,6 +109,7 @@ Acceptance targets:
 ### 3. Architecture hardening
 
 - continue extracting cohesive daily-resolution and action-policy rules from `GameSession`
+- route snapshot hydration through one validated `GameSession.RestoreFromSnapshot` boundary while keeping `LoadedGameSession` as the persistence handoff
 - keep query builders immutable and free of event emission or state mutation
 - add catalog-level validation for cross-file assumptions where a valid individual JSON file can still create an invalid world
 - reduce static registry coupling only when doing so preserves the canonical session boundary and materially improves test isolation
