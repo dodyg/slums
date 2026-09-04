@@ -113,6 +113,35 @@ public sealed class GameSession : INarrativeOutcomeTarget
         _sharedRandom = new GameRandom(state);
     }
 
+    /// <summary>Hydrates this session through one validated snapshot restore boundary.</summary>
+    /// <param name="restore">The persistence adapter that applies the captured state.</param>
+    /// <returns>This hydrated session.</returns>
+    public GameSession RestoreFromSnapshot(Action<GameSession> restore)
+    {
+        ArgumentNullException.ThrowIfNull(restore);
+        restore(this);
+        ValidateRestoredState();
+        return this;
+    }
+
+    private void ValidateRestoredState()
+    {
+        if (Clock.Day < 1 || Clock.Hour is < 0 or > 23 || Clock.Minute is < 0 or > 59)
+        {
+            throw new InvalidOperationException("Restored session has an incoherent clock.");
+        }
+
+        if (Relationships.NpcRelationships.Count != Enum.GetValues<NpcId>().Length)
+        {
+            throw new InvalidOperationException("Restored session has an incomplete NPC relationship registry.");
+        }
+
+        if (JobProgress.Tracks.Count != Enum.GetValues<JobType>().Length)
+        {
+            throw new InvalidOperationException("Restored session has an incomplete job track registry.");
+        }
+    }
+
     public GameClock Clock { get; }
     public PlayerCharacter Player { get; }
     public WorldState World { get; }

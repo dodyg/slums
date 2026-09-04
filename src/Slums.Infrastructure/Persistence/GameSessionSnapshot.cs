@@ -130,6 +130,8 @@ public sealed record GameSessionSnapshot
 
     public GameSession Restore()
     {
+        SaveGameValidator.Validate(this);
+
         var restoredRandom = RandomState is not null
             ? new GameRandom(RandomState)
             : CreateFallbackRandom();
@@ -144,7 +146,9 @@ public sealed record GameSessionSnapshot
             gameSession.RestoreRandomState(RandomState);
         }
 
-        gameSession.Player.ApplyBackground(BackgroundRegistry.GetByType(Player.BackgroundType));
+        return gameSession.RestoreFromSnapshot(_ =>
+        {
+            gameSession.Player.ApplyBackground(BackgroundRegistry.GetByType(Player.BackgroundType));
             gameSession.Player.ApplyGender(Player.Gender);
             gameSession.Player.Stats.SetMoney(Player.Money);
             gameSession.Player.Nutrition.SetSatiety(Player.Satiety);
@@ -290,6 +294,6 @@ public sealed record GameSessionSnapshot
                 gameSession.RestoreJobTrack(jobType, track.Reliability, track.ShiftsCompleted, track.LockoutUntilDay);
             }
 
-            return gameSession;
+        });
     }
 }

@@ -41,6 +41,15 @@ internal sealed class SaveGameValidatorTests
             .WithMessage("*relationship trust*job reliability*");
     }
 
+    [Test]
+    public void Restore_RejectsAnIncompleteSnapshotBeforeHydration()
+    {
+        var act = () => new GameSessionSnapshot().Restore();
+
+        act.Should().Throw<InvalidDataException>()
+            .WithMessage("*relationships contain 0 NPC entries*");
+    }
+
     private static GameSessionSnapshot CompleteSnapshot()
     {
         var snapshot = GameSessionSnapshot.Capture(new Slums.Core.State.GameSession());
