@@ -6,6 +6,8 @@ This document explains the game architecture and simulation mechanics for future
 
 **Slums** is a text-driven survival RPG set in Cairo in 2060. Repairable smart handsets, digital payments, solar-and-storage microgrids, autonomous electric transit, delivery drones, biometric checks, telemedicine, service robotics, and bounded machine-learning services are unevenly accessible alongside aging infrastructure. Cairo has a longer hot season, hotter nights, recurrent heatwaves, severe water pressure, and climate-stressed food supply. Rare rain can still overwhelm dry, poorly maintained drains. The setting uses a realistic Afrofuturist lens: local communities, African cultural continuity, repair work, mutual aid, language, faith, and community-run climate adaptation shape how technology is used. The player chooses Amira, a young woman, or Karim, a young man (both 20-29), then selects a life background. The protagonist must balance survival needs, care for a widowed mother, and navigate moral choices between honest underpaid work and risky criminal activity.
 
+The male preset remains Karim while the recurring NPC remains Umm Karim; preset names are intentionally not surfaced in UI or authored prose, so the distinction does not create an in-game naming collision.
+
 ## Solution Architecture
 
 ```
