@@ -316,7 +316,7 @@ Agents: keep this table current. Update the `GameSession.cs` line count after ea
 | W3.2 | 3 | Investments | Done | `InvestmentPurchaseService` owns investment discovery, eligibility, purchase, weekly resolution, and restoration; GameSession.cs = 2,570 lines |
 | W3.3 | 3 | Phone | Done | `PhoneService` owns daily processing, credit, message responses, replacement, and restoration; GameSession.cs = 2,349 lines |
 | W3.4 | 3 | Tips | Done | `TipService` owns tip generation/delivery, acknowledgement, ignore erosion, and restoration; GameSession.cs = 2,238 lines |
-| W4.1 | 4 | Work session glue | Not started | Highest RNG surface |
+| W4.1 | 4 | Work session glue | In progress | Claim: extract session-side work actions, availability, previews, modifiers, and restoration into `WorkSessionService`; preserve `JobService` math, RNG, ledger, and narrative effects. |
 | W4.2 | 4 | Crime | Not started | Compose with `CrimeService`/planners |
 | W4.3 | 4 | Random events | Not started | |
 | W5.1 | 5 | Calendar/season/schedule | Not started | |
