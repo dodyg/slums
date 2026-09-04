@@ -115,7 +115,7 @@ Hajj Mahmoud nods politely at the Abdo family on the third floor and receives a 
     -> DONE
 
 *   [Bake extra bread for the forn's holiday rush]
-    The forn needs help. Christmas demand pushes the ovens past capacity, and Abu Samir sends word that extra hands mean extra pay. You work the morning shift shaping dough while the Christians worship and the Muslims sleep in, and the bakery fills with the smell of bread that will become someone else's celebration.
+    The forn needs help. Christmas demand pushes the ovens past capacity, and the baker sends word that extra hands mean extra pay. You work the morning shift shaping dough while the Christians worship and the Muslims sleep in, and the bakery fills with the smell of bread that will become someone else's celebration.
     # MONEY:20
     # ENERGY:-8
     # MESSAGE:You work the Christmas bakery rush. The pay is good and the forn smells like every holiday at once.
