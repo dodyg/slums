@@ -292,6 +292,8 @@ Medicinal:
 - Technical Repair keeps robot parts and bench repairs, and also supports handset, battery, water-pump, and solar-storage repair through time, parts, and cash costs.
 - Digital Literacy keeps the Network Errand crime application while also reducing limited wallet friction, unlocking a digital-work variant, and enabling uncertain biometric or service appeals with persistent technology obligations.
 
+Community adaptation currently exposes three home actions through application previews: Coordinate Cooling Room (Community Organizing 4, 120 minutes, 8 LE, 8 energy), Organize Water Rationing (level 4, 150 minutes, 5 LE, one food staple, and 10 energy), and Neighborhood Pressure Response (level 8, 180 minutes, 10 LE, and 12 energy). The first two require prior community attendance; the pressure response requires two attendances and an active heatwave or elevated local territory tension. Outcomes remain bounded: cooling adds two room-days, rationing shortens a local water disruption and creates two reserve units, and pressure response reduces local tension by five and district heat by two. These benefits are persisted on `GameSession` and decay or resolve through the daily pipeline.
+
 ## Debt and NPC Economy
 
 - NPCs have individual financial states that shift over time, creating economic ripple effects the player can observe and participate in.

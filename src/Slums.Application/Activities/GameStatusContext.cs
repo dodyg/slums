@@ -1,5 +1,6 @@
 using Slums.Core.Calendar;
 using Slums.Core.Characters;
+using Slums.Core.Community;
 using Slums.Core.Clock;
 using Slums.Core.Expenses;
 using Slums.Core.Investments;
@@ -44,7 +45,8 @@ public sealed record GameStatusContext(
     IReadOnlyList<NewsFlashDefinition> ActiveNews,
     IReadOnlyCollection<InfrastructureServiceState> InfrastructureServices,
     IReadOnlyDictionary<string, int> Inventory,
-    SurvivalForecast SurvivalForecast)
+    SurvivalForecast SurvivalForecast,
+    CommunityAdaptationState CommunityAdaptation)
 {
     public static GameStatusContext Create(GameSession gameSession)
     {
@@ -86,7 +88,8 @@ public sealed record GameStatusContext(
     gameSession.GetActiveNewsDefinitions(),
     gameSession.Infrastructure.Services,
     gameSession.Inventory.Quantities,
-    survivalForecast);
+    survivalForecast,
+    gameSession.CommunityAdaptation);
     }
 
     public bool HasStoryFlag(string flag)

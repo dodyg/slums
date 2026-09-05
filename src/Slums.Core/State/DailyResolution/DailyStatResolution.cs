@@ -40,6 +40,19 @@ internal static class DailyStatResolution
             player.Stats.ModifyStress(session.CurrentWeather.StressModifier);
         }
 
+        if (session.CommunityAdaptation.CoolingRoomDaysRemaining > 0 && session.CurrentWeather.Type == WeatherType.Heatwave)
+        {
+            player.Stats.ModifyStress(-2);
+            session.RaiseEvent("The neighborhood cooling room takes the edge off the heatwave. Stress -2.");
+        }
+
+        if (session.CommunityAdaptation.TryConsumeWaterReserve()
+            && InfrastructureImpactCalculator.GetFoodStressModifier(session.Infrastructure, session.World.CurrentDistrict) > 0)
+        {
+            player.Stats.ModifyStress(-1);
+            session.RaiseEvent("The committee's water reserve covers one bad rotation. Stress -1.");
+        }
+
         if (session.CurrentWeather.HealthModifier != 0
             && (session.CurrentWeather.Type == WeatherType.Heatwave && player.Stats.Energy < 30))
         {

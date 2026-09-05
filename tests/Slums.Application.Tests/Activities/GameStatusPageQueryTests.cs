@@ -55,8 +55,8 @@ internal sealed class GameStatusPageQueryTests
         var pages = query.GetPages(GameStatusContext.Create(gameState));
 
         var skills = pages.Single(static page => page.Title == "Skills");
-        skills.Lines.Should().Contain(static line => line.Contains("Robot Repair: 2", StringComparison.Ordinal));
-        skills.Lines.Should().Contain(static line => line.Contains("Cyber Hacking: 1", StringComparison.Ordinal));
+        skills.Lines.Should().Contain(static line => line.Contains("Technical Repair: 2", StringComparison.Ordinal));
+        skills.Lines.Should().Contain(static line => line.Contains("Digital Literacy: 1", StringComparison.Ordinal));
     }
 
     [Test]
@@ -144,6 +144,22 @@ internal sealed class GameStatusPageQueryTests
         household.Lines.Should().Contain(static line => line.Contains("Fish tank: yes", StringComparison.Ordinal));
         household.Lines.Should().Contain(static line => line.Contains("Plants: 1/10", StringComparison.Ordinal));
         household.Lines.Should().Contain(static line => line.Contains("Street cat encounter: available", StringComparison.Ordinal));
+    }
+
+    [Test]
+    public void GetPages_ShouldExposeCommunityAdaptation_OnHouseholdPage()
+    {
+        var query = new GameStatusPageQuery();
+        var gameState = new GameSession();
+        gameState.CommunityAdaptation.AddCoolingRoomDays(3);
+        gameState.CommunityAdaptation.AddWaterReserve(2);
+        gameState.CommunityAdaptation.RecordSuccessfulAction(2);
+
+        var household = query.GetPages(GameStatusContext.Create(gameState))
+            .Single(static page => page.Title == "Household");
+
+        household.Lines.Should().Contain(static line => line.Contains("cooling room 3d | water reserve 2", StringComparison.Ordinal));
+        household.Lines.Should().Contain(static line => line.Contains("Group actions completed: 1 | shelter contributions: 2", StringComparison.Ordinal));
     }
 
     [Test]

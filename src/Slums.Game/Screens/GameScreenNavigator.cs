@@ -21,6 +21,7 @@ internal sealed class GameScreenNavigator
     private readonly InvestmentMenuQuery _investmentMenuQuery = new();
     private readonly HouseholdAssetsMenuQuery _householdAssetsMenuQuery = new();
     private readonly CommunityEventMenuQuery _communityEventMenuQuery = new();
+    private readonly CommunityActionMenuQuery _communityActionMenuQuery = new();
 
     public GameScreenNavigator(GameRuntime runtime, GameSession gameState, GameScreen parentScreen)
     {
@@ -40,6 +41,7 @@ internal sealed class GameScreenNavigator
             GameActionId.Train => ShowTrainingMenu(),
             GameActionId.HomeImprovement => ShowHomeUpgradeMenu(),
             GameActionId.CommunityEvent => ShowCommunityEventMenu(),
+            GameActionId.CommunityAdaptation => ShowCommunityActionMenu(),
             GameActionId.Invest => ShowInvestmentMenu(),
             GameActionId.Shop => ShowShopMenu(),
             GameActionId.HouseholdAssets => ShowHouseholdAssetsMenu(),
@@ -220,6 +222,20 @@ internal sealed class GameScreenNavigator
         }
 
         NavigateTo(new CommunityEventScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, context, events, _parentScreen));
+        return true;
+    }
+
+    private bool ShowCommunityActionMenu()
+    {
+        var context = CommunityActionMenuContext.Create(_gameState);
+        var actions = _communityActionMenuQuery.GetStatuses(context).ToList();
+        if (actions.Count == 0)
+        {
+            _parentScreen.AddEventLogEntry("No community adaptation actions are available.");
+            return false;
+        }
+
+        NavigateTo(new CommunityActionScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, context, actions, _parentScreen));
         return true;
     }
 

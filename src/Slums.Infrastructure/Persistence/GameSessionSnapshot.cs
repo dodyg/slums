@@ -45,6 +45,8 @@ public sealed record GameSessionSnapshot
 
     public GameSessionCommunityEventSnapshot CommunityEvents { get; init; } = new();
 
+    public GameSessionCommunityAdaptationSnapshot CommunityAdaptation { get; init; } = new();
+
     public string CurrentWeather { get; init; } = "Clear";
 
     public GameSessionDistrictHeatSnapshot DistrictHeat { get; init; } = new();
@@ -103,6 +105,7 @@ public sealed record GameSessionSnapshot
             HomeUpgrades = gameSession.HomeUpgrades.PurchasedUpgrades.Select(static u => u.ToString()).ToArray(),
             Ramadan = GameSessionRamadanSnapshot.Capture(gameSession),
             CommunityEvents = GameSessionCommunityEventSnapshot.Capture(gameSession),
+            CommunityAdaptation = GameSessionCommunityAdaptationSnapshot.Capture(gameSession),
             CurrentWeather = gameSession.CurrentWeather.Type.ToString(),
             DistrictHeat = GameSessionDistrictHeatSnapshot.Capture(gameSession),
             Territory = GameSessionTerritorySnapshot.Capture(gameSession),
@@ -234,6 +237,12 @@ public sealed record GameSessionSnapshot
                 CommunityEvents.AttendedThisWeek.Select(static s => Enum.Parse<Slums.Core.Community.CommunityEventId>(s)),
                 CommunityEvents.LastWeekResetDay,
                 CommunityEvents.HasTeaCircleInvitation);
+
+            gameSession.RestoreCommunityAdaptationState(
+                CommunityAdaptation.CoolingRoomDaysRemaining,
+                CommunityAdaptation.WaterReserveUnits,
+                CommunityAdaptation.SuccessfulActions,
+                CommunityAdaptation.ShelterContributions);
 
             if (Enum.TryParse<WeatherType>(CurrentWeather, out var weatherType))
             {

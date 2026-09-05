@@ -1,5 +1,6 @@
 using Slums.Core.Calendar;
 using Slums.Core.Characters;
+using Slums.Core.Community;
 using Slums.Core.Clock;
 using Slums.Core.Diagnostics;
 using Slums.Core.Events;
@@ -44,6 +45,7 @@ internal static class DailyWorldResolution
         }
 
         session.RollTerritoryEvents(new Random(session.Clock.Day * 31 + 7919));
+        CommunityOrganizingService.AdvanceDay(session);
     }
 
     internal static void AdvanceToNextMorning(GameSession session, Random random, Dictionary<string, object?> beforeStats)

@@ -61,6 +61,27 @@ public sealed class InfrastructureState
         }
     }
 
+    public bool ReduceDisruption(DistrictId district, InfrastructureServiceType service, int days)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(days);
+        var key = (district, service);
+        if (!_services.TryGetValue(key, out var current))
+        {
+            return false;
+        }
+
+        if (current.RemainingDays <= days)
+        {
+            _services.Remove(key);
+        }
+        else
+        {
+            _services[key] = current with { RemainingDays = current.RemainingDays - days };
+        }
+
+        return true;
+    }
+
     public void Restore(IEnumerable<InfrastructureServiceState> services)
     {
         ArgumentNullException.ThrowIfNull(services);

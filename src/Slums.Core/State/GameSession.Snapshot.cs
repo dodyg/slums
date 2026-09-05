@@ -164,6 +164,11 @@ public sealed partial class GameSession
         }
     }
 
+    internal void RestoreCommunityAdaptationState(int coolingRoomDaysRemaining, int waterReserveUnits, int successfulActions, int shelterContributions)
+    {
+        CommunityAdaptation.Restore(coolingRoomDaysRemaining, waterReserveUnits, successfulActions, shelterContributions);
+    }
+
     internal void RestoreWeather(WeatherType weatherType)
         => CalendarService.RestoreWeather(this, weatherType);
 

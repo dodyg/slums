@@ -165,6 +165,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     public TipState Tips { get; } = new();
     public NewsState News { get; } = new();
     public InfrastructureState Infrastructure { get; } = new();
+    public CommunityAdaptationState CommunityAdaptation { get; } = new();
     public CityCrisisState CityCrisis { get; } = new();
     public CentralCharacterArcState CentralCharacterArcs { get; } = new();
     public TechnologyObligationState Technology { get; } = new();
@@ -314,6 +315,15 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
     public bool AttendCommunityEvent(CommunityEventId eventId, Random? random = null)
         => CommunityEventService.Attend(this, eventId, random);
+
+    public IReadOnlyList<CommunityActionPreview> GetCommunityActionPreviews()
+        => CommunityOrganizingService.GetPreviews(this);
+
+    public CommunityActionPreview PreviewCommunityAction(CommunityActionType actionType)
+        => CommunityOrganizingService.Preview(this, actionType);
+
+    public bool PerformCommunityAction(CommunityActionType actionType)
+        => CommunityOrganizingService.Perform(this, actionType);
 
     /// <summary>
     /// Accepts one early-run emergency support package tied to the selected background.

@@ -54,6 +54,8 @@ public sealed class GameStatusPageQuery
         lines.Add($"Morning forecast: rent {forecast.RentDueToday} LE | food {forecast.FoodBundleCost} LE/{forecast.MealsPerFoodBundle} meals | transport reserve {forecast.TransportReserve} LE");
         lines.Add($"Medicine: {forecast.MedicineBundleCost} LE/{forecast.DosesPerMedicineBundle} doses | cash runway {forecast.CashRunwayDays}d ({forecast.CashRunwayAfterMedicineDays}d after medicine reserve)");
         lines.Add($"Cash: {forecast.CashOnHand} LE | food on hand {forecast.FoodMealsOnHand} meals | medicine on hand {forecast.MedicineDosesOnHand} doses");
+        lines.Add($"Community adaptation: cooling room {context.CommunityAdaptation.CoolingRoomDaysRemaining}d | water reserve {context.CommunityAdaptation.WaterReserveUnits}");
+        lines.Add($"Group actions completed: {context.CommunityAdaptation.SuccessfulActions} | shelter contributions: {context.CommunityAdaptation.ShelterContributions}");
 
         if (assets.Plants.Count > 0)
         {

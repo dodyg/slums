@@ -32,6 +32,8 @@ content/
 `Slums.Application` owns player-facing action commands and menu/action queries; `Slums.Game` renders and delegates rather than mutating `GameSession` directly for player actions.
 `GameSession` is the canonical runtime boundary, and persistence crosses that boundary through snapshots plus `LoadedGameSession`.
 `GameSession` delegates orchestration-heavy pieces to focused core collaborators such as `CrimeNarrativePlanner`, `WorkNarrativePlanner`, `NarrativeFollowUpPlanner`, `InvestmentEligibilityEvaluator`, `InvestmentResolutionCalculator`, `InvestmentPurchaseService`, `WorkSessionService`, `CrimeSessionService`, `RandomEventService`, `CalendarService`, `DistrictConditionRoller`, `TerritoryEventRoller`, `EndingCommitmentService`, `EntertainmentService`, `HomeUpgradeService`, `TrainingService`, `FoodShopService`, `HouseholdAssetsService`, `TravelService`, `ClinicVisitService`, `CommunityEventService`, `DebtAndLoanService`, `PhoneService`, and `TipService`.
+
+`CommunityOrganizingService` owns the preview and commit path for shared cooling, water-rationing, and neighborhood-pressure actions. `CommunityAdaptationState` is the persisted group-level state for cooling-room days, water reserve units, successful actions, and shelter contributions; `GameSession` remains its runtime boundary and the daily pipeline advances it.
 Shared signal helpers like `NarrativeSignalRules` live in `Slums.Core.Narrative` so both the core runtime flow and application menu/status queries reuse the same rules.
 Application-layer context builders prefer narrow snapshots over carrying the full `GameSession` when a smaller view is enough.
 Repo-owned JSON content in `content/data/` is authoritative during app bootstrap; missing or invalid files fail fast.
