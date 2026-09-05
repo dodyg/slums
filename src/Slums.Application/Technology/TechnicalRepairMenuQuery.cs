@@ -1,10 +1,5 @@
 namespace Slums.Application.Technology;
 
-public sealed record TechnicalRepairMenuStatus(
-    Slums.Core.Technology.TechnicalRepairPreview Preview,
-    bool CanPerform,
-    string? UnavailabilityReason);
-
 public sealed class TechnicalRepairMenuQuery
 {
 #pragma warning disable CA1822
