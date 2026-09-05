@@ -101,8 +101,11 @@ internal sealed class TrainingMenuQueryTests
         state.TryPerformTraining(exercise);
 
         var context = TrainingMenuContext.Create(state);
+        var query = new TrainingMenuQuery();
 
         context.TrainedToday.Should().ContainKey(Slums.Core.Skills.SkillId.Physical);
-        context.Activities.Should().NotContain(a => a.Type == TrainingActivityType.RooftopExercise);
+        context.Activities.Should().Contain(a => a.Type == TrainingActivityType.RooftopExercise);
+        query.GetStatuses(context).Single(status => status.Activity.Type == TrainingActivityType.RooftopExercise)
+            .UnavailabilityReason.Should().Contain("Already trained");
     }
 }

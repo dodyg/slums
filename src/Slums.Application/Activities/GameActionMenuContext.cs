@@ -1,4 +1,5 @@
 using Slums.Core.State;
+using Slums.Core.Training;
 using Slums.Core.World;
 
 namespace Slums.Application.Activities;
@@ -30,7 +31,7 @@ public sealed record GameActionMenuContext(
             gameSession.GetReachableNpcs().Count > 0,
             gameSession.GetCurrentInvestmentOpportunities().Count > 0,
             gameSession.CanUseHouseholdAssets(),
-            gameSession.GetAvailableTrainingActivities().Count > 0,
+            TrainingRegistry.AllActivities.Any(activity => gameSession.Player.Skills.GetLevel(activity.Skill) < 10),
             gameSession.World.CurrentLocationId == LocationId.Home && gameSession.GetAvailableHomeUpgrades().Count > 0,
             gameSession.GetAvailableCommunityEvents().Count > 0,
             gameSession.GetCommunityActionPreviews().Any(preview => preview.HasSkill),

@@ -8,6 +8,7 @@ public sealed record TrainingMenuStatus(
     bool HasEnergy,
     bool RightTime,
     bool NpcTrustMet,
+    bool AtRequiredLocation,
     bool NotTrainedToday,
     bool NotAtCap,
     bool CanTrain,
