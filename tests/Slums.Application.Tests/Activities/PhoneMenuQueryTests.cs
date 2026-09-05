@@ -251,4 +251,15 @@ internal sealed class PhoneMenuQueryTests
         context.CreditRemaining.Should().Be(7);
         context.CreditWeekCost.Should().Be(5);
     }
+
+    [Test]
+    public void PhoneMenuContext_Create_ShouldApplyDigitalLiteracyCreditDiscount()
+    {
+        var gameState = new GameSession();
+        gameState.Player.Skills.SetLevel(Slums.Core.Skills.SkillId.CyberHacking, 2);
+
+        var context = PhoneMenuContext.Create(gameState);
+
+        context.CreditWeekCost.Should().Be(4);
+    }
 }

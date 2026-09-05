@@ -1,6 +1,7 @@
 using Slums.Core.Information;
 using Slums.Core.Phone;
 using Slums.Core.State;
+using Slums.Core.Skills;
 
 namespace Slums.Application.Activities;
 
@@ -23,7 +24,9 @@ public sealed record PhoneMenuContext(
             gameSession.Phone.IsOperational(),
             gameSession.Phone.PhoneLost,
             gameSession.Phone.CreditRemaining,
-            gameSession.Phone.CreditWeekCost,
+            DigitalLiteracyCalculator.GetCreditRefillCost(
+                gameSession.Player.Skills.GetLevel(SkillId.CyberHacking),
+                gameSession.Phone.CreditWeekCost),
             PhoneState.ReplacementCost,
             gameSession.PhoneMessages.GetActiveMessages(gameSession.Clock.Day),
             gameSession.Tips.GetActiveTips(gameSession.Clock.Day),
