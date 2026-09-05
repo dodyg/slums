@@ -31,6 +31,7 @@ The repository contains a playable .NET 10 vertical slice with:
 - ending-knot catalog validation that rejects missing or orphaned compiled ending scenes
 - a shared 30-day crisis planner with delayed callbacks and five ordered central-character arcs, each backed by typed decisions and persisted beat history
 - a typed technology-obligation ledger for handset exposure, cooperative storage maintenance, transit scrutiny, biometric appeals, telemedicine use, and bounded allocation confidence
+- Technical Repair actions for handset, solar-storage, and paid cooperative relay repairs, plus Digital Literacy wallet friction, dispatch work, and uncertain biometric appeals
 - two-stage ending commitments: pending final scenes persist before the sacrifice choice, then existing ending IDs and epilogues remain authoritative
 
 Repo-owned JSON and Ink content are authoritative and fail fast during bootstrap. There is no normal-runtime fallback narrative or content catalog.

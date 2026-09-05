@@ -22,6 +22,8 @@ public enum GameActionId
     HomeImprovement,
     CommunityEvent,
     CommunityAdaptation,
+    TechnicalRepair,
+    DigitalServices,
     EmergencySupport,
     Phone,
     News,

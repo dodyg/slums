@@ -32,6 +32,18 @@ public sealed class RoboticsState
         Parts += quantity;
     }
 
+    public bool TryConsumeParts(int quantity)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
+        if (Parts < quantity)
+        {
+            return false;
+        }
+
+        Parts -= quantity;
+        return true;
+    }
+
     public bool PurchaseRobot(RobotType type, int currentDay)
     {
         if (!CanPurchaseRobot || _robots.Any(robot => robot.Type == type))

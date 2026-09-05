@@ -325,6 +325,24 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     public bool PerformCommunityAction(CommunityActionType actionType)
         => CommunityOrganizingService.Perform(this, actionType);
 
+    public IReadOnlyList<TechnicalRepairPreview> GetTechnicalRepairPreviews()
+        => TechnicalRepairService.GetPreviews(this);
+
+    public TechnicalRepairPreview PreviewTechnicalRepair(TechnicalRepairActionType actionType)
+        => TechnicalRepairService.Preview(this, actionType);
+
+    public bool PerformTechnicalRepair(TechnicalRepairActionType actionType)
+        => TechnicalRepairService.Perform(this, actionType);
+
+    public IReadOnlyList<DigitalServicePreview> GetDigitalServicePreviews()
+        => DigitalServiceService.GetPreviews(this);
+
+    public DigitalServicePreview PreviewDigitalService(DigitalServiceActionType actionType)
+        => DigitalServiceService.Preview(this, actionType);
+
+    public bool PerformDigitalService(DigitalServiceActionType actionType)
+        => DigitalServiceService.Perform(this, actionType);
+
     /// <summary>
     /// Accepts one early-run emergency support package tied to the selected background.
     /// </summary>
@@ -905,8 +923,8 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => PhoneService.ReplacePhone(this);
 
     internal void RestorePhoneState(bool hasPhone, int creditRemaining, int daysSinceCreditRefill,
-        bool phoneLost, int? phoneLostDay, bool phoneRecovered)
-        => PhoneService.RestoreState(this, hasPhone, creditRemaining, daysSinceCreditRefill, phoneLost, phoneLostDay, phoneRecovered);
+        bool phoneLost, int? phoneLostDay, bool phoneRecovered, int handsetCondition = 65)
+        => PhoneService.RestoreState(this, hasPhone, creditRemaining, daysSinceCreditRefill, phoneLost, phoneLostDay, phoneRecovered, handsetCondition);
 
     internal void RestorePhoneMessages(IEnumerable<PhoneMessage> messages)
         => PhoneService.RestoreMessages(this, messages);

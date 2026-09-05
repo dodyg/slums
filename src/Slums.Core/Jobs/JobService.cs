@@ -255,6 +255,11 @@ public sealed class JobService
     private static JobShift ResolveCallCenterShift(PlayerCharacter player, JobTrackProgress track)
     {
         var baseShift = JobRegistry.CallCenterWork;
+        if (player.Skills.GetLevel(SkillId.CyberHacking) >= SkillThresholds.AdvancedLevel)
+        {
+            return CreateShiftVariant(baseShift, "Digital Dispatch Queue", "Route service requests through the call center's brittle allocation console. The queue pays for accuracy, not heroics.", 7, -1, 1, 0, 0);
+        }
+
         if (track.Reliability >= JobVariantThresholds.Reliability70 && player.Skills.GetLevel(SkillId.Persuasion) >= JobVariantThresholds.SkillLevel2)
         {
             return CreateShiftVariant(baseShift, "Call Center Retention Queue", "Handle angry callers and the harder scripts that pay a little better.", 10, 0, 6, 0, 0);

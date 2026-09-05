@@ -11,6 +11,7 @@ public sealed record GameSessionPhoneSnapshot
     public bool PhoneLost { get; init; }
     public int? PhoneLostDay { get; init; }
     public bool PhoneRecovered { get; init; }
+    public int HandsetCondition { get; init; } = 65;
     public IReadOnlyList<PhoneMessageSnapshot> Messages { get; init; } = [];
 
     public static GameSessionPhoneSnapshot Capture(GameSession gameSession)
@@ -25,6 +26,7 @@ public sealed record GameSessionPhoneSnapshot
             PhoneLost = gameSession.Phone.PhoneLost,
             PhoneLostDay = gameSession.Phone.PhoneLostDay,
             PhoneRecovered = gameSession.Phone.PhoneRecovered,
+            HandsetCondition = gameSession.Phone.HandsetCondition,
             Messages = gameSession.PhoneMessages.Inbox.Select(static m => new PhoneMessageSnapshot
             {
                 Id = m.Id,
@@ -50,7 +52,7 @@ public sealed record GameSessionPhoneSnapshot
 
         gameSession.RestorePhoneState(
             HasPhone, CreditRemaining, DaysSinceCreditRefill,
-            PhoneLost, PhoneLostDay, PhoneRecovered);
+            PhoneLost, PhoneLostDay, PhoneRecovered, HandsetCondition);
 
         var messages = Messages.Select(static s => new PhoneMessage
         {

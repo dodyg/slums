@@ -22,6 +22,7 @@ public static class MutationCategories
     public const string Economy = "Economy";
     public const string Phone = "Phone";
     public const string Information = "Information";
+    public const string Technology = "Technology";
     public const string News = "News";
     public const string Narrative = "Narrative";
 }

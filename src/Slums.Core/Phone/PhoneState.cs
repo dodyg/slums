@@ -15,6 +15,7 @@ public sealed class PhoneState
     public bool PhoneLost { get; private set; }
     public int? PhoneLostDay { get; private set; }
     public bool PhoneRecovered { get; private set; }
+    public int HandsetCondition { get; private set; } = 65;
 
     public bool IsOperational()
     {
@@ -65,6 +66,19 @@ public sealed class PhoneState
         PhoneRecovered = true;
         CreditRemaining = DefaultCreditDays;
         DaysSinceCreditRefill = 0;
+        HandsetCondition = 65;
+    }
+
+    public bool RepairHandset(int conditionGain)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(conditionGain);
+        if (!HasPhone || PhoneLost || HandsetCondition >= 100)
+        {
+            return false;
+        }
+
+        HandsetCondition = Math.Min(100, HandsetCondition + conditionGain);
+        return true;
     }
 
     public void ReplacePhone()
@@ -78,7 +92,7 @@ public sealed class PhoneState
     }
 
     public void Restore(bool hasPhone, int creditRemaining, int daysSinceCreditRefill,
-        bool phoneLost, int? phoneLostDay, bool phoneRecovered)
+        bool phoneLost, int? phoneLostDay, bool phoneRecovered, int handsetCondition = 65)
     {
         HasPhone = hasPhone;
         CreditRemaining = creditRemaining;
@@ -86,5 +100,6 @@ public sealed class PhoneState
         PhoneLost = phoneLost;
         PhoneLostDay = phoneLostDay;
         PhoneRecovered = phoneRecovered;
+        HandsetCondition = Math.Clamp(handsetCondition, 0, 100);
     }
 }

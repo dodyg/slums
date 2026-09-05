@@ -121,6 +121,22 @@ internal sealed class JobServiceTests
     }
 
     [Test]
+    public void GetAvailableJobs_ShouldOfferDigitalDispatchVariant_WhenDigitalLiteracyIsAdvanced()
+    {
+        var service = new JobService();
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.CallCenter);
+        var player = new PlayerCharacter();
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+        player.Skills.SetLevel(SkillId.CyberHacking, 4);
+
+        var jobs = service.GetAvailableJobs(location, player, relationships, progress).ToList();
+
+        jobs.Should().ContainSingle();
+        jobs[0].Name.Should().Be("Digital Dispatch Queue");
+    }
+
+    [Test]
     public void GetAvailableJobs_ShouldUpgradePharmacyTrack_WhenMedicalSkillIsHigh()
     {
         var service = new JobService();

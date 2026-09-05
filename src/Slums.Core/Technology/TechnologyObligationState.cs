@@ -36,6 +36,18 @@ public sealed class TechnologyObligationState
         return true;
     }
 
+    public bool RepairMicrogridStorage(int conditionGain)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(conditionGain);
+        if (MicrogridStorageCondition >= 100)
+        {
+            return false;
+        }
+
+        MicrogridStorageCondition = Math.Min(100, MicrogridStorageCondition + conditionGain);
+        return true;
+    }
+
     public void RecordTransitPermitReview()
     {
         TransitPermitReview = true;

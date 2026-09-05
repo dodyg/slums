@@ -2,6 +2,7 @@ using SadConsole;
 using Slums.Application.Activities;
 using Slums.Application.HouseholdAssets;
 using Slums.Application.Investments;
+using Slums.Application.Technology;
 using Slums.Application.Endings;
 using Slums.Core.State;
 
@@ -42,6 +43,8 @@ internal sealed class GameScreenNavigator
             GameActionId.HomeImprovement => ShowHomeUpgradeMenu(),
             GameActionId.CommunityEvent => ShowCommunityEventMenu(),
             GameActionId.CommunityAdaptation => ShowCommunityActionMenu(),
+            GameActionId.TechnicalRepair => ShowTechnicalRepairMenu(),
+            GameActionId.DigitalServices => ShowDigitalServiceMenu(),
             GameActionId.Invest => ShowInvestmentMenu(),
             GameActionId.Shop => ShowShopMenu(),
             GameActionId.HouseholdAssets => ShowHouseholdAssetsMenu(),
@@ -236,6 +239,34 @@ internal sealed class GameScreenNavigator
         }
 
         NavigateTo(new CommunityActionScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, context, actions, _parentScreen));
+        return true;
+    }
+
+    private bool ShowTechnicalRepairMenu()
+    {
+        var context = TechnicalRepairMenuContext.Create(_gameState);
+        var actions = new TechnicalRepairMenuQuery().GetStatuses(context).ToList();
+        if (actions.Count == 0)
+        {
+            _parentScreen.AddEventLogEntry("No technical repair options are available here.");
+            return false;
+        }
+
+        NavigateTo(new TechnicalRepairScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, context, actions, _parentScreen));
+        return true;
+    }
+
+    private bool ShowDigitalServiceMenu()
+    {
+        var context = DigitalServiceMenuContext.Create(_gameState);
+        var actions = new DigitalServiceMenuQuery().GetStatuses(context).ToList();
+        if (actions.Count == 0)
+        {
+            _parentScreen.AddEventLogEntry("No digital services are available here.");
+            return false;
+        }
+
+        NavigateTo(new DigitalServiceScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _gameState, context, actions, _parentScreen));
         return true;
     }
 

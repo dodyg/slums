@@ -2,6 +2,7 @@ using Slums.Core.Characters;
 using Slums.Core.Diagnostics;
 using Slums.Core.Information;
 using Slums.Core.Relationships;
+using Slums.Core.Skills;
 using Slums.Core.State;
 
 namespace Slums.Core.Phone;
@@ -56,18 +57,28 @@ internal static class PhoneService
             return (false, "Your phone is lost.");
         }
 
-        if (session.Player.Stats.Money < session.Phone.CreditWeekCost)
+        var refillCost = DigitalLiteracyCalculator.GetCreditRefillCost(
+            session.Player.Skills.GetLevel(SkillId.CyberHacking),
+            session.Phone.CreditWeekCost);
+        var digitalSkillLevel = session.Player.Skills.GetLevel(SkillId.CyberHacking);
+        if (session.Player.Stats.Money < refillCost)
         {
-            return (false, $"Not enough money (need {session.Phone.CreditWeekCost} LE, have {session.Player.Stats.Money} LE).");
+            return (false, $"Not enough money (need {refillCost} LE, have {session.Player.Stats.Money} LE).");
         }
 
         var before = session.CaptureStats();
-        session.Player.Stats.ModifyMoney(-session.Phone.CreditWeekCost);
+        session.Player.Stats.ModifyMoney(-refillCost);
         session.Phone.RefillCredit();
         session.Technology.RecordHandsetUse();
         session.PhoneMessages.DeliverMissedMessages();
-        session.RecordMutation(MutationCategories.Phone, "RefillPhoneCredit", before, session.CaptureStats(), $"Refilled phone credit for {session.Phone.CreditWeekCost} LE");
-        return (true, "Phone credit refilled for 7 days.");
+        var mutationReason = digitalSkillLevel == 0
+            ? $"Refilled phone credit for {session.Phone.CreditWeekCost} LE"
+            : $"Refilled phone credit for {refillCost} LE with Digital Literacy {digitalSkillLevel}";
+        session.RecordMutation(MutationCategories.Phone, "RefillPhoneCredit", before, session.CaptureStats(), mutationReason);
+        var message = digitalSkillLevel == 0
+            ? "Phone credit refilled for 7 days."
+            : $"Phone credit refilled for 7 days ({refillCost} LE).";
+        return (true, message);
     }
 
     internal static (bool Success, string Message) RespondToMessage(GameSession session, string messageId)
@@ -189,10 +200,10 @@ internal static class PhoneService
         return (true, "New phone purchased. Credit refilled for 7 days.");
     }
 
-    internal static void RestoreState(GameSession session, bool hasPhone, int creditRemaining, int daysSinceCreditRefill, bool phoneLost, int? phoneLostDay, bool phoneRecovered)
+    internal static void RestoreState(GameSession session, bool hasPhone, int creditRemaining, int daysSinceCreditRefill, bool phoneLost, int? phoneLostDay, bool phoneRecovered, int handsetCondition = 65)
     {
         ArgumentNullException.ThrowIfNull(session);
-        session.Phone.Restore(hasPhone, creditRemaining, daysSinceCreditRefill, phoneLost, phoneLostDay, phoneRecovered);
+        session.Phone.Restore(hasPhone, creditRemaining, daysSinceCreditRefill, phoneLost, phoneLostDay, phoneRecovered, handsetCondition);
     }
 
     internal static void RestoreMessages(GameSession session, IEnumerable<PhoneMessage> messages)

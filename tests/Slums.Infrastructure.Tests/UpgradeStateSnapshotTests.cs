@@ -17,6 +17,7 @@ internal sealed class UpgradeStateSnapshotTests
         original.Technology.RecordHandsetUse(4);
         original.Technology.RecordMicrogridRepair(7, 3);
         original.Technology.RecordBiometricAppeal();
+        original.Phone.RepairHandset(20);
         original.CentralCharacterArcs.RecordDecision(CentralCharacterId.NeighborMona, CentralArcDecision.MonaShareRota);
         original.SetDaysSurvived(30);
         original.Clock.SetTime(30, 8, 0);
@@ -30,6 +31,7 @@ internal sealed class UpgradeStateSnapshotTests
         await Assert.That(restored.Technology.HandsetDataExposure).IsEqualTo(4);
         await Assert.That(restored.Technology.MicrogridRepairDebt).IsEqualTo(7);
         await Assert.That(restored.Technology.BiometricAppealPending).IsTrue();
+        await Assert.That(restored.Phone.HandsetCondition).IsEqualTo(85);
         await Assert.That(restored.CentralCharacterArcs.GetDecision(CentralCharacterId.NeighborMona)).IsEqualTo(CentralArcDecision.MonaShareRota);
         await Assert.That(restored.PendingEndingId).IsEqualTo(EndingId.StabilityHonestWork);
         await Assert.That(restored.PendingEndingKnot).IsEqualTo(EndingKnotCatalog.Commitment);
