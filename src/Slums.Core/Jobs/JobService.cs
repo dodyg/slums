@@ -558,6 +558,7 @@ public sealed class JobService
             JobType.BakeryWork when player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel2 => "Unlocked by Physical 2.",
             JobType.HouseCleaning when track.Reliability >= JobVariantThresholds.Reliability80 => "Unlocked by reliability 80.",
             JobType.HouseCleaning when track.Reliability >= JobVariantThresholds.Reliability60 => "Unlocked by reliability 60.",
+            JobType.CallCenterWork when player.Skills.GetLevel(SkillId.CyberHacking) >= SkillThresholds.AdvancedLevel => "Unlocked by Digital Literacy 4.",
             JobType.CallCenterWork when track.Reliability >= JobVariantThresholds.Reliability70 && player.Skills.GetLevel(SkillId.Persuasion) >= JobVariantThresholds.SkillLevel2 => "Unlocked by reliability 70 and Persuasion 2.",
             JobType.CallCenterWork when track.Reliability >= JobVariantThresholds.Reliability55 => "Unlocked by reliability 55.",
             JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70 => "Unlocked by Nurse Salma trust 20 and reliability 70.",
@@ -602,6 +603,7 @@ public sealed class JobService
             JobType.BakeryWork when track.Reliability < JobVariantThresholds.Reliability75 || player.Skills.GetLevel(SkillId.Physical) < JobVariantThresholds.SkillLevel3 => "Reach reliability 75 and Physical 3 for Bakery Dough Prep.",
             JobType.HouseCleaning when track.Reliability < JobVariantThresholds.Reliability60 => "Reach reliability 60 for Regular Client Cleaning.",
             JobType.HouseCleaning when track.Reliability < JobVariantThresholds.Reliability80 => "Reach reliability 80 for Full Apartment Cleaning.",
+            JobType.CallCenterWork when player.Skills.GetLevel(SkillId.CyberHacking) < SkillThresholds.AdvancedLevel => "Reach Digital Literacy 4 for Digital Dispatch Queue, or build call-center reliability.",
             JobType.CallCenterWork when track.Reliability < JobVariantThresholds.Reliability55 => "Reach reliability 55 for Call Center Follow-Up Shift.",
             JobType.CallCenterWork when track.Reliability < JobVariantThresholds.Reliability70 || player.Skills.GetLevel(SkillId.Persuasion) < JobVariantThresholds.SkillLevel2 => "Reach reliability 70 and Persuasion 2 for Call Center Retention Queue.",
             JobType.ClinicReception when relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust < JobVariantThresholds.Trust10 && player.Skills.GetLevel(SkillId.Medical) < JobVariantThresholds.SkillLevel2 && player.BackgroundType != BackgroundType.MedicalSchoolDropout => "Reach Nurse Salma trust 10, Medical 2, or use the medical-dropout background for Clinic Intake Desk.",
@@ -636,6 +638,12 @@ public sealed class JobService
             resolvedJob.Type is JobType.BakeryWork or JobType.HouseCleaning or JobType.WorkshopSewing or JobType.FishSorter or JobType.MarketPorter)
         {
             modifiers.Add("Physical 3 reduces energy cost by 5.");
+        }
+
+        if (player.Skills.GetLevel(SkillId.Composure) >= SkillThresholds.FirstMeaningfulLevel &&
+            resolvedJob.Type is JobType.CallCenterWork or JobType.ClinicReception or JobType.CafeService or JobType.PharmacyStock or JobType.MicrobusDispatch or JobType.StreetVending)
+        {
+            modifiers.Add("Composure 2 raises the stress threshold for pressure mistakes by 5.");
         }
 
         if (player.BackgroundType == BackgroundType.SudaneseRefugee && resolvedJob.Type == JobType.CafeService)

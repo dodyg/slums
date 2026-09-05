@@ -132,6 +132,11 @@ public sealed class GameStatusPageQuery
             ? "Landlord pressure is quiet right now."
             : "Clearing rent debt is the fastest way to calm the landlord.");
 
+        var composure = context.Player.Skills.GetLevel(SkillId.Composure);
+        lines.Add(composure >= SkillThresholds.AdvancedLevel
+            ? $"Composure {composure}: loan-shark collection stress is reduced, but debt and health risk remain."
+            : "Composure 4 can reduce loan-shark collection stress; it cannot erase the debt or its danger.");
+
         return new GameStatusPage("Debt", lines);
     }
 

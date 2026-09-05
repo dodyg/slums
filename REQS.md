@@ -288,7 +288,7 @@ Medicinal:
 
 - Provisioning improves basic meal efficiency at level 2, lets household herbs improve meals at level 4, protects one stored meal from a food shock at level 6, and improves mother-care meals at level 8. It never creates free food or removes spoilage and price risk.
 - Community Organizing improves small-event attendance at level 2, unlocks shared-resource actions at level 4, improves local outage recovery at level 6, and enables a bounded response to heat or territory pressure at level 8. Supplies, attendance, and infrastructure remain limiting factors.
-- Composure reduces stress-caused work mistakes at level 2, unlocks selected calm responses at level 4, softens one-time crisis spikes at level 6, and preserves a small amount of energy after high-pressure events at level 8. It does not remove baseline stress.
+- Composure reduces stress-caused work mistakes at level 2, eases loan-shark collection stress at levels 4 and 8, and softens one-time community crisis relief at levels 6 and 8. It does not remove baseline stress or debt consequences.
 - Technical Repair keeps robot parts and bench repairs, and also supports handset, battery, water-pump, and solar-storage repair through time, parts, and cash costs.
 - Digital Literacy keeps the Network Errand crime application while also reducing limited wallet friction, unlocking a digital-work variant, and enabling uncertain biometric or service appeals with persistent technology obligations.
 

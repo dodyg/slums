@@ -221,6 +221,20 @@ internal sealed class JobServiceTests
     }
 
     [Test]
+    public void PreviewJob_ShouldExplainComposurePressureMitigation()
+    {
+        var service = new JobService();
+        var player = new PlayerCharacter();
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+        player.Skills.SetLevel(SkillId.Composure, 2);
+
+        var preview = service.PreviewJob(JobType.CallCenterWork, player, relationships, progress);
+
+        preview.ActiveModifiers.Should().Contain("Composure 2 raises the stress threshold for pressure mistakes by 5.");
+    }
+
+    [Test]
     public void PreviewJob_ShouldSurfaceBakeryUnlockThresholds()
     {
         var service = new JobService();
