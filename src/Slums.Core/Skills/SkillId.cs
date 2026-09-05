@@ -5,5 +5,7 @@ public enum SkillId
     StreetSmarts,
     Physical,
     Persuasion,
-    Medical
+    Medical,
+    RobotRepair,
+    CyberHacking
 }

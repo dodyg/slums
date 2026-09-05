@@ -13,9 +13,10 @@ public sealed class CrimeService
         ArgumentNullException.ThrowIfNull(player);
 
         var streetSmartsBonus = player.Skills.GetLevel(SkillId.StreetSmarts) >= 3 ? 10 : 0;
+        var hackingBonus = GetHackingBonus(attempt, player);
         var genderDetectionMod = GenderModifiers.CrimeDetectionModifier(player.Gender, attempt.Type);
         var detectionChance = Math.Clamp(attempt.DetectionRisk + (policePressure / 2) - streetSmartsBonus + genderDetectionMod, 5, 95);
-        var successChance = Math.Clamp(90 - attempt.DetectionRisk - (policePressure / 3) + streetSmartsBonus - (genderDetectionMod / 2), 10, 95);
+        var successChance = Math.Clamp(90 - attempt.DetectionRisk - (policePressure / 3) + streetSmartsBonus + hackingBonus - (genderDetectionMod / 2), 10, 95);
 
         return new CrimeResolutionPreview(
             detectionChance,
@@ -66,6 +67,11 @@ public sealed class CrimeService
             PolicePressureDelta = policePressureDelta,
             Message = BuildMessage(attempt, success, detected, moneyEarned)
         };
+    }
+
+    private static int GetHackingBonus(CrimeAttempt attempt, PlayerCharacter player)
+    {
+        return attempt.Type == CrimeType.NetworkErrand && player.Skills.GetLevel(SkillId.CyberHacking) >= 2 ? 8 : 0;
     }
 
     private static string BuildMessage(CrimeAttempt attempt, bool success, bool detected, int moneyEarned)

@@ -319,7 +319,23 @@ internal sealed class JobServiceTests
         var jobs = service.GetAvailableJobs(location, new PlayerCharacter(), new RelationshipState(), new JobProgressState()).ToList();
 
         jobs.Should().ContainSingle(static job => job.Type == JobType.RoboticsScavenging);
+        jobs.Single(static job => job.Type == JobType.RoboticsScavenging).Name.Should().Be("Robotics Scavenging Shift");
         jobs.Single(static job => job.Type == JobType.RoboticsScavenging).Description.Should().Contain("broken delivery drones");
+    }
+
+    [Test]
+    public void GetAvailableJobs_ShouldUpgradeRoboticsScavenging_WhenRobotRepairIsHigh()
+    {
+        var service = new JobService();
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Workshop);
+        var player = new PlayerCharacter();
+        player.Skills.SetLevel(SkillId.RobotRepair, 2);
+
+        var jobs = service.GetAvailableJobs(location, player, new RelationshipState(), new JobProgressState()).ToList();
+
+        var teardown = jobs.Single(static job => job.Type == JobType.RoboticsScavenging);
+        teardown.Name.Should().Be("Drone Teardown Line");
+        teardown.BasePay.Should().Be(JobRegistry.RoboticsScavenging.BasePay + 8);
     }
 
     [Test]

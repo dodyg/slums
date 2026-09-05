@@ -1,3 +1,4 @@
+using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.Robotics;
 using Slums.Core.World;
@@ -9,6 +10,7 @@ public sealed record HouseholdAssetsMenuContext(
     string? LocationName,
     int CurrentWeek,
     int Money,
+    int RobotRepairSkillLevel,
     Slums.Core.Characters.HouseholdAssetsState Assets,
     RoboticsState Robotics)
 {
@@ -21,6 +23,7 @@ public sealed record HouseholdAssetsMenuContext(
             gameSession.World.GetCurrentLocation()?.Name,
             gameSession.CurrentWeek,
             gameSession.Player.Stats.Money,
+            gameSession.Player.Skills.GetLevel(SkillId.RobotRepair),
             gameSession.Player.HouseholdAssets,
             gameSession.Player.Robotics);
     }

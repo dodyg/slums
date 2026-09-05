@@ -259,6 +259,7 @@ internal static class WorkSessionService
             JobType.PharmacyStock => SkillId.Medical,
             JobType.MicrobusDispatch => SkillId.Persuasion,
             JobType.LaundryPressing => SkillId.Physical,
+            JobType.RoboticsScavenging => SkillId.RobotRepair,
             _ => SkillId.StreetSmarts
         };
     }

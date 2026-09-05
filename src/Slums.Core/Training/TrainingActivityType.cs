@@ -5,5 +5,7 @@ public enum TrainingActivityType
     StudyMedical,
     PracticePersuasion,
     StreetDice,
-    RooftopExercise
+    RooftopExercise,
+    RobotRepairBench,
+    NetworkErrandPractice
 }

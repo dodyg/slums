@@ -1,5 +1,6 @@
 using Slums.Core.Diagnostics;
 using Slums.Core.Robotics;
+using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 
@@ -222,17 +223,29 @@ internal static class HouseholdAssetsService
         }
 
         var definition = RobotRegistry.GetByType(robot.Type);
-        if (session.Player.Stats.Money < definition.RepairCost)
+        var repairCost = RobotRepairCostCalculator.GetRepairCost(
+            session.Player.Skills.GetLevel(SkillId.RobotRepair),
+            definition.RepairCost);
+        if (session.Player.Stats.Money < repairCost)
         {
-            session.RecordMutation(MutationCategories.GuardRejected, "RepairRobot", before, session.CaptureStats(), $"Not enough money (need {definition.RepairCost} LE)");
-            session.RaiseEvent($"Bench time and solder cost {definition.RepairCost} LE, even when you bring the part.");
+            session.RecordMutation(MutationCategories.GuardRejected, "RepairRobot", before, session.CaptureStats(), $"Not enough money (need {repairCost} LE)");
+            session.RaiseEvent($"Bench time and solder cost {repairCost} LE, even when you bring the part.");
             return false;
         }
 
-        session.Player.Stats.ModifyMoney(-definition.RepairCost);
+        if (repairCost > 0)
+        {
+            session.Player.Stats.ModifyMoney(-repairCost);
+        }
+
         session.Player.Robotics.TryRepairRobot(robotId);
-        session.RaiseEvent($"Abu Samir uses one spare part to bring your {definition.Name} up to {robot.Condition}% condition.");
-        session.RecordMutation(MutationCategories.HouseholdAsset, "RepairRobot", before, session.CaptureStats(), $"Repaired {definition.Name} for {definition.RepairCost} LE and one part");
+        var repairMessage = repairCost == 0
+            ? $"You open the {definition.Name}'s casing yourself and seat the part. It runs at {robot.Condition}% condition."
+            : repairCost < definition.RepairCost
+                ? $"You work the bench beside Abu Samir to bring your {definition.Name} up to {robot.Condition}% condition for {repairCost} LE."
+                : $"Abu Samir uses one spare part to bring your {definition.Name} up to {robot.Condition}% condition.";
+        session.RaiseEvent(repairMessage);
+        session.RecordMutation(MutationCategories.HouseholdAsset, "RepairRobot", before, session.CaptureStats(), $"Repaired {definition.Name} for {repairCost} LE and one part");
         return true;
     }
 

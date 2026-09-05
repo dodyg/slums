@@ -80,4 +80,29 @@ internal sealed class HouseholdAssetsMenuQueryTests
         statuses.Should().Contain(static status => status.ActionType == HouseholdAssetActionType.BuyRobot && status.RobotType == RobotType.RepairDrone);
         statuses.Should().Contain(status => status.ActionType == HouseholdAssetActionType.RepairRobot && status.RobotId == robot.Id && status.CanExecute);
     }
+
+    [Test]
+    public void GetStatuses_ShouldDiscountRepairCost_WhenRobotRepairSkilled()
+    {
+        var query = new HouseholdAssetsMenuQuery();
+        var gameState = new GameSession();
+        gameState.World.TravelTo(LocationId.Workshop);
+        gameState.Player.Stats.SetMoney(500);
+        gameState.BuyRobot(RobotType.SalvageCrawler);
+        var robot = gameState.Player.Robotics.Robots[0];
+        robot.Damage(30);
+        gameState.Player.Robotics.AddParts(1);
+        gameState.Player.Skills.SetLevel(Slums.Core.Skills.SkillId.RobotRepair, 2);
+
+        var statuses = query.GetStatuses(HouseholdAssetsMenuContext.Create(gameState));
+
+        var repair = statuses.Single(status => status.ActionType == HouseholdAssetActionType.RepairRobot && status.RobotId == robot.Id);
+        repair.Summary.Should().Contain("9 LE");
+        repair.CanExecute.Should().BeTrue();
+
+        gameState.Player.Stats.SetMoney(8);
+        var poorStatuses = query.GetStatuses(HouseholdAssetsMenuContext.Create(gameState));
+        poorStatuses.Single(status => status.ActionType == HouseholdAssetActionType.RepairRobot && status.RobotId == robot.Id)
+            .CanExecute.Should().BeFalse();
+    }
 }

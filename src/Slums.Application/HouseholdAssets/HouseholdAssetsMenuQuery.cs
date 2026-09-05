@@ -150,19 +150,35 @@ public sealed class HouseholdAssetsMenuQuery
         foreach (var robot in context.Robotics.Robots)
         {
             var definition = RobotRegistry.GetByType(robot.Type);
+            var repairCost = RobotRepairCostCalculator.GetRepairCost(context.RobotRepairSkillLevel, definition.RepairCost);
             statuses.Add(new HouseholdAssetsMenuStatus(
                 HouseholdAssetActionType.RepairRobot,
                 $"Repair {definition.Name}",
-                $"condition {robot.Condition}% | {definition.RepairCost} LE + 1 part",
-                context.Robotics.CanRepairRobot(robot.Id) && context.Money >= definition.RepairCost,
+                $"condition {robot.Condition}% | {repairCost} LE + 1 part",
+                context.Robotics.CanRepairRobot(robot.Id) && context.Money >= repairCost,
                 robot.Condition >= 100
                     ? "Already fully repaired."
                     : context.Robotics.Parts <= 0
                         ? "Buy a spare part first."
-                        : $"Abu Samir can restore up to {definition.RepairCondition} condition per part.",
+                        : BuildRepairNote(context.RobotRepairSkillLevel, definition, repairCost),
                 RobotType: robot.Type,
                 RobotId: robot.Id));
         }
+    }
+
+    private static string BuildRepairNote(int robotRepairSkillLevel, RobotDefinition definition, int repairCost)
+    {
+        if (robotRepairSkillLevel >= RobotRepairCostCalculator.SoloRepairLevel)
+        {
+            return $"You can seat the part yourself, so Abu Samir's fee is waived. Restores up to {definition.RepairCondition} condition.";
+        }
+
+        if (repairCost < definition.RepairCost)
+        {
+            return $"Robot Repair {robotRepairSkillLevel} halves Abu Samir's bench fee. Restores up to {definition.RepairCondition} condition.";
+        }
+
+        return $"Abu Samir can restore up to {definition.RepairCondition} condition per part.";
     }
 
     private static string BuildPlantPurchaseNote(PlantDefinition definition, bool hasRoom)

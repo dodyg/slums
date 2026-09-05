@@ -50,7 +50,29 @@ public sealed class TrainingRegistry
             EnergyCost: 20,
             RequiredNpc: null,
             RequiredTrust: 0,
-            RequiresHome: true)
+            RequiresHome: true),
+        new TrainingActivity(
+            TrainingActivityType.RobotRepairBench,
+            SkillId.RobotRepair,
+            "Robot Repair Bench",
+            "Practice teardown and solder work on dead drones at Abu Samir's workshop bench.",
+            MoneyCost: 20,
+            TimeCostMinutes: 150,
+            EnergyCost: 18,
+            RequiredNpc: NpcId.WorkshopBossAbuSamir,
+            RequiredTrust: 10,
+            RequiresHome: false),
+        new TrainingActivity(
+            TrainingActivityType.NetworkErrandPractice,
+            SkillId.CyberHacking,
+            "Network Errand Practice",
+            "Umm Karim drills you on handsets, wallets, and the cracks in biometric readers.",
+            MoneyCost: 15,
+            TimeCostMinutes: 120,
+            EnergyCost: 15,
+            RequiredNpc: NpcId.FixerUmmKarim,
+            RequiredTrust: 10,
+            RequiresHome: false)
     ];
 
     public static IReadOnlyList<TrainingActivity> AllActivities => Activities;

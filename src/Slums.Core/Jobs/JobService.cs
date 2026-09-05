@@ -204,9 +204,20 @@ public sealed class JobService
             JobType.StreetVending => ResolveStreetVendingShift(player, relationshipState, track),
             JobType.FishSorter => ResolveFishSorterShift(player, track),
             JobType.MarketPorter => ResolveMarketPorterShift(track),
-            JobType.RoboticsScavenging => JobRegistry.RoboticsScavenging,
+            JobType.RoboticsScavenging => ResolveRoboticsShift(player),
             _ => JobRegistry.GetJobByType(jobType) ?? throw new ArgumentOutOfRangeException(nameof(jobType))
         };
+    }
+
+    private static JobShift ResolveRoboticsShift(PlayerCharacter player)
+    {
+        var baseShift = JobRegistry.RoboticsScavenging;
+        if (player.Skills.GetLevel(SkillId.RobotRepair) >= JobVariantThresholds.SkillLevel2)
+        {
+            return CreateShiftVariant(baseShift, "Drone Teardown Line", "Take the teardown bench where Abu Samir lets you crack open dead delivery drones for the good boards.", 8, 2, 0, 0, 0);
+        }
+
+        return baseShift;
     }
 
     private static JobShift ResolveBakeryShift(PlayerCharacter player, JobTrackProgress track)
@@ -571,6 +582,7 @@ public sealed class JobService
             JobType.FishSorter when player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel2 => "Unlocked by Physical 2.",
             JobType.MarketPorter when track.Reliability >= JobVariantThresholds.Reliability80 => "Unlocked by reliability 80.",
             JobType.MarketPorter when track.Reliability >= JobVariantThresholds.Reliability60 => "Unlocked by reliability 60.",
+            JobType.RoboticsScavenging when player.Skills.GetLevel(SkillId.RobotRepair) >= JobVariantThresholds.SkillLevel2 => "Unlocked by Robot Repair 2.",
             JobType.RoboticsScavenging => "Abu Samir's side bench is open to anyone willing to sort useful hardware from city waste.",
             _ => "Base shift."
         };
@@ -604,6 +616,7 @@ public sealed class JobService
             JobType.FishSorter when track.Reliability < JobVariantThresholds.Reliability75 || player.Skills.GetLevel(SkillId.Physical) < JobVariantThresholds.SkillLevel3 => "Reach reliability 75 and Physical 3 for Morning Auction Prep.",
             JobType.MarketPorter when track.Reliability < JobVariantThresholds.Reliability60 => "Reach reliability 60 for Steady Route Porter.",
             JobType.MarketPorter when track.Reliability < JobVariantThresholds.Reliability80 => "Reach reliability 80 for Wholesale Carry.",
+            JobType.RoboticsScavenging when player.Skills.GetLevel(SkillId.RobotRepair) < JobVariantThresholds.SkillLevel2 => "Reach Robot Repair 2 for Drone Teardown Line.",
             JobType.RoboticsScavenging => null,
             _ => null
         };

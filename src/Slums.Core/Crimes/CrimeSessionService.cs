@@ -104,7 +104,7 @@ internal static class CrimeSessionService
         if (result.Success)
         {
             session.Player.Stats.ModifyMoney(result.MoneyEarned);
-            session.ApplySkillGain(SkillId.StreetSmarts);
+            session.ApplySkillGain(GetSkillForCrime(attempt.Type));
             session.ModifyFactionReputation(GetFactionForCurrentCrimeRoute(session), 4);
             if (session.Player.BackgroundType == BackgroundType.ReleasedPoliticalPrisoner)
             {
@@ -192,6 +192,11 @@ internal static class CrimeSessionService
         if (session.Player.Skills.GetLevel(SkillId.StreetSmarts) >= 3)
         {
             activeModifiers.Add("Street Smarts 3 lowers detection chance by 10.");
+        }
+
+        if (attempt.Type == CrimeType.NetworkErrand && session.Player.Skills.GetLevel(SkillId.CyberHacking) >= 2)
+        {
+            activeModifiers.Add("Cyber Hacking 2 steadies network errands: higher success chance.");
         }
 
         if (session.PolicePressure >= 60)
@@ -352,6 +357,11 @@ internal static class CrimeSessionService
 
         session.RaiseEvent(message);
         session.TryQueueNarrativeTrigger(trigger);
+    }
+
+    private static SkillId GetSkillForCrime(CrimeType crimeType)
+    {
+        return crimeType == CrimeType.NetworkErrand ? SkillId.CyberHacking : SkillId.StreetSmarts;
     }
 
     private static string BuildCrimeDistrictModifierText(DistrictConditionDefinition districtCondition)

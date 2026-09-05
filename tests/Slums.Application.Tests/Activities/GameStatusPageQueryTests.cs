@@ -45,6 +45,21 @@ internal sealed class GameStatusPageQueryTests
     }
 
     [Test]
+    public void GetPages_ShouldExposeWorkSkillsWithDisplayNames()
+    {
+        var query = new GameStatusPageQuery();
+        var gameState = new GameSession();
+        gameState.Player.Skills.SetLevel(SkillId.RobotRepair, 2);
+        gameState.Player.Skills.SetLevel(SkillId.CyberHacking, 1);
+
+        var pages = query.GetPages(GameStatusContext.Create(gameState));
+
+        var skills = pages.Single(static page => page.Title == "Skills");
+        skills.Lines.Should().Contain(static line => line.Contains("Robot Repair: 2", StringComparison.Ordinal));
+        skills.Lines.Should().Contain(static line => line.Contains("Cyber Hacking: 1", StringComparison.Ordinal));
+    }
+
+    [Test]
     public void GetPages_ShouldExposeDebtAndRelationshipMemorySignals()
     {
         var query = new GameStatusPageQuery();

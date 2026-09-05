@@ -153,6 +153,8 @@ internal static class TrainingService
             TrainingActivityType.PracticePersuasion => "Words sharpen. Umm Karim nods approvingly.",
             TrainingActivityType.StreetDice => "The dice talk to you differently after Youssef's lessons.",
             TrainingActivityType.RooftopExercise => "Your muscles burn, but the evening breeze makes it bearable.",
+            TrainingActivityType.RobotRepairBench => "A dead drone opens under your hands. The board was never the problem; the seal was.",
+            TrainingActivityType.NetworkErrandPractice => "Umm Karim taps the cracked handset twice. \"The wallet asks who you are. Learn to answer better.\"",
             _ => $"You practiced {activity.Name}."
         };
     }

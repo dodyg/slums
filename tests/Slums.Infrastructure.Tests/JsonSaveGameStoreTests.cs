@@ -76,6 +76,8 @@ internal sealed class JsonSaveGameStoreTests
             totalInvestmentEarnings: 27);
             gameSession.Player.Stats.SetEnergy(100);
             gameSession.Player.Skills.SetLevel(Slums.Core.Skills.SkillId.Physical, 2);
+            gameSession.Player.Skills.SetLevel(Slums.Core.Skills.SkillId.RobotRepair, 3);
+            gameSession.Player.Skills.SetLevel(Slums.Core.Skills.SkillId.CyberHacking, 2);
             gameSession.RestoreTrainedSkillsToday(
                 new Dictionary<Slums.Core.Skills.SkillId, bool> { { Slums.Core.Skills.SkillId.Physical, true } });
             gameSession.RestoreCityCrisisState(4, 3, 8, 82, CityCrisisDecision.MutualAid, CityCrisisResolution.SharedEmergencyPlan);
@@ -136,6 +138,8 @@ internal sealed class JsonSaveGameStoreTests
                     restoredSession.ActiveInvestments[0].WeeksActive.Should().Be(3);
                     restoredSession.TrainedSkillsToday.Should().ContainKey(SkillId.Physical);
                     restoredSession.Player.Skills.GetLevel(SkillId.Physical).Should().BeGreaterThan(0);
+                    restoredSession.Player.Skills.GetLevel(SkillId.RobotRepair).Should().Be(3);
+                    restoredSession.Player.Skills.GetLevel(SkillId.CyberHacking).Should().Be(2);
                     restoredSession.CityCrisis.Phase.Should().Be(CityCrisisPhase.Resolved);
                     restoredSession.CityCrisis.EvidenceCollected.Should().Be(3);
                     restoredSession.CityCrisis.ResourcesCommitted.Should().Be(8);

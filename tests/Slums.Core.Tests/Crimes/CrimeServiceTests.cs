@@ -60,4 +60,36 @@ internal sealed class CrimeServiceTests
         preview.DetectionChance.Should().Be(37);
         preview.SuccessChance.Should().Be(61);
     }
+
+    [Test]
+    public void PreviewCrime_ShouldBoostNetworkErrandSuccess_WhenCyberHackingIsHigh()
+    {
+        var service = new CrimeService();
+        var unskilled = new PlayerCharacter();
+        var hacker = new PlayerCharacter();
+        hacker.Skills.SetLevel(Slums.Core.Skills.SkillId.CyberHacking, 2);
+        var attempt = new CrimeAttempt(CrimeType.NetworkErrand, 130, 50, 30, 0, 24);
+
+        var baseline = service.PreviewCrime(attempt, unskilled, policePressure: 0);
+        var boosted = service.PreviewCrime(attempt, hacker, policePressure: 0);
+
+        boosted.SuccessChance.Should().Be(baseline.SuccessChance + 8);
+        boosted.DetectionChance.Should().Be(baseline.DetectionChance);
+    }
+
+    [Test]
+    public void PreviewCrime_ShouldNotBoostOtherCrimes_WhenCyberHackingIsHigh()
+    {
+        var service = new CrimeService();
+        var unskilled = new PlayerCharacter();
+        var hacker = new PlayerCharacter();
+        hacker.Skills.SetLevel(Slums.Core.Skills.SkillId.CyberHacking, 5);
+        var attempt = new CrimeAttempt(CrimeType.PettyTheft, 25, 20, 10, 0, 10);
+
+        var baseline = service.PreviewCrime(attempt, unskilled, policePressure: 0);
+        var boosted = service.PreviewCrime(attempt, hacker, policePressure: 0);
+
+        boosted.SuccessChance.Should().Be(baseline.SuccessChance);
+        boosted.DetectionChance.Should().Be(baseline.DetectionChance);
+    }
 }

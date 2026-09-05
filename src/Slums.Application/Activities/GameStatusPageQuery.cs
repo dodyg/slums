@@ -422,6 +422,8 @@ public sealed class GameStatusPageQuery
         return skillId switch
         {
             SkillId.StreetSmarts => "Street Smarts",
+            SkillId.RobotRepair => "Robot Repair",
+            SkillId.CyberHacking => "Cyber Hacking",
             _ => skillId.ToString()
         };
     }

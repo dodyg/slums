@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Core.Crimes;
 using Slums.Core.Endings;
 using Slums.Core.Relationships;
+using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 using Slums.Core.Robotics;
@@ -164,6 +165,70 @@ internal sealed class GameStateTests
         await Assert.That(result.Success).IsTrue();
         await Assert.That(result.MoneyEarned).IsGreaterThan(0);
         await Assert.That(state.Player.Robotics.Parts).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task RoboticsScavengingShift_ShouldGrantRobotRepairSkill_OnCleanShift()
+    {
+        const int seedLimit = 50;
+        var found = false;
+
+        for (var seed = 0; seed < seedLimit; seed++)
+        {
+            var state = new GameSession();
+            state.World.TravelTo(LocationId.Workshop);
+            state.Player.Stats.SetEnergy(100);
+
+            var result = state.WorkJob(state.GetAvailableJobs().Single(static job => job.Type == Slums.Core.Jobs.JobType.RoboticsScavenging), new Random(seed));
+            if (!result.Success || result.MistakeMade)
+            {
+                continue;
+            }
+
+            state.Player.Skills.GetLevel(SkillId.RobotRepair).Should().Be(1);
+            state.Player.Skills.GetLevel(SkillId.StreetSmarts).Should().Be(0);
+            found = true;
+            break;
+        }
+
+        await Assert.That(found).IsTrue();
+    }
+
+    [Test]
+    public async Task RepairRobot_ShouldHalveBenchFee_WhenRobotRepairSkilled()
+    {
+        var state = new GameSession();
+        state.World.TravelTo(LocationId.Workshop);
+        state.Player.Stats.SetMoney(200);
+        await Assert.That(state.BuyRobot(RobotType.SalvageCrawler)).IsTrue();
+        var robot = state.Player.Robotics.Robots[0];
+        robot.Damage(60);
+        await Assert.That(state.BuyRobotParts()).IsTrue();
+        state.Player.Skills.SetLevel(SkillId.RobotRepair, 2);
+        var moneyBeforeRepair = state.Player.Stats.Money;
+
+        await Assert.That(state.RepairRobot(robot.Id)).IsTrue();
+
+        state.Player.Stats.Money.Should().Be(moneyBeforeRepair - 9);
+    }
+
+    [Test]
+    public async Task RepairRobot_ShouldWaiveBenchFee_WhenRobotRepairMastered()
+    {
+        var state = new GameSession();
+        state.World.TravelTo(LocationId.Workshop);
+        state.Player.Stats.SetMoney(200);
+        await Assert.That(state.BuyRobot(RobotType.SalvageCrawler)).IsTrue();
+        var robot = state.Player.Robotics.Robots[0];
+        robot.Damage(60);
+        await Assert.That(state.BuyRobotParts()).IsTrue();
+        state.Player.Skills.SetLevel(SkillId.RobotRepair, 5);
+        var moneyBeforeRepair = state.Player.Stats.Money;
+
+        await Assert.That(state.RepairRobot(robot.Id)).IsTrue();
+
+        state.Player.Stats.Money.Should().Be(moneyBeforeRepair);
+        robot.Condition.Should().Be(85);
     }
 
     [Test]
@@ -990,6 +1055,29 @@ internal sealed class GameStateTests
         }
 
         throw new InvalidOperationException("Could not find a deterministic failed Umm Karim route seed.");
+    }
+
+    [Test]
+    public async Task CommitCrime_ShouldGrantCyberHacking_OnSuccessfulNetworkErrand()
+    {
+        const int seedLimit = 400;
+        var attempt = new CrimeAttempt(CrimeType.NetworkErrand, 130, 50, 30, 0, 24);
+
+        for (var seed = 0; seed < seedLimit; seed++)
+        {
+            var state = CreateCrimeState(LocationId.Market);
+            var result = state.CommitCrime(attempt, new Random(seed));
+            if (!result.Success)
+            {
+                continue;
+            }
+
+            state.Player.Skills.GetLevel(SkillId.CyberHacking).Should().Be(1);
+            state.Player.Skills.GetLevel(SkillId.StreetSmarts).Should().Be(0);
+            return;
+        }
+
+        throw new InvalidOperationException("Could not find a deterministic successful network errand seed.");
     }
 
     [Test]

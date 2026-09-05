@@ -15,7 +15,7 @@ internal sealed class TrainingTests
     {
         var activities = TrainingRegistry.AllActivities;
 
-        await Assert.That(activities.Count).IsEqualTo(4);
+        await Assert.That(activities.Count).IsEqualTo(6);
     }
 
     [Test]
@@ -27,6 +27,8 @@ internal sealed class TrainingTests
         await Assert.That(activities.Any(a => a.Type == TrainingActivityType.PracticePersuasion)).IsTrue();
         await Assert.That(activities.Any(a => a.Type == TrainingActivityType.StreetDice)).IsTrue();
         await Assert.That(activities.Any(a => a.Type == TrainingActivityType.RooftopExercise)).IsTrue();
+        await Assert.That(activities.Any(a => a.Type == TrainingActivityType.RobotRepairBench)).IsTrue();
+        await Assert.That(activities.Any(a => a.Type == TrainingActivityType.NetworkErrandPractice)).IsTrue();
     }
 
     [Test]
@@ -261,5 +263,55 @@ internal sealed class TrainingTests
 
         await Assert.That(state.Player.Stats.Energy).IsEqualTo(energyBefore - exercise.EnergyCost);
         await Assert.That(state.Clock.Hour).IsGreaterThanOrEqualTo(18);
+    }
+
+    [Test]
+    public async Task GameSession_TryPerformTraining_ShouldGateRobotRepairBehindAbuSamirTrust()
+    {
+        var state = new GameSession();
+
+        var available = state.GetAvailableTrainingActivities();
+        await Assert.That(available.Any(a => a.Type == TrainingActivityType.RobotRepairBench)).IsFalse();
+    }
+
+    [Test]
+    public async Task GameSession_TryPerformTraining_ShouldGrantRobotRepair_WithAbuSamirTrust()
+    {
+        var state = new GameSession();
+        state.Relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 10, 0);
+        state.Player.Stats.SetEnergy(100);
+        state.Player.Stats.SetMoney(1000);
+        state.Clock.SetTime(1, 19, 0);
+
+        var bench = TrainingRegistry.AllActivities.First(a => a.Type == TrainingActivityType.RobotRepairBench);
+        var result = state.TryPerformTraining(bench);
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Skills.GetLevel(SkillId.RobotRepair)).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task GameSession_TryPerformTraining_ShouldGateCyberHackingBehindUmmKarimTrust()
+    {
+        var state = new GameSession();
+
+        var available = state.GetAvailableTrainingActivities();
+        await Assert.That(available.Any(a => a.Type == TrainingActivityType.NetworkErrandPractice)).IsFalse();
+    }
+
+    [Test]
+    public async Task GameSession_TryPerformTraining_ShouldGrantCyberHacking_WithUmmKarimTrust()
+    {
+        var state = new GameSession();
+        state.Relationships.SetNpcRelationship(NpcId.FixerUmmKarim, 10, 0);
+        state.Player.Stats.SetEnergy(100);
+        state.Player.Stats.SetMoney(1000);
+        state.Clock.SetTime(1, 19, 0);
+
+        var practice = TrainingRegistry.AllActivities.First(a => a.Type == TrainingActivityType.NetworkErrandPractice);
+        var result = state.TryPerformTraining(practice);
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Skills.GetLevel(SkillId.CyberHacking)).IsEqualTo(1);
     }
 }
