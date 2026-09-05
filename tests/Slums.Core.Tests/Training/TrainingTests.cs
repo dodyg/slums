@@ -15,7 +15,7 @@ internal sealed class TrainingTests
     {
         var activities = TrainingRegistry.AllActivities;
 
-        await Assert.That(activities.Count).IsEqualTo(6);
+        await Assert.That(activities.Count).IsEqualTo(9);
     }
 
     [Test]
@@ -29,6 +29,9 @@ internal sealed class TrainingTests
         await Assert.That(activities.Any(a => a.Type == TrainingActivityType.RooftopExercise)).IsTrue();
         await Assert.That(activities.Any(a => a.Type == TrainingActivityType.RobotRepairBench)).IsTrue();
         await Assert.That(activities.Any(a => a.Type == TrainingActivityType.NetworkErrandPractice)).IsTrue();
+        await Assert.That(activities.Any(a => a.Type == TrainingActivityType.CommunityKitchenPractice)).IsTrue();
+        await Assert.That(activities.Any(a => a.Type == TrainingActivityType.NeighborhoodMutualAid)).IsTrue();
+        await Assert.That(activities.Any(a => a.Type == TrainingActivityType.QuietBreathing)).IsTrue();
     }
 
     [Test]
@@ -313,5 +316,22 @@ internal sealed class TrainingTests
 
         await Assert.That(result).IsTrue();
         await Assert.That(state.Player.Skills.GetLevel(SkillId.CyberHacking)).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task GameSession_TryPerformTraining_ShouldReachNewCommunitySkillsFromHome()
+    {
+        var state = new GameSession();
+        state.Player.Stats.SetEnergy(100);
+        state.Player.Stats.SetMoney(100);
+        state.Clock.SetTime(1, 19, 0);
+
+        var activities = state.GetAvailableTrainingActivities();
+        var provisioning = activities.Single(a => a.Type == TrainingActivityType.CommunityKitchenPractice);
+        var result = state.TryPerformTraining(provisioning);
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(state.Player.Skills.GetLevel(SkillId.Provisioning)).IsEqualTo(1);
+        await Assert.That(state.TrainedSkillsToday.ContainsKey(SkillId.Provisioning)).IsTrue();
     }
 }

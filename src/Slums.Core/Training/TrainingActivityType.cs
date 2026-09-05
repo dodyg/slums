@@ -7,5 +7,8 @@ public enum TrainingActivityType
     StreetDice,
     RooftopExercise,
     RobotRepairBench,
-    NetworkErrandPractice
+    NetworkErrandPractice,
+    CommunityKitchenPractice,
+    NeighborhoodMutualAid,
+    QuietBreathing
 }

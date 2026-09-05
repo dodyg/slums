@@ -155,6 +155,9 @@ internal static class TrainingService
             TrainingActivityType.RooftopExercise => "Your muscles burn, but the evening breeze makes it bearable.",
             TrainingActivityType.RobotRepairBench => "A dead drone opens under your hands. The board was never the problem; the seal was.",
             TrainingActivityType.NetworkErrandPractice => "Umm Karim taps the cracked handset twice. \"The wallet asks who you are. Learn to answer better.\"",
+            TrainingActivityType.CommunityKitchenPractice => "You portion the lentils twice, then once more. Mona says, \"Baraka is planning, mish magic.\"",
+            TrainingActivityType.NeighborhoodMutualAid => "You leave the notebook open beside the water schedule. A shared plan is still work, but it is work no one carries alone.",
+            TrainingActivityType.QuietBreathing => "The room does not become calm. You become a little harder to knock out of your own rhythm.",
             _ => $"You practiced {activity.Name}."
         };
     }

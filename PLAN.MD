@@ -17,6 +17,7 @@ The repository contains a playable .NET 10 vertical slice with:
 - 13 recurring NPC relationships with four distinct authored scenes per context, phone messages, community events, debt, NPC economy, and small-business investments
 - JSON snapshot persistence around `GameSession` and `LoadedGameSession`
 - persistent second-hand robotics: three purchasable machine models, spare-part stock, workshop repairs, and scavenging-job wear/recovery
+- a nine-skill progression model with shared metadata; `RobotRepair` and `CyberHacking` are presented as Technical Repair and Digital Literacy for save compatibility
 - reactive city news with source reliability, district effects, one-shot player responses, and event-journal entries
 - infrastructure service state for electricity, water, transport, and clinic medicine, with gameplay impacts and snapshot persistence
 - JSON-authored inventory items and NPC schedule windows used by response actions, status views, and talk availability
@@ -106,7 +107,13 @@ Acceptance targets:
 - keep preview values and committed outcomes on the same calculation path
 - verify walking and paid travel remain meaningful alternatives
 
-### 3. Architecture hardening
+### 3. Skill expansion vertical slices
+
+- ship Provisioning, Community Organizing, and Composure with reachable evening training, shared threshold metadata, diagnostics, previews, and focused tests
+- broaden Technical Repair and Digital Literacy beyond their original robotics/crime applications while preserving `RobotRepair` and `CyberHacking` snapshot keys
+- validate food, community, repair, digital-service, and pressure actions with preview/commit parity and at least one credible early-game route each
+
+### 4. Architecture hardening
 
 - continue extracting cohesive daily-resolution and action-policy rules from `GameSession`; entertainment, household asset, training, home, food-shop, travel, clinic, community, debt, investment, phone, tip, work, crime, random-event, calendar, district-condition, territory-event, and ending policy now live in focused core services
 - route snapshot hydration through one validated `GameSession.RestoreFromSnapshot` boundary while keeping `LoadedGameSession` as the persistence handoff
@@ -114,7 +121,7 @@ Acceptance targets:
 - add catalog-level validation for cross-file assumptions where a valid individual JSON file can still create an invalid world
 - reduce static registry coupling only when doing so preserves the canonical session boundary and materially improves test isolation
 
-### 4. Authored reactivity
+### 5. Authored reactivity
 
 - add selected Ink follow-ups to high-impact news flashes after the systemic responses have been playtested
 - audit recurring dialogue contexts for distinct authored scenes and reactive follow-ups
@@ -122,7 +129,7 @@ Acceptance targets:
 - keep gender and background reactions grounded and consequential without turning them into deterministic success/failure choices
 - preserve the established content boundaries: implication and consequence over graphic detail
 
-### 5. UI clarity and accessibility
+### 6. UI clarity and accessibility
 
 - keep layout tests around all fixed-size screens
 - ensure disabled actions show concise reasons rather than disappearing when the player needs an explanation

@@ -267,6 +267,11 @@ Medicinal:
 | Persuasion | Practice haggling and selling with Umm Karim | Home area | Umm Karim trust >= 5 | 10 LE (practice goods) | 2 hours | 15 |
 | StreetSmarts | Rooftop dice and cards with Youssef and street kids | Home rooftop | Runner Youssef trust >= 5 | 15 LE (stakes) | 2 hours | 12 |
 | Physical | Rooftop exercise routines | Home rooftop | None | None | 3 hours | 20 |
+| Technical Repair (`RobotRepair`) | Bench teardown and solder practice | Workshop | Abu Samir trust >= 10 | 20 LE | 2.5 hours | 18 |
+| Digital Literacy (`CyberHacking`) | Handset, wallet, and network practice | Market/Square | Umm Karim trust >= 10 | 15 LE | 2 hours | 15 |
+| Provisioning | Community kitchen portioning | Home | None | 5 LE | 2 hours | 12 |
+| Community Organizing | Neighborhood mutual-aid planning | Home | None | 5 LE | 2 hours | 14 |
+| Composure | Quiet breathing and prayer/reflection | Home | None | None | 1.5 hours | 6 |
 
 - Training is capped to **once per skill per day** to prevent grinding.
 - Each successful training session grants **+1 skill level**, respecting the existing 0-10 cap.
@@ -277,6 +282,15 @@ Medicinal:
   - Released Political Prisoner: dice games feel natural, slight StreetSmarts training energy discount
   - Sudanese Refugee: community mentors join rooftop exercises, slight Physical training energy discount
 - Training must produce a diagnostic record and event log entry consistent with the tracing system.
+- The player-facing labels **Technical Repair** and **Digital Literacy** intentionally map to the persisted `RobotRepair` and `CyberHacking` identifiers. Existing saves keep loading those enum keys; no rename is permitted without an explicit migration.
+
+### Skill Expansion Effects
+
+- Provisioning improves basic meal efficiency at level 2, lets household herbs improve meals at level 4, protects one stored meal from a food shock at level 6, and improves mother-care meals at level 8. It never creates free food or removes spoilage and price risk.
+- Community Organizing improves small-event attendance at level 2, unlocks shared-resource actions at level 4, improves local outage recovery at level 6, and enables a bounded response to heat or territory pressure at level 8. Supplies, attendance, and infrastructure remain limiting factors.
+- Composure reduces stress-caused work mistakes at level 2, unlocks selected calm responses at level 4, softens one-time crisis spikes at level 6, and preserves a small amount of energy after high-pressure events at level 8. It does not remove baseline stress.
+- Technical Repair keeps robot parts and bench repairs, and also supports handset, battery, water-pump, and solar-storage repair through time, parts, and cash costs.
+- Digital Literacy keeps the Network Errand crime application while also reducing limited wallet friction, unlocking a digital-work variant, and enabling uncertain biometric or service appeals with persistent technology obligations.
 
 ## Debt and NPC Economy
 

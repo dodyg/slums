@@ -137,6 +137,11 @@ The step blocks are owned by `EndOfDayPipeline` and its `DailyResolution` collab
 - Persuasion: Improves trust gains, unlocks call center/dispatch variants
 - StreetSmarts: Lowers crime detection, unlocks crime variants
 - Physical: Reduces energy cost for manual labor jobs
+- Technical Repair (`RobotRepair`): broadens robotics work and repairs into locally maintained devices and infrastructure
+- Digital Literacy (`CyberHacking`): supports legitimate digital services as well as the Network Errand route
+- Provisioning: improves bounded food, herb, preservation, and mother-care choices
+- Community Organizing: improves group events, mutual aid, and local adaptation outcomes
+- Composure: mitigates selected work and crisis pressure without flattening daily stress
 
 ## Three Playable Backgrounds
 
@@ -367,7 +372,7 @@ Per-NPC wealth tracking (Struggling/Poor/Stable/Comfortable). Weekly resolution:
 
 ## Skill Training
 
-4 training activities, once per day each, gated by NPC trust and evening hours (18:00-22:00):
+9 training activities, once per skill per day, gated by NPC trust where appropriate and evening hours (18:00-22:00):
 
 | Activity | Skill | Cost | Energy | NPC Required |
 |---|---|---|---|---|
@@ -375,8 +380,15 @@ Per-NPC wealth tracking (Struggling/Poor/Stable/Comfortable). Weekly resolution:
 | PracticePersuasion | Persuasion | 10 LE | 15 | UmmKarim trust 5 |
 | StreetDice | StreetSmarts | 15 LE | 12 | Youssef trust 5 |
 | RooftopExercise | Physical | 0 LE | 20 | None (requires Home) |
+| RobotRepairBench | Technical Repair (`RobotRepair`) | 20 LE | 18 | Abu Samir trust 10 |
+| NetworkErrandPractice | Digital Literacy (`CyberHacking`) | 15 LE | 15 | Umm Karim trust 10 |
+| CommunityKitchenPractice | Provisioning | 5 LE | 12 | None (requires Home) |
+| NeighborhoodMutualAid | Community Organizing | 5 LE | 14 | None (requires Home) |
+| QuietBreathing | Composure | 0 LE | 6 | None (requires Home) |
 
 Skills also gain passively from work (~70% of progression) and crime activities.
+
+`SkillRegistry` is the single source of player-facing labels, descriptions, and threshold hints. `RobotRepair` and `CyberHacking` remain the serialized keys for save compatibility.
 
 ## Investments
 

@@ -419,13 +419,7 @@ public sealed class GameStatusPageQuery
 
     private static string GetSkillName(SkillId skillId)
     {
-        return skillId switch
-        {
-            SkillId.StreetSmarts => "Street Smarts",
-            SkillId.RobotRepair => "Robot Repair",
-            SkillId.CyberHacking => "Cyber Hacking",
-            _ => skillId.ToString()
-        };
+        return SkillRegistry.Get(skillId).DisplayName;
     }
 
     private static string ToYesNo(bool value)

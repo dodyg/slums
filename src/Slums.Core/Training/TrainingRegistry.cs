@@ -72,7 +72,40 @@ public sealed class TrainingRegistry
             EnergyCost: 15,
             RequiredNpc: NpcId.FixerUmmKarim,
             RequiredTrust: 10,
-            RequiresHome: false)
+            RequiresHome: false),
+        new TrainingActivity(
+            TrainingActivityType.CommunityKitchenPractice,
+            SkillId.Provisioning,
+            "Community Kitchen Practice",
+            "Portion staples, herbs, and water with a neighbor before the evening meal.",
+            MoneyCost: 5,
+            TimeCostMinutes: 120,
+            EnergyCost: 12,
+            RequiredNpc: null,
+            RequiredTrust: 0,
+            RequiresHome: true),
+        new TrainingActivity(
+            TrainingActivityType.NeighborhoodMutualAid,
+            SkillId.CommunityOrganizing,
+            "Neighborhood Mutual Aid",
+            "Coordinate a small water, shade, or food handoff from the flat.",
+            MoneyCost: 5,
+            TimeCostMinutes: 120,
+            EnergyCost: 14,
+            RequiredNpc: null,
+            RequiredTrust: 0,
+            RequiresHome: true),
+        new TrainingActivity(
+            TrainingActivityType.QuietBreathing,
+            SkillId.Composure,
+            "Quiet Breathing",
+            "Practice a quiet breathing and prayer routine before the night gets loud.",
+            MoneyCost: 0,
+            TimeCostMinutes: 90,
+            EnergyCost: 6,
+            RequiredNpc: null,
+            RequiredTrust: 0,
+            RequiresHome: true)
     ];
 
     public static IReadOnlyList<TrainingActivity> AllActivities => Activities;

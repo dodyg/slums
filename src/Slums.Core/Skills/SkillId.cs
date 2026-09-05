@@ -7,5 +7,8 @@ public enum SkillId
     Persuasion,
     Medical,
     RobotRepair,
-    CyberHacking
+    CyberHacking,
+    Provisioning,
+    CommunityOrganizing,
+    Composure
 }
