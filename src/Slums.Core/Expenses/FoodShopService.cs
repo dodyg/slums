@@ -31,7 +31,10 @@ internal static class FoodShopService
         baseModifier += MealService.GetUmmKarimFoodDiscount(session);
         baseModifier += NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict);
 
-        var modifiedCost = session.LocationPricing.GetFoodCost(session.World.CurrentDistrict) + baseModifier;
+        var foodPriceShock = NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict);
+        var modifiedCost = session.LocationPricing.GetFoodCost(session.World.CurrentDistrict)
+            + baseModifier
+            - ProvisioningCalculator.GetFoodPriceReduction(session.Player.Skills.GetLevel(SkillId.Provisioning), foodPriceShock);
         return Math.Max(1, modifiedCost);
     }
 
@@ -78,14 +81,16 @@ internal static class FoodShopService
         }
 
         session.Player.Stats.ModifyMoney(-foodCost);
-        session.Player.Household.AddStaples(3);
+        var provisioningLevel = session.Player.Skills.GetLevel(SkillId.Provisioning);
+        var bundleUnits = ProvisioningCalculator.GetFoodBundleUnits(provisioningLevel);
+        session.Player.Household.AddStaples(bundleUnits);
         if (session.Player.BackgroundType == BackgroundType.SudaneseRefugee)
         {
             session.Player.Household.AddStaples(1);
             session.RaiseEvent("A Sudanese women-led kitchen stretches the bread run a little farther for you.");
         }
 
-        session.RaiseEvent($"Bought food supplies for {foodCost} LE in {DistrictInfo.GetName(session.World.CurrentDistrict)}. Stockpile: {session.Player.Household.FoodStockpile}");
+        session.RaiseEvent($"Bought food supplies for {foodCost} LE in {DistrictInfo.GetName(session.World.CurrentDistrict)}. Stockpile +{bundleUnits}: {session.Player.Household.FoodStockpile}");
         session.RecordMutation(MutationCategories.Food, "BuyFood", before, session.CaptureStats(), $"Bought food for {foodCost} LE");
         return true;
     }

@@ -1,4 +1,5 @@
 using Slums.Core.State;
+using Slums.Core.Skills;
 using Slums.Core.World;
 
 namespace Slums.Application.Activities;
@@ -17,7 +18,10 @@ public sealed record ShopMenuContext(
     bool ClinicOpenToday,
     int ClinicVisitCost,
     string ClinicDayName,
-    string ClinicOpenDaysSummary)
+    string ClinicOpenDaysSummary,
+    int ProvisioningSkillLevel,
+    int FoodBundleUnits,
+    ProvisioningMealPlan MealPreview)
 {
     public static ShopMenuContext Create(GameSession gameSession)
     {
@@ -40,6 +44,9 @@ public sealed record ShopMenuContext(
             clinicStatus.IsOpenToday,
             clinicStatus.VisitCost,
             clinicStatus.CurrentDayName,
-            clinicStatus.OpenDaysSummary);
+            clinicStatus.OpenDaysSummary,
+            gameSession.Player.Skills.GetLevel(SkillId.Provisioning),
+            ProvisioningCalculator.GetFoodBundleUnits(gameSession.Player.Skills.GetLevel(SkillId.Provisioning)),
+            gameSession.GetProvisioningMealPlan());
     }
 }

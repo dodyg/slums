@@ -50,6 +50,8 @@ internal sealed class ShopScreen : ScreenSurface
 
         Surface.Print(OptionsStartX, y++, $"Your Money: {_context.Money} LE", Color.Gold);
         Surface.Print(OptionsStartX, y++, $"Food Stockpile: {_context.FoodStockpile}", Color.White);
+        Surface.Print(OptionsStartX, y++, $"Provisioning {_context.ProvisioningSkillLevel}: food bundle +{_context.FoodBundleUnits} | {_context.MealPreview.Quality} meal", Color.Gray);
+        Surface.Print(OptionsStartX, y++, $"Meal effect: stress -{_context.MealPreview.StressReduction}{(_context.MealPreview.UsesHouseholdHerb ? " with household herb" : string.Empty)}", Color.Gray);
         Surface.Print(OptionsStartX, y++, $"Mother's Health: {_context.MotherHealth}%", 
             _context.MotherNeedsCare ? Color.Red : Color.Green);
         if (_context.HasClinicServices)

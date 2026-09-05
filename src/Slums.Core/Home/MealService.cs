@@ -1,6 +1,7 @@
 using Slums.Core.Characters;
 using Slums.Core.Diagnostics;
 using Slums.Core.Economy;
+using Slums.Core.Skills;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 
@@ -21,18 +22,30 @@ internal static class MealService
             return false;
         }
 
-        session.Player.Nutrition.Eat(MealQuality.Basic);
-        session.SyncLegacyHunger();
+        var provisioningLevel = session.Player.Skills.GetLevel(SkillId.Provisioning);
         var cookingBonus = session.Player.HouseholdAssets.GetHomeCookingBonus(session.CurrentWeek);
-        if (cookingBonus > 0)
+        var mealPlan = ProvisioningCalculator.GetMealPlan(provisioningLevel, cookingBonus);
+        session.Player.Nutrition.Eat(mealPlan.Quality);
+        session.SyncLegacyHunger();
+        if (mealPlan.StressReduction > 0)
         {
-            session.Player.Stats.ModifyStress(-cookingBonus);
+            session.Player.Stats.ModifyStress(-mealPlan.StressReduction);
         }
 
-        session.RaiseEvent("You eat a simple meal at home and make sure your mother eats too.");
-        if (cookingBonus > 0)
+        var mealDescription = mealPlan.Quality == MealQuality.HotMeal
+            ? "You turn the staples and herbs into a hot meal and make sure your mother eats too."
+            : "You eat a simple meal at home and make sure your mother eats too.";
+        session.RaiseEvent(mealDescription);
+        if (mealPlan.StressReduction > 0)
         {
-            session.RaiseEvent($"Fresh herbs soften the meal a little. Stress -{cookingBonus}.");
+            session.RaiseEvent($"Fresh herbs soften the meal a little. Stress -{mealPlan.StressReduction}.");
+        }
+
+        var motherBonus = ProvisioningCalculator.GetMotherCareMealBonus(provisioningLevel, mealPlan.Quality);
+        if (motherBonus > 0)
+        {
+            session.Player.Household.UpdateMotherHealth(motherBonus);
+            session.RaiseEvent($"Your mother manages a little more of the meal. Mother's health +{motherBonus}.");
         }
 
         session.RecordMutation(MutationCategories.Food, "EatAtHome", before, session.CaptureStats(), "Ate at home");

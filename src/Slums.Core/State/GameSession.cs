@@ -407,6 +407,13 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         return FoodShopService.GetFoodCost(this);
     }
 
+    public ProvisioningMealPlan GetProvisioningMealPlan()
+    {
+        return ProvisioningCalculator.GetMealPlan(
+            Player.Skills.GetLevel(SkillId.Provisioning),
+            Player.HouseholdAssets.GetHomeCookingBonus(CurrentWeek));
+    }
+
     public int GetStreetFoodCost()
     {
         return FoodShopService.GetStreetFoodCost(this);

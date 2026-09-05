@@ -150,6 +150,7 @@ internal sealed class GameSessionSafetyNetTests
         "method:GetEventCount",
         "method:GetFoodCost",
         "method:GetMedicineCost",
+        "method:GetProvisioningMealPlan",
         "method:GetNpcAvailability",
         "method:GetReachableNpcs",
         "method:GetStatusSummary",
