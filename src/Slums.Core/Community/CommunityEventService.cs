@@ -2,6 +2,7 @@ using Slums.Core.Characters;
 using Slums.Core.Clock;
 using Slums.Core.Diagnostics;
 using Slums.Core.Relationships;
+using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 
@@ -170,7 +171,8 @@ internal static class CommunityEventService
         var totalTrust = 0;
         foreach (var npcId in selected)
         {
-            var trust = definition.TrustGainAmount;
+            var trust = definition.TrustGainAmount
+                + (session.Player.Skills.GetLevel(SkillId.CommunityOrganizing) >= SkillThresholds.FirstMeaningfulLevel ? 1 : 0);
             session.Relationships.ModifyNpcTrust(npcId, trust);
             totalTrust += trust;
         }

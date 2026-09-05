@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Slums.Core.Calendar;
 using Slums.Core.Characters;
 using Slums.Core.Clock;
@@ -123,6 +124,21 @@ internal sealed class CommunityEventTests
         var trustAfter = state.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust;
 
         await Assert.That(trustAfter).IsGreaterThanOrEqualTo(trustBefore);
+    }
+
+    [Test]
+    public void AttendCommunityEvent_ShouldRewardCommunityOrganizingWithAnAttendanceBonus()
+    {
+        var state = new GameSession();
+        state.Clock.SetTime(7, 6, 0);
+        state.Player.Skills.SetLevel(Slums.Core.Skills.SkillId.CommunityOrganizing, 2);
+        var definition = CommunityEventRegistry.GetById(CommunityEventId.FridayRooftopGathering)!;
+        var before = state.Relationships.NpcRelationships.Values.Sum(static relationship => relationship.Trust);
+
+        state.AttendCommunityEvent(definition.Id, new Random(7));
+
+        var after = state.Relationships.NpcRelationships.Values.Sum(static relationship => relationship.Trust);
+        after.Should().BeGreaterThanOrEqualTo(before + definition.TrustGainCount * (definition.TrustGainAmount + 1));
     }
 
     [Test]

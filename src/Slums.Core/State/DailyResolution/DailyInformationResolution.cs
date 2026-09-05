@@ -1,5 +1,6 @@
 using Slums.Core.Relationships;
 using Slums.Core.Rumors;
+using Slums.Core.Skills;
 
 namespace Slums.Core.State.DailyResolution;
 
@@ -33,9 +34,13 @@ internal static class DailyInformationResolution
 
         if (session.EventAttendance.ConsecutiveSkips >= 5)
         {
-            session.Relationships.ModifyNpcTrust(NpcId.NeighborMona, -1);
-            session.Relationships.ModifyNpcTrust(NpcId.FixerUmmKarim, -1);
-            session.Relationships.ModifyNpcTrust(NpcId.NurseSalma, -1);
+            var skipPenalty = session.Player.Skills.GetLevel(SkillId.CommunityOrganizing) >= SkillThresholds.FirstMeaningfulLevel ? 0 : -1;
+            if (skipPenalty < 0)
+            {
+                session.Relationships.ModifyNpcTrust(NpcId.NeighborMona, skipPenalty);
+                session.Relationships.ModifyNpcTrust(NpcId.FixerUmmKarim, skipPenalty);
+                session.Relationships.ModifyNpcTrust(NpcId.NurseSalma, skipPenalty);
+            }
             session.RaiseEvent("Neighbors are starting to talk. You never show up anymore.");
         }
     }
