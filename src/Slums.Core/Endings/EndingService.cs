@@ -107,7 +107,7 @@ public static class EndingService
         return endingId switch
         {
             EndingId.StabilityHonestWork => "30 days, 6 honest shifts, 180 LE earned, and five clean days.",
-            EndingId.NetworkShelter => "30 days, 140 combined support trust, and 120 LE saved.",
+            EndingId.NetworkShelter => "30 days, 140 combined support trust or an organized shelter route, and 120 LE saved.",
             EndingId.QuitTheLuxorDream => "30 days, 550 LE for the train and first weeks, low crime, and a healthy mother.",
             EndingId.CrimeKingpin => "1,000 LE in crime earnings, 8 crimes, faction control, and standing above 50.",
             _ => throw new ArgumentOutOfRangeException(nameof(endingId), endingId, "Only non-failure endings can be chosen.")
@@ -126,8 +126,11 @@ public static class EndingService
 
     private static bool CanChooseNetworkShelter(GameSession gameState)
     {
+        var organizedShelter = gameState.Player.Skills.GetLevel(Slums.Core.Skills.SkillId.CommunityOrganizing) >= Slums.Core.Skills.SkillThresholds.AdvancedLevel
+            && gameState.CommunityAdaptation.ShelterContributions >= 3
+            && gameState.EventAttendance.TotalAttended >= 2;
         return gameState.DaysSurvived >= 30 &&
-            GetNetworkTrust(gameState) >= 140 &&
+            (GetNetworkTrust(gameState) >= 140 || organizedShelter) &&
             gameState.Player.Household.MotherAlive &&
             gameState.Player.Stats.Money >= 120;
     }

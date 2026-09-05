@@ -60,6 +60,21 @@ internal sealed class EndingServiceTests
     }
 
     [Test]
+    public async Task CheckEndings_ShouldReturnNetworkShelter_WhenCommunityAdaptationBuildsAnOrganizedRoute()
+    {
+        var state = new GameSession();
+        state.SetDaysSurvived(30);
+        state.Player.Stats.SetMoney(120);
+        state.Player.Skills.SetLevel(Slums.Core.Skills.SkillId.CommunityOrganizing, 4);
+        state.EventAttendance.TotalAttended = 2;
+        state.CommunityAdaptation.RecordSuccessfulAction(3);
+
+        var ending = EndingService.CheckEndings(state);
+
+        await Assert.That(ending).IsEqualTo(EndingId.NetworkShelter);
+    }
+
+    [Test]
     public async Task CheckEndings_ShouldReturnStabilityHonestWork_WhenCrimeStopsAndWorkCarriesYou()
     {
         var state = new GameSession();
