@@ -62,14 +62,20 @@ internal static class CommunityOrganizingService
                 break;
             case CommunityActionType.CoordinateCoolingRoom:
                 session.CommunityAdaptation.AddCoolingRoomDays(2);
-                session.Player.Stats.ModifyStress(-4);
+                var coolingRelief = 4 + ComposureCalculator.GetCrisisStressRelief(
+                    session.Player.Skills.GetLevel(SkillId.Composure),
+                    4);
+                session.Player.Stats.ModifyStress(-coolingRelief);
                 session.RaiseEvent("The shared cooling room stays open for two more nights. It is patched shade, not a miracle.");
                 break;
             case CommunityActionType.NeighborhoodPressureResponse:
                 session.Territory.ModifyTension(session.World.CurrentDistrict, -5);
                 session.DistrictHeat.AddHeat(session.World.CurrentDistrict, -2);
                 session.CommunityAdaptation.RecordSuccessfulAction(2);
-                session.Player.Stats.ModifyStress(-3);
+                var pressureRelief = 3 + ComposureCalculator.GetCrisisStressRelief(
+                    session.Player.Skills.GetLevel(SkillId.Composure),
+                    3);
+                session.Player.Stats.ModifyStress(-pressureRelief);
                 session.RaiseEvent("Neighbors coordinate watches and shade routes. Local tension eases, but the factions still own their grudges.");
                 break;
         }

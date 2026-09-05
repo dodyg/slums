@@ -848,7 +848,11 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
     internal void ProcessDailyDebt()
     {
-        var result = DebtService.ProcessDailyLoanShark(PlayerDebts, Player.Stats, Clock.Day);
+        var result = DebtService.ProcessDailyLoanShark(
+            PlayerDebts,
+            Player.Stats,
+            Clock.Day,
+            Player.Skills.GetLevel(SkillId.Composure));
         if (!string.IsNullOrEmpty(result.Message))
         {
             RaiseEvent(result.Message);

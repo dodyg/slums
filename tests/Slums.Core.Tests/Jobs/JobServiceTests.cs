@@ -189,6 +189,22 @@ internal sealed class JobServiceTests
     }
 
     [Test]
+    public void PerformJob_ShouldUseComposureToKeepAStressfulCallCenterShiftBelowMistakeThreshold()
+    {
+        var service = new JobService();
+        var player = new PlayerCharacter();
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.CallCenter);
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+        player.Skills.SetLevel(SkillId.Composure, 2);
+        player.Stats.SetStress(64);
+
+        var result = service.PerformJob(JobRegistry.CallCenterWork, player, location, relationships, progress, currentDay: 1, new Random(7));
+
+        result.MistakeMade.Should().BeFalse();
+    }
+
+    [Test]
     public void PreviewJob_ShouldSurfaceBakeryUnlockThresholds()
     {
         var service = new JobService();

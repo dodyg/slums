@@ -476,18 +476,19 @@ public sealed class JobService
 
     private static bool ShouldApplyMistake(JobShift job, PlayerCharacter player)
     {
+        var composureLevel = player.Skills.GetLevel(SkillId.Composure);
         return job.Type switch
         {
-            JobType.CallCenterWork => player.Stats.Stress >= 60,
-            JobType.ClinicReception => player.Stats.Stress >= 65 || player.Stats.Energy <= job.MinEnergyRequired + 4,
-            JobType.CafeService => player.Stats.Stress >= 65,
-            JobType.PharmacyStock => player.Stats.Stress >= 60 || player.Stats.Energy <= job.MinEnergyRequired + 4,
-            JobType.MicrobusDispatch => player.Stats.Stress >= 62,
+            JobType.CallCenterWork => player.Stats.Stress >= ComposureCalculator.GetWorkMistakeStressThreshold(composureLevel, 60),
+            JobType.ClinicReception => player.Stats.Stress >= ComposureCalculator.GetWorkMistakeStressThreshold(composureLevel, 65) || player.Stats.Energy <= job.MinEnergyRequired + 4,
+            JobType.CafeService => player.Stats.Stress >= ComposureCalculator.GetWorkMistakeStressThreshold(composureLevel, 65),
+            JobType.PharmacyStock => player.Stats.Stress >= ComposureCalculator.GetWorkMistakeStressThreshold(composureLevel, 60) || player.Stats.Energy <= job.MinEnergyRequired + 4,
+            JobType.MicrobusDispatch => player.Stats.Stress >= ComposureCalculator.GetWorkMistakeStressThreshold(composureLevel, 62),
             JobType.LaundryPressing => player.Stats.Energy <= job.MinEnergyRequired + 5,
             JobType.WorkshopSewing => player.Stats.Energy <= job.MinEnergyRequired + 5,
             JobType.BakeryWork => player.Stats.Energy <= job.MinEnergyRequired + 5,
             JobType.HouseCleaning => player.Stats.Energy <= job.MinEnergyRequired + 3,
-            JobType.StreetVending => player.Stats.Stress >= 60,
+            JobType.StreetVending => player.Stats.Stress >= ComposureCalculator.GetWorkMistakeStressThreshold(composureLevel, 60),
             JobType.FishSorter => player.Stats.Energy <= job.MinEnergyRequired + 5,
             JobType.MarketPorter => player.Stats.Energy <= job.MinEnergyRequired + 3,
             JobType.RoboticsScavenging => player.Stats.Energy <= job.MinEnergyRequired + 5,

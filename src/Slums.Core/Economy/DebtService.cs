@@ -2,6 +2,7 @@ using Slums.Core.Characters;
 using Slums.Core.Expenses;
 using Slums.Core.Heat;
 using Slums.Core.Relationships;
+using Slums.Core.Skills;
 using Slums.Core.World;
 
 namespace Slums.Core.Economy;
@@ -259,7 +260,7 @@ public sealed class DebtService
     }
 
     /// <summary>Applies the daily loan-shark penalty and reports whether collection ends the run.</summary>
-    public static DebtEscalationResult ProcessDailyLoanShark(PlayerDebtState playerDebts, SurvivalStats stats, int currentDay)
+    public static DebtEscalationResult ProcessDailyLoanShark(PlayerDebtState playerDebts, SurvivalStats stats, int currentDay, int composureSkillLevel = 0)
     {
         ArgumentNullException.ThrowIfNull(playerDebts);
         ArgumentNullException.ThrowIfNull(stats);
@@ -272,7 +273,7 @@ public sealed class DebtService
             }
 
             var penalty = LoanSharkEscalation.ApplyDailyPenalty(debt, currentDay);
-            stats.ModifyStress(penalty.Stress);
+            stats.ModifyStress(ComposureCalculator.GetDebtStressCost(composureSkillLevel, penalty.Stress));
             stats.ModifyHealth(penalty.Health);
             return new DebtEscalationResult(penalty.Message, LoanSharkEscalation.ShouldTriggerViolence(debt, currentDay));
         }
