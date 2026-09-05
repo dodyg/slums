@@ -19,7 +19,7 @@ public sealed class PhoneState
 
     public bool IsOperational()
     {
-        return HasPhone && CreditRemaining > 0 && !PhoneLost;
+        return HasPhone && CreditRemaining > 0 && !PhoneLost && HandsetCondition > 0;
     }
 
     public bool RefillCredit()
@@ -42,6 +42,7 @@ public sealed class PhoneState
         }
 
         DaysSinceCreditRefill++;
+        HandsetCondition = Math.Max(0, HandsetCondition - 1);
         if (DaysSinceCreditRefill >= DefaultCreditDays && CreditRemaining > 0)
         {
             CreditRemaining = 0;

@@ -82,6 +82,17 @@ internal sealed class TechnicalRepairServiceTests
         preview.UnavailabilityReason.Should().Be("Reach Technical Repair 4.");
     }
 
+    [Test]
+    public void HandsetCondition_ShouldBeARealOperationalConstraint()
+    {
+        var handset = new Slums.Core.Phone.PhoneState();
+        handset.Restore(true, 7, 0, false, null, false, 1);
+
+        handset.DailyCreditDrain();
+
+        handset.IsOperational().Should().BeFalse();
+    }
+
     private static GameSession CreateSession(int skill, int parts, LocationId location)
     {
         var session = new GameSession();
