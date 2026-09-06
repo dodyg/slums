@@ -1,5 +1,7 @@
 namespace Slums.Core.Technology;
 
+using Slums.Core.Skills;
+
 public static class TechnicalRepairCalculator
 {
     public static int GetConditionGain(TechnicalRepairActionType actionType, int skillLevel)
@@ -17,6 +19,6 @@ public static class TechnicalRepairCalculator
     public static int GetContractIncome(int skillLevel)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(skillLevel);
-        return skillLevel >= 10 ? 40 : 35;
+        return skillLevel >= SkillThresholds.MaximumLevel ? 40 : 35;
     }
 }

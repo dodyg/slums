@@ -1,4 +1,5 @@
 using Slums.Core.World;
+using Slums.Core.Skills;
 
 namespace Slums.Core.Technology;
 
@@ -6,7 +7,7 @@ public static class DigitalServiceRegistry
 {
     private static readonly IReadOnlyList<DigitalServiceActionDefinition> Definitions =
     [
-        new(DigitalServiceActionType.SubmitBiometricAppeal, "Submit Biometric Appeal", "Use the handset to correct a disputed identity record. The form may be accepted, but the review remains visible to the institution.", LocationId.Home, 6, 90, 5, 8)
+        new(DigitalServiceActionType.SubmitBiometricAppeal, "Submit Biometric Appeal", "Use the handset to correct a disputed identity record. The form may be accepted, but the review remains visible to the institution.", LocationId.Home, SkillThresholds.HighLevel, 90, 5, 8)
     ];
 
     public static IReadOnlyList<DigitalServiceActionDefinition> All => Definitions;

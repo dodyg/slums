@@ -72,6 +72,29 @@ internal sealed class TechnicalRepairServiceTests
     }
 
     [Test]
+    public void RepairBenchContract_ShouldRemainAvailableWhenStorageIsAlreadyRepaired()
+    {
+        var session = CreateSession(8, 2, LocationId.Workshop);
+        session.Technology.RepairMicrogridStorage(30);
+
+        var preview = session.PreviewTechnicalRepair(TechnicalRepairActionType.TakeRepairBenchContract);
+
+        preview.CurrentCondition.Should().Be(100);
+        preview.NeedsRepair.Should().BeTrue();
+        preview.CanPerform.Should().BeTrue();
+    }
+
+    [Test]
+    public void SolarStorageRepair_ShouldRecordCooperativeMaintenanceObligation()
+    {
+        var session = CreateSession(6, 2, LocationId.Workshop);
+
+        session.PerformTechnicalRepair(TechnicalRepairActionType.RestoreSolarStorage).Should().BeTrue();
+
+        session.Technology.MicrogridRepairDebt.Should().Be(2);
+    }
+
+    [Test]
     public void RepairPreview_ShouldExplainTheSkillGate()
     {
         var session = CreateSession(0, 1, LocationId.Home);

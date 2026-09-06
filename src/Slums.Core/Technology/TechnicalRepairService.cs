@@ -24,9 +24,13 @@ internal static class TechnicalRepairService
         var canAfford = session.Player.Stats.Money >= action.MoneyCost;
         var hasEnergy = session.Player.Stats.Energy >= action.EnergyCost;
         var hasParts = session.Player.Robotics.Parts >= action.PartsRequired;
-        var currentCondition = actionType == TechnicalRepairActionType.RepairHandset
-            ? session.Phone.HandsetCondition
-            : session.Technology.MicrogridStorageCondition;
+        var currentCondition = actionType switch
+        {
+            TechnicalRepairActionType.RepairHandset => session.Phone.HandsetCondition,
+            TechnicalRepairActionType.RestoreSolarStorage => session.Technology.MicrogridStorageCondition,
+            TechnicalRepairActionType.TakeRepairBenchContract => 100,
+            _ => throw new ArgumentOutOfRangeException(nameof(actionType), actionType, null)
+        };
         var needsRepair = actionType == TechnicalRepairActionType.TakeRepairBenchContract || currentCondition < 100;
         var conditionGain = TechnicalRepairCalculator.GetConditionGain(actionType, skillLevel);
         var income = actionType == TechnicalRepairActionType.TakeRepairBenchContract
@@ -62,13 +66,12 @@ internal static class TechnicalRepairService
                 session.RaiseEvent($"You reseal the handset to {session.Phone.HandsetCondition}% condition. The wallet still asks questions, but the battery holds.");
                 break;
             case TechnicalRepairActionType.RestoreSolarStorage:
-                session.Technology.RepairMicrogridStorage(preview.ConditionGain);
+                session.Technology.RecordMicrogridRepair(action.PartsRequired, preview.ConditionGain);
                 session.Infrastructure.ReduceDisruption(session.World.CurrentDistrict, InfrastructureServiceType.Electricity, 1);
                 session.RaiseEvent($"You restore the cooperative storage bank to {session.Technology.MicrogridStorageCondition}% condition. The next outage will still need people on the roof.");
                 break;
             case TechnicalRepairActionType.TakeRepairBenchContract:
                 session.Player.Stats.ModifyMoney(preview.Income);
-                session.Technology.RecordHandsetUse();
                 session.RaiseEvent($"You finish a relay repair for the local cooperative and earn {preview.Income} LE. Two of your own spare parts are gone.");
                 break;
         }

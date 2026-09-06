@@ -29,7 +29,7 @@ internal static class TrainingService
                 }
             }
 
-            if (session.Player.Skills.GetLevel(activity.Skill) >= 10)
+            if (session.Player.Skills.GetLevel(activity.Skill) >= SkillThresholds.MaximumLevel)
             {
                 continue;
             }
@@ -79,7 +79,7 @@ internal static class TrainingService
             return false;
         }
 
-        if (session.Player.Skills.GetLevel(activity.Skill) >= 10)
+        if (session.Player.Skills.GetLevel(activity.Skill) >= SkillThresholds.MaximumLevel)
         {
             session.RecordMutation(MutationCategories.GuardRejected, "TryPerformTraining", before, session.CaptureStats(), $"{activity.Skill} already at max level");
             session.RaiseEvent($"Your {activity.Skill} is already at maximum.");
