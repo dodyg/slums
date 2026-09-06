@@ -32,6 +32,7 @@ The repository contains a playable .NET 10 vertical slice with:
 - a shared 30-day crisis planner with delayed callbacks and five ordered central-character arcs, each backed by typed decisions and persisted beat history
 - a typed technology-obligation ledger for handset exposure, cooperative storage maintenance, transit scrutiny, biometric appeals, telemedicine use, and bounded allocation confidence
 - Technical Repair actions for handset, solar-storage, and paid cooperative relay repairs, plus Digital Literacy wallet friction, dispatch work, and uncertain biometric appeals
+- Provisioning preservation converts scarce staple units into a persisted meal reserve with preview/commit parity
 - two-stage ending commitments: pending final scenes persist before the sacrifice choice, then existing ending IDs and epilogues remain authoritative
 
 Repo-owned JSON and Ink content are authoritative and fail fast during bootstrap. There is no normal-runtime fallback narrative or content catalog.
@@ -109,11 +110,11 @@ Acceptance targets:
 - keep preview values and committed outcomes on the same calculation path
 - verify walking and paid travel remain meaningful alternatives
 
-### 3. Skill expansion vertical slices
+### 3. Skill-system acceptance follow-up
 
-- ship Provisioning, Community Organizing, and Composure with reachable evening training, shared threshold metadata, diagnostics, previews, and focused tests
-- broaden Technical Repair and Digital Literacy beyond their original robotics/crime applications while preserving `RobotRepair` and `CyberHacking` snapshot keys
-- validate food, community, repair, digital-service, and pressure actions with preview/commit parity and at least one credible early-game route each
+- nine skills and their reachable evening training activities are shipped with shared metadata, diagnostics, previews, and focused tests
+- Provisioning, Community Organizing, Composure, Technical Repair, and Digital Literacy each have multiple bounded gameplay uses while preserving `RobotRepair` and `CyberHacking` snapshot keys
+- continue seeded day-35 acceptance runs to verify food preservation, community adaptation, repair obligations, digital uncertainty, and pressure mitigation remain optional and recoverable routes
 
 ### 4. Architecture hardening
 

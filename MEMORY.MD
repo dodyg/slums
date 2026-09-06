@@ -121,7 +121,7 @@ The step blocks are owned by `EndOfDayPipeline` and its `DailyResolution` collab
 **HouseholdCareState**:
 - MotherHealth: 0-100, death at 0 triggers MotherDied ending
 - MotherCondition: Stable(65+)/Fragile(30-64)/Crisis(0-29)
-- StaplesUnits/FoodStockpile, MedicineStock
+- StaplesUnits/FoodStockpile, PreservedMealUnits, MedicineStock
 - Daily flags: FedMotherToday, MedicationGivenToday, CheckedOnMotherToday
 
 **HouseholdAssetsState**:
@@ -146,6 +146,8 @@ The step blocks are owned by `EndOfDayPipeline` and its `DailyResolution` collab
 - Provisioning: improves bounded food, herb, preservation, and mother-care choices
 - Community Organizing: improves group events, mutual aid, and local adaptation outcomes
 - Composure: mitigates selected work and crisis pressure without flattening daily stress
+
+Provisioning 6 exposes the home `PreserveFood` action: two staple units become one preserved meal for 60 minutes and 8 energy. The meal is persisted with household care state and consumed before fresh staples; `GameSession.GetProvisioningMealPlan` and the meal commit path share the same preview calculation.
 
 ## Three Playable Backgrounds
 
@@ -393,6 +395,8 @@ Per-NPC wealth tracking (Struggling/Poor/Stable/Comfortable). Weekly resolution:
 Skills also gain passively from work (~70% of progression) and crime activities.
 
 `SkillRegistry` is the single source of player-facing labels, descriptions, and threshold hints. `RobotRepair` and `CyberHacking` remain the serialized keys for save compatibility.
+
+`GameSessionPlayerSnapshot` persists `PreservedMealUnits`; missing values in older JSON snapshots default to zero. Technical Repair storage recovery records the existing `MicrogridRepairDebt` obligation, while the paid relay contract is not coupled to storage condition.
 
 ## Investments
 
