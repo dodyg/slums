@@ -83,7 +83,10 @@ internal sealed class InvestmentMenuQueryTests
         teaCart.Should().NotBeNull();
         teaCart!.Definition.Cost.Should().Be(100);
         teaCart.UnlockSummary.Should().Contain("Need trust 10 with Mona");
-        teaCart.WeeklyReturnSummary.Should().Be("5-8 LE / week");
+        teaCart.WeeklyReturnSummary.Should().Be("13-18 LE / week");
+        teaCart.ExpectedWeeklyIncome.Should().Be(15);
+        teaCart.MidpointPaybackWeeks.Should().Be(7);
+        teaCart.PerkSummary.Should().Contain("invitation");
     }
 
     [Test]
@@ -98,6 +101,24 @@ internal sealed class InvestmentMenuQueryTests
         var phone = statuses.FirstOrDefault(s => s.Definition.Type == InvestmentType.PhoneChargingStation);
         phone.Should().NotBeNull();
         phone!.UnlockSummary.Should().Contain("Need trust 15 with Safaa");
+    }
+
+    [Test]
+    public void GetStatuses_ShouldUseTheResolutionCalculatorForIncomeAndPayback()
+    {
+        var gameState = new GameSession();
+        var statuses = new InvestmentMenuQuery().GetStatuses(InvestmentMenuContext.Create(gameState));
+
+        statuses.Should().NotBeEmpty();
+        foreach (var status in statuses)
+        {
+            var definition = status.Definition;
+            var expectedIncome = InvestmentResolutionCalculator.GetExpectedWeeklyIncome(definition);
+
+            status.ExpectedWeeklyIncome.Should().Be(expectedIncome);
+            status.MidpointPaybackWeeks.Should().Be((int)Math.Ceiling((double)definition.Cost / expectedIncome));
+            status.PerkSummary.Should().Be(definition.PerkDescription);
+        }
     }
 
     [Test]

@@ -107,6 +107,7 @@ Acceptance targets:
 
 - audit pay, food, rent, clinic, transport, debt, investment, news, and infrastructure values as one economy
 - keep the honest-work baseline near one day's rent plus a cheap meal and transit fare; investment midpoint payback should remain 5-8 weeks
+- this economy audit is complete when the Wednesday investment cycle, income bands, perks, and seeded acceptance coverage ship together
 - make schedule, weather, district condition, territory, relationship, news, and service modifiers visible before commitment
 - keep preview values and committed outcomes on the same calculation path
 - verify walking and paid travel remain meaningful alternatives

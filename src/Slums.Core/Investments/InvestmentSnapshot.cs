@@ -1,3 +1,5 @@
+using Slums.Core.World;
+
 namespace Slums.Core.Investments;
 
 public sealed record InvestmentSnapshot(
@@ -6,4 +8,5 @@ public sealed record InvestmentSnapshot(
     int WeeklyIncomeMin,
     int WeeklyIncomeMax,
     int WeeksActive,
-    bool IsSuspended);
+    bool IsSuspended,
+    DistrictId PurchaseDistrict = DistrictId.Imbaba);

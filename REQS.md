@@ -150,16 +150,23 @@ Research anchors:
 ## Small Business Investments
 - Players may invest in small local businesses for weekly passive income.
 - Investment costs should be 100-300 LE, accessible after a few days of saving.
-- Returns should be modest and realistic for a harsh survival economy.
+- Midpoint payback should land between 5 and 8 weeks; returns remain bounded and realistic for a harsh survival economy.
 - Risk types include: business failure, gang extortion, police heat, and partner betrayal.
 - Investment opportunities should unlock through a combination of relationships and path choices.
-- Confirmed business types:
-  - foul cart partnership (low risk, modest returns)
-  - kiosk share / koshk (moderate risk from competition and police)
-  - hashish courier stake (higher risk, higher returns, requires criminal contacts)
-  - micro-laundry service (low risk, stable income)
-  - informal market stall (risk from police raids and competition)
-  - scrap collection crew (moderate risk, requires street smarts)
+
+| Investment | Cost | Weekly return | Ongoing perk |
+|---|---:|---:|---|
+| Tea cart | 100 LE | 13-18 LE | Rooftop tea-circle invitation arrives one day sooner |
+| Foul cart partnership | 150 LE | 16-22 LE | Food staples cost 1 LE less |
+| Phone charging station | 160 LE | 20-27 LE | Phone credit refill costs 2 LE less |
+| Scrap collection crew | 180 LE | 26-34 LE | 25% weekly chance of one spare robot part |
+| Herbal remedy trade | 180 LE | 24-32 LE | Medicine costs 5 LE less |
+| Micro-laundry service | 200 LE | 22-30 LE | Laundry Owner Iman gains 1 trust per week |
+| Market stall | 220 LE | 32-44 LE | Food staples cost 1 LE less in its purchase district |
+| Sewing side business | 220 LE | 30-40 LE | Workshop sewing shifts pay 2 LE more |
+| Kiosk share / koshk | 250 LE | 32-42 LE | Phone credit refill costs 2 LE less |
+| Cafe supply partnership | 250 LE | 34-45 LE | Cafe entertainment relieves 2 additional stress |
+| Hashish courier stake | 300 LE | 48-64 LE | None; income is the draw and risks remain |
 
 ## Rent and Eviction
 - Unpaid rent accumulates daily.

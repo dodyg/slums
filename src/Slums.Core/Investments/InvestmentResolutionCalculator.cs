@@ -2,6 +2,12 @@ namespace Slums.Core.Investments;
 
 public static class InvestmentResolutionCalculator
 {
+    public static int GetExpectedWeeklyIncome(InvestmentDefinition definition)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        return (definition.WeeklyIncomeMin + definition.WeeklyIncomeMax) / 2;
+    }
+
 #pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
     public static InvestmentResolutionCalculation Resolve(Investment investment, InvestmentDefinition? definition, int currentMoney, Random rng)
     {

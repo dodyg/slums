@@ -1,4 +1,5 @@
 using Slums.Core.Diagnostics;
+using Slums.Core.Investments;
 using Slums.Core.State;
 
 namespace Slums.Core.Entertainment;
@@ -59,14 +60,16 @@ internal static class EntertainmentService
         }
 
         session.Player.Stats.ModifyMoney(-activity.BaseCost);
-        session.Player.Stats.ModifyStress(-activity.StressReduction);
+        var stressReduction = activity.StressReduction
+            + InvestmentPurchaseService.GetEntertainmentStressBonus(session, location.Id);
+        session.Player.Stats.ModifyStress(-stressReduction);
         if (activity.EnergyCost > 0)
         {
             session.Player.Stats.ModifyEnergy(-activity.EnergyCost);
         }
 
         session.RaiseEvent(GetFlavorMessage(activity));
-        session.RecordMutation(MutationCategories.Entertainment, "TryPerformEntertainment", before, session.CaptureStats(), $"{activity.Name} (cost {activity.BaseCost} LE, stress -{activity.StressReduction})");
+        session.RecordMutation(MutationCategories.Entertainment, "TryPerformEntertainment", before, session.CaptureStats(), $"{activity.Name} (cost {activity.BaseCost} LE, stress -{stressReduction})");
         session.AdvanceTime(activity.DurationMinutes);
         return true;
     }

@@ -104,7 +104,7 @@ internal sealed class WorkMenuStatusQueryTests
         var statuses = query.GetStatuses(WorkMenuContext.Create(gameState));
 
         statuses.Should().ContainSingle();
-        statuses[0].Job.BasePay.Should().Be(33);
+        statuses[0].Job.BasePay.Should().Be(35);
         statuses[0].ActiveModifiers.Should().Contain(static text => text.Contains("Clinic Overflow", StringComparison.Ordinal));
     }
 }

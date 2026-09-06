@@ -4,6 +4,7 @@ using Slums.Core.Characters;
 using Slums.Core.Clock;
 using Slums.Core.Diagnostics;
 using Slums.Core.Information;
+using Slums.Core.Investments;
 using Slums.Core.Relationships;
 using Slums.Core.Robotics;
 using Slums.Core.Skills;
@@ -46,7 +47,8 @@ internal static class WorkSessionService
             session.JobProgress,
             session.Clock.Day,
             random ?? session.SharedRandom,
-            NewsImpactCalculator.GetJobPayModifier(session.News, job.Type));
+            NewsImpactCalculator.GetJobPayModifier(session.News, job.Type)
+            + InvestmentPurchaseService.GetJobPayModifier(session, job.Type));
 
         if (result.Success)
         {
@@ -126,6 +128,12 @@ internal static class WorkSessionService
         if (payModifier != 0)
         {
             modifiers.Add($"City news changes this shift's pay by {payModifier} LE.");
+        }
+
+        var investmentPayModifier = InvestmentPurchaseService.GetJobPayModifier(session, jobType);
+        if (investmentPayModifier != 0)
+        {
+            modifiers.Add($"Active investment increases this shift's pay by {investmentPayModifier} LE.");
         }
 
         var infrastructure = session.Infrastructure.Get(session.World.CurrentDistrict, InfrastructureServiceType.Electricity);

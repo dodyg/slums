@@ -25,9 +25,9 @@ internal sealed class InvestmentResolutionTests
                 doubleValues: [0.99, 0.99, 0.99, 0.99],
                 intValues: [10]));
 
-        summary.TotalIncome.Should().Be(10);
-        gameState.TotalInvestmentEarnings.Should().Be(10);
-        gameState.Player.Stats.Money.Should().Be(160);
+        summary.TotalIncome.Should().Be(16);
+        gameState.TotalInvestmentEarnings.Should().Be(16);
+        gameState.Player.Stats.Money.Should().Be(166);
         gameState.ActiveInvestments.Should().ContainSingle();
         gameState.ActiveInvestments[0].WeeksActive.Should().Be(1);
     }

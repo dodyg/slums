@@ -368,7 +368,7 @@ Per-NPC wealth tracking (Struggling/Poor/Stable/Comfortable). Weekly resolution:
 6 activities gated by location facilities (cafe/bar/billiards):
 
 | Activity | Cost | Time | Stress | Location |
-|---|---|---|---|---|
+|---|---|---|---|---|---|
 | Coffee | 8 LE | 30 min | -8 | Cafe locations |
 | Shisha | 30 LE | 90 min | -15 | Cafe locations |
 | Billiards | 25 LE | 60 min | -12 | Depot, Laundry |
@@ -400,21 +400,21 @@ Skills also gain passively from work (~70% of progression) and crime activities.
 
 ## Investments
 
-11 investment types with weekly passive income:
+11 investment types with weekly passive income, 5-8 week midpoint payback targets, and bounded ongoing perks:
 
-| Investment | Cost | Risk | Income/Week | Access |
+| Investment | Cost | Risk | Income/Week | Perk | Access |
 |---|---|---|---|---|
-| FoulCart | 150 LE | Low | 8-12 LE | HajjMahmoud trust 30 |
-| MicroLaundry | 200 LE | Low | 10-15 LE | Iman |
-| ScrapCollection | 180 LE | Medium | 15-22 LE | StreetSmarts/ExPrisoner |
-| Kiosk | 250 LE | Medium | 18-25 LE | UmmKarim trust 40 |
-| MarketStall | 220 LE | Medium-High | 20-30 LE | Youssef trust 25 |
-| HashishCourier | 300 LE | High | 35-50 LE | Hanan trust 50, crime route |
-| TeaCart | 100 LE | Low | 5-8 LE | Mona trust 10 |
-| PhoneChargingStation | 160 LE | Low-Medium | 8-14 LE | Safaa trust 15 |
-| HerbalRemedyTrade | 180 LE | Medium | 10-16 LE | Mariam trust 15, Medical 2 |
-| SewingSideBusiness | 220 LE | Medium | 14-20 LE | AbuSamir trust 20, Physical 2 |
-| CafeSupplyPartnership | 250 LE | Medium | 16-24 LE | Nadia trust 25 |
+| FoulCart | 150 LE | Low | 16-22 LE | Food staples -1 LE | HajjMahmoud trust 30 |
+| MicroLaundry | 200 LE | Low | 22-30 LE | Iman trust +1/week | Iman |
+| ScrapCollection | 180 LE | Medium | 26-34 LE | 25% chance of spare part | StreetSmarts/ExPrisoner |
+| Kiosk | 250 LE | Medium | 32-42 LE | Phone refill -2 LE | UmmKarim trust 40 |
+| MarketStall | 220 LE | Medium-High | 32-44 LE | Purchase-district food -1 LE | Youssef trust 25 |
+| HashishCourier | 300 LE | High | 48-64 LE | None | Hanan trust 50, crime route |
+| TeaCart | 100 LE | Low | 13-18 LE | Tea invitation one day sooner | Mona trust 10 |
+| PhoneChargingStation | 160 LE | Low-Medium | 20-27 LE | Phone refill -2 LE | Safaa trust 15 |
+| HerbalRemedyTrade | 180 LE | Medium | 24-32 LE | Medicine -5 LE | Mariam trust 15, Medical 2 |
+| SewingSideBusiness | 220 LE | Medium | 30-40 LE | Workshop sewing pay +2 LE | AbuSamir trust 20, Physical 2 |
+| CafeSupplyPartnership | 250 LE | Medium | 34-45 LE | Cafe stress relief +2 | Nadia trust 25 |
 
 ## Random Events
 

@@ -28,14 +28,26 @@ internal sealed class ExpandedInvestmentTests
     }
 
     [Test]
+    public void Registry_ShouldKeepEveryMidpointPaybackBetweenFiveAndEightWeeks()
+    {
+        foreach (var definition in InvestmentRegistry.AllDefinitions)
+        {
+            var expectedIncome = InvestmentResolutionCalculator.GetExpectedWeeklyIncome(definition);
+            var midpointPayback = (int)Math.Ceiling((double)definition.Cost / expectedIncome);
+
+            midpointPayback.Should().BeInRange(5, 8, definition.Name);
+        }
+    }
+
+    [Test]
     public void TeaCart_ShouldHaveCorrectDefinition()
     {
         var def = InvestmentRegistry.GetByType(InvestmentType.TeaCart)!;
 
         def.Name.Should().Be("Tea Cart (Shay Cart)");
         def.Cost.Should().Be(100);
-        def.WeeklyIncomeMin.Should().Be(5);
-        def.WeeklyIncomeMax.Should().Be(8);
+        def.WeeklyIncomeMin.Should().Be(13);
+        def.WeeklyIncomeMax.Should().Be(18);
         def.RiskLabel.Should().Be("Low");
         def.OpportunityLocationId.Should().Be(LocationId.Home);
         def.OpportunityNpc.Should().Be(NpcId.NeighborMona);
@@ -54,8 +66,8 @@ internal sealed class ExpandedInvestmentTests
 
         def.Name.Should().Be("Phone Charging Station");
         def.Cost.Should().Be(160);
-        def.WeeklyIncomeMin.Should().Be(8);
-        def.WeeklyIncomeMax.Should().Be(14);
+        def.WeeklyIncomeMin.Should().Be(20);
+        def.WeeklyIncomeMax.Should().Be(27);
         def.RiskLabel.Should().Be("Low-Medium");
         def.OpportunityLocationId.Should().Be(LocationId.Depot);
         def.OpportunityNpc.Should().Be(NpcId.DispatcherSafaa);
@@ -72,8 +84,8 @@ internal sealed class ExpandedInvestmentTests
 
         def.Name.Should().Be("Herbal Remedy Trade");
         def.Cost.Should().Be(180);
-        def.WeeklyIncomeMin.Should().Be(10);
-        def.WeeklyIncomeMax.Should().Be(16);
+        def.WeeklyIncomeMin.Should().Be(24);
+        def.WeeklyIncomeMax.Should().Be(32);
         def.RiskLabel.Should().Be("Medium");
         def.OpportunityLocationId.Should().Be(LocationId.Pharmacy);
         def.OpportunityNpc.Should().Be(NpcId.PharmacistMariam);
@@ -90,8 +102,8 @@ internal sealed class ExpandedInvestmentTests
 
         def.Name.Should().Be("Sewing Side Business");
         def.Cost.Should().Be(220);
-        def.WeeklyIncomeMin.Should().Be(14);
-        def.WeeklyIncomeMax.Should().Be(20);
+        def.WeeklyIncomeMin.Should().Be(30);
+        def.WeeklyIncomeMax.Should().Be(40);
         def.RiskLabel.Should().Be("Medium");
         def.OpportunityLocationId.Should().Be(LocationId.Workshop);
         def.OpportunityNpc.Should().Be(NpcId.WorkshopBossAbuSamir);
@@ -108,8 +120,8 @@ internal sealed class ExpandedInvestmentTests
 
         def.Name.Should().Be("Cafe Supply Partnership");
         def.Cost.Should().Be(250);
-        def.WeeklyIncomeMin.Should().Be(16);
-        def.WeeklyIncomeMax.Should().Be(24);
+        def.WeeklyIncomeMin.Should().Be(34);
+        def.WeeklyIncomeMax.Should().Be(45);
         def.RiskLabel.Should().Be("Medium");
         def.OpportunityLocationId.Should().Be(LocationId.Cafe);
         def.OpportunityNpc.Should().Be(NpcId.CafeOwnerNadia);
@@ -295,7 +307,7 @@ internal sealed class ExpandedInvestmentTests
                 doubleValues: [0.99, 0.99, 0.99, 0.99],
                 intValues: [6]));
 
-        summary.TotalIncome.Should().Be(6);
+        summary.TotalIncome.Should().Be(13);
         gameState.ActiveInvestments[0].WeeksActive.Should().Be(1);
     }
 
@@ -315,7 +327,7 @@ internal sealed class ExpandedInvestmentTests
                 doubleValues: [0.99, 0.99, 0.99, 0.99],
                 intValues: [13]));
 
-        summary.TotalIncome.Should().Be(13);
+        summary.TotalIncome.Should().Be(24);
         gameState.ActiveInvestments[0].WeeksActive.Should().Be(1);
     }
 
@@ -335,7 +347,7 @@ internal sealed class ExpandedInvestmentTests
                 doubleValues: [0.99, 0.99, 0.99, 0.99],
                 intValues: [17]));
 
-        summary.TotalIncome.Should().Be(17);
+        summary.TotalIncome.Should().Be(30);
     }
 
     [Test]
@@ -353,7 +365,7 @@ internal sealed class ExpandedInvestmentTests
                 doubleValues: [0.99, 0.99, 0.99, 0.99],
                 intValues: [20]));
 
-        summary.TotalIncome.Should().Be(20);
+        summary.TotalIncome.Should().Be(34);
     }
 
     [Test]

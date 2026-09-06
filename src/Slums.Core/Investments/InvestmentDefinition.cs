@@ -12,6 +12,8 @@ public sealed record InvestmentDefinition
     public int Cost { get; init; }
     public int WeeklyIncomeMin { get; init; }
     public int WeeklyIncomeMax { get; init; }
+    public InvestmentPerkType PerkType { get; init; }
+    public string PerkDescription { get; init; } = string.Empty;
     public InvestmentRiskProfile RiskProfile { get; init; } = InvestmentRiskProfile.Low;
     public NpcId? RequiredRelationshipNpc { get; init; }
     public int RequiredRelationshipTrust { get; init; }

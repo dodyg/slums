@@ -159,6 +159,11 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
         y++;
         Surface.Print(DetailX, y++, $"Cost: {selected.Definition.Cost} LE", Color.Yellow);
         Surface.Print(DetailX, y++, $"Weekly return: {selected.WeeklyReturnSummary}", Color.Green);
+        Surface.Print(DetailX, y++, $"Expected midpoint: {selected.ExpectedWeeklyIncome} LE | Payback: ~{selected.MidpointPaybackWeeks} weeks", Color.Green);
+        foreach (var line in WrapText($"Perk: {selected.PerkSummary}", detailWidth))
+        {
+            Surface.Print(DetailX, y++, line, Color.LightGreen);
+        }
         Surface.Print(DetailX, y++, $"Risk: {selected.Definition.RiskLabel}", GetRiskColor(selected.Definition.RiskLabel));
 
         foreach (var entry in selected.RiskBreakdown)

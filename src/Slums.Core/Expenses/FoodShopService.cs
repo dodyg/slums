@@ -3,6 +3,7 @@ using Slums.Core.Calendar;
 using Slums.Core.Diagnostics;
 using Slums.Core.Economy;
 using Slums.Core.Home;
+using Slums.Core.Investments;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.State;
@@ -30,6 +31,7 @@ internal static class FoodShopService
         baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(session.Territory, session.World.CurrentDistrict);
         baseModifier += MealService.GetUmmKarimFoodDiscount(session);
         baseModifier += NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict);
+        baseModifier -= InvestmentPurchaseService.GetFoodCostDiscount(session, session.World.CurrentDistrict);
 
         var foodPriceShock = NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict);
         var modifiedCost = session.LocationPricing.GetFoodCost(session.World.CurrentDistrict)
@@ -65,6 +67,7 @@ internal static class FoodShopService
         var modifiedCost = session.LocationPricing.GetMedicineCost(session.World.CurrentDistrict, session.World.CurrentLocationId, session.Relationships, session.Player.Skills)
             + (districtCondition?.Effect.MedicineCostModifier ?? 0)
             + InfrastructureImpactCalculator.GetMedicinePriceModifier(session.Infrastructure, session.World.CurrentDistrict);
+        modifiedCost -= InvestmentPurchaseService.GetMedicineCostDiscount(session);
         return Math.Max(1, modifiedCost);
     }
 

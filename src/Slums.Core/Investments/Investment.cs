@@ -1,3 +1,5 @@
+using Slums.Core.World;
+
 namespace Slums.Core.Investments;
 
 public sealed record Investment
@@ -9,19 +11,22 @@ public sealed record Investment
     public int WeeksActive { get; private set; }
     public InvestmentRiskProfile RiskProfile { get; init; } = InvestmentRiskProfile.Low;
     public bool IsSuspended { get; private set; }
+    public DistrictId PurchaseDistrict { get; init; }
 
     public Investment(
         InvestmentType type,
         int investedAmount,
         int weeklyIncomeMin,
         int weeklyIncomeMax,
-        InvestmentRiskProfile riskProfile)
+        InvestmentRiskProfile riskProfile,
+        DistrictId purchaseDistrict = DistrictId.Imbaba)
     {
         Type = type;
         InvestedAmount = investedAmount;
         WeeklyIncomeMin = weeklyIncomeMin;
         WeeklyIncomeMax = weeklyIncomeMax;
         RiskProfile = riskProfile;
+        PurchaseDistrict = purchaseDistrict;
         WeeksActive = 0;
         IsSuspended = false;
     }
@@ -49,7 +54,8 @@ public sealed record Investment
             WeeklyIncomeMin,
             WeeklyIncomeMax,
             WeeksActive,
-            IsSuspended);
+            IsSuspended,
+            PurchaseDistrict);
     }
 
     public static Investment Restore(InvestmentSnapshot snapshot, InvestmentRiskProfile riskProfile)
@@ -62,7 +68,8 @@ public sealed record Investment
             snapshot.InvestedAmount,
             snapshot.WeeklyIncomeMin,
             snapshot.WeeklyIncomeMax,
-            riskProfile)
+            riskProfile,
+            snapshot.PurchaseDistrict)
         {
             WeeksActive = Math.Max(0, snapshot.WeeksActive),
             IsSuspended = snapshot.IsSuspended

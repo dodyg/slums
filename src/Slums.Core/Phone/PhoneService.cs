@@ -1,6 +1,7 @@
 using Slums.Core.Characters;
 using Slums.Core.Diagnostics;
 using Slums.Core.Information;
+using Slums.Core.Investments;
 using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.State;
@@ -60,6 +61,7 @@ internal static class PhoneService
         var refillCost = DigitalLiteracyCalculator.GetCreditRefillCost(
             session.Player.Skills.GetLevel(SkillId.CyberHacking),
             session.Phone.CreditWeekCost);
+        refillCost = Math.Max(1, refillCost - InvestmentPurchaseService.GetPhoneCreditDiscount(session));
         var digitalSkillLevel = session.Player.Skills.GetLevel(SkillId.CyberHacking);
         if (session.Player.Stats.Money < refillCost)
         {

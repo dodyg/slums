@@ -87,7 +87,7 @@ internal sealed class DailyResolutionStepTests
         session.Clock.SetTime(5, 6, 0);
         DailyEconomyResolution.ResolveWeeklyCycle(session, new SequenceRandom(intValues: [10]));
 
-        session.TotalInvestmentEarnings.Should().Be(11);
-        session.EventJournal.Entries.Should().Contain(entry => entry.Message.Contains("+11 LE weekly income", StringComparison.Ordinal));
+        session.TotalInvestmentEarnings.Should().Be(17);
+        session.EventJournal.Entries.Should().Contain(entry => entry.Message.Contains("+17 LE weekly income", StringComparison.Ordinal));
     }
 }
