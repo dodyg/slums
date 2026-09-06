@@ -110,7 +110,7 @@ internal sealed class GameActionMenuQueryTests
 
         actions.Should().Contain(action =>
             action.Id == GameActionId.PreserveFood &&
-            action.Label == "Preserve Food (2 staples -> 1 meal)");
+            action.Label == "Preserve Food (2 staples -> 1 meal, 60m, -8 energy)");
     }
 
     [Test]

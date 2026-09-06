@@ -77,7 +77,7 @@ public sealed class GameActionMenuQuery
             var preview = context.FoodPreservation;
             actions.Add(new GameAction(
                 GameActionId.PreserveFood,
-                $"Preserve Food ({preview.InputFoodUnits} staples -> {preview.OutputMealUnits} meal)"));
+                $"Preserve Food ({preview.InputFoodUnits} staples -> {preview.OutputMealUnits} meal, {preview.TimeCostMinutes}m, -{preview.EnergyCost} energy)"));
         }
 
         if (context.HasEmergencySupport)
