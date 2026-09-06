@@ -1,6 +1,8 @@
+using FluentAssertions;
 using Slums.Core.Characters;
 using Slums.Core.Expenses;
 using Slums.Core.Heat;
+using Slums.Core.Jobs;
 using Slums.Core.World;
 using TUnit.Core;
 
@@ -80,5 +82,23 @@ internal sealed class BalanceRegressionTests
 
         await Assert.That(dokki).IsGreaterThan(imbaba);
         await Assert.That(imbaba).IsGreaterThan(bulaq);
+    }
+
+    [Test]
+    public void EveryJobKeepsTheBaselinePayHeuristicWithinDocumentedTolerance()
+    {
+        const int tolerance = 10;
+        var minimumAcceptablePay = RecurringExpenses.DailyRentCost + RecurringExpenses.CheapMealCost - tolerance;
+
+        JobRegistry.AllJobs.Should().OnlyContain(job => job.BasePay - job.PayVariance >= minimumAcceptablePay);
+    }
+
+    [Test]
+    public void LowestPayingJobsMeetTheHonestWorkTarget()
+    {
+        JobRegistry.HouseCleaning.BasePay.Should().Be(23);
+        JobRegistry.StreetVending.BasePay.Should().Be(23);
+        JobRegistry.MarketPorter.BasePay.Should().Be(23);
+        JobRegistry.FishSorter.BasePay.Should().Be(24);
     }
 }

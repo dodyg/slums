@@ -115,6 +115,16 @@ internal sealed class JsonContentRepositoryTests
     }
 
     [Test]
+    public void LoadJobs_FromRepositoryContent_ShouldMatchRegistryDefaults()
+    {
+        var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, GetRepositoryContentDirectory());
+
+        var jobs = repository.LoadJobs();
+
+        jobs.Should().BeEquivalentTo(JobRegistry.AllJobs, options => options.WithStrictOrdering());
+    }
+
+    [Test]
     public void LoadRobots_FromRepositoryContent_ShouldContainEveryRobotType()
     {
         var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, GetRepositoryContentDirectory());
