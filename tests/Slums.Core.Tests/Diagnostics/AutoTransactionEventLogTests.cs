@@ -110,7 +110,7 @@ internal sealed class AutoTransactionEventLogTests
     }
 
     [Test]
-    public void EndDay_ShouldRaiseAutoTransactionEvent_ForInvestmentResolutionOnMonday()
+    public void EndDay_ShouldRaiseAutoTransactionEvent_ForInvestmentResolutionOnWednesday()
     {
         var session = new GameSession();
         session.Player.Stats.SetMoney(500);
@@ -122,9 +122,11 @@ internal sealed class AutoTransactionEventLogTests
 
         session.EndDay();
         session.EndDay();
+        session.EndDay();
+        session.EndDay();
 
         events.Should().Contain(e =>
-            e.StartsWith("[Day 3]", StringComparison.Ordinal) &&
+            e.StartsWith("[Day 5]", StringComparison.Ordinal) &&
             e.Contains("investment", StringComparison.OrdinalIgnoreCase));
     }
 

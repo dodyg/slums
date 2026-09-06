@@ -1,7 +1,11 @@
+using FluentAssertions;
 using Slums.Core.Characters;
+using Slums.Core.Investments;
 using Slums.Core.Randomness;
+using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.State.DailyResolution;
+using Slums.Core.Tests.Investments;
 using TUnit;
 
 namespace Slums.Core.Tests.State;
@@ -66,5 +70,24 @@ internal sealed class DailyResolutionStepTests
         DailyInformationResolution.ResolveAttendance(session);
 
         await Assert.That(session.EventAttendance.ConsecutiveSkips).IsEqualTo(1);
+    }
+
+    [Test]
+    public void ResolveWeeklyCycle_ShouldSplitMondayAndWednesdayBlocks()
+    {
+        var session = new GameSession(new GameRandom(20260904));
+        session.Player.Stats.SetMoney(500);
+        session.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 30, 1);
+        session.MakeInvestment(InvestmentType.FoulCart);
+
+        session.Clock.SetTime(3, 6, 0);
+        DailyEconomyResolution.ResolveWeeklyCycle(session, session.SharedRandom);
+        session.TotalInvestmentEarnings.Should().Be(0);
+
+        session.Clock.SetTime(5, 6, 0);
+        DailyEconomyResolution.ResolveWeeklyCycle(session, new SequenceRandom(intValues: [10]));
+
+        session.TotalInvestmentEarnings.Should().Be(11);
+        session.EventJournal.Entries.Should().Contain(entry => entry.Message.Contains("+11 LE weekly income", StringComparison.Ordinal));
     }
 }

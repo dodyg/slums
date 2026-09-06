@@ -8,7 +8,7 @@ using NarrativeStoryFlags = Slums.Core.Narrative.StoryFlags;
 
 /// <summary>
 /// Resolves the money-facing blocks of the daily pipeline: rent, herb income, the Monday
-/// weekly cycle, and daily debt processing.
+/// and Wednesday weekly cycles, and daily debt processing.
 /// </summary>
 internal static class DailyEconomyResolution
 {
@@ -52,18 +52,17 @@ internal static class DailyEconomyResolution
 
     internal static void ResolveWeeklyCycle(GameSession session, Random random)
     {
-        if (session.GetCurrentDayOfWeek() != GameDayOfWeek.Monday)
+        var day = session.GetCurrentDayOfWeek();
+        if (day == GameDayOfWeek.Monday)
         {
-            return;
+            session.ResolveWeeklyHouseholdAssets();
+            session.ResolveWeeklyEconomy(random);
         }
 
-        session.ResolveWeeklyHouseholdAssets();
-        if (session.ActiveInvestments.Count > 0)
+        if (day == GameDayOfWeek.Wednesday && session.ActiveInvestments.Count > 0)
         {
             session.ResolveWeeklyInvestments(random);
         }
-
-        session.ResolveWeeklyEconomy(random);
     }
 
     internal static void ProcessDailyDebt(GameSession session)
