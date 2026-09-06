@@ -106,6 +106,7 @@ Acceptance targets:
 ### 2. Balance and visibility
 
 - audit pay, food, rent, clinic, transport, debt, investment, news, and infrastructure values as one economy
+- keep the honest-work baseline near one day's rent plus a cheap meal and transit fare; investment midpoint payback should remain 5-8 weeks
 - make schedule, weather, district condition, territory, relationship, news, and service modifiers visible before commitment
 - keep preview values and committed outcomes on the same calculation path
 - verify walking and paid travel remain meaningful alternatives
@@ -146,6 +147,7 @@ Acceptance targets:
 - C# owns deterministic simulation rules, action guards, calculations, and ending conditions.
 - Ink owns prose, choices, and tagged narrative outcomes.
 - Cairo-specific writing should remain grounded in Cairo 2060 through a realistic Afrofuturist lens: mature but unequal digital technology, local ingenuity, African cultural continuity, and older infrastructure coexist without turning the setting into generic cyberpunk. Content must remain consistent with the safety constraints in `REQS.md` and `AGENTS.md`.
+- Romance remains an optional deferred subplot; do not build it without a product decision.
 
 ## Validation
 

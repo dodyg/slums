@@ -98,7 +98,7 @@ Research anchors:
 - Work opportunities are tied to specific locations; the work option is hidden in locations with no available jobs.
 - Confirmed job types include:
   - house cleaning
-  - working at a forn/bakery
+  - working at a forn (bakery)
   - working at a call center
 
 ## Crime Path
@@ -352,7 +352,7 @@ Neighbor and landlord debts are tracked within the NPC's `MoneyOwedBy` (the NPC 
 
 ### Weekly Economy Resolution
 
-Every 7 days (on Mondays, aligning with existing weekly resolution), each NPC rolls a wealth event:
+Every 7 days, NPC wealth events resolve on Mondays and each NPC rolls a wealth event. Investment returns distribute separately on Wednesdays:
 
 | Event | Probability (varies by role) | Effect |
 |-------|------------------------------|--------|
@@ -473,7 +473,7 @@ The unified lending model covers NPC-to-NPC, NPC-to-player, and player-to-NPC de
 | Ramadan iftar sharing | Seasonal (Ramadan period) | Home area | 3 hours | 10 LE (contribution) | Trust with 3-5 NPCs, stress -10, community food access |
 | Neighborhood cleanup | Monthly | Home district | 3 hours | None | Faction reputation boost, trust with participating NPCs |
 | Rooftop tea circle | Informal (NPC invitation) | Home rooftop | 1.5 hours | None | Information network tips, trust with 1-2 NPCs |
-| Mulid (saint's festival) | Seasonal | Imbaba streets | 4 hours | 5-15 LE | Large trust/stress benefits, money-making opportunity, risk of pickpockets |
+| Mulid (saint's festival) | Days 23-24 and 110-111 of the run | Imbaba streets | 4 hours | 5-15 LE | Large trust/stress benefits, money-making opportunity, risk of pickpockets |
 
 - Attending provides:
   - Simultaneous trust gains with multiple NPCs.

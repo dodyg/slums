@@ -83,7 +83,7 @@ Meaningful conversations cost 45 minutes and crime routes carry route-specific c
    - Update Ramadan state, roll district conditions, roll new weather
    - Resolve eligible city news, expire prior flashes, apply infrastructure effects, and journal the headline
    - Apply news-driven document pressure and queue any authored follow-up knot
-   - On Mondays: weekly household asset neglect, investment resolution, NPC economy resolution
+   - On Mondays: weekly household asset neglect and NPC economy resolution; on Wednesdays: investment returns and perks
    - Reset daily flags (nutrition, household, training, crime)
    - Check community event skip consequences (3+ skips: concern, 5+ skips: trust penalties)
    - Roll daily random events, street cat encounter
@@ -220,7 +220,7 @@ Game starts October 1, 2060. Seasons determine weather probabilities, food costs
 - **Ramadan** (Feb 28, 30 days): Fasting choice mechanic (energy -5, stress +3, trust +1 with religious NPCs, job pay -10%)
 - **EidAlFitr** (Mar 30, 3 days): Stress +5, trust with neighbors -3
 - **ShamElNessim** (Apr 21): Stress -8
-- **EidAlAdha** (Jun 6, 4 days): Mother health +5, food cost +5
+- **EidAlAdha** (Jun 6, 3 days): Mother health +5, food cost +5
 
 ## Weather System
 
@@ -356,7 +356,7 @@ Per-NPC wealth tracking (Struggling/Poor/Stable/Comfortable). Weekly resolution:
 
 ## Community Solidarity Events
 
-5 events: FridayRooftopGathering, RamadanIftarSharing, NeighborhoodCleanup, RooftopTeaCircle, MulidFestival.
+5 events: FridayRooftopGathering, RamadanIftarSharing, NeighborhoodCleanup, RooftopTeaCircle, MulidFestival. MulidFestival is available on run days 23-24 and 110-111; holiday attendance records witnessed flags for ending epilogue variation.
 
 - Attendance tracked with consecutive skips
 - Skipping 3+: neighbor concern or trust loss. Skipping 5+: trust penalties with Mona, UmmKarim, Salma
@@ -506,7 +506,7 @@ Per REQS.md:
 |---|---|
 | `backgrounds.json` | 3 background definitions with starting stats |
 | `district_conditions.json` | Per-district condition effects |
-| `jobs.json` | 12 job shift definitions |
+| `jobs.json` | 13 job shift definitions |
 | `locations.json` | 13 location definitions with facilities |
 | `plants.json` | 15 plant types |
 | `pets.json` | Cat and fish definitions |

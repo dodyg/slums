@@ -52,7 +52,7 @@ public sealed class HolidayRegistry
             Id = HolidayId.EidAlAdha,
             Name = "Eid al-Adha",
             StartDate = new DateOnly(2061, 6, 6),
-            DurationDays = 4,
+            DurationDays = 3,
             Description = "Meat-sharing event. Market food prices spike then surplus.",
             MotherHealthModifier = 5,
             FoodCostModifier = 5,
