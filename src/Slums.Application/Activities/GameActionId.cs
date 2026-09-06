@@ -25,6 +25,7 @@ public enum GameActionId
     TechnicalRepair,
     DigitalServices,
     EmergencySupport,
+    PreserveFood,
     Phone,
     News,
     Endings

@@ -208,6 +208,7 @@ internal sealed class GameScreen : ScreenSurface, IActionKeySuppressor
             case GameActionId.GiveMotherMedicine:
             case GameActionId.EndDay:
             case GameActionId.EmergencySupport:
+            case GameActionId.PreserveFood:
                 _gameActionCommand.Execute(_gameState, action.Id);
                 break;
             default:

@@ -21,6 +21,8 @@ public sealed class HouseholdCareState
 
     public int FoodStockpile => StaplesUnits;
 
+    public int PreservedMealUnits { get; private set; }
+
     public bool HasEnoughFood => StaplesUnits > 0;
 
     public int MedicineStock { get; private set; }
@@ -57,6 +59,11 @@ public sealed class HouseholdCareState
         SetStaplesUnits(value);
     }
 
+    public void SetPreservedMealUnits(int value)
+    {
+        PreservedMealUnits = Math.Max(0, value);
+    }
+
     public void SetMedicineStock(int value)
     {
         MedicineStock = Math.Max(0, value);
@@ -70,6 +77,38 @@ public sealed class HouseholdCareState
     public void AddFood(int amount)
     {
         AddStaples(amount);
+    }
+
+    public void AddPreservedMeals(int amount)
+    {
+        PreservedMealUnits = Math.Max(0, PreservedMealUnits + amount);
+    }
+
+    public bool PreserveFood(int inputUnits)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(inputUnits);
+        if (StaplesUnits < inputUnits)
+        {
+            return false;
+        }
+
+        StaplesUnits -= inputUnits;
+        PreservedMealUnits++;
+        return true;
+    }
+
+    public bool TryConsumeMeal(out bool usedPreservedMeal)
+    {
+        if (PreservedMealUnits > 0)
+        {
+            PreservedMealUnits--;
+            usedPreservedMeal = true;
+            FedMotherToday = true;
+            return true;
+        }
+
+        usedPreservedMeal = false;
+        return FeedMother();
     }
 
     public void AddMedicine(int amount)

@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Slums.Application.Activities;
 using Slums.Core.Characters;
+using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
@@ -96,6 +97,20 @@ internal sealed class GameActionMenuQueryTests
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
 
         actions.Select(static a => a.Id).Should().Contain(GameActionId.Train);
+    }
+
+    [Test]
+    public void GetActions_ShouldPreviewFoodPreservation_WhenProvisioningIsHighEnoughAtHome()
+    {
+        var query = new GameActionMenuQuery();
+        var gameState = new GameSession();
+        gameState.Player.Skills.SetLevel(SkillId.Provisioning, SkillThresholds.HighLevel);
+
+        var actions = query.GetActions(GameActionMenuContext.Create(gameState));
+
+        actions.Should().Contain(action =>
+            action.Id == GameActionId.PreserveFood &&
+            action.Label == "Preserve Food (2 staples -> 1 meal)");
     }
 
     [Test]

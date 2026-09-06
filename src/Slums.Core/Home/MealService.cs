@@ -15,7 +15,7 @@ internal static class MealService
         ArgumentNullException.ThrowIfNull(session);
 
         var before = session.CaptureStats();
-        if (!session.Player.Household.FeedMother())
+        if (!session.Player.Household.TryConsumeMeal(out var usedPreservedMeal))
         {
             session.RecordMutation(MutationCategories.GuardRejected, "EatAtHome", before, session.CaptureStats(), "Not enough food at home");
             session.RaiseEvent("There is not enough food at home.");
@@ -24,7 +24,10 @@ internal static class MealService
 
         var provisioningLevel = session.Player.Skills.GetLevel(SkillId.Provisioning);
         var cookingBonus = session.Player.HouseholdAssets.GetHomeCookingBonus(session.CurrentWeek);
-        var mealPlan = ProvisioningCalculator.GetMealPlan(provisioningLevel, cookingBonus);
+        var mealPlan = ProvisioningCalculator.GetMealPlan(
+            provisioningLevel,
+            cookingBonus,
+            usedPreservedMeal ? 1 : 0);
         session.Player.Nutrition.Eat(mealPlan.Quality);
         session.SyncLegacyHunger();
         if (mealPlan.StressReduction > 0)
@@ -32,7 +35,9 @@ internal static class MealService
             session.Player.Stats.ModifyStress(-mealPlan.StressReduction);
         }
 
-        var mealDescription = mealPlan.Quality == MealQuality.HotMeal
+        var mealDescription = mealPlan.UsesPreservedFood
+            ? "You open a preserved meal prepared against the heat and make sure your mother eats too."
+            : mealPlan.Quality == MealQuality.HotMeal
             ? "You turn the staples and herbs into a hot meal and make sure your mother eats too."
             : "You eat a simple meal at home and make sure your mother eats too.";
         session.RaiseEvent(mealDescription);

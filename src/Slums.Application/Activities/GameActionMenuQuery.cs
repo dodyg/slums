@@ -72,6 +72,14 @@ public sealed class GameActionMenuQuery
             actions.Add(new GameAction(GameActionId.DigitalServices, "Digital Services"));
         }
 
+        if (context.FoodPreservation is { AtHome: true, HasSkill: true })
+        {
+            var preview = context.FoodPreservation;
+            actions.Add(new GameAction(
+                GameActionId.PreserveFood,
+                $"Preserve Food ({preview.InputFoodUnits} staples -> {preview.OutputMealUnits} meal)"));
+        }
+
         if (context.HasEmergencySupport)
         {
             actions.Add(new GameAction(GameActionId.EmergencySupport, "Emergency Community Support"));

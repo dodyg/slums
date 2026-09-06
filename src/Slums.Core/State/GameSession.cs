@@ -417,6 +417,12 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     public bool EatAtHome()
         => MealService.EatAtHome(this);
 
+    public FoodPreservationPreview PreviewFoodPreservation()
+        => FoodPreservationService.Preview(this);
+
+    public bool PreserveFood()
+        => FoodPreservationService.Perform(this);
+
     public bool EatStreetFood()
         => MealService.EatStreetFood(this);
 
@@ -439,7 +445,8 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     {
         return ProvisioningCalculator.GetMealPlan(
             Player.Skills.GetLevel(SkillId.Provisioning),
-            Player.HouseholdAssets.GetHomeCookingBonus(CurrentWeek));
+            Player.HouseholdAssets.GetHomeCookingBonus(CurrentWeek),
+            Player.Household.PreservedMealUnits);
     }
 
     public int GetStreetFoodCost()

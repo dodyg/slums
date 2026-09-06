@@ -162,6 +162,7 @@ public sealed record GameSessionSnapshot
             gameSession.Player.Stats.SetStress(Player.Stress);
             gameSession.Player.Household.SetMotherHealth(Player.MotherHealth);
             gameSession.Player.Household.SetFoodStockpile(Player.FoodStockpile);
+            gameSession.Player.Household.SetPreservedMealUnits(Player.PreservedMealUnits);
             gameSession.Player.Household.SetMedicineStock(Player.MedicineStock);
             gameSession.Player.Skills.Restore(Player.EnumerateSkillLevels());
             gameSession.Clock.SetTime(Clock.Day, Clock.Hour, Clock.Minute);

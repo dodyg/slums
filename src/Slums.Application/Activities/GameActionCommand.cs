@@ -18,6 +18,7 @@ public sealed class GameActionCommand
             GameActionId.GiveMotherMedicine => gameSession.GiveMotherMedicine(),
             GameActionId.CheckOnMother => ExecuteMotherStatusCheck(gameSession),
             GameActionId.EmergencySupport => gameSession.RequestEmergencySupport(),
+            GameActionId.PreserveFood => gameSession.PreserveFood(),
             GameActionId.EndDay => ExecuteEndDay(gameSession, random),
             _ => throw new ArgumentOutOfRangeException(nameof(actionId), actionId, "This action requires dedicated UI flow or a different command.")
         };

@@ -18,10 +18,16 @@ public static class ProvisioningCalculator
         return skillLevel >= SkillThresholds.HighLevel && foodPriceShock >= 3 ? 1 : 0;
     }
 
-    public static ProvisioningMealPlan GetMealPlan(int skillLevel, int cookingBonus)
+    public static ProvisioningMealPlan GetMealPlan(int skillLevel, int cookingBonus, int preservedMealUnits = 0)
     {
         ValidateLevel(skillLevel);
         ArgumentOutOfRangeException.ThrowIfNegative(cookingBonus);
+        ArgumentOutOfRangeException.ThrowIfNegative(preservedMealUnits);
+
+        if (skillLevel >= SkillThresholds.HighLevel && preservedMealUnits > 0)
+        {
+            return new ProvisioningMealPlan(MealQuality.Basic, 0, 1, false, true);
+        }
 
         var usesHerb = cookingBonus > 0 && skillLevel >= SkillThresholds.AdvancedLevel;
         var quality = usesHerb ? MealQuality.HotMeal : MealQuality.Basic;
@@ -52,4 +58,5 @@ public sealed record ProvisioningMealPlan(
     MealQuality Quality,
     int FoodUnitsRequired,
     int StressReduction,
-    bool UsesHouseholdHerb);
+    bool UsesHouseholdHerb,
+    bool UsesPreservedFood = false);

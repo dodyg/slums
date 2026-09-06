@@ -1,5 +1,6 @@
 using Slums.Core.State;
 using Slums.Core.Training;
+using Slums.Core.Expenses;
 using Slums.Core.World;
 
 namespace Slums.Application.Activities;
@@ -16,6 +17,7 @@ public sealed record GameActionMenuContext(
     bool HasCommunityAdaptationAvailable,
     bool HasTechnicalRepairAvailable,
     bool HasDigitalServiceAvailable,
+    FoodPreservationPreview FoodPreservation,
     bool PhoneIsOperational,
     bool HasPhoneMessages,
     bool PhoneNeedsCredit,
@@ -39,6 +41,7 @@ public sealed record GameActionMenuContext(
             gameSession.GetCommunityActionPreviews().Any(preview => preview.HasSkill),
             gameSession.GetTechnicalRepairPreviews().Any(preview => preview.AtRequiredLocation),
             gameSession.GetDigitalServicePreviews().Any(preview => preview.AtRequiredLocation),
+            gameSession.PreviewFoodPreservation(),
             gameSession.Phone.IsOperational(),
             gameSession.PhoneMessages.GetUnrespondedCount(gameSession.Clock.Day) > 0,
             gameSession.Phone.IsOperational() == false && gameSession.Phone.HasPhone && !gameSession.Phone.PhoneLost,

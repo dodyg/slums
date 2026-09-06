@@ -69,6 +69,11 @@ public static class SaveGameValidator
             problems.Add($"food stockpile {snapshot.Player.FoodStockpile} is negative");
         }
 
+        if (snapshot.Player.PreservedMealUnits < 0)
+        {
+            problems.Add($"preserved meal units {snapshot.Player.PreservedMealUnits} are negative");
+        }
+
         if (!LocationId.All.Any(location => location.Value == snapshot.World.CurrentLocationId))
         {
             problems.Add($"current location '{snapshot.World.CurrentLocationId}' is not a declared location");

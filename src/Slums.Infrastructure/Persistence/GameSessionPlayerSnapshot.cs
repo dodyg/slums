@@ -26,6 +26,8 @@ public sealed record GameSessionPlayerSnapshot
 
     public int FoodStockpile { get; init; }
 
+    public int PreservedMealUnits { get; init; }
+
     public int MedicineStock { get; init; }
 
     public Dictionary<string, int> SkillLevelsById { get; init; } = [];
@@ -46,6 +48,7 @@ public sealed record GameSessionPlayerSnapshot
             Stress = gameSession.Player.Stats.Stress,
             MotherHealth = gameSession.Player.Household.MotherHealth,
             FoodStockpile = gameSession.Player.Household.FoodStockpile,
+            PreservedMealUnits = gameSession.Player.Household.PreservedMealUnits,
             MedicineStock = gameSession.Player.Household.MedicineStock,
             SkillLevelsById = gameSession.Player.Skills.Levels.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value)
         };
