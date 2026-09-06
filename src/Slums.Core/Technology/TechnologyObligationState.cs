@@ -6,6 +6,7 @@ public sealed class TechnologyObligationState
     public int HandsetDataExposure { get; private set; }
     public int MicrogridRepairDebt { get; private set; }
     public int MicrogridStorageCondition { get; private set; } = 70;
+    public int WaterPumpCondition { get; private set; } = 60;
     public bool TransitPermitReview { get; private set; }
     public bool BiometricAppealPending { get; private set; }
     public int LastTelemedicineTriageDay { get; private set; }
@@ -45,6 +46,18 @@ public sealed class TechnologyObligationState
         }
 
         MicrogridStorageCondition = Math.Min(100, MicrogridStorageCondition + conditionGain);
+        return true;
+    }
+
+    public bool RepairWaterPump(int conditionGain)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(conditionGain);
+        if (WaterPumpCondition >= 100)
+        {
+            return false;
+        }
+
+        WaterPumpCondition = Math.Min(100, WaterPumpCondition + conditionGain);
         return true;
     }
 
@@ -92,11 +105,13 @@ public sealed class TechnologyObligationState
         bool transitPermitReview,
         bool biometricAppealPending,
         int lastTelemedicineTriageDay,
-        int allocationModelConfidence)
+        int allocationModelConfidence,
+        int waterPumpCondition = 60)
     {
         HandsetDataExposure = Math.Clamp(handsetDataExposure, 0, 100);
         MicrogridRepairDebt = Math.Clamp(microgridRepairDebt, 0, 100);
         MicrogridStorageCondition = Math.Clamp(microgridStorageCondition, 0, 100);
+        WaterPumpCondition = Math.Clamp(waterPumpCondition, 0, 100);
         TransitPermitReview = transitPermitReview;
         BiometricAppealPending = biometricAppealPending;
         LastTelemedicineTriageDay = Math.Max(0, lastTelemedicineTriageDay);

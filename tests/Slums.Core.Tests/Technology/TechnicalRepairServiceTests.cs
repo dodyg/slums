@@ -53,7 +53,7 @@ internal sealed class TechnicalRepairServiceTests
         result.Should().BeTrue();
         session.Technology.MicrogridStorageCondition.Should().Be(85);
         session.Player.Robotics.Parts.Should().Be(0);
-        session.Infrastructure.Get(DistrictId.ArdAlLiwa, InfrastructureServiceType.Electricity).RemainingDays.Should().Be(2);
+        session.Infrastructure.Get(DistrictId.ArdAlLiwa, InfrastructureServiceType.Electricity).RemainingDays.Should().Be(1);
     }
 
     [Test]
@@ -92,6 +92,23 @@ internal sealed class TechnicalRepairServiceTests
         session.PerformTechnicalRepair(TechnicalRepairActionType.RestoreSolarStorage).Should().BeTrue();
 
         session.Technology.MicrogridRepairDebt.Should().Be(2);
+    }
+
+    [Test]
+    public void WaterPumpRepair_ShouldRestorePumpAndShortenLocalWaterDisruption()
+    {
+        var session = CreateSession(6, 2, LocationId.Workshop);
+        session.Infrastructure.StartDisruption(DistrictId.ArdAlLiwa, InfrastructureServiceType.Water, InfrastructureSeverity.Disrupted, 4, 1, "pump-failure");
+
+        var preview = session.PreviewTechnicalRepair(TechnicalRepairActionType.RestoreWaterPump);
+        var result = session.PerformTechnicalRepair(TechnicalRepairActionType.RestoreWaterPump);
+
+        preview.CurrentCondition.Should().Be(60);
+        preview.ConditionGain.Should().Be(18);
+        result.Should().BeTrue();
+        session.Technology.WaterPumpCondition.Should().Be(78);
+        session.Infrastructure.Get(DistrictId.ArdAlLiwa, InfrastructureServiceType.Water).RemainingDays.Should().Be(2);
+        session.Player.Robotics.Parts.Should().Be(0);
     }
 
     [Test]

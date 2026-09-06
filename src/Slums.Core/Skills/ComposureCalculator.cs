@@ -40,4 +40,10 @@ public static class ComposureCalculator
 
         return Math.Min(baseRelief, relief);
     }
+
+    public static int GetHighPressureEnergySavings(int composureSkillLevel)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(composureSkillLevel);
+        return composureSkillLevel >= SkillThresholds.MasteryLevel ? 2 : 0;
+    }
 }

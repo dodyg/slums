@@ -10,6 +10,7 @@ public sealed record TechnicalRepairMenuContext(
     int SpareParts,
     int HandsetCondition,
     int SolarStorageCondition,
+    int WaterPumpCondition,
     IReadOnlyList<TechnicalRepairPreview> Actions)
 {
     public static TechnicalRepairMenuContext Create(GameSession gameSession)
@@ -22,6 +23,7 @@ public sealed record TechnicalRepairMenuContext(
             gameSession.Player.Robotics.Parts,
             gameSession.Phone.HandsetCondition,
             gameSession.Technology.MicrogridStorageCondition,
+            gameSession.Technology.WaterPumpCondition,
             gameSession.GetTechnicalRepairPreviews());
     }
 }

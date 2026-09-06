@@ -274,7 +274,8 @@ public sealed record GameSessionSnapshot
                 Technology.TransitPermitReview,
                 Technology.BiometricAppealPending,
                 Technology.LastTelemedicineTriageDay,
-                Technology.AllocationModelConfidence);
+                Technology.AllocationModelConfidence,
+                Technology.WaterPumpCondition);
             gameSession.CentralCharacterArcs.Restore(CharacterArcs.Beats, CharacterArcs.Decisions);
 
             foreach (var npcId in Enum.GetValues<NpcId>())

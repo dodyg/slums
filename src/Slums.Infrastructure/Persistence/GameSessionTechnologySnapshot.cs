@@ -7,6 +7,7 @@ public sealed record GameSessionTechnologySnapshot
     public int HandsetDataExposure { get; init; }
     public int MicrogridRepairDebt { get; init; }
     public int MicrogridStorageCondition { get; init; } = 70;
+    public int WaterPumpCondition { get; init; } = 60;
     public bool TransitPermitReview { get; init; }
     public bool BiometricAppealPending { get; init; }
     public int LastTelemedicineTriageDay { get; init; }
@@ -20,6 +21,7 @@ public sealed record GameSessionTechnologySnapshot
             HandsetDataExposure = gameSession.Technology.HandsetDataExposure,
             MicrogridRepairDebt = gameSession.Technology.MicrogridRepairDebt,
             MicrogridStorageCondition = gameSession.Technology.MicrogridStorageCondition,
+            WaterPumpCondition = gameSession.Technology.WaterPumpCondition,
             TransitPermitReview = gameSession.Technology.TransitPermitReview,
             BiometricAppealPending = gameSession.Technology.BiometricAppealPending,
             LastTelemedicineTriageDay = gameSession.Technology.LastTelemedicineTriageDay,

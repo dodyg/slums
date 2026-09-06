@@ -33,7 +33,7 @@ internal sealed class TechnicalRepairScreen : ScreenSurface
         base.Render(delta);
         Surface.Clear();
         Surface.Print(2, 2, "=== Technical Repair ===", Color.Cyan);
-        Surface.Print(2, 3, $"Technical Repair: {_context.TechnicalRepairSkillLevel} | Parts: {_context.SpareParts} | Handset: {_context.HandsetCondition}% | Solar storage: {_context.SolarStorageCondition}%", Color.Gray);
+        Surface.Print(2, 3, $"Technical Repair: {_context.TechnicalRepairSkillLevel} | Parts: {_context.SpareParts} | Handset: {_context.HandsetCondition}% | Solar: {_context.SolarStorageCondition}% | Pump: {_context.WaterPumpCondition}%", Color.Gray);
 
         for (var i = 0; i < _actions.Count; i++)
         {

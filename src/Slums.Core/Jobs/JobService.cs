@@ -166,9 +166,11 @@ public sealed class JobService
         var lockoutDays = GetLockoutDays(job.Type);
         var lockoutUntilDay = lockoutDays > 0 ? currentDay + lockoutDays : 0;
         var reliabilityLoss = GetMistakeReliabilityLoss(job.Type);
+        var energySavings = ComposureCalculator.GetHighPressureEnergySavings(player.Skills.GetLevel(SkillId.Composure));
+        var energyCost = Math.Max(0, job.EnergyCost - energySavings);
 
         player.Stats.ModifyMoney(reducedPay);
-        player.Stats.ModifyEnergy(-job.EnergyCost);
+        player.Stats.ModifyEnergy(-energyCost);
         player.Stats.ModifyStress(stressCost);
         jobProgressState.RecordMistake(job.Type, reliabilityLoss, lockoutUntilDay);
 
@@ -178,7 +180,7 @@ public sealed class JobService
 
         return JobResult.SuccessWork(
             reducedPay,
-            job.EnergyCost,
+            energyCost,
             stressCost,
             $"{job.Name} goes badly. You only keep {reducedPay} LE and your reliability drops by {-reliabilityLoss}.{lockoutText}",
             reliabilityLoss,
@@ -644,6 +646,12 @@ public sealed class JobService
             resolvedJob.Type is JobType.CallCenterWork or JobType.ClinicReception or JobType.CafeService or JobType.PharmacyStock or JobType.MicrobusDispatch or JobType.StreetVending)
         {
             modifiers.Add("Composure 2 raises the stress threshold for pressure mistakes by 5.");
+        }
+
+        if (player.Skills.GetLevel(SkillId.Composure) >= SkillThresholds.MasteryLevel &&
+            resolvedJob.Type is JobType.CallCenterWork or JobType.ClinicReception or JobType.CafeService or JobType.PharmacyStock or JobType.MicrobusDispatch or JobType.StreetVending)
+        {
+            modifiers.Add("Composure 8 preserves 2 energy when a pressure mistake is survived.");
         }
 
         if (player.BackgroundType == BackgroundType.SudaneseRefugee && resolvedJob.Type == JobType.CafeService)

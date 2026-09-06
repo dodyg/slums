@@ -114,7 +114,7 @@ Acceptance targets:
 
 - nine skills and their reachable evening training activities are shipped with shared metadata, diagnostics, previews, and focused tests
 - Provisioning, Community Organizing, Composure, Technical Repair, and Digital Literacy each have multiple bounded gameplay uses while preserving `RobotRepair` and `CyberHacking` snapshot keys
-- continue seeded day-35 acceptance runs to verify food preservation, community adaptation, repair obligations, digital uncertainty, and pressure mitigation remain optional and recoverable routes
+- seeded day-35 acceptance coverage verifies food preservation, community adaptation, repair obligations, digital uncertainty, and pressure mitigation remain optional and recoverable routes
 
 ### 4. Architecture hardening
 

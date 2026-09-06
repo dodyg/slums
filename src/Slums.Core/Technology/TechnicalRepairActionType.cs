@@ -4,5 +4,6 @@ public enum TechnicalRepairActionType
 {
     RepairHandset,
     RestoreSolarStorage,
+    RestoreWaterPump,
     TakeRepairBenchContract
 }

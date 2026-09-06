@@ -235,6 +235,25 @@ internal sealed class JobServiceTests
     }
 
     [Test]
+    public void PerformJob_ShouldPreserveEnergyOnPressureMistake_WhenComposureIsMastered()
+    {
+        var service = new JobService();
+        var player = new PlayerCharacter();
+        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.CallCenter);
+        var relationships = new RelationshipState();
+        var progress = new JobProgressState();
+        player.Skills.SetLevel(SkillId.Composure, 8);
+        player.Stats.SetStress(65);
+        var startingEnergy = player.Stats.Energy;
+
+        var result = service.PerformJob(JobRegistry.CallCenterWork, player, location, relationships, progress, currentDay: 1, new Random(7));
+
+        result.MistakeMade.Should().BeTrue();
+        result.EnergyCost.Should().Be(JobRegistry.CallCenterWork.EnergyCost - 2);
+        player.Stats.Energy.Should().Be(startingEnergy - result.EnergyCost);
+    }
+
+    [Test]
     public void PreviewJob_ShouldSurfaceBakeryUnlockThresholds()
     {
         var service = new JobService();

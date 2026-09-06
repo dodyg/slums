@@ -43,4 +43,13 @@ internal sealed class SkillRegistryTests
         SkillThresholds.MasteryLevel.Should().Be(8);
         SkillThresholds.MaximumLevel.Should().Be(10);
     }
+
+    [Test]
+    public void Composure_ShouldPreserveEnergyOnlyAtMastery()
+    {
+        ComposureCalculator.GetHighPressureEnergySavings(0).Should().Be(0);
+        ComposureCalculator.GetHighPressureEnergySavings(6).Should().Be(0);
+        ComposureCalculator.GetHighPressureEnergySavings(8).Should().Be(2);
+        ComposureCalculator.GetHighPressureEnergySavings(10).Should().Be(2);
+    }
 }

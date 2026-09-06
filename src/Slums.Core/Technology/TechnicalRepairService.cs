@@ -28,6 +28,7 @@ internal static class TechnicalRepairService
         {
             TechnicalRepairActionType.RepairHandset => session.Phone.HandsetCondition,
             TechnicalRepairActionType.RestoreSolarStorage => session.Technology.MicrogridStorageCondition,
+            TechnicalRepairActionType.RestoreWaterPump => session.Technology.WaterPumpCondition,
             TechnicalRepairActionType.TakeRepairBenchContract => 100,
             _ => throw new ArgumentOutOfRangeException(nameof(actionType), actionType, null)
         };
@@ -67,8 +68,19 @@ internal static class TechnicalRepairService
                 break;
             case TechnicalRepairActionType.RestoreSolarStorage:
                 session.Technology.RecordMicrogridRepair(action.PartsRequired, preview.ConditionGain);
-                session.Infrastructure.ReduceDisruption(session.World.CurrentDistrict, InfrastructureServiceType.Electricity, 1);
+                session.Infrastructure.ReduceDisruption(
+                    session.World.CurrentDistrict,
+                    InfrastructureServiceType.Electricity,
+                    TechnicalRepairCalculator.GetInfrastructureRecoveryDays(session.Player.Skills.GetLevel(SkillId.RobotRepair)));
                 session.RaiseEvent($"You restore the cooperative storage bank to {session.Technology.MicrogridStorageCondition}% condition. The next outage will still need people on the roof.");
+                break;
+            case TechnicalRepairActionType.RestoreWaterPump:
+                session.Technology.RepairWaterPump(preview.ConditionGain);
+                session.Infrastructure.ReduceDisruption(
+                    session.World.CurrentDistrict,
+                    InfrastructureServiceType.Water,
+                    TechnicalRepairCalculator.GetInfrastructureRecoveryDays(session.Player.Skills.GetLevel(SkillId.RobotRepair)));
+                session.RaiseEvent($"You bring the rooftop pump relay to {session.Technology.WaterPumpCondition}% condition. The committee still has to ration what comes through.");
                 break;
             case TechnicalRepairActionType.TakeRepairBenchContract:
                 session.Player.Stats.ModifyMoney(preview.Income);

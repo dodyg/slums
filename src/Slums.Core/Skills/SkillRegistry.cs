@@ -14,7 +14,7 @@ public static class SkillRegistry
         new(SkillId.Physical, "Physical", "Carry difficult work through Cairo's heat and bad equipment.",
             new Dictionary<int, string> { [2] = "Unlocks physical work variants.", [3] = "Reduces some work energy costs." }),
         new(SkillId.RobotRepair, "Technical Repair", "Repair locally maintained machines, handsets, and neighborhood infrastructure.",
-            new Dictionary<int, string> { [2] = "Assisted bench repairs and repair work.", [4] = "Unlocks handset and battery repair.", [6] = "Improves service recovery.", [8] = "Unlocks paid technical jobs." }),
+            new Dictionary<int, string> { [2] = "Assisted bench repairs and repair work.", [4] = "Unlocks handset and battery repair.", [6] = "Improves solar-storage and water-pump recovery.", [8] = "Unlocks paid technical jobs." }),
         new(SkillId.CyberHacking, "Digital Literacy", "Use fallible digital services without confusing access with power.",
             new Dictionary<int, string> { [2] = "Reduces wallet friction.", [4] = "Unlocks digital work variants.", [6] = "Unlocks biometric appeal.", [8] = "Improves selected service information." }),
         new(SkillId.Provisioning, "Provisioning", "Stretch food, water, and household supplies without making scarcity disappear.",
@@ -22,7 +22,7 @@ public static class SkillRegistry
         new(SkillId.CommunityOrganizing, "Community Organizing", "Coordinate shared resources, attendance, and neighborhood adaptation.",
             new Dictionary<int, string> { [2] = "Softens one skipped-event penalty.", [4] = "Unlocks shared-resource actions.", [6] = "Improves outage recovery.", [8] = "Coordinates a response to local pressure." }),
         new(SkillId.Composure, "Composure", "Keep functioning when debt, work, heat, and authority apply pressure.",
-            new Dictionary<int, string> { [2] = "Reduces stress-related work mistakes.", [4] = "Unlocks calm responses.", [6] = "Softens crisis spikes.", [8] = "Preserves a little energy after pressure." })
+            new Dictionary<int, string> { [2] = "Reduces stress-related work mistakes.", [4] = "Eases debt-pressure stress.", [6] = "Softens crisis spikes.", [8] = "Preserves a little energy after pressure." })
     ];
 
     public static IReadOnlyList<SkillDefinition> All => Definitions;
