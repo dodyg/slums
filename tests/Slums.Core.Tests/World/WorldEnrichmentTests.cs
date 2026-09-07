@@ -8,6 +8,7 @@ using TUnit.Core;
 
 namespace Slums.Core.Tests.World;
 
+[NotInParallel]
 internal sealed class WorldEnrichmentTests
 {
     [Test]

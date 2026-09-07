@@ -9,6 +9,7 @@ using TUnit.Core;
 
 namespace Slums.Infrastructure.Tests;
 
+[NotInParallel]
 internal sealed class JsonContentRepositoryTests
 {
     [Test]

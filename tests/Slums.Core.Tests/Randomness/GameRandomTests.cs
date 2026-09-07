@@ -123,4 +123,25 @@ internal sealed class GameRandomTests
         random.Next(-10, -10).Should().Be(-10);
         random.Next(25, 25).Should().Be(25);
     }
+
+    [Test]
+    public void Next_FullIntegerRange_StaysWithinBounds()
+    {
+        var random = new GameRandom(7);
+
+        for (var i = 0; i < 10_000; i++)
+        {
+            random.Next(int.MinValue, int.MaxValue).Should().BeInRange(int.MinValue, int.MaxValue - 1);
+        }
+    }
+
+    [Test]
+    public void Next_InvalidRanges_Throw()
+    {
+        var random = new GameRandom(7);
+
+        var act = () => random.Next(2, 1);
+
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
 }
