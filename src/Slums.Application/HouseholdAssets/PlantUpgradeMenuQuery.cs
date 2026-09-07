@@ -4,9 +4,7 @@ namespace Slums.Application.HouseholdAssets;
 
 public sealed class PlantUpgradeMenuQuery
 {
-#pragma warning disable CA1822
     public IReadOnlyList<PlantUpgradeMenuStatus> GetStatuses(PlantUpgradeMenuContext context)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
 

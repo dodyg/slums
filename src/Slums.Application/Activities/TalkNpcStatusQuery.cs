@@ -7,9 +7,7 @@ namespace Slums.Application.Activities;
 
 public sealed class TalkNpcStatusQuery
 {
-#pragma warning disable CA1822
     public IReadOnlyList<TalkNpcStatus> GetStatuses(TalkNpcContext context)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
 

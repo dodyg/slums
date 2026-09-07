@@ -9,9 +9,7 @@ namespace Slums.Application.Activities;
 
 public sealed class CrimeMenuStatusQuery
 {
-#pragma warning disable CA1822
     public IReadOnlyList<CrimeMenuStatus> GetStatuses(CrimeMenuContext context)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
 

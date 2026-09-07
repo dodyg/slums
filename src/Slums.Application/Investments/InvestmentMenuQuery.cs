@@ -5,9 +5,7 @@ namespace Slums.Application.Investments;
 
 public sealed class InvestmentMenuQuery
 {
-#pragma warning disable CA1822
     public IReadOnlyList<InvestmentMenuStatus> GetStatuses(InvestmentMenuContext context)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
 

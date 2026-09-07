@@ -2,9 +2,7 @@ namespace Slums.Application.Activities;
 
 public sealed class CommunityEventMenuQuery
 {
-#pragma warning disable CA1822
     public IReadOnlyList<CommunityEventMenuStatus> GetStatuses(CommunityEventMenuContext context)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
 

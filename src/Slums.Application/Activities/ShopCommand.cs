@@ -4,9 +4,7 @@ namespace Slums.Application.Activities;
 
 public sealed class ShopCommand
 {
-#pragma warning disable CA1822
     public bool Execute(GameSession gameSession, ShopOptionId optionId)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
 

@@ -4,9 +4,7 @@ namespace Slums.Application.Activities;
 
 public sealed class GameActionCommand
 {
-#pragma warning disable CA1822
     public bool Execute(GameSession gameSession, GameActionId actionId, Random? random = null)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
 

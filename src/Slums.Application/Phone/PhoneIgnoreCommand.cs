@@ -7,9 +7,7 @@ namespace Slums.Application.Phone;
 /// </summary>
 public sealed class PhoneIgnoreCommand
 {
-#pragma warning disable CA1822
     public (bool Success, string Message, int TrustLoss) Execute(GameSession gameSession, string entryId, bool isTip)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
         ArgumentException.ThrowIfNullOrWhiteSpace(entryId);

@@ -5,9 +5,7 @@ namespace Slums.Application.Inventory;
 
 public sealed class AcquireItemCommand
 {
-    #pragma warning disable CA1822
     public (bool Success, string Message) Execute(GameSession gameSession, string itemId, int quantity = 1)
-    #pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
         ArgumentException.ThrowIfNullOrWhiteSpace(itemId);

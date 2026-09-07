@@ -17,7 +17,7 @@ internal sealed class DailyResolutionStepTests
     {
         var session = new GameSession(new GameRandom(20260904));
         session.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
-        session.Player.Gender = Gender.Male;
+        session.Player.ApplyGender(Gender.Male);
         session.Player.Household.SetMotherHealth(50);
         var stressBefore = session.Player.Stats.Stress;
 
@@ -30,7 +30,7 @@ internal sealed class DailyResolutionStepTests
     public async Task ApplyBackgroundAndGenderStress_FemaleProtagonist_AddsDailyStress()
     {
         var session = new GameSession(new GameRandom(20260904));
-        session.Player.Gender = Gender.Female;
+        session.Player.ApplyGender(Gender.Female);
         var stressBefore = session.Player.Stats.Stress;
 
         DailyStatResolution.ApplyBackgroundAndGenderStress(session);

@@ -5,9 +5,7 @@ namespace Slums.Application.Investments;
 
 public sealed class MakeInvestmentCommand
 {
-#pragma warning disable CA1822
     public MakeInvestmentResult Execute(GameSession gameSession, InvestmentType type)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
 

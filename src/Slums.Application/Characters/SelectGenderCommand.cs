@@ -8,9 +8,7 @@ namespace Slums.Application.Characters;
 /// </summary>
 public sealed class SelectGenderCommand
 {
-#pragma warning disable CA1822
     public void Execute(GameSession gameSession, Gender gender)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
 

@@ -5,9 +5,7 @@ namespace Slums.Application.Activities;
 
 public sealed class TipContextQuery
 {
-#pragma warning disable CA1822
     public IReadOnlyList<TipContextHint> GetCrimeHints(GameSession gameSession)
-#pragma warning restore CA1822
     {
         return GetHints(
             gameSession,
@@ -17,9 +15,7 @@ public sealed class TipContextQuery
             includeEmergency: true);
     }
 
-#pragma warning disable CA1822
     public IReadOnlyList<TipContextHint> GetWorkHints(GameSession gameSession)
-#pragma warning restore CA1822
     {
         return GetHints(
             gameSession,
@@ -28,9 +24,7 @@ public sealed class TipContextQuery
             includeEmergency: false);
     }
 
-#pragma warning disable CA1822
     public IReadOnlyList<TipContextHint> GetTravelHints(GameSession gameSession)
-#pragma warning restore CA1822
     {
         return GetHints(
             gameSession,

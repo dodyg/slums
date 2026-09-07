@@ -5,9 +5,7 @@ namespace Slums.Application.Activities;
 
 public sealed class PhoneMenuQuery
 {
-#pragma warning disable CA1822
     public PhoneMenuStatus GetStatus(PhoneMenuContext context)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
 

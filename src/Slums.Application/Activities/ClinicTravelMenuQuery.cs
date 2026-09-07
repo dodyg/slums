@@ -2,9 +2,7 @@ namespace Slums.Application.Activities;
 
 public sealed class ClinicTravelMenuQuery
 {
-#pragma warning disable CA1822
     public IReadOnlyList<ClinicTravelMenuStatus> GetStatuses(ClinicTravelMenuContext context)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
 

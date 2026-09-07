@@ -4,9 +4,7 @@ namespace Slums.Application.Activities;
 
 public sealed class GameActionMenuQuery
 {
-#pragma warning disable CA1822
     public IReadOnlyList<GameAction> GetActions(GameActionMenuContext context)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
 

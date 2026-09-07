@@ -5,9 +5,7 @@ namespace Slums.Application.News;
 
 public sealed class NewsMenuQuery
 {
-    #pragma warning disable CA1822
     public NewsMenuStatus GetStatus(NewsMenuContext context, IReadOnlyDictionary<string, int>? inventory = null, int money = 0)
-    #pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
         inventory ??= new Dictionary<string, int>();

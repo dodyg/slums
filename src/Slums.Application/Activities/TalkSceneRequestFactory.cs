@@ -4,9 +4,7 @@ namespace Slums.Application.Activities;
 
 public sealed class TalkSceneRequestFactory
 {
-#pragma warning disable CA1822
     public TalkSceneRequest Create(TalkNpcContext context, NpcId npcId, Random? random = null)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
 

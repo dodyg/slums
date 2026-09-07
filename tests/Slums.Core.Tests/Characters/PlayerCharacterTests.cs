@@ -96,13 +96,13 @@ internal sealed class PlayerCharacterTests
     }
 
     [Test]
-    public async Task Name_CanBeChanged()
+    public async Task ApplyGender_ShouldChangeNameThroughTheIdentityCommand()
     {
         var player = new PlayerCharacter();
 
-        player.Name = "Fatima";
+        player.ApplyGender(Gender.Male);
 
-        await Assert.That(player.Name).IsEqualTo("Fatima");
+        await Assert.That(player.Name).IsEqualTo("Karim");
     }
 
     [Test]

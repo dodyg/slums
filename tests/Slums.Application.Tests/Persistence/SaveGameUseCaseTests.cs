@@ -43,7 +43,6 @@ internal sealed class SaveGameUseCaseTests
     public void Create_ShouldCaptureCheckpointNameAndNarrativeProgress()
     {
         var gameSession = new GameSession();
-        gameSession.Player.Name = "Aya";
 
         var request = SaveGameRequest.Create(gameSession, "intro_medical");
 

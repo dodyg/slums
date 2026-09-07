@@ -6,9 +6,7 @@ public sealed record InventoryEntryDisplay(string Id, string Name, string Descri
 
 public sealed class InventoryMenuQuery
 {
-    #pragma warning disable CA1822
     public IReadOnlyList<InventoryEntryDisplay> GetEntries(InventoryMenuContext context)
-    #pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
         return context.Quantities

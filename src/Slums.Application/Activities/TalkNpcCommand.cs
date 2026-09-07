@@ -45,9 +45,7 @@ public sealed class TalkNpcCommand
     }
 
     /// <summary>Commits talk state after the narrative service has successfully started.</summary>
-#pragma warning disable CA1822
     public void Commit(GameSession gameSession, TalkSceneRequest request, Random? random = null)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
         ArgumentNullException.ThrowIfNull(request);

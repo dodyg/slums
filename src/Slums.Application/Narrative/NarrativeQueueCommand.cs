@@ -8,18 +8,14 @@ namespace Slums.Application.Narrative;
 /// </summary>
 public sealed class NarrativeQueueCommand
 {
-#pragma warning disable CA1822
     public bool TryDequeueScene(GameSession gameSession, out string knotName)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
 
         return gameSession.TryDequeueNarrativeScene(out knotName);
     }
 
-#pragma warning disable CA1822
     public bool TryTakeEndingKnot(GameSession gameSession, out string knotName)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
 

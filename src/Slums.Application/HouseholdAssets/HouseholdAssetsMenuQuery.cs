@@ -6,9 +6,7 @@ namespace Slums.Application.HouseholdAssets;
 
 public sealed class HouseholdAssetsMenuQuery
 {
-#pragma warning disable CA1822
     public IReadOnlyList<HouseholdAssetsMenuStatus> GetStatuses(HouseholdAssetsMenuContext context)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
 

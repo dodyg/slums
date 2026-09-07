@@ -2,9 +2,7 @@ namespace Slums.Application.Technology;
 
 public sealed class TechnicalRepairMenuQuery
 {
-#pragma warning disable CA1822
     public IReadOnlyList<TechnicalRepairMenuStatus> GetStatuses(TechnicalRepairMenuContext context)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
         return context.Actions

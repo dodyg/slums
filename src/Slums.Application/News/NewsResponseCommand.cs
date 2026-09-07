@@ -6,9 +6,7 @@ namespace Slums.Application.News;
 
 public sealed class NewsResponseCommand
 {
-    #pragma warning disable CA1822
     public (bool Success, string Message) Execute(GameSession gameSession, string newsId, string responseId)
-    #pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
         ArgumentException.ThrowIfNullOrWhiteSpace(newsId);

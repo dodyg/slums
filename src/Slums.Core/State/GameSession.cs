@@ -767,6 +767,10 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         return true;
     }
 
+    /// <summary>
+    /// Removes and returns the next queued narrative scene. A successful call mutates the
+    /// pending-scene queue; a failed call leaves it unchanged.
+    /// </summary>
     public bool TryDequeueNarrativeScene(out string knotName)
     {
         if (_pendingNarrativeScenes.Count > 0)
@@ -779,6 +783,10 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         return false;
     }
 
+    /// <summary>
+    /// Removes and returns the pending ending knot. A successful call clears the pending knot;
+    /// a failed call leaves it unchanged.
+    /// </summary>
     public bool TryTakePendingEndingKnot(out string knotName)
         => EndingCommitmentService.TryTakePendingEndingKnot(this, out knotName);
 

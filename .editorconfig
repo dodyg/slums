@@ -63,3 +63,6 @@ csharp_style_conditional_delegate_call = true:suggestion
 
 [tests/**/*.cs]
 dotnet_diagnostic.CA1707.severity = none
+
+[src/Slums.Application/**/*.cs]
+dotnet_diagnostic.CA1822.severity = none

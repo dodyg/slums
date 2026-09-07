@@ -7,9 +7,7 @@ namespace Slums.Application.Activities;
 
 public sealed class WorkMenuStatusQuery
 {
-#pragma warning disable CA1822
     public IReadOnlyList<WorkMenuStatus> GetStatuses(WorkMenuContext context)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(context);
 

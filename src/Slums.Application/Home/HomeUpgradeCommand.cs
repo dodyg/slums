@@ -8,9 +8,7 @@ namespace Slums.Application.Home;
 /// </summary>
 public sealed class HomeUpgradeCommand
 {
-#pragma warning disable CA1822
     public bool Execute(GameSession gameSession, HomeUpgrade upgrade)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
 

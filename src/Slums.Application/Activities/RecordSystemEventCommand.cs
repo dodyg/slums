@@ -8,9 +8,7 @@ namespace Slums.Application.Activities;
 /// </summary>
 public sealed class RecordSystemEventCommand
 {
-#pragma warning disable CA1822
     public void Execute(GameSession gameSession, string message)
-#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
         ArgumentException.ThrowIfNullOrWhiteSpace(message);

@@ -42,7 +42,7 @@ public sealed class PlayerCharacter
     public string Name
     {
         get => _identity.Name;
-        set => _identity.Name = value;
+        private set => _identity.Name = value;
     }
 
     public int Age
@@ -60,7 +60,7 @@ public sealed class PlayerCharacter
     public Gender Gender
     {
         get => _identity.Gender;
-        set => _identity.Gender = value;
+        private set => _identity.Gender = value;
     }
 
     public Background? Background
