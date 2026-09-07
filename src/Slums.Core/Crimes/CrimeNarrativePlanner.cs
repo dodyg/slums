@@ -2,13 +2,12 @@ using Slums.Core.Characters;
 using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.World;
+using Slums.Core.Heat;
 
 namespace Slums.Core.Crimes;
 
 public static class CrimeNarrativePlanner
 {
-    private const int PoliceEncounterHeatThreshold = 60;
-
     public static NarrativeSceneTrigger? GetFirstSuccessTrigger(IReadOnlySet<string> storyFlags)
     {
         ArgumentNullException.ThrowIfNull(storyFlags);
@@ -36,8 +35,8 @@ public static class CrimeNarrativePlanner
         ArgumentNullException.ThrowIfNull(storyFlags);
 
         var seenFlag = StoryFlags.GetPoliceEncounterSeenFlag(district);
-        return previousHeat < PoliceEncounterHeatThreshold &&
-            currentHeat >= PoliceEncounterHeatThreshold &&
+        return previousHeat < PolicePressureThresholds.MaterialRisk &&
+            currentHeat >= PolicePressureThresholds.MaterialRisk &&
             !storyFlags.Contains(seenFlag)
             ? new NarrativeSceneTrigger(seenFlag, NarrativeKnots.CrimePoliceEncounter)
             : null;

@@ -9,6 +9,7 @@ using Slums.Core.State;
 using Slums.Core.Territory;
 using Slums.Core.Weather;
 using Slums.Core.World;
+using Slums.Core.Heat;
 
 namespace Slums.Core.Crimes;
 
@@ -204,7 +205,7 @@ internal static class CrimeSessionService
             activeModifiers.Add("Cyber Hacking 2 steadies network errands: higher success chance.");
         }
 
-        if (session.PolicePressure >= 60)
+        if (session.PolicePressure >= PolicePressureThresholds.MaterialRisk)
         {
             activeModifiers.Add("Current police pressure is materially increasing detection risk.");
         }

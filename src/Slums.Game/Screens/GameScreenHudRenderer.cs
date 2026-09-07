@@ -6,6 +6,7 @@ using Slums.Application.HouseholdAssets;
 using Slums.Application.Investments;
 using Slums.Core.Characters;
 using Slums.Core.State;
+using Slums.Core.Heat;
 using Slums.Core.World;
 
 namespace Slums.Game.Screens;
@@ -81,8 +82,8 @@ internal static class GameScreenHudRenderer
 
     private static Color GetStressColor(int value) => value switch
     {
-        > 80 => Color.Red,
-        > 50 => Color.Orange,
+        >= SurvivalStats.OverstressedThreshold => Color.Red,
+        >= SurvivalStats.StressAttentionThreshold => Color.Orange,
         _ => Color.Green
     };
 

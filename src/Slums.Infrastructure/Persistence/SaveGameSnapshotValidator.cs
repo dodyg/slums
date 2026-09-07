@@ -2,6 +2,7 @@ using Slums.Core.Characters;
 using Slums.Core.Community;
 using Slums.Core.Economy;
 using Slums.Core.Endings;
+using Slums.Core.Expenses;
 using Slums.Core.Home;
 using Slums.Core.Information;
 using Slums.Core.Inventory;
@@ -245,7 +246,7 @@ internal static class SaveGameSnapshotValidator
         AddNonNegative(run.UnpaidRentDays, "unpaid rent days", problems);
         AddNonNegative(run.AccumulatedRentDebt, "accumulated rent debt", problems);
         AddNonNegative(run.RentGraceDaysRemaining, "rent grace days", problems);
-        if (run.UnpaidRentDays > 7 || run.RentGraceDaysRemaining > 7)
+        if (run.UnpaidRentDays > RentState.EvictionThreshold || run.RentGraceDaysRemaining > RentState.EvictionThreshold)
         {
             problems.Add("rent state contains an impossible day count");
         }

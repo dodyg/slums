@@ -2,6 +2,8 @@ using Slums.Core.Characters;
 using Slums.Core.Economy;
 using Slums.Core.Relationships;
 using Slums.Core.State;
+using Slums.Core.Heat;
+using Slums.Core.Expenses;
 
 namespace Slums.Core.Endings;
 
@@ -22,16 +24,16 @@ public static class EndingService
             return EndingId.Destitution;
         }
 
-        if (gameState.PolicePressure >= 100 ||
+        if (gameState.PolicePressure >= PolicePressureThresholds.Arrest ||
             (gameState.DaysSurvived >= 30 &&
              gameState.CrimesCommitted >= 6 &&
-             gameState.PolicePressure >= 85 &&
-             gameState.Player.Stats.Stress >= 70))
+             gameState.PolicePressure >= PolicePressureThresholds.LongRunArrest &&
+             gameState.Player.Stats.Stress >= SurvivalStats.HighStressThreshold))
         {
             return EndingId.Arrested;
         }
 
-        if (gameState.UnpaidRentDays >= 7)
+        if (gameState.UnpaidRentDays >= RentState.EvictionThreshold)
         {
             return EndingId.Eviction;
         }
@@ -120,7 +122,7 @@ public static class EndingService
             gameState.TotalHonestWorkEarnings >= 180 &&
             gameState.HonestShiftsCompleted >= 6 &&
             gameState.Player.Household.MotherAlive &&
-            gameState.PolicePressure < 60 &&
+            gameState.PolicePressure < PolicePressureThresholds.MaterialRisk &&
             HasBeenCleanForFiveDays(gameState);
     }
 

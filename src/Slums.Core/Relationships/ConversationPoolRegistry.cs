@@ -1,3 +1,5 @@
+using Slums.Core.Heat;
+
 namespace Slums.Core.Relationships;
 
 public static class ConversationPoolRegistry
@@ -63,10 +65,10 @@ public static class ConversationPoolRegistry
             NpcId.FixerUmmKarim when relationship.LastRefusalDay > 0 && currentDay - relationship.LastRefusalDay <= 3 => ConversationContexts.RecentRefusal,
             NpcId.FixerUmmKarim when relationship.RecentContactCount >= 2 => ConversationContexts.Repeat,
             NpcId.FixerUmmKarim => ConversationContexts.First,
-            NpcId.OfficerKhalid when policePressure >= 70 => ConversationContexts.Hot,
+            NpcId.OfficerKhalid when policePressure >= PolicePressureThresholds.Hot => ConversationContexts.Hot,
             NpcId.OfficerKhalid when relationship.Trust <= -10 => ConversationContexts.Marked,
             NpcId.OfficerKhalid => ConversationContexts.Default,
-            NpcId.NeighborMona when policePressure >= 70 && crimesCommitted > 0 => ConversationContexts.Heat,
+            NpcId.NeighborMona when policePressure >= PolicePressureThresholds.Hot && crimesCommitted > 0 => ConversationContexts.Heat,
             NpcId.NeighborMona when currentMoney < 40 => ConversationContexts.Lean,
             NpcId.NeighborMona when relationship.WasHelped => ConversationContexts.Helped,
             NpcId.NeighborMona when relationship.Trust >= 15 => ConversationContexts.Warm,
@@ -88,7 +90,7 @@ public static class ConversationPoolRegistry
             NpcId.FenceHanan when relationship.Trust <= -10 => ConversationContexts.Cold,
             NpcId.FenceHanan when relationship.Trust >= 15 => ConversationContexts.Warm,
             NpcId.FenceHanan => ConversationContexts.Default,
-            NpcId.RunnerYoussef when policePressure >= 70 => ConversationContexts.Hot,
+            NpcId.RunnerYoussef when policePressure >= PolicePressureThresholds.Hot => ConversationContexts.Hot,
             NpcId.RunnerYoussef when relationship.Trust >= 15 && crimesCommitted >= 2 => ConversationContexts.Embedded,
             NpcId.RunnerYoussef => ConversationContexts.Default,
             NpcId.PharmacistMariam when motherHealth < 40 => ConversationContexts.Urgent,

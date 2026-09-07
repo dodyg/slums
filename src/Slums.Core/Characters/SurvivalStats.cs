@@ -2,6 +2,10 @@ namespace Slums.Core.Characters;
 
 public sealed class SurvivalStats
 {
+    public const int StressAttentionThreshold = 50;
+    public const int HighStressThreshold = 70;
+    public const int OverstressedThreshold = 80;
+
     private const int MaxStatValue = 100;
     private const int MinStatValue = 0;
 
@@ -14,7 +18,7 @@ public sealed class SurvivalStats
     public bool IsStarving => Hunger <= 10;
     public bool IsExhausted => Energy <= 10;
     public bool IsSick => Health <= 30;
-    public bool IsOverstressed => Stress >= 80;
+    public bool IsOverstressed => Stress >= OverstressedThreshold;
 
     public void SetMoney(int value) => Money = Math.Max(0, value);
     public void SetHunger(int value) => Hunger = Clamp(value);

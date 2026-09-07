@@ -47,6 +47,17 @@ internal sealed class SleepQualityTests
     }
 
     [Test]
+    public async Task StressAtOverstressedThreshold_ShouldReduceBy10()
+    {
+        var state = CreateSessionWithEaten();
+        state.Player.Stats.SetStress(SurvivalStats.OverstressedThreshold);
+        var recovery = SleepQualityCalculator.CalculateRecovery(
+            state.Player.Stats, state.Player.Nutrition, state.Player.Household,
+            state.UnpaidRentDays, state.HomeUpgrades);
+        await Assert.That(recovery).IsEqualTo(20);
+    }
+
+    [Test]
     public async Task StressAbove80_ShouldReplaceAbove60Modifier()
     {
         var state = CreateSessionWithEaten();

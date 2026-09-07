@@ -1,4 +1,5 @@
 using Slums.Core.Relationships;
+using Slums.Core.Heat;
 using Slums.Core.Skills;
 using Slums.Core.State;
 
@@ -59,10 +60,10 @@ public sealed class TalkNpcStatusQuery
             NpcId.FixerUmmKarim when relationship.LastRefusalDay > 0 && context.CurrentDay - relationship.LastRefusalDay <= 3 => "She remembers recent hesitation and is testing your nerve.",
             NpcId.FixerUmmKarim when context.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation >= 15 => "Your local standing makes business talk easier.",
             NpcId.FixerUmmKarim => "Still deciding whether you are useful or just desperate.",
-            NpcId.OfficerKhalid when context.PolicePressure >= 70 => "Checkpoint mood. The heat is changing how he reads you.",
+            NpcId.OfficerKhalid when context.PolicePressure >= PolicePressureThresholds.Hot => "Checkpoint mood. The heat is changing how he reads you.",
             NpcId.OfficerKhalid when relationship.Trust <= -10 => "He has started filing you under trouble even on quieter days.",
             NpcId.OfficerKhalid => "Routine on the surface, but never casual.",
-            NpcId.NeighborMona when context.PolicePressure >= 70 && context.CrimesCommitted > 0 => "She can feel police attention moving through the building and is deciding how much she dares to say out loud.",
+            NpcId.NeighborMona when context.PolicePressure >= PolicePressureThresholds.Hot && context.CrimesCommitted > 0 => "She can feel police attention moving through the building and is deciding how much she dares to say out loud.",
             NpcId.NeighborMona when context.Player.Stats.Money < 40 => "She can see the week tightening around you and is deciding how directly to say it.",
             NpcId.NeighborMona when relationship.WasHelped => "She remembers mutual help and treats you like part of the stairwell.",
             NpcId.NeighborMona when relationship.Trust >= 15 => "Neighborly warmth is solid for now.",
@@ -84,7 +85,7 @@ public sealed class TalkNpcStatusQuery
             NpcId.FenceHanan when relationship.Trust <= -10 => "She thinks you are more noise than margin.",
             NpcId.FenceHanan when context.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation >= 15 => "Your standing makes her less guarded.",
             NpcId.FenceHanan => "Transactional, sharp, and never sentimental.",
-            NpcId.RunnerYoussef when context.PolicePressure >= 70 => "He is restless; the route is too hot to ignore.",
+            NpcId.RunnerYoussef when context.PolicePressure >= PolicePressureThresholds.Hot => "He is restless; the route is too hot to ignore.",
             NpcId.RunnerYoussef when relationship.Trust >= 15 && context.CrimesCommitted >= 2 => "He talks to you like someone already half inside the route network.",
             NpcId.RunnerYoussef => "Quick, alert, and always half-turned toward the street.",
             NpcId.PharmacistMariam when context.Player.Household.MotherHealth < 40 => "She is likely to answer as a pharmacist first and a conversationalist second.",
@@ -190,7 +191,7 @@ public sealed class TalkNpcStatusQuery
                 break;
 
             case NpcId.NeighborMona:
-                if (context.PolicePressure >= 70 && context.CrimesCommitted > 0)
+                if (context.PolicePressure >= PolicePressureThresholds.Hot && context.CrimesCommitted > 0)
                 {
                     signals.Add("Police heat is close enough to home for Mona to change her tone.");
                 }
@@ -219,7 +220,7 @@ public sealed class TalkNpcStatusQuery
                 break;
 
             case NpcId.OfficerKhalid:
-                if (context.PolicePressure >= 70)
+                if (context.PolicePressure >= PolicePressureThresholds.Hot)
                 {
                     signals.Add("High pressure is making Khalid's attention feel personal.");
                 }

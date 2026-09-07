@@ -1,3 +1,4 @@
+using Slums.Core.Heat;
 using Slums.Core.World;
 
 namespace Slums.Core.Relationships;
@@ -82,7 +83,7 @@ public static class NpcRegistry
             npcs.Add(NpcId.LaundryOwnerIman);
         }
 
-        if (locationId == LocationId.Square || policePressure >= 50)
+        if (locationId == LocationId.Square || policePressure >= PolicePressureThresholds.Elevated)
         {
             npcs.Add(NpcId.OfficerKhalid);
         }

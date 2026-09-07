@@ -12,8 +12,8 @@ public static class SleepQualityCalculator
 
     private static readonly SleepModifierDefinition[] ModifierDefinitions =
     [
-        new(static context => context.Stats.Stress > 80, -10, -5, "High stress"),
-        new(static context => context.Stats.Stress > 60 && context.Stats.Stress <= 80, -5, -3, "Stress"),
+        new(static context => context.Stats.Stress >= SurvivalStats.OverstressedThreshold, -10, -5, "High stress"),
+        new(static context => context.Stats.Stress > 60 && context.Stats.Stress < SurvivalStats.OverstressedThreshold, -5, -3, "Stress"),
         new(static context => !context.Nutrition.AteToday, -5, -3, "No meal today"),
         new(static context => context.Nutrition.DaysUndereating > 2, -5, -3, "Undereating"),
         new(static context => context.Household.MotherCondition == MotherCondition.Crisis, -5, -3, "Mother in crisis"),

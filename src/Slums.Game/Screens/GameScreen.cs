@@ -6,6 +6,8 @@ using SadRogue.Primitives;
 using Slums.Application.Activities;
 using Slums.Application.Narrative;
 using Slums.Core.Clock;
+using Slums.Core.Expenses;
+using Slums.Core.Heat;
 using Slums.Core.State;
 using Slums.Core.World;
 using Slums.Game.Input;
@@ -366,15 +368,15 @@ internal sealed class GameScreen : ScreenSurface, IActionKeySuppressor
             Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth($"Day {statusContext.Clock.Day} ({daySchedule.DayName}) - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2} | {statusContext.SeasonName} | {statusContext.WeatherName}", width), Color.White);
             Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth($"Location: {location}", width), Color.White);
             Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth($"District: {districtName}", width), Color.White);
-            var policeColor = statusContext.PolicePressure >= 80 ? Color.Red
-                : statusContext.PolicePressure >= 50 ? Color.Orange
+            var policeColor = statusContext.PolicePressure >= PolicePressureThresholds.ArrestWarning ? Color.Red
+                : statusContext.PolicePressure >= PolicePressureThresholds.Elevated ? Color.Orange
                 : Color.Green;
             var moneyPrefix = $"Money: {statusContext.Player.Stats.Money} LE | Police: ";
             Surface.Print(2, y, GameScreenHudRenderer.TrimToWidth($"{moneyPrefix}{statusContext.PolicePressure}", width), Color.Gold);
             Surface.Print(2 + moneyPrefix.Length, y, $"{statusContext.PolicePressure}", policeColor);
             y++;
 
-            var rentColor = statusContext.UnpaidRentDays >= 5
+            var rentColor = statusContext.UnpaidRentDays >= RentState.FinalWarningDay
                 ? Color.Red
                 : statusContext.UnpaidRentDays > 0 || statusContext.Player.Stats.Money < statusContext.RentCost
                     ? Color.Orange

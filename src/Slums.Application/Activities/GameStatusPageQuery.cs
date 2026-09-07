@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Heat;
 using Slums.Core.Investments;
 using Slums.Core.Narrative;
 using Slums.Core.Relationships;
@@ -291,7 +292,7 @@ public sealed class GameStatusPageQuery
             yield return "Clean run intact so far.";
         }
 
-        if (context.PolicePressure >= 85)
+        if (context.PolicePressure >= PolicePressureThresholds.LongRunArrest)
         {
             yield return "Heat is high enough to threaten arrest or a buried-by-heat ending.";
         }
@@ -378,8 +379,8 @@ public sealed class GameStatusPageQuery
     {
         return policePressure switch
         {
-            >= 85 => "Heat is near arrest level and threatens the long-run endings.",
-            >= 60 => "Heat is materially raising crime risk and can spill into public-facing work.",
+            >= PolicePressureThresholds.LongRunArrest => "Heat is near arrest level and threatens the long-run endings.",
+            >= PolicePressureThresholds.MaterialRisk => "Heat is materially raising crime risk and can spill into public-facing work.",
             >= 30 => "Heat is noticeable, but not yet at a crisis point.",
             _ => "Heat is manageable for now."
         };

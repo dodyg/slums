@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
+using Slums.Core.Characters;
 using Slums.Core.State;
 
 namespace Slums.Game.Screens;
@@ -59,7 +60,7 @@ internal sealed class EntertainmentScreen : ScreenSurface
 
         Surface.Print(2, Surface.Height - 3, "Arrow keys to select, Enter to perform, Escape to cancel", Color.DarkGray);
         Surface.Print(2, Surface.Height - 2, $"Money: {_context.Player.Stats.Money} LE | Stress: {_context.Player.Stats.Stress}%",
-            _context.Player.Stats.Stress > 70 ? Color.Red : Color.Green);
+            _context.Player.Stats.Stress >= SurvivalStats.OverstressedThreshold ? Color.Red : Color.Green);
     }
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)

@@ -1,5 +1,6 @@
 using Slums.Core.Characters;
 using Slums.Core.Skills;
+using Slums.Core.Heat;
 
 namespace Slums.Core.Crimes;
 
@@ -54,7 +55,7 @@ public sealed class CrimeService
     #pragma warning restore CA5394
         var stressCost = success ? (detected ? 12 : 6) : (detected ? 18 : 10);
         var policePressureDelta = detected ? preview.PolicePressureIfDetected : preview.PolicePressureIfUndetected;
-        var arrestWarning = detected && policePressure + policePressureDelta >= 80;
+        var arrestWarning = detected && policePressure + policePressureDelta >= PolicePressureThresholds.ArrestWarning;
 
         return new CrimeResult
         {

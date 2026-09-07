@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
+using Slums.Core.Heat;
 using Slums.Core.State;
 using Slums.Game.Rendering;
 using Slums.Game.Input;
@@ -50,9 +51,9 @@ internal sealed class CrimeScreen : ScreenSurface
         Surface.Print(ListX, 3, $"Police Pressure: {_context.PolicePressure}", pressureColor);
         var pressureHint = _context.PolicePressure switch
         {
-            >= 100 => "Arrest threshold!",
-            >= 80 => "Near arrest level",
-            >= 50 => "Elevated heat",
+            >= PolicePressureThresholds.Arrest => "Arrest threshold!",
+            >= PolicePressureThresholds.ArrestWarning => "Near arrest level",
+            >= PolicePressureThresholds.Elevated => "Elevated heat",
             _ => "Manageable"
         };
         Surface.Print(ListX, 4, pressureHint, pressureColor);
@@ -190,8 +191,8 @@ internal sealed class CrimeScreen : ScreenSurface
 
     private static Color GetPressureColor(int pressure) => pressure switch
     {
-        >= 80 => Color.Red,
-        >= 50 => Color.Orange,
+        >= PolicePressureThresholds.ArrestWarning => Color.Red,
+        >= PolicePressureThresholds.Elevated => Color.Orange,
         _ => Color.Green
     };
 

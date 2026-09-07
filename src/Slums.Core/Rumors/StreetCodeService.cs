@@ -1,4 +1,5 @@
 using Slums.Core.Information;
+using Slums.Core.Heat;
 using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.State;
@@ -24,7 +25,7 @@ public static class StreetCodeService
         AddWarningTip(session);
 
         var chance = session.LastPublicFacingWorkDay == session.Clock.Day ? 15 : BaseObservationChance;
-        if (session.PolicePressure >= 50)
+        if (session.PolicePressure >= PolicePressureThresholds.Elevated)
         {
             chance += 10;
         }

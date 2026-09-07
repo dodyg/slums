@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Heat;
 using Slums.Core.Relationships;
 using Slums.Core.Territory;
 
@@ -68,7 +69,7 @@ public static class NarrativeCommunityDebtPlanner
             Add(triggers, storyFlags, StoryFlags.CommunityAllianceShiftSeen, "event_alliance_shift");
         }
 
-        if (context.PolicePressure >= 50)
+        if (context.PolicePressure >= PolicePressureThresholds.Elevated)
         {
             Add(triggers, storyFlags, StoryFlags.CommunityPoliceCrackdownSeen, "event_police_crackdown");
         }

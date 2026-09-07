@@ -104,7 +104,7 @@ public static class TipGenerator
 #pragma warning disable CA5394
         var selectedDistrict = hotDistricts[random.Next(hotDistricts.Count)];
 #pragma warning restore CA5394
-        var isEmergency = districtHeat.GetHeat(selectedDistrict) > 70;
+        var isEmergency = districtHeat.GetHeat(selectedDistrict) >= PolicePressureThresholds.Hot;
 
         tips.Add(new Tip
         {

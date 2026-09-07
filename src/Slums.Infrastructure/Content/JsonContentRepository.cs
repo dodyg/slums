@@ -10,6 +10,7 @@ using Slums.Core.Robotics;
 using Slums.Core.Inventory;
 using Slums.Core.Relationships;
 using Slums.Core.World.News;
+using Slums.Core.Heat;
 
 namespace Slums.Infrastructure.Content;
 
@@ -157,7 +158,7 @@ public sealed class JsonContentRepository : IContentRepository
         {
             null or "" => null,
             "mother_health_below_50" => static state => state.Player.Household.MotherHealth < 50,
-            "high_police_pressure" => static state => state.PolicePressure >= 60,
+            "high_police_pressure" => static state => state.PolicePressure >= PolicePressureThresholds.MaterialRisk,
             "at_home" => static state => state.World.CurrentLocationId == LocationId.Home,
             "in_imbaba" => static state => state.World.CurrentDistrict == DistrictId.Imbaba,
             "at_market" => static state => state.World.CurrentLocationId == LocationId.Market,

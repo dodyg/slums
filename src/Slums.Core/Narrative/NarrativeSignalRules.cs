@@ -1,5 +1,6 @@
 using Slums.Core.Characters;
 using Slums.Core.Relationships;
+using Slums.Core.Heat;
 
 namespace Slums.Core.Narrative;
 
@@ -15,7 +16,7 @@ public static class NarrativeSignalRules
     {
         ArgumentNullException.ThrowIfNull(storyFlags);
 
-        return policePressure >= 80 &&
+        return policePressure >= PolicePressureThresholds.ArrestWarning &&
                !storyFlags.Contains(StoryFlags.CrimeWarning);
     }
 
@@ -50,7 +51,7 @@ public static class NarrativeSignalRules
         ArgumentNullException.ThrowIfNull(relationships);
         ArgumentNullException.ThrowIfNull(storyFlags);
 
-        return policePressure >= 60 &&
+        return policePressure >= PolicePressureThresholds.MaterialRisk &&
                relationships.GetNpcRelationship(NpcId.NeighborMona).Trust >= 15 &&
                !storyFlags.Contains(StoryFlags.EventNeighborWatchSeen);
     }
@@ -59,7 +60,7 @@ public static class NarrativeSignalRules
     {
         return lastCrimeDay > 0 &&
                currentDay - lastCrimeDay <= 1 &&
-               policePressure >= 60;
+               policePressure >= PolicePressureThresholds.MaterialRisk;
     }
 
     public static bool HasPendingSalmaMedicineHelp(PlayerCharacter player, RelationshipState relationships)
@@ -93,7 +94,7 @@ public static class NarrativeSignalRules
     public static bool HasPendingArrestCloseCall(int policePressure, IReadOnlySet<string> storyFlags)
     {
         ArgumentNullException.ThrowIfNull(storyFlags);
-        return policePressure >= 90 &&
+        return policePressure >= PolicePressureThresholds.CloseCall &&
                !storyFlags.Contains(StoryFlags.EventArrestCloseCallSeen);
     }
 
