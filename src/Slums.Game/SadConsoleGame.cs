@@ -67,8 +67,7 @@ internal sealed class SadConsoleGame : IGame
             _saveGameUseCase,
             _loadGameUseCase,
             new NewGameUseCase(_randomSource, _contentCatalog),
-            _mutationLogger,
-            _logger);
+            _mutationLogger);
 
         Builder gameConfig = new Builder()
             .SetWindowSizeInCells(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight)

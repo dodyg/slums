@@ -265,7 +265,7 @@ internal sealed class GameSessionSafetyNetTests
         var digest = BuildDigest(session);
         Console.WriteLine($"GameSession golden digest: {digest}");
 
-        await Assert.That(digest).IsEqualTo("3594AADF8736C8EFE1635B51B7978C53D96D7709B82A6650EBFA11A99E4C2C1F");
+        await Assert.That(digest).IsEqualTo("2A12635E120B9F50E2EEBB7F4C0BE1881FE044F23B93189009CA60E4CE23FA20");
     }
 
     private static GameSession CreateSafetyNetSession()

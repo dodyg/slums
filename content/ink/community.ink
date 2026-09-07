@@ -123,7 +123,7 @@ The mulid takes over three blocks of Imbaba with tents, lights, music loud enoug
 The smell of fried dough, incense, and animal sweat mingles in the narrow lanes. Children run with spinning tops. A tent full of women is singing zikr with a fervour that makes the canvas walls tremble. Between the tents, a mahraganat sound system wired to salvaged car batteries trades basslines with the incense sellers, and both sides turn the volume up rather than lose. Somewhere, a pickpocket is having the best night of his career.
 
 *   [Join the celebration]
-    You buy a bag of semsemya candy, watch a tanoura spinner whirl until you feel dizzy by proxy, and dance for fifteen minutes in a circle of women who do not know your name but welcome you anyway. Your mother sits on a folding chair watching the lights with an expression that might be joy or might be memory.
+    You buy a bag of semsemya candy, watch a tanoura spinner whirl until you feel dizzy by proxy, and dance for fifteen minutes in {gender == "male": a ring of clapping men | a circle of women} who do not know your name but welcome you anyway. Your mother sits on a folding chair watching the lights with an expression that might be joy or might be memory.
     # MONEY:-8
     # STRESS:-10
     # NPC_TRUST:NeighborMona,2
@@ -287,7 +287,7 @@ Mona stops by not to invite you, but to ask if you are alright. The question is 
     -> DONE
 
 === event_friday_prisoner ===
-Friday prayer in Imbaba. The men line up shoulder to shoulder, and the women gather behind. You stand in the back row because the front rows belong to elders whose families have prayed in this building for generations, and you are still learning the texture of belonging.
+Friday prayer in Imbaba. The men line up shoulder to shoulder, and the women gather behind. You stand in the back row of the {gender == "male": men | women} because the front rows belong to elders whose families have prayed in this building for generations, and you are still learning the texture of belonging.
 
 The imam speaks about patience. About endurance. About the difference between surviving and living. You know the difference. You learned it in a cell, and you are learning it again in a flat that costs more than it gives.
 

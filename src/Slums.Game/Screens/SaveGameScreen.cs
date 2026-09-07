@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
+using Slums.Application.Activities;
 using Slums.Application.Persistence;
 using Slums.Core.State;
 
@@ -13,6 +14,7 @@ internal sealed class SaveGameScreen : ScreenSurface
     private readonly GameRuntime _runtime;
     private readonly GameSession _gameState;
     private readonly GameScreen _parentScreen;
+    private readonly RecordSystemEventCommand _recordSystemEventCommand = new();
     private IReadOnlyList<SaveSlotMetadata> _existingSlots = [];
     private string? _statusMessage;
     private bool _confirmingOverwrite;
@@ -58,7 +60,7 @@ internal sealed class SaveGameScreen : ScreenSurface
             }
             else
             {
-                _gameState.AddEventMessage($"Saved game to {Slots[_selectedIndex]}.");
+                _recordSystemEventCommand.Execute(_gameState, $"Saved game to {Slots[_selectedIndex]}.");
                 ReturnToParentScreen();
             }
         }

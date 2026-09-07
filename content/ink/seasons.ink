@@ -176,7 +176,7 @@ The first rain of winter catches the city unprepared. Long dry months left the d
 Your mother opens the window and lets the smell in. Rain on dust, rain on concrete, rain on a city that was not built for rain but somehow still welcomes it.
 # STRESS:-3
 # ENERGY:3
-# MESSAGE:The first winter rain. Cairo floods, and the child in the lane is right to be delighted.
+# MESSAGE:The first winter rain. Cairo floods, and the whole lane is delighted anyway.
 -> DONE
 
 === event_spring_khamsin_warning ===

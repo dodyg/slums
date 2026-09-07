@@ -103,7 +103,7 @@ internal sealed class MainMenuScreen : ScreenSurface
         {
             case 0:
                 {
-                    var newSession = new Slums.Core.State.GameSession(_runtime.RandomSource.SharedRandom);
+                    var newSession = _runtime.NewGameUseCase.Execute();
                     _runtime.MutationLogger.Attach(newSession);
                     ScreenTransition.FadeTo(new GenderSelectionScreen(
                         GameRuntime.ScreenWidth,

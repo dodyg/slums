@@ -13,7 +13,7 @@ Your mother pulls the thin curtain across her face and breathes through cloth. T
     -> DONE
 
 *   [Venture out to secure supplies before it gets worse]
-    The sand hits like a slap. You wrap your headscarf tight and move low along the wall. The forn is already closed, the ahwa chairs stacked, the street emptied of everyone except the truly desperate and the truly stubborn. You find a shop still open and overpay for water and bread, but you return with something to show for the burning in your lungs.
+    The sand hits like a slap. You wrap your {gender == "male": shemagh | headscarf} tight and move low along the wall. The forn is already closed, the ahwa chairs stacked, the street emptied of everyone except the truly desperate and the truly stubborn. You find a shop still open and overpay for water and bread, but you return with something to show for the burning in your lungs.
     # STRESS:5
     # ENERGY:-8
     # HEALTH:-3
@@ -59,7 +59,7 @@ Your mother moves her mattress away from the wall and says nothing, which is how
 === event_rain_leak_with_curtain ===
 The rain hammers the roof, but the curtain upgrade does its job. No water reaches the mattress, and the window stays tight. The sound of rain on concrete is almost peaceful when it is not accompanied by the sound of water finding its way into your life.
 
-Your mother listens to the rain and says it sounds like Khartoum in August, before the heat broke. For a moment, the flat is not in Cairo. It is anywhere it needs to be.
+Your mother listens to the rain{background == "SudaneseRefugee": and says it sounds like Khartoum in August, before the heat broke. For a moment, the flat is not in Cairo. It is anywhere it needs to be. | and asks whether the roof will hold this year. It held through the last winter storm, and she decides to believe it again.}
 # STRESS:-3
 # MESSAGE:The rain falls, but your home holds. The curtain earns its cost.
 -> DONE

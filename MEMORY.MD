@@ -492,7 +492,7 @@ GameSession maintains a pending narrative scenes queue. Scenes are dequeued by t
 - `GameSessionSnapshot` captures and restores full state including all subsystems
 - Snapshot hydration is entered through `GameSession.RestoreFromSnapshot`, the only public restore entry point; legacy per-system restore mutators are internal to the Core/persistence boundary. Infrastructure validates the serialized aggregate before applying it and the session checks clock, relationship-registry, and job-track invariants afterward.
 - `LoadedGameSession` wraps loaded metadata plus `GameSession` ownership across the persistence boundary
-- Loaded via `LoadGameUseCase`, saved via `SaveGameUseCase`
+- Loaded via `LoadGameUseCase`, saved via `SaveGameUseCase`; new runs are created via `NewGameUseCase`, which the UI calls instead of constructing `GameSession` directly
 
 ## Content Boundaries
 

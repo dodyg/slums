@@ -90,7 +90,7 @@ Hajj Mahmoud studies your face before he looks at the ledger. Even he can tell t
 	-> DONE
 
 === fixer_first_contact ===
-Umm Karim watches the crowd instead of you. She says there are always errands for women who keep their mouths shut and their feet moving.
+Umm Karim watches the crowd instead of you. She says there are always errands for people who keep their mouths shut and their feet moving.
 
 *   [Listen carefully]
 	# NPC_TRUST:FixerUmmKarim,8

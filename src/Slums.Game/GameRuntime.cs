@@ -1,7 +1,6 @@
 using Slums.Application.Diagnostics;
 using Slums.Application.Narrative;
 using Slums.Application.Persistence;
-using Slums.Application.Randomness;
 
 namespace Slums.Game;
 
@@ -15,14 +14,14 @@ internal sealed class GameRuntime
         ISaveGameStore saveGameStore,
         SaveGameUseCase saveGameUseCase,
         LoadGameUseCase loadGameUseCase,
-        IRandomSource randomSource,
+        NewGameUseCase newGameUseCase,
         GameMutationLogger mutationLogger)
     {
         NarrativeService = narrativeService;
         SaveGameStore = saveGameStore;
         SaveGameUseCase = saveGameUseCase;
         LoadGameUseCase = loadGameUseCase;
-        RandomSource = randomSource;
+        NewGameUseCase = newGameUseCase;
         MutationLogger = mutationLogger;
     }
 
@@ -34,7 +33,7 @@ internal sealed class GameRuntime
 
     public LoadGameUseCase LoadGameUseCase { get; }
 
-    public IRandomSource RandomSource { get; }
+    public NewGameUseCase NewGameUseCase { get; }
 
     public GameMutationLogger MutationLogger { get; }
 }

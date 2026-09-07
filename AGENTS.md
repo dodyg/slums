@@ -12,6 +12,7 @@ Before coding, read:
 2. `PLAN.MD`
 3. `AGENTS.md`
 4. `MEMORY.MD`
+5. `OPP.md` (engineering-quality debt to fix; work top-down)
 
 Do not start implementation from memory alone.
 

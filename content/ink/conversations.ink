@@ -67,9 +67,9 @@ Tarek leans against the cart and smiles without promising that the day will beco
 {conversation_context == "first": You are still learning which questions are safe to ask.}
 {conversation_context == "marked": A record exists somewhere, whether or not either of you can see it.}
 {conversation_context == "heat": The city has started connecting your money to your company.}
-{conversation_context == "helped": Something you did remains in the room with you.}
+{conversation_context == "helped" && conversation_npc != "NeighborMona": Something you did remains in the room with you.}
 {conversation_context == "debt": Help has a balance, and both of you know who is carrying it.}
-{conversation_context == "debt_warm": Gratitude and obligation have become difficult to separate.}
+{conversation_context == "debt_warm" && conversation_npc != "NurseSalma": Gratitude and obligation have become difficult to separate.}
 {conversation_context == "suspicious": The honest route and the dangerous route keep appearing in the same sentence.}
 {conversation_context == "embarrassed": A past mistake is being handled without being forgiven.}
 {conversation_context == "embedded": The connection has become useful enough to be dangerous.}
