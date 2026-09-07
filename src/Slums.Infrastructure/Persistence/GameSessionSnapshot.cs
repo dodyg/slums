@@ -143,158 +143,109 @@ public sealed record GameSessionSnapshot
 
         return gameSession.RestoreFromSnapshot(_ =>
         {
-            gameSession.Player.ApplyBackground(BackgroundRegistry.GetByType(Player.BackgroundType));
-            gameSession.Player.ApplyGender(Player.Gender);
-            gameSession.Player.Stats.SetMoney(Player.Money);
-            gameSession.Player.Nutrition.SetSatiety(Player.Satiety);
-            gameSession.Player.Nutrition.SetDaysUndereating(Player.DaysUndereating);
-            gameSession.Player.Stats.SetHunger(gameSession.Player.Nutrition.Satiety);
-            gameSession.Player.Stats.SetEnergy(Player.Energy);
-            gameSession.Player.Stats.SetHealth(Player.Health);
-            gameSession.Player.Stats.SetStress(Player.Stress);
-            gameSession.Player.Household.SetMotherHealth(Player.MotherHealth);
-            gameSession.Player.Household.SetFoodStockpile(Player.FoodStockpile);
-            gameSession.Player.Household.SetPreservedMealUnits(Player.PreservedMealUnits);
-            gameSession.Player.Household.SetMedicineStock(Player.MedicineStock);
-            gameSession.Player.Skills.Restore(Player.EnumerateSkillLevels());
-            gameSession.Clock.SetTime(Clock.Day, Clock.Hour, Clock.Minute);
-            gameSession.World.TravelTo(new LocationId(World.CurrentLocationId));
-            gameSession.World.SetActiveDistrictConditions(World.ActiveDistrictConditions.Select(static snapshot => snapshot.Restore()));
-
-            gameSession.RestoreCrimeState(
-                Crime.PolicePressure,
-                Crime.TotalCrimeEarnings,
-                Crime.CrimesCommitted,
-                Crime.LastCrimeDay,
-                Crime.HasCrimeCommittedToday,
-                Crime.CrimeRouteLockedUntilDay);
-
-            gameSession.RestoreWorkState(
-                Work.TotalHonestWorkEarnings,
-                Work.HonestShiftsCompleted,
-                Work.LastHonestWorkDay,
-                Work.LastPublicFacingWorkDay);
-
-            gameSession.RestoreRunState(
-                Run.RunId,
-                Run.DaysSurvived,
-                Run.IsGameOver,
-                Run.GameOverReason,
-                Run.EndingId,
-                Run.PendingEndingKnot,
-                Run.EmergencySupportClaimed,
-                Run.PendingEndingId,
-                Run.FinalSacrifice);
-
-            
-            gameSession.RestoreRentState(
-                Run.UnpaidRentDays,
-                Run.AccumulatedRentDebt,
-                Run.FirstWarningGiven,
-                Run.FinalWarningGiven,
-                Run.RentGraceDaysRemaining);
-
-            gameSession.RestoreNarrativeState(
-                Narrative.StoryFlags,
-                Narrative.RandomEventHistory,
-                Narrative.PendingNarrativeScenes);
-
-            gameSession.RestoreHouseholdAssetsState(
-                HouseholdAssets.Pets.Select(static snapshot => snapshot.Restore()),
-                HouseholdAssets.Plants.Select(static snapshot => snapshot.Restore()),
-                HouseholdAssets.HasStreetCatEncounter,
-                HouseholdAssets.LastStreetCatEncounterDay,
-                HouseholdAssets.TotalHerbEarnings,
-                HouseholdAssets.Robots.Select(static snapshot => snapshot.Restore()),
-                HouseholdAssets.RobotParts);
-
-            gameSession.RestoreInvestmentState(Investments, TotalInvestmentEarnings);
-
-            var trainedSkills = TrainedSkillsToday.ToDictionary(
-                kvp => SaveValueParser.ParseEnum<SkillId>(kvp.Key, "trained skill id"),
-                kvp => kvp.Value);
-            gameSession.RestoreTrainedSkillsToday(trainedSkills);
-
-            var homeUpgrades = HomeUpgrades.Select(static u => SaveValueParser.ParseEnum<HomeUpgrade>(u, "home upgrade"));
-            gameSession.RestoreHomeUpgrades(homeUpgrades);
-
-            gameSession.RestoreRamadanState(
-                Ramadan.IsActive,
-                Ramadan.PlayerIsFasting,
-                Ramadan.DaysFasting,
-                Ramadan.DaysRemaining);
-
-            gameSession.RestoreCommunityEventAttendance(
-                CommunityEvents.ConsecutiveSkips,
-                CommunityEvents.TotalAttended,
-                CommunityEvents.LastAttendanceDay,
-                CommunityEvents.AttendedThisWeek.Select(static s => SaveValueParser.ParseEnum<Slums.Core.Community.CommunityEventId>(s, "community event")),
-                CommunityEvents.LastWeekResetDay,
-                CommunityEvents.HasTeaCircleInvitation);
-
-            gameSession.RestoreCommunityAdaptationState(
-                CommunityAdaptation.CoolingRoomDaysRemaining,
-                CommunityAdaptation.WaterReserveUnits,
-                CommunityAdaptation.SuccessfulActions,
-                CommunityAdaptation.ShelterContributions);
-
-            gameSession.RestoreWeather(SaveValueParser.ParseEnum<WeatherType>(CurrentWeather, "weather"));
-
-            DistrictHeat.Restore(gameSession);
-            Territory.Restore(gameSession);
-            Economy.Restore(gameSession);
-            Phone.Restore(gameSession);
-            Tips.Restore(gameSession);
-
-            gameSession.Rumors.Clear();
-            foreach (var rumorSnapshot in Rumors)
-            {
-                gameSession.Rumors.AddRumor(rumorSnapshot.Restore());
-            }
-
-            gameSession.RestoreEventJournal(Journal);
-            News.Restore(gameSession);
-            Infrastructure.Restore(gameSession);
-            CityCrisis.Restore(gameSession);
-            Inventory.Restore(gameSession);
-            gameSession.Technology.Restore(
-                Technology.HandsetDataExposure,
-                Technology.MicrogridRepairDebt,
-                Technology.MicrogridStorageCondition,
-                Technology.TransitPermitReview,
-                Technology.BiometricAppealPending,
-                Technology.LastTelemedicineTriageDay,
-                Technology.AllocationModelConfidence,
-                Technology.WaterPumpCondition);
-            gameSession.CentralCharacterArcs.Restore(CharacterArcs.Beats, CharacterArcs.Decisions);
-
-            foreach (var npcId in Enum.GetValues<NpcId>())
-            {
-                var relationship = Relationships.GetNpcSnapshot(npcId);
-                gameSession.Relationships.SetNpcRelationship(npcId, relationship.Trust, relationship.LastSeenDay);
-                gameSession.Relationships.SetNpcRelationshipMemory(
-                    npcId,
-                    relationship.LastFavorDay,
-                    relationship.LastRefusalDay,
-                    relationship.HasUnpaidDebt,
-                    relationship.WasEmbarrassed,
-                    relationship.WasHelped,
-                    relationship.RecentContactCount);
-                gameSession.Relationships.RestoreConversationHistory(npcId, relationship.SeenConversationKnots);
-                gameSession.Relationships.RestoreConversationVariantHistory(npcId, relationship.SeenConversationVariantIds);
-            }
-
-            foreach (var factionId in Enum.GetValues<FactionId>())
-            {
-                gameSession.Relationships.SetFactionStanding(factionId, Relationships.GetFactionReputation(factionId));
-            }
-
-            foreach (var jobType in Enum.GetValues<JobType>())
-            {
-                var track = JobProgress.GetTrackSnapshot(jobType);
-                gameSession.RestoreJobTrack(jobType, track.Reliability, track.ShiftsCompleted, track.LockoutUntilDay);
-            }
-
+            RestoreIdentityAndWorld(gameSession);
+            RestoreRunProgress(gameSession);
+            RestoreHouseholdAndActivities(gameSession);
+            RestoreWorldSystems(gameSession);
+            RestoreRelationshipsAndJobs(gameSession);
         });
+    }
+
+    private void RestoreIdentityAndWorld(GameSession gameSession)
+    {
+        gameSession.Player.ApplyBackground(BackgroundRegistry.GetByType(Player.BackgroundType));
+        gameSession.Player.ApplyGender(Player.Gender);
+        gameSession.Player.Stats.SetMoney(Player.Money);
+        gameSession.Player.Nutrition.SetSatiety(Player.Satiety);
+        gameSession.Player.Nutrition.SetDaysUndereating(Player.DaysUndereating);
+        gameSession.Player.Stats.SetHunger(gameSession.Player.Nutrition.Satiety);
+        gameSession.Player.Stats.SetEnergy(Player.Energy);
+        gameSession.Player.Stats.SetHealth(Player.Health);
+        gameSession.Player.Stats.SetStress(Player.Stress);
+        gameSession.Player.Household.SetMotherHealth(Player.MotherHealth);
+        gameSession.Player.Household.SetFoodStockpile(Player.FoodStockpile);
+        gameSession.Player.Household.SetPreservedMealUnits(Player.PreservedMealUnits);
+        gameSession.Player.Household.SetMedicineStock(Player.MedicineStock);
+        gameSession.Player.Skills.Restore(Player.EnumerateSkillLevels());
+        gameSession.Clock.SetTime(Clock.Day, Clock.Hour, Clock.Minute);
+        gameSession.World.TravelTo(new LocationId(World.CurrentLocationId));
+        gameSession.World.SetActiveDistrictConditions(World.ActiveDistrictConditions.Select(static snapshot => snapshot.Restore()));
+    }
+
+    private void RestoreRunProgress(GameSession gameSession)
+    {
+        gameSession.RestoreCrimeState(Crime.PolicePressure, Crime.TotalCrimeEarnings, Crime.CrimesCommitted, Crime.LastCrimeDay, Crime.HasCrimeCommittedToday, Crime.CrimeRouteLockedUntilDay);
+        gameSession.RestoreWorkState(Work.TotalHonestWorkEarnings, Work.HonestShiftsCompleted, Work.LastHonestWorkDay, Work.LastPublicFacingWorkDay);
+        gameSession.RestoreRunState(Run.RunId, Run.DaysSurvived, Run.IsGameOver, Run.GameOverReason, Run.EndingId, Run.PendingEndingKnot, Run.EmergencySupportClaimed, Run.PendingEndingId, Run.FinalSacrifice);
+        gameSession.RestoreRentState(Run.UnpaidRentDays, Run.AccumulatedRentDebt, Run.FirstWarningGiven, Run.FinalWarningGiven, Run.RentGraceDaysRemaining);
+        gameSession.RestoreNarrativeState(Narrative.StoryFlags, Narrative.RandomEventHistory, Narrative.PendingNarrativeScenes);
+    }
+
+    private void RestoreHouseholdAndActivities(GameSession gameSession)
+    {
+        gameSession.RestoreHouseholdAssetsState(
+            HouseholdAssets.Pets.Select(static snapshot => snapshot.Restore()),
+            HouseholdAssets.Plants.Select(static snapshot => snapshot.Restore()),
+            HouseholdAssets.HasStreetCatEncounter,
+            HouseholdAssets.LastStreetCatEncounterDay,
+            HouseholdAssets.TotalHerbEarnings,
+            HouseholdAssets.Robots.Select(static snapshot => snapshot.Restore()),
+            HouseholdAssets.RobotParts);
+        gameSession.RestoreInvestmentState(Investments, TotalInvestmentEarnings);
+        var trainedSkills = TrainedSkillsToday.ToDictionary(kvp => SaveValueParser.ParseEnum<SkillId>(kvp.Key, "trained skill id"), kvp => kvp.Value);
+        gameSession.RestoreTrainedSkillsToday(trainedSkills);
+        gameSession.RestoreHomeUpgrades(HomeUpgrades.Select(static upgrade => SaveValueParser.ParseEnum<HomeUpgrade>(upgrade, "home upgrade")));
+        gameSession.RestoreRamadanState(Ramadan.IsActive, Ramadan.PlayerIsFasting, Ramadan.DaysFasting, Ramadan.DaysRemaining);
+        gameSession.RestoreCommunityEventAttendance(
+            CommunityEvents.ConsecutiveSkips,
+            CommunityEvents.TotalAttended,
+            CommunityEvents.LastAttendanceDay,
+            CommunityEvents.AttendedThisWeek.Select(static value => SaveValueParser.ParseEnum<Slums.Core.Community.CommunityEventId>(value, "community event")),
+            CommunityEvents.LastWeekResetDay,
+            CommunityEvents.HasTeaCircleInvitation);
+        gameSession.RestoreCommunityAdaptationState(CommunityAdaptation.CoolingRoomDaysRemaining, CommunityAdaptation.WaterReserveUnits, CommunityAdaptation.SuccessfulActions, CommunityAdaptation.ShelterContributions);
+    }
+
+    private void RestoreWorldSystems(GameSession gameSession)
+    {
+        gameSession.RestoreWeather(SaveValueParser.ParseEnum<WeatherType>(CurrentWeather, "weather"));
+        DistrictHeat.Restore(gameSession);
+        Territory.Restore(gameSession);
+        Economy.Restore(gameSession);
+        Phone.Restore(gameSession);
+        Tips.Restore(gameSession);
+        gameSession.Rumors.Clear();
+        foreach (var rumorSnapshot in Rumors)
+        {
+            gameSession.Rumors.AddRumor(rumorSnapshot.Restore());
+        }
+        gameSession.RestoreEventJournal(Journal);
+        News.Restore(gameSession);
+        Infrastructure.Restore(gameSession);
+        CityCrisis.Restore(gameSession);
+        Inventory.Restore(gameSession);
+        gameSession.Technology.Restore(Technology.HandsetDataExposure, Technology.MicrogridRepairDebt, Technology.MicrogridStorageCondition, Technology.TransitPermitReview, Technology.BiometricAppealPending, Technology.LastTelemedicineTriageDay, Technology.AllocationModelConfidence, Technology.WaterPumpCondition);
+        gameSession.CentralCharacterArcs.Restore(CharacterArcs.Beats, CharacterArcs.Decisions);
+    }
+
+    private void RestoreRelationshipsAndJobs(GameSession gameSession)
+    {
+        foreach (var npcId in Enum.GetValues<NpcId>())
+        {
+            var relationship = Relationships.GetNpcSnapshot(npcId);
+            gameSession.Relationships.SetNpcRelationship(npcId, relationship.Trust, relationship.LastSeenDay);
+            gameSession.Relationships.SetNpcRelationshipMemory(npcId, relationship.LastFavorDay, relationship.LastRefusalDay, relationship.HasUnpaidDebt, relationship.WasEmbarrassed, relationship.WasHelped, relationship.RecentContactCount);
+            gameSession.Relationships.RestoreConversationHistory(npcId, relationship.SeenConversationKnots);
+            gameSession.Relationships.RestoreConversationVariantHistory(npcId, relationship.SeenConversationVariantIds);
+        }
+        foreach (var factionId in Enum.GetValues<FactionId>())
+        {
+            gameSession.Relationships.SetFactionStanding(factionId, Relationships.GetFactionReputation(factionId));
+        }
+        foreach (var jobType in Enum.GetValues<JobType>())
+        {
+            var track = JobProgress.GetTrackSnapshot(jobType);
+            gameSession.RestoreJobTrack(jobType, track.Reliability, track.ShiftsCompleted, track.LockoutUntilDay);
+        }
     }
 }
