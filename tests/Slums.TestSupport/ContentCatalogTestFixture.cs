@@ -36,7 +36,7 @@ public static class ContentCatalogTestFixture
         while (directory is not null)
         {
             var contentDirectory = Path.Combine(directory.FullName, "content", "data");
-            if (Directory.Exists(contentDirectory))
+            if (File.Exists(Path.Combine(contentDirectory, "backgrounds.json")))
             {
                 return contentDirectory;
             }

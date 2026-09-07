@@ -2,6 +2,7 @@ using Slums.Application.Inventory;
 using Slums.Application.News;
 using Slums.Core.Inventory;
 using Slums.Core.World.News;
+using Slums.TestSupport;
 using TUnit.Core;
 
 namespace Slums.Application.Tests;
@@ -12,6 +13,7 @@ internal sealed class WorldEnrichmentApplicationTests
     [Test]
     public async Task NewsMenuQuery_ShouldShowVisibleCostsAndUnavailableRequirements()
     {
+        using var registryScope = new GlobalRegistryScope();
         var definition = new NewsFlashDefinition
         {
             Id = "application_news",
@@ -44,6 +46,7 @@ internal sealed class WorldEnrichmentApplicationTests
     [Test]
     public async Task NewsResponseCommand_ShouldConsumeItemAndMarkResponseUsed()
     {
+        using var registryScope = new GlobalRegistryScope();
         var definition = new NewsFlashDefinition
         {
             Id = "response_news",
@@ -77,6 +80,7 @@ internal sealed class WorldEnrichmentApplicationTests
     [Test]
     public async Task InventoryMenuQuery_ShouldDescribeKnownItems()
     {
+        using var registryScope = new GlobalRegistryScope();
         ItemRegistry.Configure([new ItemDefinition { Id = "repair_component", Name = "Repair component", Description = "A connector", MaximumQuantity = 2 }]);
         var gameSession = new Slums.Core.State.GameSession();
         gameSession.Inventory.Add("repair_component", 1, 2);

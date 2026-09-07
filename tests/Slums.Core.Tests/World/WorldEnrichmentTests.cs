@@ -4,6 +4,7 @@ using Slums.Core.Economy;
 using Slums.Core.Relationships;
 using Slums.Core.World;
 using Slums.Core.World.News;
+using Slums.TestSupport;
 using TUnit.Core;
 
 namespace Slums.Core.Tests.World;
@@ -60,6 +61,7 @@ internal sealed class WorldEnrichmentTests
     [Test]
     public async Task NewsService_ShouldSelectWeightedDefinitionAndStartInfrastructureEffect()
     {
+        using var registryScope = new GlobalRegistryScope();
         var definition = new NewsFlashDefinition
         {
             Id = "route_news",

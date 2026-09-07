@@ -3,6 +3,7 @@ using Slums.Core.Randomness;
 using Slums.Core.World;
 using Slums.Core.World.News;
 using Slums.Infrastructure.Persistence;
+using Slums.TestSupport;
 using TUnit.Core;
 
 namespace Slums.Infrastructure.Tests;
@@ -13,6 +14,7 @@ internal sealed class WorldEnrichmentSnapshotTests
     [Test]
     public async Task Snapshot_ShouldRoundTripNewsInfrastructureAndInventory()
     {
+        using var registryScope = new GlobalRegistryScope();
         var definition = new NewsFlashDefinition
         {
             Id = "snapshot_news",
@@ -45,6 +47,7 @@ internal sealed class WorldEnrichmentSnapshotTests
     [Test]
     public async Task Snapshot_ShouldPreserveTheFutureSeededNewsSequence()
     {
+        using var registryScope = new GlobalRegistryScope();
         var definitions = new[]
         {
             new NewsFlashDefinition { Id = "future_one", Headline = "One", Body = "One", SourceLabel = "Source", MinimumDay = 1, Weight = 1, DurationDays = 2 },
