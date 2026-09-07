@@ -5,6 +5,7 @@ using SadRogue.Primitives;
 using Slums.Application.Characters;
 using Slums.Core.Characters;
 using Slums.Core.State;
+using Slums.Game.Rendering;
 
 namespace Slums.Game.Screens;
 
@@ -56,7 +57,7 @@ internal sealed class GenderSelectionScreen : ScreenSurface
             Surface.Print(2, y, prefix + option.Label, color);
             y++;
 
-            var wrapped = WrapText(option.Description, Surface.Width - 6);
+            var wrapped = TextWrap.WrapText(option.Description, Surface.Width - 6);
             foreach (var line in wrapped)
             {
                 Surface.Print(4, y, line, isSelected ? Color.LightGray : Color.DarkGray);
@@ -112,7 +113,7 @@ internal sealed class GenderSelectionScreen : ScreenSurface
 
         for (var i = 0; i < Options.Length; i++)
         {
-            var lines = WrapText(Options[i].Description, Surface.Width - 6);
+            var lines = TextWrap.WrapText(Options[i].Description, Surface.Width - 6).ToArray();
             var totalHeight = 2 + lines.Length + 1;
 
             if (cellPosition.Y >= y && cellPosition.Y < y + totalHeight)
@@ -142,31 +143,4 @@ internal sealed class GenderSelectionScreen : ScreenSurface
             _gameState));
     }
 
-    private static string[] WrapText(string text, int maxWidth)
-    {
-        var words = text.Split(' ');
-        var lines = new List<string>();
-        var currentLine = "";
-
-        foreach (var word in words)
-        {
-            var testLine = currentLine.Length == 0 ? word : currentLine + " " + word;
-            if (testLine.Length > maxWidth && currentLine.Length > 0)
-            {
-                lines.Add(currentLine);
-                currentLine = word;
-            }
-            else
-            {
-                currentLine = testLine;
-            }
-        }
-
-        if (currentLine.Length > 0)
-        {
-            lines.Add(currentLine);
-        }
-
-        return [.. lines];
-    }
 }

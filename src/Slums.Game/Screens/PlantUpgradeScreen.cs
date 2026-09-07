@@ -5,6 +5,7 @@ using SadRogue.Primitives;
 using Slums.Application.HouseholdAssets;
 using Slums.Core.Characters;
 using Slums.Core.State;
+using Slums.Game.Rendering;
 
 namespace Slums.Game.Screens;
 
@@ -108,7 +109,7 @@ internal sealed class PlantUpgradeScreen : ScreenSurface
         var detailWidth = Surface.Width - DetailX - 2;
 
         Surface.Print(DetailX, y++, selected.Name, Color.White);
-        foreach (var line in WrapText(selected.Note, detailWidth))
+        foreach (var line in TextWrap.WrapText(selected.Note, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.Gray);
         }
@@ -119,29 +120,6 @@ internal sealed class PlantUpgradeScreen : ScreenSurface
         Surface.Print(DetailX, y++, $"Cost: {selected.Cost} LE", selected.CanExecute ? Color.Green : Color.Orange);
     }
 
-    private static IEnumerable<string> WrapText(string text, int maxWidth)
-    {
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var current = string.Empty;
-        foreach (var word in words)
-        {
-            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
-            if (candidate.Length > maxWidth && current.Length > 0)
-            {
-                yield return current;
-                current = word;
-            }
-            else
-            {
-                current = candidate;
-            }
-        }
-
-        if (current.Length > 0)
-        {
-            yield return current;
-        }
-    }
 
     private void ReturnToParentScreen()
     {

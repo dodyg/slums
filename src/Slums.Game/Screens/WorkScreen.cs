@@ -4,6 +4,7 @@ using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Activities;
 using Slums.Core.State;
+using Slums.Game.Rendering;
 
 namespace Slums.Game.Screens;
 
@@ -47,7 +48,7 @@ internal sealed class WorkScreen : ScreenSurface
         var tipStartY = 4;
         for (var t = 0; t < Math.Min(tipHints.Count, 2); t++)
         {
-            Surface.Print(ListX, tipStartY + t, TrimToFit($"* {tipHints[t].Content}", DetailX - ListX - 2), Color.Yellow);
+            Surface.Print(ListX, tipStartY + t, UiText.TrimToFit($"* {tipHints[t].Content}", DetailX - ListX - 2), Color.Yellow);
         }
 
         var effectiveListY = ListY + Math.Min(tipHints.Count, 2);
@@ -61,8 +62,8 @@ internal sealed class WorkScreen : ScreenSurface
                 ? i == _selectedIndex ? Color.Cyan : Color.White
                 : i == _selectedIndex ? Color.Orange : Color.Gray;
 
-            Surface.Print(ListX, rowY, TrimToFit($"{prefix}{job.Job.Name}", DetailX - ListX - 2), color);
-            Surface.Print(ListX + 2, rowY + 1, TrimToFit(GetStatusLine(job), DetailX - ListX - 4), job.CanPerform ? Color.Green : Color.Orange);
+            Surface.Print(ListX, rowY, UiText.TrimToFit($"{prefix}{job.Job.Name}", DetailX - ListX - 2), color);
+            Surface.Print(ListX + 2, rowY + 1, UiText.TrimToFit(GetStatusLine(job), DetailX - ListX - 4), job.CanPerform ? Color.Green : Color.Orange);
         }
 
         RenderSelectedJobDetails();
@@ -156,11 +157,6 @@ internal sealed class WorkScreen : ScreenSurface
             : status.AvailabilityReason ?? $"Blocked | Reliability {status.Reliability}";
     }
 
-    private static string TrimToFit(string text, int maxLength)
-    {
-        return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
-    }
-
     private void RenderSelectedJobDetails()
     {
         if (_jobs.Count == 0)
@@ -173,7 +169,7 @@ internal sealed class WorkScreen : ScreenSurface
         var detailWidth = Surface.Width - DetailX - 2;
 
         Surface.Print(DetailX, y++, selected.Job.Name, Color.White);
-        foreach (var line in WrapText(selected.Job.Description, detailWidth))
+        foreach (var line in TextWrap.WrapText(selected.Job.Description, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.Gray);
         }
@@ -188,7 +184,7 @@ internal sealed class WorkScreen : ScreenSurface
         Surface.Print(DetailX, y++, "Availability:", Color.Cyan);
         foreach (var signal in selected.AvailabilitySignals)
         {
-            foreach (var line in WrapText($"- {signal}", detailWidth))
+            foreach (var line in TextWrap.WrapText($"- {signal}", detailWidth))
             {
                 Surface.Print(DetailX, y++, line, selected.CanPerform ? Color.Gray : Color.Orange);
             }
@@ -196,14 +192,14 @@ internal sealed class WorkScreen : ScreenSurface
 
         y++;
         Surface.Print(DetailX, y++, "Why this variant:", Color.Cyan);
-        foreach (var line in WrapText(selected.VariantReason, detailWidth))
+        foreach (var line in TextWrap.WrapText(selected.VariantReason, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.White);
         }
 
         y++;
         Surface.Print(DetailX, y++, "Reliability outlook:", Color.Cyan);
-        foreach (var line in WrapText(selected.ReliabilitySummary, detailWidth))
+        foreach (var line in TextWrap.WrapText(selected.ReliabilitySummary, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.LightGray);
         }
@@ -212,7 +208,7 @@ internal sealed class WorkScreen : ScreenSurface
         {
             y++;
             Surface.Print(DetailX, y++, "Next unlock:", Color.Cyan);
-            foreach (var line in WrapText(selected.NextUnlockHint, detailWidth))
+            foreach (var line in TextWrap.WrapText(selected.NextUnlockHint, detailWidth))
             {
                 Surface.Print(DetailX, y++, line, Color.Gray);
             }
@@ -221,7 +217,7 @@ internal sealed class WorkScreen : ScreenSurface
         if (!string.IsNullOrWhiteSpace(selected.RiskWarning))
         {
             y++;
-            foreach (var line in WrapText(selected.RiskWarning, detailWidth))
+            foreach (var line in TextWrap.WrapText(selected.RiskWarning, detailWidth))
             {
                 Surface.Print(DetailX, y++, line, Color.Orange);
             }
@@ -233,7 +229,7 @@ internal sealed class WorkScreen : ScreenSurface
             Surface.Print(DetailX, y++, "Active effects:", Color.Cyan);
             foreach (var modifier in selected.ActiveModifiers)
             {
-                foreach (var line in WrapText($"- {modifier}", detailWidth))
+                foreach (var line in TextWrap.WrapText($"- {modifier}", detailWidth))
                 {
                     Surface.Print(DetailX, y++, line, Color.Gray);
                 }
@@ -246,7 +242,7 @@ internal sealed class WorkScreen : ScreenSurface
             Surface.Print(DetailX, y++, "Story triggers:", Color.Cyan);
             foreach (var signal in selected.NarrativeSignals)
             {
-                foreach (var line in WrapText($"- {signal}", detailWidth))
+                foreach (var line in TextWrap.WrapText($"- {signal}", detailWidth))
                 {
                     Surface.Print(DetailX, y++, line, Color.LightGray);
                     if (y >= Surface.Height - 3)
@@ -255,31 +251,6 @@ internal sealed class WorkScreen : ScreenSurface
                     }
                 }
             }
-        }
-    }
-
-    private static IEnumerable<string> WrapText(string text, int maxWidth)
-    {
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var current = string.Empty;
-
-        foreach (var word in words)
-        {
-            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
-            if (candidate.Length > maxWidth && current.Length > 0)
-            {
-                yield return current;
-                current = word;
-            }
-            else
-            {
-                current = candidate;
-            }
-        }
-
-        if (current.Length > 0)
-        {
-            yield return current;
         }
     }
 

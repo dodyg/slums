@@ -4,6 +4,7 @@ using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Investments;
 using Slums.Core.State;
+using Slums.Game.Rendering;
 
 namespace Slums.Game.Screens;
 
@@ -50,8 +51,8 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
                 ? i == _selectedIndex ? Color.Cyan : Color.White
                 : i == _selectedIndex ? Color.Orange : Color.Gray;
 
-            Surface.Print(ListX, rowY, TrimToFit($"{prefix}{status.Definition.Name}", DetailX - ListX - 2), color);
-            Surface.Print(ListX + 2, rowY + 1, TrimToFit(GetStatusLine(status), DetailX - ListX - 4), status.CanInvest ? Color.Green : Color.Orange);
+            Surface.Print(ListX, rowY, UiText.TrimToFit($"{prefix}{status.Definition.Name}", DetailX - ListX - 2), color);
+            Surface.Print(ListX + 2, rowY + 1, UiText.TrimToFit(GetStatusLine(status), DetailX - ListX - 4), status.CanInvest ? Color.Green : Color.Orange);
         }
 
         RenderSelectedOpportunityDetails();
@@ -151,7 +152,7 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
         var detailWidth = Surface.Width - DetailX - 2;
 
         Surface.Print(DetailX, y++, selected.Definition.Name, Color.White);
-        foreach (var line in WrapText(selected.Definition.Description, detailWidth))
+        foreach (var line in TextWrap.WrapText(selected.Definition.Description, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.Gray);
         }
@@ -160,7 +161,7 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
         Surface.Print(DetailX, y++, $"Cost: {selected.Definition.Cost} LE", Color.Yellow);
         Surface.Print(DetailX, y++, $"Weekly return: {selected.WeeklyReturnSummary}", Color.Green);
         Surface.Print(DetailX, y++, $"Expected midpoint: {selected.ExpectedWeeklyIncome} LE | Payback: ~{selected.MidpointPaybackWeeks} weeks", Color.Green);
-        foreach (var line in WrapText($"Perk: {selected.PerkSummary}", detailWidth))
+        foreach (var line in TextWrap.WrapText($"Perk: {selected.PerkSummary}", detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.LightGreen);
         }
@@ -168,21 +169,21 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
 
         foreach (var entry in selected.RiskBreakdown)
         {
-            foreach (var line in WrapText(entry, detailWidth))
+            foreach (var line in TextWrap.WrapText(entry, detailWidth))
             {
                 Surface.Print(DetailX, y++, line, Color.Gray);
             }
         }
 
         y++;
-        foreach (var line in WrapText(selected.OpportunitySource, detailWidth))
+        foreach (var line in TextWrap.WrapText(selected.OpportunitySource, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.White);
         }
 
         y++;
         Surface.Print(DetailX, y++, "Requirements:", Color.Cyan);
-        foreach (var line in WrapText(selected.UnlockSummary, detailWidth))
+        foreach (var line in TextWrap.WrapText(selected.UnlockSummary, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.Gray);
         }
@@ -191,7 +192,7 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
         {
             y++;
             Surface.Print(DetailX, y++, "Current stake:", Color.Cyan);
-            foreach (var line in WrapText(selected.OwnedStateSummary, detailWidth))
+            foreach (var line in TextWrap.WrapText(selected.OwnedStateSummary, detailWidth))
             {
                 Surface.Print(DetailX, y++, line, selected.CanInvest ? Color.LightGray : Color.Orange);
             }
@@ -203,7 +204,7 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
             Surface.Print(DetailX, y++, "Status notes:", Color.Cyan);
             foreach (var note in selected.CurrentStateNotes)
             {
-                foreach (var line in WrapText($"- {note}", detailWidth))
+                foreach (var line in TextWrap.WrapText($"- {note}", detailWidth))
                 {
                     Surface.Print(DetailX, y++, line, Color.LightGray);
                     if (y >= Surface.Height - 3)
@@ -220,7 +221,7 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
             Surface.Print(DetailX, y++, "Blocked by:", Color.Cyan);
             foreach (var reason in selected.BlockingReasons)
             {
-                foreach (var line in WrapText($"- {reason}", detailWidth))
+                foreach (var line in TextWrap.WrapText($"- {reason}", detailWidth))
                 {
                     Surface.Print(DetailX, y++, line, Color.Orange);
                     if (y >= Surface.Height - 3)
@@ -241,36 +242,6 @@ internal sealed class InvestmentMenuScreen : ScreenSurface
             "Medium-High" => Color.Orange,
             _ => Color.Red
         };
-    }
-
-    private static string TrimToFit(string text, int maxLength)
-    {
-        return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
-    }
-
-    private static IEnumerable<string> WrapText(string text, int maxWidth)
-    {
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var current = string.Empty;
-
-        foreach (var word in words)
-        {
-            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
-            if (candidate.Length > maxWidth && current.Length > 0)
-            {
-                yield return current;
-                current = word;
-            }
-            else
-            {
-                current = candidate;
-            }
-        }
-
-        if (current.Length > 0)
-        {
-            yield return current;
-        }
     }
 
     private void ReturnToParentScreen()

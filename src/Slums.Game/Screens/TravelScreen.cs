@@ -5,6 +5,7 @@ using SadRogue.Primitives;
 using Slums.Application.Activities;
 using Slums.Core.Clock;
 using Slums.Core.State;
+using Slums.Game.Rendering;
 using Slums.Core.World;
 
 namespace Slums.Game.Screens;
@@ -60,7 +61,7 @@ internal sealed class TravelScreen : ScreenSurface
                 : $"[Walk: {walkMinutes} min]";
 
             var rowY = TravelScreenLayout.DestinationStartY + rowIndex;
-            Surface.Print(TravelScreenLayout.DestinationStartX, rowY, TrimToFit($"{prefix}{displayName}", Surface.Width - travelInfo.Length - 8), nameColor);
+            Surface.Print(TravelScreenLayout.DestinationStartX, rowY, UiText.TrimToFit($"{prefix}{displayName}", Surface.Width - travelInfo.Length - 8), nameColor);
             Surface.Print(Surface.Width - travelInfo.Length - 2, rowY, travelInfo, canAffordTravel ? Color.Yellow : Color.Orange);
         }
 
@@ -220,14 +221,14 @@ internal sealed class TravelScreen : ScreenSurface
             {
                 var hint = travelHints[t];
                 var hintColor = hint.IsEmergency ? Color.Red : Color.Orange;
-                Surface.Print(2, hintY + t, TrimToFit($"! {hint.Content}", Surface.Width - 4), hintColor);
+                Surface.Print(2, hintY + t, UiText.TrimToFit($"! {hint.Content}", Surface.Width - 4), hintColor);
             }
 
-            Surface.Print(2, detailStartY + 1 + Math.Min(travelHints.Count, 2), TrimToFit(travelSummary, Surface.Width - 4), Color.DarkGray);
+            Surface.Print(2, detailStartY + 1 + Math.Min(travelHints.Count, 2), UiText.TrimToFit(travelSummary, Surface.Width - 4), Color.DarkGray);
         }
         else
         {
-            Surface.Print(2, detailStartY + 1, TrimToFit(travelSummary, Surface.Width - 4), Color.DarkGray);
+            Surface.Print(2, detailStartY + 1, UiText.TrimToFit(travelSummary, Surface.Width - 4), Color.DarkGray);
         }
 
         Surface.Print(2, detailStartY + 2, $"[Transport]: {travelCost} LE / {travelMinutes} min | [Walk]: {walkMinutes} min (free)", Color.Yellow);
@@ -260,10 +261,5 @@ internal sealed class TravelScreen : ScreenSurface
             var isThumbRow = rowIndex >= thumbOffset && rowIndex < thumbOffset + thumbSize;
             Surface.Print(scrollBarX, rowY, isThumbRow ? "#" : "|", isThumbRow ? Color.Cyan : Color.DarkGray);
         }
-    }
-
-    private static string TrimToFit(string text, int maxLength)
-    {
-        return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
     }
 }

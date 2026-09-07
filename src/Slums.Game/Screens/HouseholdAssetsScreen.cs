@@ -4,6 +4,7 @@ using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.HouseholdAssets;
 using Slums.Core.State;
+using Slums.Game.Rendering;
 using Slums.Core.World;
 
 namespace Slums.Game.Screens;
@@ -39,7 +40,7 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface, IActionKeySuppresso
 
         Surface.Print(ListX, 2, GetScreenTitle(), Color.Cyan);
         Surface.Print(ListX, 3, $"Location: {_context.LocationName ?? "Unknown"} | Week {_context.CurrentWeek}", Color.Gray);
-        Surface.Print(ListX, 4, TrimToFit(GetLocationTip(), DetailX - ListX - 2), Color.DarkGray);
+        Surface.Print(ListX, 4, UiText.TrimToFit(GetLocationTip(), DetailX - ListX - 2), Color.DarkGray);
         Surface.Print(DetailX, 2, "=== Details ===", Color.Cyan);
 
         for (var i = 0; i < _statuses.Count; i++)
@@ -49,7 +50,7 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface, IActionKeySuppresso
             var color = status.CanExecute
                 ? i == _selectedIndex ? Color.Cyan : Color.White
                 : i == _selectedIndex ? Color.Orange : Color.Gray;
-            Surface.Print(ListX, ListY + i, TrimToFit($"{prefix}{status.Title}", DetailX - ListX - 2), color);
+            Surface.Print(ListX, ListY + i, UiText.TrimToFit($"{prefix}{status.Title}", DetailX - ListX - 2), color);
         }
 
         RenderSelectedDetails();
@@ -151,21 +152,16 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface, IActionKeySuppresso
         var y = 4;
         var detailWidth = Surface.Width - DetailX - 2;
         Surface.Print(DetailX, y++, selected.Title, Color.White);
-        foreach (var line in WrapText(selected.Summary, detailWidth))
+        foreach (var line in TextWrap.WrapText(selected.Summary, detailWidth))
         {
             Surface.Print(DetailX, y++, line, selected.CanExecute ? Color.Green : Color.Orange);
         }
 
         y++;
-        foreach (var line in WrapText(selected.Note, detailWidth))
+        foreach (var line in TextWrap.WrapText(selected.Note, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.Gray);
         }
-    }
-
-    private static string TrimToFit(string text, int maxLength)
-    {
-        return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
     }
 
     private string GetScreenTitle()
@@ -188,30 +184,6 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface, IActionKeySuppresso
             var locationId when locationId == LocationId.Workshop => "Abu Samir sells worn imported machines, spare parts, and bench repairs. Every scavenging shift adds wear to an operational robot.",
             _ => "Adopt cats, cover weekly care, manage fish tank upgrades, and manage plant upgrades from home."
         };
-    }
-
-    private static IEnumerable<string> WrapText(string text, int maxWidth)
-    {
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var current = string.Empty;
-        foreach (var word in words)
-        {
-            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
-            if (candidate.Length > maxWidth && current.Length > 0)
-            {
-                yield return current;
-                current = word;
-            }
-            else
-            {
-                current = candidate;
-            }
-        }
-
-        if (current.Length > 0)
-        {
-            yield return current;
-        }
     }
 
     private void ReturnToParentScreen()

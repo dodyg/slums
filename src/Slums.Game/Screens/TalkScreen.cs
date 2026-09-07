@@ -6,6 +6,7 @@ using Slums.Application.Activities;
 using Slums.Core.Information;
 using Slums.Core.Relationships;
 using Slums.Core.State;
+using Slums.Game.Rendering;
 
 namespace Slums.Game.Screens;
 
@@ -59,7 +60,7 @@ internal sealed class TalkScreen : ScreenSurface
             var rowY = ListY + (i * ListRowHeight);
             var prefix = i == _selectedIndex ? "> " : "  ";
             var color = !npc.IsAvailable ? Color.DarkGray : i == _selectedIndex ? Color.Cyan : Color.White;
-            Surface.Print(ListX, rowY, TrimToFit($"{prefix}{npc.Name}", DetailX - ListX - 2), color);
+            Surface.Print(ListX, rowY, UiText.TrimToFit($"{prefix}{npc.Name}", DetailX - ListX - 2), color);
             Surface.Print(ListX + 2, rowY + 1, npc.IsAvailable ? $"Trust: {npc.Trust} | {npc.TimeCostMinutes} min" : "Unavailable", npc.IsAvailable ? GetTrustColor(npc.Trust) : Color.DarkGray);
         }
 
@@ -137,7 +138,7 @@ internal sealed class TalkScreen : ScreenSurface
         }
         y++;
 
-        foreach (var line in WrapText(selected.Summary, detailWidth))
+        foreach (var line in TextWrap.WrapText(selected.Summary, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.White);
         }
@@ -154,7 +155,7 @@ internal sealed class TalkScreen : ScreenSurface
             Surface.Print(DetailX, y++, "What's on their mind:", Color.Cyan);
             foreach (var signal in selected.TriggerSignals)
             {
-                foreach (var line in WrapText($"- {signal}", detailWidth))
+                foreach (var line in TextWrap.WrapText($"- {signal}", detailWidth))
                 {
                     Surface.Print(DetailX, y++, line, Color.LightGray);
                     if (y >= Surface.Height - 3)
@@ -171,7 +172,7 @@ internal sealed class TalkScreen : ScreenSurface
             Surface.Print(DetailX, y++, "They remember:", Color.Cyan);
             foreach (var flag in selected.MemoryFlags)
             {
-                foreach (var line in WrapText($"- {flag}", detailWidth))
+                foreach (var line in TextWrap.WrapText($"- {flag}", detailWidth))
                 {
                     Surface.Print(DetailX, y++, line, Color.Gray);
                 }
@@ -198,7 +199,7 @@ internal sealed class TalkScreen : ScreenSurface
                 }
 
                 var tipColor = tip.IsEmergency ? Color.Red : Color.Orange;
-                foreach (var line in WrapText($"- {tip.Content}", detailWidth))
+                foreach (var line in TextWrap.WrapText($"- {tip.Content}", detailWidth))
                 {
                     if (y >= Surface.Height - 3)
                     {
@@ -208,36 +209,6 @@ internal sealed class TalkScreen : ScreenSurface
                     Surface.Print(DetailX, y++, line, tipColor);
                 }
             }
-        }
-    }
-
-    private static string TrimToFit(string text, int maxLength)
-    {
-        return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
-    }
-
-    private static IEnumerable<string> WrapText(string text, int maxWidth)
-    {
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var current = string.Empty;
-
-        foreach (var word in words)
-        {
-            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
-            if (candidate.Length > maxWidth && current.Length > 0)
-            {
-                yield return current;
-                current = word;
-            }
-            else
-            {
-                current = candidate;
-            }
-        }
-
-        if (current.Length > 0)
-        {
-            yield return current;
         }
     }
 }

@@ -5,6 +5,7 @@ using SadRogue.Primitives;
 using Slums.Application.Activities;
 using Slums.Application.Phone;
 using Slums.Core.State;
+using Slums.Game.Rendering;
 using Slums.Game.Input;
 
 namespace Slums.Game.Screens;
@@ -78,7 +79,7 @@ internal sealed class PhoneScreen : ScreenSurface
             }
 
             var label = $"{prefix}{entry.TypeIcon} {entry.Label}";
-            Surface.Print(ListX, rowY, TrimToFit(label, DetailX - ListX - 2), baseColor);
+            Surface.Print(ListX, rowY, UiText.TrimToFit(label, DetailX - ListX - 2), baseColor);
 
             var metaColor = entry.IsEmergency ? Color.Orange : Color.Gray;
             var expiry = entry.DaysUntilExpiry.HasValue && entry.DaysUntilExpiry.Value <= 1
@@ -86,7 +87,7 @@ internal sealed class PhoneScreen : ScreenSurface
                 : entry.DaysUntilExpiry.HasValue
                     ? $" [{entry.DaysUntilExpiry.Value}d]"
                     : "";
-            Surface.Print(ListX + 2, rowY + 1, TrimToFit($"{entry.SourceName}{expiry}", DetailX - ListX - 4), metaColor);
+            Surface.Print(ListX + 2, rowY + 1, UiText.TrimToFit($"{entry.SourceName}{expiry}", DetailX - ListX - 4), metaColor);
 
             if (rowY + ListRowHeight >= Surface.Height - 4)
             {
@@ -281,11 +282,11 @@ internal sealed class PhoneScreen : ScreenSurface
         var y = 4;
         var detailWidth = Surface.Width - DetailX - 2;
 
-        Surface.Print(DetailX, y++, TrimToFit($"{entry.TypeIcon} {entry.Label}", detailWidth), entry.IsEmergency ? Color.Orange : Color.White);
+        Surface.Print(DetailX, y++, UiText.TrimToFit($"{entry.TypeIcon} {entry.Label}", detailWidth), entry.IsEmergency ? Color.Orange : Color.White);
 
         y++;
         Surface.Print(DetailX, y++, "Content:", Color.Cyan);
-        foreach (var line in WrapText(entry.Content, detailWidth))
+        foreach (var line in TextWrap.WrapText(entry.Content, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.White);
             if (y >= Surface.Height - 5)
@@ -321,36 +322,6 @@ internal sealed class PhoneScreen : ScreenSurface
         else
         {
             Surface.Print(DetailX, y++, "Enter = Read/Dismiss | I = Ignore", Color.DarkGray);
-        }
-    }
-
-    private static string TrimToFit(string text, int maxLength)
-    {
-        return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
-    }
-
-    private static IEnumerable<string> WrapText(string text, int maxWidth)
-    {
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var current = string.Empty;
-
-        foreach (var word in words)
-        {
-            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
-            if (candidate.Length > maxWidth && current.Length > 0)
-            {
-                yield return current;
-                current = word;
-            }
-            else
-            {
-                current = candidate;
-            }
-        }
-
-        if (current.Length > 0)
-        {
-            yield return current;
         }
     }
 }

@@ -6,6 +6,7 @@ using Slums.Application.Activities;
 using Slums.Core.Community;
 using Slums.Core.Characters;
 using Slums.Core.State;
+using Slums.Game.Rendering;
 
 namespace Slums.Game.Screens;
 
@@ -53,8 +54,8 @@ internal sealed class CommunityEventScreen : ScreenSurface
                 ? i == _selectedIndex ? Color.Cyan : Color.White
                 : i == _selectedIndex ? Color.Orange : Color.Gray;
 
-            Surface.Print(ListX, rowY, TrimToFit($"{prefix}{status.Event.Name}", DetailX - ListX - 2), color);
-            Surface.Print(ListX + 2, rowY + 1, TrimToFit(GetStatusLine(status), DetailX - ListX - 4), status.CanAttend ? Color.Green : Color.Orange);
+            Surface.Print(ListX, rowY, UiText.TrimToFit($"{prefix}{status.Event.Name}", DetailX - ListX - 2), color);
+            Surface.Print(ListX + 2, rowY + 1, UiText.TrimToFit(GetStatusLine(status), DetailX - ListX - 4), status.CanAttend ? Color.Green : Color.Orange);
         }
 
         RenderSelectedEventDetails();
@@ -139,13 +140,8 @@ internal sealed class CommunityEventScreen : ScreenSurface
     private static string GetStatusLine(CommunityEventMenuStatus status)
     {
         return status.CanAttend
-            ? $"Cost: {status.Event.MoneyCost} LE | Time: {FormatDuration(status.Event.TimeCostMinutes)} | Stress {status.Event.StressChange}"
+            ? $"Cost: {status.Event.MoneyCost} LE | Time: {UiText.FormatDuration(status.Event.TimeCostMinutes)} | Stress {status.Event.StressChange}"
             : status.UnavailabilityReason ?? "Not available";
-    }
-
-    private static string TrimToFit(string text, int maxLength)
-    {
-        return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
     }
 
     private void RenderSelectedEventDetails()
@@ -160,14 +156,14 @@ internal sealed class CommunityEventScreen : ScreenSurface
         var detailWidth = Surface.Width - DetailX - 2;
 
         Surface.Print(DetailX, y++, selected.Event.Name, Color.White);
-        foreach (var line in WrapText(selected.Event.Description, detailWidth))
+        foreach (var line in TextWrap.WrapText(selected.Event.Description, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.Gray);
         }
 
         y++;
         Surface.Print(DetailX, y++, $"Cost: {selected.Event.MoneyCost} LE", Color.Yellow);
-        Surface.Print(DetailX, y++, $"Duration: {FormatDuration(selected.Event.TimeCostMinutes)}", Color.Gray);
+        Surface.Print(DetailX, y++, $"Duration: {UiText.FormatDuration(selected.Event.TimeCostMinutes)}", Color.Gray);
         Surface.Print(DetailX, y++, $"Stress: {selected.Event.StressChange}", selected.Event.StressChange < 0 ? Color.Green : Color.Orange);
         Surface.Print(DetailX, y++, $"Trust: +{selected.Event.TrustGainAmount} with {selected.Event.TrustGainCount} NPCs", Color.Cyan);
 
@@ -189,46 +185,10 @@ internal sealed class CommunityEventScreen : ScreenSurface
         if (!selected.CanAttend)
         {
             y++;
-            foreach (var line in WrapText(selected.UnavailabilityReason ?? "Cannot attend this event.", detailWidth))
+            foreach (var line in TextWrap.WrapText(selected.UnavailabilityReason ?? "Cannot attend this event.", detailWidth))
             {
                 Surface.Print(DetailX, y++, line, Color.Red);
             }
-        }
-    }
-
-    private static string FormatDuration(int minutes)
-    {
-        if (minutes < 60)
-        {
-            return $"{minutes}m";
-        }
-        var hours = minutes / 60;
-        var mins = minutes % 60;
-        return mins > 0 ? $"{hours}h {mins}m" : $"{hours}h";
-    }
-
-    private static IEnumerable<string> WrapText(string text, int maxWidth)
-    {
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var current = string.Empty;
-
-        foreach (var word in words)
-        {
-            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
-            if (candidate.Length > maxWidth && current.Length > 0)
-            {
-                yield return current;
-                current = word;
-            }
-            else
-            {
-                current = candidate;
-            }
-        }
-
-        if (current.Length > 0)
-        {
-            yield return current;
         }
     }
 

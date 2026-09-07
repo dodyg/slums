@@ -67,7 +67,7 @@ internal sealed class CrimeScreen : ScreenSurface
             {
                 var hint = tipHints[t];
                 var hintColor = hint.IsEmergency ? Color.Red : hint.IsWarning ? Color.Orange : Color.Gray;
-                Surface.Print(ListX, 5 + t, TrimToFit($"! {hint.Content}", DetailX - ListX - 2), hintColor);
+                Surface.Print(ListX, 5 + t, UiText.TrimToFit($"! {hint.Content}", DetailX - ListX - 2), hintColor);
             }
 
             tipOffset = Math.Min(tipHints.Count, MaxTipHints);
@@ -83,9 +83,9 @@ internal sealed class CrimeScreen : ScreenSurface
             var color = attempt.IsAvailable
                 ? i == _selectedIndex ? Color.Cyan : Color.White
                 : i == _selectedIndex ? Color.Orange : Color.Gray;
-            Surface.Print(ListX, rowY, TrimToFit($"{prefix}{attempt.Attempt.Name}", DetailX - ListX - 2), color);
+            Surface.Print(ListX, rowY, UiText.TrimToFit($"{prefix}{attempt.Attempt.Name}", DetailX - ListX - 2), color);
             var status = attempt.IsAvailable ? attempt.StatusText ?? "Ready to run." : attempt.BlockReason ?? "Blocked.";
-            Surface.Print(ListX + 2, rowY + 1, TrimToFit(status, DetailX - ListX - 4), attempt.IsAvailable ? Color.Green : Color.Orange);
+            Surface.Print(ListX + 2, rowY + 1, UiText.TrimToFit(status, DetailX - ListX - 4), attempt.IsAvailable ? Color.Green : Color.Orange);
         }
 
         RenderSelectedCrimeDetails();
@@ -97,7 +97,7 @@ internal sealed class CrimeScreen : ScreenSurface
             var footer = selected.IsAvailable
                 ? selected.StatusText ?? "Route is open."
                 : selected.BlockReason ?? "Route is blocked.";
-            Surface.Print(2, Surface.Height - 2, TrimToFit(footer, Surface.Width - 4), selected.IsAvailable ? Color.DarkGray : Color.Orange);
+            Surface.Print(2, Surface.Height - 2, UiText.TrimToFit(footer, Surface.Width - 4), selected.IsAvailable ? Color.DarkGray : Color.Orange);
         }
     }
 
@@ -195,11 +195,6 @@ internal sealed class CrimeScreen : ScreenSurface
         >= PolicePressureThresholds.Elevated => Color.Orange,
         _ => Color.Green
     };
-
-    private static string TrimToFit(string text, int maxLength)
-    {
-        return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
-    }
 
     private void RenderSelectedCrimeDetails()
     {

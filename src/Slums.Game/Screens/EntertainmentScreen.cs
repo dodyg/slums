@@ -5,6 +5,7 @@ using SadRogue.Primitives;
 using Slums.Application.Activities;
 using Slums.Core.Characters;
 using Slums.Core.State;
+using Slums.Game.Rendering;
 
 namespace Slums.Game.Screens;
 
@@ -52,8 +53,8 @@ internal sealed class EntertainmentScreen : ScreenSurface
                 ? i == _selectedIndex ? Color.Cyan : Color.White
                 : i == _selectedIndex ? Color.Orange : Color.Gray;
 
-            Surface.Print(ListX, rowY, TrimToFit($"{prefix}{status.Activity.Name}", DetailX - ListX - 2), color);
-            Surface.Print(ListX + 2, rowY + 1, TrimToFit(GetStatusLine(status), DetailX - ListX - 4), status.CanPerform ? Color.Green : Color.Orange);
+            Surface.Print(ListX, rowY, UiText.TrimToFit($"{prefix}{status.Activity.Name}", DetailX - ListX - 2), color);
+            Surface.Print(ListX + 2, rowY + 1, UiText.TrimToFit(GetStatusLine(status), DetailX - ListX - 4), status.CanPerform ? Color.Green : Color.Orange);
         }
 
         RenderSelectedActivityDetails();
@@ -142,11 +143,6 @@ internal sealed class EntertainmentScreen : ScreenSurface
             : status.UnavailabilityReason ?? "Not available";
     }
 
-    private static string TrimToFit(string text, int maxLength)
-    {
-        return text.Length <= maxLength ? text : $"{text[..Math.Max(0, maxLength - 3)]}...";
-    }
-
     private void RenderSelectedActivityDetails()
     {
         if (_activities.Count == 0)
@@ -159,14 +155,14 @@ internal sealed class EntertainmentScreen : ScreenSurface
         var detailWidth = Surface.Width - DetailX - 2;
 
         Surface.Print(DetailX, y++, selected.Activity.Name, Color.White);
-        foreach (var line in WrapText(selected.Activity.Description, detailWidth))
+        foreach (var line in TextWrap.WrapText(selected.Activity.Description, detailWidth))
         {
             Surface.Print(DetailX, y++, line, Color.Gray);
         }
 
         y++;
         Surface.Print(DetailX, y++, $"Cost: {selected.Activity.BaseCost} LE", Color.Yellow);
-        Surface.Print(DetailX, y++, $"Duration: {FormatDuration(selected.Activity.DurationMinutes)}", Color.Gray);
+        Surface.Print(DetailX, y++, $"Duration: {UiText.FormatDuration(selected.Activity.DurationMinutes)}", Color.Gray);
         Surface.Print(DetailX, y++, $"Stress Reduction: -{selected.Activity.StressReduction}", Color.Green);
         if (selected.Activity.EnergyCost > 0)
         {
@@ -176,46 +172,10 @@ internal sealed class EntertainmentScreen : ScreenSurface
         if (!selected.CanPerform)
         {
             y++;
-            foreach (var line in WrapText(selected.UnavailabilityReason ?? "Cannot perform this activity.", detailWidth))
+            foreach (var line in TextWrap.WrapText(selected.UnavailabilityReason ?? "Cannot perform this activity.", detailWidth))
             {
                 Surface.Print(DetailX, y++, line, Color.Red);
             }
-        }
-    }
-
-    private static string FormatDuration(int minutes)
-    {
-        if (minutes < 60)
-        {
-            return $"{minutes}m";
-        }
-        var hours = minutes / 60;
-        var mins = minutes % 60;
-        return mins > 0 ? $"{hours}h {mins}m" : $"{hours}h";
-    }
-
-    private static IEnumerable<string> WrapText(string text, int maxWidth)
-    {
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var current = string.Empty;
-
-        foreach (var word in words)
-        {
-            var candidate = string.IsNullOrEmpty(current) ? word : $"{current} {word}";
-            if (candidate.Length > maxWidth && current.Length > 0)
-            {
-                yield return current;
-                current = word;
-            }
-            else
-            {
-                current = candidate;
-            }
-        }
-
-        if (current.Length > 0)
-        {
-            yield return current;
         }
     }
 

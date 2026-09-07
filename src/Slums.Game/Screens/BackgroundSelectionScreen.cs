@@ -6,6 +6,7 @@ using Slums.Application.Characters;
 using Slums.Application.Narrative;
 using Slums.Core.Characters;
 using Slums.Core.State;
+using Slums.Game.Rendering;
 
 namespace Slums.Game.Screens;
 
@@ -50,7 +51,7 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
             Surface.Print(2, y, prefix + bg.Name, color);
             y++;
 
-            var wrappedDesc = WrapText(bg.Description, Surface.Width - 6);
+            var wrappedDesc = TextWrap.WrapText(bg.Description, Surface.Width - 6);
             foreach (var line in wrappedDesc)
             {
                 Surface.Print(4, y, line, isSelected ? Color.LightGray : Color.DarkGray);
@@ -91,34 +92,6 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
         < 60 => Color.Orange,
         _ => Color.Green
     };
-
-    private static string[] WrapText(string text, int maxWidth)
-    {
-        var words = text.Split(' ');
-        var lines = new List<string>();
-        var currentLine = "";
-
-        foreach (var word in words)
-        {
-            var testLine = currentLine.Length == 0 ? word : currentLine + " " + word;
-            if (testLine.Length > maxWidth && currentLine.Length > 0)
-            {
-                lines.Add(currentLine);
-                currentLine = word;
-            }
-            else
-            {
-                currentLine = testLine;
-            }
-        }
-
-        if (currentLine.Length > 0)
-        {
-            lines.Add(currentLine);
-        }
-
-        return [.. lines];
-    }
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)
     {
@@ -164,7 +137,7 @@ internal sealed class BackgroundSelectionScreen : ScreenSurface
         for (var i = 0; i < backgrounds.Length; i++)
         {
             var bg = backgrounds[i];
-            var lines = WrapText(bg.Description, Surface.Width - 6);
+            var lines = TextWrap.WrapText(bg.Description, Surface.Width - 6).ToArray();
             var totalHeight = 2 + lines.Length + 1;
 
             if (cellPosition.Y >= y && cellPosition.Y < y + totalHeight)
