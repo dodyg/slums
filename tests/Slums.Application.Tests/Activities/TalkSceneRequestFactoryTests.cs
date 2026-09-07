@@ -10,7 +10,7 @@ namespace Slums.Application.Tests.Activities;
 internal sealed class TalkSceneRequestFactoryTests
 {
     [Test]
-    public void Create_ShouldRecordContactAndConversationHistory()
+    public void Create_ShouldPrepareRequestWithoutMutatingConversationHistory()
     {
         var gameSession = new GameSession();
         gameSession.World.TravelTo(LocationId.Home);
@@ -21,10 +21,10 @@ internal sealed class TalkSceneRequestFactoryTests
         var request = factory.Create(context, NpcId.LandlordHajjMahmoud);
         var relationship = gameSession.Relationships.GetNpcRelationship(NpcId.LandlordHajjMahmoud);
 
-        relationship.RecentContactCount.Should().Be(1);
-        relationship.LastSeenDay.Should().Be(gameSession.Clock.Day);
-        gameSession.Relationships.HasSeenConversation(NpcId.LandlordHajjMahmoud, request.KnotName).Should().BeTrue();
-        gameSession.Relationships.HasSeenConversationVariant(NpcId.LandlordHajjMahmoud, request.VariantId).Should().BeTrue();
+        relationship.RecentContactCount.Should().Be(0);
+        relationship.LastSeenDay.Should().Be(0);
+        gameSession.Relationships.HasSeenConversation(NpcId.LandlordHajjMahmoud, request.KnotName).Should().BeFalse();
+        gameSession.Relationships.HasSeenConversationVariant(NpcId.LandlordHajjMahmoud, request.VariantId).Should().BeFalse();
         request.VariantId.Should().NotBeNullOrWhiteSpace();
         request.SceneState.Day.Should().Be(gameSession.Clock.Day);
         request.SceneState.Money.Should().Be(gameSession.Player.Stats.Money);
@@ -32,5 +32,6 @@ internal sealed class TalkSceneRequestFactoryTests
         request.KnotName.Should().Be(ConversationPoolRegistry.RecurringConversationKnot);
         request.SceneState.ConversationContext.Should().Be(ConversationContexts.Default);
         request.SceneState.ConversationNpc.Should().Be(NpcId.LandlordHajjMahmoud.ToString());
+        request.ConversationKnot.Should().StartWith("landlord_default_");
     }
 }

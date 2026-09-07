@@ -60,6 +60,11 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     internal GameCrimeState CrimeState => _crimeState;
 
     public GameSession(Random? sharedRandom = null)
+        : this(sharedRandom, initializeWorldState: true)
+    {
+    }
+
+    private GameSession(Random? sharedRandom, bool initializeWorldState)
     {
         Clock = new GameClock();
         _playerIdentity = new PlayerIdentityState();
@@ -84,6 +89,11 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         _randomEventHistory = _narrativeState.RandomEventHistory;
         Territory.Initialize(_playerIdentity.BackgroundType);
         NpcEconomies.Initialize();
+        if (!initializeWorldState)
+        {
+            return;
+        }
+
         if (_useDynamicDistrictConditions)
         {
             RollDistrictConditionsForCurrentDay(_sharedRandom);
@@ -92,6 +102,13 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         {
             SetBaselineDistrictConditions();
         }
+    }
+
+    /// <summary>Creates a session shell for persistence restoration without rolling world state.</summary>
+    public static GameSession CreateForRestore(Random sharedRandom)
+    {
+        ArgumentNullException.ThrowIfNull(sharedRandom);
+        return new GameSession(sharedRandom, initializeWorldState: false);
     }
 
     public Guid RunId { get => _runState.RunId; private set => _runState.RunId = value; }

@@ -109,12 +109,10 @@ public static class NpcRegistry
         var pool = ConversationPoolRegistry.GetConversationPool(npcId, context);
         var seenKnots = relationship.SeenConversationKnots;
         var available = pool.Where(k => !seenKnots.Contains(k)).ToList();
-        var rng = random ?? Random.Shared;
-
 #pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
         return available.Count > 0
-            ? available[rng.Next(available.Count)]
-            : pool[rng.Next(pool.Count)];
+            ? available[random?.Next(available.Count) ?? 0]
+            : pool[random?.Next(pool.Count) ?? 0];
 #pragma warning restore CA5394
     }
 
@@ -166,10 +164,8 @@ public static class NpcRegistry
             motherHealth);
         var pool = ConversationPoolRegistry.GetConversationVariantPool(npcId, context);
         var available = pool.Where(variant => !relationship.SeenConversationVariantIds.Contains(variant)).ToList();
-        var rng = random ?? Random.Shared;
-
 #pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
-        return (available.Count > 0 ? available : pool)[rng.Next(available.Count > 0 ? available.Count : pool.Count)];
+        return (available.Count > 0 ? available : pool)[random?.Next(available.Count > 0 ? available.Count : pool.Count) ?? 0];
 #pragma warning restore CA5394
     }
 }

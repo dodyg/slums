@@ -92,4 +92,35 @@ internal sealed class GameRandomTests
             random.Next(1).Should().Be(0);
         }
     }
+
+    [Test]
+    public void CapturedState_AllZero_IsRejected()
+    {
+        var state = new GameRandomState(0, 0, 0, 0);
+
+        var act = () => new GameRandom(state);
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Test]
+    public void RestoreState_AllZero_IsRejectedWithoutChangingSequence()
+    {
+        var random = new GameRandom(99);
+        var expected = new GameRandom(random.CaptureState());
+
+        var act = () => random.RestoreState(new GameRandomState(0, 0, 0, 0));
+
+        act.Should().Throw<ArgumentException>();
+        random.Next().Should().Be(expected.Next());
+    }
+
+    [Test]
+    public void Next_EqualBounds_ReturnsTheBound()
+    {
+        var random = new GameRandom(7);
+
+        random.Next(-10, -10).Should().Be(-10);
+        random.Next(25, 25).Should().Be(25);
+    }
 }

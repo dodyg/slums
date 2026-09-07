@@ -50,6 +50,8 @@ public sealed class GameRandom : Random
     {
         ArgumentNullException.ThrowIfNull(state);
 
+        ValidateState(state);
+
         _s0 = state.S0;
         _s1 = state.S1;
         _s2 = state.S2;
@@ -63,6 +65,8 @@ public sealed class GameRandom : Random
     public void RestoreState(GameRandomState state)
     {
         ArgumentNullException.ThrowIfNull(state);
+
+        ValidateState(state);
 
         _s0 = state.S0;
         _s1 = state.S1;
@@ -97,6 +101,11 @@ public sealed class GameRandom : Random
     public override int Next(int minValue, int maxValue)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThan(minValue, maxValue);
+
+        if (minValue == maxValue)
+        {
+            return minValue;
+        }
 
         var range = (long)maxValue - minValue;
         return range <= int.MaxValue
@@ -176,5 +185,13 @@ public sealed class GameRandom : Random
         z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9;
         z = (z ^ (z >> 27)) * 0x94D049BB133111EB;
         return z ^ (z >> 31);
+    }
+
+    private static void ValidateState(GameRandomState state)
+    {
+        if ((state.S0 | state.S1 | state.S2 | state.S3) == 0)
+        {
+            throw new ArgumentException("A GameRandom state must contain at least one non-zero word.", nameof(state));
+        }
     }
 }

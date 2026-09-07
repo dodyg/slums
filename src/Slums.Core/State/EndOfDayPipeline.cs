@@ -20,7 +20,7 @@ internal static class EndOfDayPipeline
         DailyStatResolution.ApplyDecayAndRecovery(session, currentWeek);
         DailyEconomyResolution.ProcessRent(session);
         DailyStatResolution.RaiseDailyRecapEvents(session);
-        DailyWorldResolution.DecayPressures(session);
+        DailyWorldResolution.DecayPressures(session, resolvedRandom);
         DailyStatResolution.ApplyBackgroundAndGenderStress(session);
         DailyEconomyResolution.ResolveHerbIncome(session, currentWeek);
         DailyWorldResolution.AdvanceToNextMorning(session, resolvedRandom, beforeStats);

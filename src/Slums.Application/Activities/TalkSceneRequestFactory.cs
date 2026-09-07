@@ -10,8 +10,6 @@ public sealed class TalkSceneRequestFactory
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        context.Relationships.RecordContact(npcId, context.CurrentDay);
-
         var selectedRandom = random ?? context.Random;
         var conversationContext = NpcRegistry.GetConversationContext(
             npcId,
@@ -44,18 +42,16 @@ public sealed class TalkSceneRequestFactory
             context.Player.Household.MotherHealth,
             selectedRandom);
 
-        context.Relationships.RecordSeenConversation(npcId, knotName);
-        context.Relationships.RecordSeenConversationVariant(npcId, variantId);
-        var sceneKnot = ConversationPoolRegistry.RecurringConversationKnot;
-        context.Relationships.RecordSeenConversation(npcId, sceneKnot);
         return new TalkSceneRequest(
-            sceneKnot,
+            npcId,
+            ConversationPoolRegistry.RecurringConversationKnot,
             context.SceneState with
             {
                 ConversationVariantId = variantId,
                 ConversationContext = conversationContext,
                 ConversationNpc = npcId.ToString()
             },
-            variantId);
+            variantId,
+            knotName);
     }
 }

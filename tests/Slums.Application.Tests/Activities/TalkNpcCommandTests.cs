@@ -21,6 +21,7 @@ internal sealed class TalkNpcCommandTests
         var request = command.Execute(session, NpcId.LandlordHajjMahmoud, new Random(1));
 
         request.Should().NotBeNull();
+        command.Commit(session, request!, new Random(1));
         var after = (session.Clock.Hour * 60) + session.Clock.Minute;
         after.Should().Be(before + GameSession.ConversationDurationMinutes);
         session.Relationships.GetNpcRelationship(NpcId.LandlordHajjMahmoud).LastSeenDay.Should().Be(1);
@@ -32,7 +33,8 @@ internal sealed class TalkNpcCommandTests
         var session = new GameSession();
         session.World.TravelTo(LocationId.Home);
         var command = new TalkNpcCommand();
-        command.Execute(session, NpcId.LandlordHajjMahmoud, new Random(1));
+        var firstRequest = command.Execute(session, NpcId.LandlordHajjMahmoud, new Random(1));
+        command.Commit(session, firstRequest!, new Random(1));
         var before = (session.Clock.Day * 1440) + (session.Clock.Hour * 60) + session.Clock.Minute;
 
         var request = command.Execute(session, NpcId.LandlordHajjMahmoud, new Random(2));

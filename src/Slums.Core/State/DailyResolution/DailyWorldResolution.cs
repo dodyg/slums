@@ -18,8 +18,9 @@ namespace Slums.Core.State.DailyResolution;
 /// </summary>
 internal static class DailyWorldResolution
 {
-    internal static void DecayPressures(GameSession session)
+    internal static void DecayPressures(GameSession session, Random random)
     {
+        ArgumentNullException.ThrowIfNull(random);
         if (session.Player.BackgroundType == BackgroundType.SudaneseRefugee)
         {
             session.DistrictHeat.SetBaselineHeat(DistrictId.Dokki, 10);
@@ -44,7 +45,7 @@ internal static class DailyWorldResolution
             }
         }
 
-        session.RollTerritoryEvents(new Random(session.Clock.Day * 31 + 7919));
+        session.RollTerritoryEvents(random);
         CommunityOrganizingService.AdvanceDay(session);
     }
 

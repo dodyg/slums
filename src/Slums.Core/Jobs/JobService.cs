@@ -37,8 +37,6 @@ public sealed class JobService
         ArgumentNullException.ThrowIfNull(currentLocation);
         ArgumentNullException.ThrowIfNull(relationshipState);
         ArgumentNullException.ThrowIfNull(jobProgressState);
-        random ??= new Random();
-
         if (!CanPerformJob(job, player, currentLocation, relationshipState, jobProgressState, currentDay, out var reason))
         {
             return JobResult.Failed(reason);
@@ -157,10 +155,10 @@ public sealed class JobService
         };
     }
 
-    private static JobResult PerformMistakeShift(JobShift job, PlayerCharacter player, JobProgressState jobProgressState, int currentDay, Random random, int payModifier)
+    private static JobResult PerformMistakeShift(JobShift job, PlayerCharacter player, JobProgressState jobProgressState, int currentDay, Random? random, int payModifier)
     {
 #pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
-        var reducedPay = Math.Max(0, (job.BasePay / 2) + random.Next(0, Math.Max(2, job.PayVariance)) + payModifier);
+        var reducedPay = Math.Max(0, (job.BasePay / 2) + (random?.Next(0, Math.Max(2, job.PayVariance)) ?? 0) + payModifier);
 #pragma warning restore CA5394
         var stressCost = job.StressCost + GetMistakeStressPenalty(job.Type);
         var lockoutDays = GetLockoutDays(job.Type);

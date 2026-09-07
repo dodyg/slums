@@ -97,6 +97,7 @@ internal sealed class TalkScreen : ScreenSurface
             }
 
             _runtime.NarrativeService.StartScene(talkScene.KnotName, talkScene.SceneState);
+            _talkNpcCommand.Commit(_gameState, talkScene, _gameState.SharedRandom);
             IsFocused = false;
             ScreenTransition.FadeTo(new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, _parentScreen));
             return true;

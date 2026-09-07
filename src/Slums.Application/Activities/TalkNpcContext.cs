@@ -16,7 +16,7 @@ public sealed record TalkNpcContext(
     NarrativeSceneState SceneState,
     IReadOnlyDictionary<NpcId, NpcAvailability> Availability)
 {
-    public Random Random { get; init; } = Random.Shared;
+    public required Random Random { get; init; }
 
     public static TalkNpcContext Create(GameSession gameSession)
     {

@@ -25,19 +25,37 @@ public sealed class TalkNpcCommand
             return null;
         }
 
-        var availability = gameSession.GetNpcAvailability().First(item => item.Npc == npcId);
-        if (NpcScheduleRegistry.All.Count > 0 && !availability.IsAvailable)
+        var availability = gameSession.GetNpcAvailability().FirstOrDefault(item => item.Npc == npcId);
+        if (NpcScheduleRegistry.All.Count > 0 && availability is null)
+        {
+            gameSession.AddEventMessage($"{NpcRegistry.GetName(npcId)} has no configured schedule and cannot be reached right now.");
+            return null;
+        }
+
+        if (availability is not null && !availability.IsAvailable)
         {
             gameSession.AddEventMessage(availability.Reason);
             return null;
         }
 
-        var request = _requestFactory.Create(TalkNpcContext.Create(gameSession), npcId, random);
+        return _requestFactory.Create(TalkNpcContext.Create(gameSession), npcId, random);
+    }
+
+    /// <summary>Commits talk state after the narrative service has successfully started.</summary>
+    public void Commit(GameSession gameSession, TalkSceneRequest request, Random? random = null)
+    {
+        ArgumentNullException.ThrowIfNull(gameSession);
+        ArgumentNullException.ThrowIfNull(request);
+
+        var npcId = request.NpcId;
+        gameSession.Relationships.RecordContact(npcId, gameSession.Clock.Day);
+        gameSession.Relationships.RecordSeenConversation(npcId, request.ConversationKnot);
+        gameSession.Relationships.RecordSeenConversationVariant(npcId, request.VariantId);
+        gameSession.Relationships.RecordSeenConversation(npcId, ConversationPoolRegistry.RecurringConversationKnot);
         if (npcId == NpcId.OfficerKhalid)
         {
             gameSession.HandleOfficerKhalidConversation(random);
         }
         gameSession.AdvanceTime(GameSession.ConversationDurationMinutes);
-        return request;
     }
 }
