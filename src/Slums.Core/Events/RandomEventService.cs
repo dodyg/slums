@@ -111,7 +111,7 @@ public sealed class RandomEventService
         ArgumentNullException.ThrowIfNull(gameState);
         ArgumentNullException.ThrowIfNull(random);
 
-        var eligibleEvents = RandomEventRegistry.AllEvents
+        var eligibleEvents = gameState.ContentCatalog.RandomEvents
             .Where(randomEvent => gameState.Clock.Day >= randomEvent.MinDay)
             .Where(randomEvent => randomEvent.Condition is null || randomEvent.Condition(gameState))
             .ToList();

@@ -9,7 +9,7 @@ internal static class DistrictConditionRoller
         ArgumentNullException.ThrowIfNull(session);
 
         return session.World.ActiveDistrictConditions
-            .Select(static activeCondition => (activeCondition, definition: DistrictConditionRegistry.GetById(activeCondition.ConditionId)))
+            .Select(activeCondition => (activeCondition, definition: session.ContentCatalog.DistrictConditions.FirstOrDefault(definition => definition.Id == activeCondition.ConditionId)))
             .Where(static item => item.definition is not null)
             .OrderBy(static item => item.activeCondition.District)
             .Select(static item => item.definition!)
@@ -19,7 +19,8 @@ internal static class DistrictConditionRoller
     internal static DistrictConditionDefinition? GetActiveCondition(GameSession session, DistrictId districtId)
     {
         ArgumentNullException.ThrowIfNull(session);
-        return DistrictConditionRegistry.GetById(session.World.GetActiveDistrictCondition(districtId)?.ConditionId);
+        var conditionId = session.World.GetActiveDistrictCondition(districtId)?.ConditionId;
+        return session.ContentCatalog.DistrictConditions.FirstOrDefault(definition => definition.Id == conditionId);
     }
 
     internal static void RollForCurrentDay(GameSession session, Random random)
@@ -30,7 +31,8 @@ internal static class DistrictConditionRoller
         var activeConditions = new List<ActiveDistrictCondition>();
         foreach (var districtId in Enum.GetValues<DistrictId>())
         {
-            var candidates = DistrictConditionRegistry.GetDefinitionsForDistrict(districtId)
+            var candidates = session.ContentCatalog.DistrictConditions
+                .Where(definition => definition.District == districtId)
                 .Where(definition => definition.IsEligible(session.Clock.Day, session.PolicePressure))
                 .ToArray();
             if (candidates.Length == 0)

@@ -7,6 +7,7 @@ using Slums.Application.Narrative;
 using Slums.Application.Persistence;
 using Slums.Application.Randomness;
 using Slums.Core.Characters;
+using Slums.Core.Content;
 using Slums.Core.Endings;
 using Slums.Core.Events;
 using Slums.Core.Jobs;
@@ -31,6 +32,7 @@ internal sealed class SadConsoleGame : IGame
     private readonly IRandomSource _randomSource;
     private readonly IContentRepository _contentRepository;
     private readonly GameMutationLogger _mutationLogger;
+    private GameContentCatalog? _contentCatalog;
 
     public SadConsoleGame(
         ILogger<SadConsoleGame> logger,
@@ -59,7 +61,14 @@ internal sealed class SadConsoleGame : IGame
         Settings.WindowTitle = "Slums";
         Settings.AllowWindowResize = false;
 
-        var runtime = new GameRuntime(_narrativeService, _saveGameStore, _saveGameUseCase, _loadGameUseCase, _randomSource, _mutationLogger);
+        var runtime = new GameRuntime(
+            _narrativeService,
+            _saveGameStore,
+            _saveGameUseCase,
+            _loadGameUseCase,
+            new NewGameUseCase(_randomSource, _contentCatalog),
+            _mutationLogger,
+            _logger);
 
         Builder gameConfig = new Builder()
             .SetWindowSizeInCells(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight)
@@ -84,6 +93,7 @@ internal sealed class SadConsoleGame : IGame
         var newsFlashes = _contentRepository.LoadNewsFlashes();
         var items = _contentRepository.LoadItems();
         var npcSchedules = _contentRepository.LoadNpcSchedules();
+        _contentCatalog = new GameContentCatalog(randomEvents, districtConditions, npcSchedules);
 
         var knotNames = InkStoryCatalog.GetKnotNames();
         EndingKnotCatalog.ValidateKnownKnots(knotNames);

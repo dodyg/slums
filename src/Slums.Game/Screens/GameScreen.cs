@@ -22,6 +22,7 @@ internal sealed class GameScreen : ScreenSurface, IActionKeySuppressor
     private readonly GameActionMenuQuery _gameActionMenuQuery = new();
     private readonly GameActionCommand _gameActionCommand = new();
     private readonly AdvanceTimeCommand _advanceTimeCommand = new();
+    private readonly RecordSystemEventCommand _recordSystemEventCommand = new();
     private readonly AutomaticTimeAdvancer _automaticTimeAdvancer;
     private readonly ScreenActionKeyGate _actionKeyGate = new();
     private readonly List<string> _eventLog = new(GameScreenLayout.MaxEventLogEntries);
@@ -95,12 +96,12 @@ internal sealed class GameScreen : ScreenSurface, IActionKeySuppressor
 
     public override void Render(TimeSpan delta)
     {
+        var view = GameView.Create(_gameState);
         base.Render(delta);
         Surface.Clear();
 
-        var statusContext = GameStatusContext.Create(_gameState);
-        GameScreenHudRenderer.RenderHud(this, statusContext);
-        GameScreenHudRenderer.RenderActions(this, GetActions(), _selectedAction);
+        GameScreenHudRenderer.RenderHud(this, view.Status);
+        GameScreenHudRenderer.RenderActions(this, _gameActionMenuQuery.GetActions(view.Actions), _selectedAction);
     }
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)
@@ -181,8 +182,7 @@ internal sealed class GameScreen : ScreenSurface, IActionKeySuppressor
 
     internal void AddEventLogEntry(string message)
     {
-        _gameState.EventJournal.Add(_gameState.Clock.Day, EventSource.System, message);
-        AddToUiLog(message);
+        _recordSystemEventCommand.Execute(_gameState, message);
     }
 
     private void AddToUiLog(string message)
@@ -234,7 +234,7 @@ internal sealed class GameScreen : ScreenSurface, IActionKeySuppressor
 
     private List<GameAction> GetActions()
     {
-        var actions = _gameActionMenuQuery.GetActions(GameActionMenuContext.Create(_gameState)).ToList();
+        var actions = _gameActionMenuQuery.GetActions(GameView.Create(_gameState).Actions).ToList();
         if (_selectedAction >= actions.Count)
         {
             _selectedAction = actions.Count - 1;
@@ -280,7 +280,7 @@ internal sealed class GameScreen : ScreenSurface, IActionKeySuppressor
 
     private void CycleStatusPage()
     {
-        var pages = _statusPageQuery.GetPages(GameStatusContext.Create(_gameState));
+        var pages = _statusPageQuery.GetPages(GameView.Create(_gameState).Status);
         if (pages.Count == 0)
         {
             return;
@@ -354,7 +354,7 @@ internal sealed class GameScreen : ScreenSurface, IActionKeySuppressor
 
         private void RenderOverview()
         {
-            var statusContext = GameStatusContext.Create(_owner._gameState);
+            var statusContext = GameView.Create(_owner._gameState).Status;
             var household = statusContext.Player.Household;
             var location = statusContext.World.GetCurrentLocation()?.Name ?? "Unknown";
             var districtName = DistrictInfo.GetName(statusContext.World.CurrentDistrict);
@@ -431,7 +431,7 @@ internal sealed class GameScreen : ScreenSurface, IActionKeySuppressor
 
         private void RenderStatusPage()
         {
-            var statusContext = GameStatusContext.Create(_owner._gameState);
+            var statusContext = GameView.Create(_owner._gameState).Status;
             var pages = _owner._statusPageQuery.GetPages(statusContext);
             if (pages.Count == 0)
             {

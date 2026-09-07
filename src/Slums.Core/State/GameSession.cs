@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Content;
 using Slums.Core.Clock;
 using Slums.Core.Crimes;
 using Slums.Core.Endings;
@@ -47,6 +48,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     private readonly GameNarrativeState _narrativeState;
     private readonly GameInvestmentState _investmentState;
     private readonly RentState _rentState;
+    private readonly GameContentCatalog _contentCatalog;
     private Random _sharedRandom;
     private readonly LocationPricingService _locationPricingService;
     private readonly Queue<string> _pendingNarrativeScenes;
@@ -59,12 +61,12 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     internal CrimeService CrimeService => _crimeService;
     internal GameCrimeState CrimeState => _crimeState;
 
-    public GameSession(Random? sharedRandom = null)
-        : this(sharedRandom, initializeWorldState: true)
+    public GameSession(Random? sharedRandom = null, GameContentCatalog? contentCatalog = null)
+        : this(sharedRandom, initializeWorldState: true, contentCatalog ?? GameContentCatalog.FromLegacyRegistries())
     {
     }
 
-    private GameSession(Random? sharedRandom, bool initializeWorldState)
+    private GameSession(Random? sharedRandom, bool initializeWorldState, GameContentCatalog contentCatalog)
     {
         Clock = new GameClock();
         _playerIdentity = new PlayerIdentityState();
@@ -79,6 +81,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         _narrativeState = new GameNarrativeState();
         _investmentState = new GameInvestmentState();
         _rentState = new RentState();
+        _contentCatalog = contentCatalog;
         _useDynamicDistrictConditions = sharedRandom is not null;
 #pragma warning disable CA5394 // Gameplay randomness does not require cryptographic strength
         _sharedRandom = sharedRandom ?? new GameRandom((ulong)Random.Shared.NextInt64());
@@ -105,11 +108,13 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     /// <summary>Creates a session shell for persistence restoration without rolling world state.</summary>
-    public static GameSession CreateForRestore(Random sharedRandom)
+    public static GameSession CreateForRestore(Random sharedRandom, GameContentCatalog? contentCatalog = null)
     {
         ArgumentNullException.ThrowIfNull(sharedRandom);
-        return new GameSession(sharedRandom, initializeWorldState: false);
+        return new GameSession(sharedRandom, initializeWorldState: false, contentCatalog ?? GameContentCatalog.FromLegacyRegistries());
     }
+
+    internal GameContentCatalog ContentCatalog => _contentCatalog;
 
     public Guid RunId { get => _runState.RunId; private set => _runState.RunId = value; }
 
@@ -205,7 +210,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         return NpcAvailabilityResolver.ResolveAll(
             Clock,
             World.CurrentLocationId,
-            NpcScheduleRegistry.All,
+            _contentCatalog.NpcSchedules,
             NewsImpactCalculator.GetActiveNewsIds(News));
     }
 
