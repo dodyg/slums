@@ -34,14 +34,21 @@ internal static class InkStoryValidator
 
                 break;
             case JsonValueKind.Array:
-                foreach (var child in element.EnumerateArray())
+                var children = element.EnumerateArray().ToArray();
+                for (var index = 0; index < children.Length; index++)
                 {
+                    var child = children[index];
+                    if (child.ValueKind == JsonValueKind.String && child.GetString() == "#" &&
+                        index + 1 < children.Length && children[index + 1].ValueKind == JsonValueKind.String)
+                    {
+                        ValidateTagString(children[index + 1].GetString());
+                    }
+
                     ValidateElement(child);
                 }
 
                 break;
             case JsonValueKind.String:
-                ValidateString(element.GetString());
                 break;
         }
     }
@@ -99,14 +106,14 @@ internal static class InkStoryValidator
         }
     }
 
-    private static void ValidateString(string? value)
+    private static void ValidateTagString(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value) || !value.StartsWith('^'))
+        if (string.IsNullOrWhiteSpace(value))
         {
             return;
         }
 
-        var tag = value[1..];
+        var tag = value.StartsWith('^') ? value[1..] : value;
         var separator = tag.IndexOf(':', StringComparison.Ordinal);
         if (separator <= 0)
         {
@@ -115,6 +122,11 @@ internal static class InkStoryValidator
 
         var key = tag[..separator].Trim().ToUpperInvariant();
         var payload = tag[(separator + 1)..].Trim();
+        if (!InkTagCatalog.ValidKeys.Contains(key) && LooksLikeEffectKey(key))
+        {
+            throw InvalidTag(tag, "unknown effect tag key");
+        }
+
         switch (key)
         {
             case "NPC_TRUST":
@@ -254,5 +266,10 @@ internal static class InkStoryValidator
     private static InvalidOperationException InvalidTag(string tag, string reason)
     {
         return new InvalidOperationException($"Invalid compiled Ink effect tag '{tag}': {reason}.");
+    }
+
+    private static bool LooksLikeEffectKey(string key)
+    {
+        return key.Length > 0 && key.All(static character => character is (>= 'A' and <= 'Z') or (>= '0' and <= '9') or '_');
     }
 }

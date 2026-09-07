@@ -80,9 +80,16 @@ internal sealed class InkNarrativeTagParserTests
     }
 
     [Test]
-    public void Parse_ShouldIgnoreNonEffectMarkers()
+    public void Parse_ShouldRejectUnknownEffectMarkers()
     {
-        InkTagEffectParser.Parse("weather:rain").Should().BeNull();
+        var act = () => InkTagEffectParser.Parse("weather:rain");
+
+        act.Should().Throw<InvalidOperationException>().Which.Message.Should().Contain("weather:rain");
+    }
+
+    [Test]
+    public void Parse_ShouldIgnoreNonTagText()
+    {
         InkTagEffectParser.Parse("not_an_effect").Should().BeNull();
     }
 }

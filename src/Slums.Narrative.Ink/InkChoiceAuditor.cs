@@ -4,15 +4,17 @@ namespace Slums.Narrative.Ink;
 
 public static class InkChoiceAuditor
 {
-    public static IReadOnlyList<InkChoiceAudit> Audit(Story story)
+    public static IReadOnlyList<InkChoiceAudit> Audit(string json)
     {
-        ArgumentNullException.ThrowIfNull(story);
+        ArgumentNullException.ThrowIfNull(json);
 
+        var template = InkStoryFactory.Create(json);
         var audits = new List<InkChoiceAudit>();
-        foreach (var knotName in story.mainContentContainer.namedOnlyContent.Keys
+        foreach (var knotName in template.mainContentContainer.namedOnlyContent.Keys
                      .Where(static knot => knot != "global decl")
                      .Order(StringComparer.Ordinal))
         {
+            var story = InkStoryFactory.Create(json);
             story.ChoosePathString(knotName);
             while (story.canContinue)
             {

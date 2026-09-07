@@ -122,6 +122,6 @@ public static class InkStoryCatalog
 
     public static IReadOnlyList<InkChoiceAudit> GetChoiceAudit()
     {
-        return InkChoiceAuditor.Audit(InkStoryFactory.Create(InkStoryLoader.LoadStoryJson()));
+        return InkChoiceAuditor.Audit(InkStoryLoader.LoadStoryJson());
     }
 }

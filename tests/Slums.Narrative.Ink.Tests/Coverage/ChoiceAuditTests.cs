@@ -15,4 +15,13 @@ internal sealed class ChoiceAuditTests
         audits.Should().Contain(audit => audit.KnotName == "crisis_appeal" && audit.ChoiceCount == 2);
         audits.Should().OnlyContain(static audit => audit.ChoiceTexts.Distinct(StringComparer.Ordinal).Count() == audit.ChoiceTexts.Count);
     }
+
+    [Test]
+    public void CompiledStory_ShouldAuditEachKnotIndependently()
+    {
+        var first = InkStoryCatalog.GetChoiceAudit();
+        var second = InkStoryCatalog.GetChoiceAudit();
+
+        second.Should().BeEquivalentTo(first);
+    }
 }

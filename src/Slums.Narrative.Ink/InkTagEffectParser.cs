@@ -80,6 +80,11 @@ internal static class InkTagEffectParser
 
         key = parts[0].Trim().ToUpperInvariant();
         value = parts[1].Trim();
+        if (!InkTagCatalog.ValidKeys.Contains(key))
+        {
+            throw new InvalidOperationException($"Unknown narrative effect tag '{tag}'.");
+        }
+
         return true;
     }
 

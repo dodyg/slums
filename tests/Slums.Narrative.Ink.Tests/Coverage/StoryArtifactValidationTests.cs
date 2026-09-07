@@ -68,6 +68,17 @@ internal sealed class StoryArtifactValidationTests
     }
 
     [Test]
+    public void InkValidator_RejectsUnknownEffectTags()
+    {
+        const string invalidStory = "{\"root\":[\"#\",\"^UNDECLARED_EFFECT:1\",\"/#\"]}";
+
+        var act = () => InkStoryValidator.Validate(invalidStory);
+
+        act.Should().Throw<InvalidOperationException>()
+            .Which.Message.Should().Contain("unknown effect tag key");
+    }
+
+    [Test]
     public async Task EveryAuthoredKnot_IsTraversable()
     {
         var story = StoryTraversalHelper.LoadStory();
