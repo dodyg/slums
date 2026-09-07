@@ -25,24 +25,29 @@ public sealed class TalkNpcCommand
             return null;
         }
 
-        var availability = gameSession.GetNpcAvailability().FirstOrDefault(item => item.Npc == npcId);
-        if (NpcScheduleRegistry.All.Count > 0 && availability is null)
+        if (gameSession.HasConfiguredNpcSchedules)
         {
-            gameSession.AddEventMessage($"{NpcRegistry.GetName(npcId)} has no configured schedule and cannot be reached right now.");
-            return null;
-        }
+            var availability = gameSession.GetNpcAvailability().FirstOrDefault(item => item.Npc == npcId);
+            if (availability is null)
+            {
+                gameSession.AddEventMessage($"{NpcRegistry.GetName(npcId)} has no configured schedule and cannot be reached right now.");
+                return null;
+            }
 
-        if (availability is not null && !availability.IsAvailable)
-        {
-            gameSession.AddEventMessage(availability.Reason);
-            return null;
+            if (!availability.IsAvailable)
+            {
+                gameSession.AddEventMessage(availability.Reason);
+                return null;
+            }
         }
 
         return _requestFactory.Create(TalkNpcContext.Create(gameSession), npcId, random);
     }
 
     /// <summary>Commits talk state after the narrative service has successfully started.</summary>
+#pragma warning disable CA1822
     public void Commit(GameSession gameSession, TalkSceneRequest request, Random? random = null)
+#pragma warning restore CA1822
     {
         ArgumentNullException.ThrowIfNull(gameSession);
         ArgumentNullException.ThrowIfNull(request);

@@ -138,6 +138,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     public GameClock Clock { get; }
+    public bool HasConfiguredNpcSchedules => _contentCatalog.NpcSchedules.Count > 0;
     public PlayerCharacter Player { get; }
     public WorldState World { get; }
     public RelationshipState Relationships { get; }
@@ -207,6 +208,11 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
 
     public IReadOnlyList<NpcAvailability> GetNpcAvailability()
     {
+        if (!HasConfiguredNpcSchedules)
+        {
+            return [];
+        }
+
         return NpcAvailabilityResolver.ResolveAll(
             Clock,
             World.CurrentLocationId,

@@ -2,6 +2,8 @@ using FluentAssertions;
 using Slums.Core.Content;
 using Slums.Core.Events;
 using Slums.Core.Relationships;
+using Slums.Core.Randomness;
+using Slums.Core.State;
 using Slums.Core.World;
 using TUnit;
 
@@ -30,5 +32,15 @@ internal sealed class GameContentCatalogTests
         catalog.DistrictConditions.Should().ContainSingle();
         catalog.RandomEvents.Should().NotBeAssignableTo<RandomEvent[]>();
         catalog.DistrictConditions.Should().NotBeAssignableTo<DistrictConditionDefinition[]>();
+    }
+
+    [Test]
+    public void GameSession_ShouldExposeNoScheduleAvailability_WhenCatalogHasNoSchedules()
+    {
+        var catalog = new GameContentCatalog([], [], []);
+        var session = new GameSession(new GameRandom(1), catalog);
+
+        session.HasConfiguredNpcSchedules.Should().BeFalse();
+        session.GetNpcAvailability().Should().BeEmpty();
     }
 }

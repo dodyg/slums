@@ -47,6 +47,7 @@ internal sealed class GameSessionSafetyNetTests
         "property:FirstWarningGiven",
         "property:GameOverReason",
         "property:HasClaimedEmergencySupport",
+        "property:HasConfiguredNpcSchedules",
         "property:HasCrimeCommittedToday",
         "property:HomeUpgrades",
         "property:HonestShiftsCompleted",
