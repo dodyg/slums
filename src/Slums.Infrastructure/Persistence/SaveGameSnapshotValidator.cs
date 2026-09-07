@@ -71,6 +71,7 @@ internal static class SaveGameSnapshotValidator
         ValidateRelationshipSections(snapshot.Relationships, problems);
         ValidateJobSections(snapshot.JobProgress, problems);
         ValidateWorld(snapshot.World, snapshot.Clock.Day, problems);
+        ValidatePercentage(snapshot.Crime.PolicePressure, "police pressure", problems);
         ValidateEnumName<WeatherType>(snapshot.CurrentWeather, "weather", problems);
         ValidateRun(snapshot.Run, snapshot.Clock.Day, problems);
         ValidateNarrative(snapshot.Narrative, problems);
@@ -163,6 +164,34 @@ internal static class SaveGameSnapshotValidator
             if (pair.Value is null)
             {
                 problems.Add($"relationship NPC '{pair.Key}' has no state");
+                continue;
+            }
+
+            if (!TryParseEnum<NpcId>(pair.Key, out var npcId))
+            {
+                problems.Add($"relationship NPC '{pair.Key}' is not declared");
+                continue;
+            }
+
+            if (pair.Value.Trust is < -100 or > 100)
+            {
+                problems.Add($"relationship trust for {npcId} is outside -100..100");
+            }
+            if (pair.Value.LastSeenDay < 0 || pair.Value.LastFavorDay < 0 || pair.Value.LastRefusalDay < 0 || pair.Value.RecentContactCount < 0)
+            {
+                problems.Add($"relationship memory for {npcId} contains a negative value");
+            }
+        }
+
+        foreach (var pair in relationships.Factions)
+        {
+            if (!TryParseEnum<FactionId>(pair.Key, out var factionId))
+            {
+                problems.Add($"relationship faction '{pair.Key}' is not declared");
+            }
+            else if (pair.Value is < -100 or > 100)
+            {
+                problems.Add($"faction reputation for {factionId} is outside -100..100");
             }
         }
     }
@@ -184,6 +213,19 @@ internal static class SaveGameSnapshotValidator
             if (pair.Value is null)
             {
                 problems.Add($"job track '{pair.Key}' has no state");
+                continue;
+            }
+
+            if (!TryParseEnum<JobType>(pair.Key, out var jobType))
+            {
+                problems.Add($"job track '{pair.Key}' is not declared");
+                continue;
+            }
+
+            ValidatePercentage(pair.Value.Reliability, $"job reliability for {jobType}", problems);
+            if (pair.Value.ShiftsCompleted < 0 || pair.Value.LockoutUntilDay < 0)
+            {
+                problems.Add($"job track for {jobType} contains a negative value");
             }
         }
     }
