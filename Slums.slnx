@@ -12,5 +12,6 @@
     <Project Path="tests/Slums.Game.Tests/Slums.Game.Tests.csproj" />
     <Project Path="tests/Slums.Infrastructure.Tests/Slums.Infrastructure.Tests.csproj" />
     <Project Path="tests/Slums.Narrative.Ink.Tests/Slums.Narrative.Ink.Tests.csproj" />
+    <Project Path="tests/Slums.TestSupport/Slums.TestSupport.csproj" />
   </Folder>
 </Solution>

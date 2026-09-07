@@ -23,7 +23,7 @@ internal sealed class GameContentCatalogTests
             new() { Id = "condition", District = DistrictId.Imbaba, Title = "Condition", Weight = 1, MinDay = 1 }
         };
         var schedules = new List<NpcScheduleDefinition>();
-        var catalog = new GameContentCatalog(events, conditions, schedules);
+        var catalog = new GameContentCatalog([], [], [], events, conditions, schedules);
 
         events.Clear();
         conditions.Clear();
@@ -37,7 +37,7 @@ internal sealed class GameContentCatalogTests
     [Test]
     public void GameSession_ShouldExposeNoScheduleAvailability_WhenCatalogHasNoSchedules()
     {
-        var catalog = new GameContentCatalog([], [], []);
+        var catalog = new GameContentCatalog([], [], [], [], [], []);
         var session = new GameSession(new GameRandom(1), catalog);
 
         session.HasConfiguredNpcSchedules.Should().BeFalse();

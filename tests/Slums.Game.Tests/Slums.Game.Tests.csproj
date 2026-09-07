@@ -8,6 +8,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Slums.Game\Slums.Game.csproj" />
+    <ProjectReference Include="..\Slums.TestSupport\Slums.TestSupport.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Slums.TestSupport\TestAssemblyContentSetup.cs" Link="TestAssemblyContentSetup.cs" />
   </ItemGroup>
 
   <ItemGroup>

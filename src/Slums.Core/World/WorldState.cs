@@ -25,176 +25,13 @@ public sealed class Location
 public sealed class WorldState
 {
     private readonly List<ActiveDistrictCondition> _activeDistrictConditions = [];
+    private static IReadOnlyList<Location>? _locations;
 
     public DistrictId CurrentDistrict { get; private set; } = DistrictId.Imbaba;
     public LocationId CurrentLocationId { get; private set; } = LocationId.Home;
     public IReadOnlyList<ActiveDistrictCondition> ActiveDistrictConditions => _activeDistrictConditions;
 
-    private static readonly Location[] DefaultLocations =
-    [
-        new Location
-        {
-            Id = LocationId.Home,
-            Name = "Your Apartment",
-            Description = "A small two-room flat you share with your mother, supplied by rotating pump hours and a rooftop solar-and-storage co-op when the heat has not drained its batteries.",
-            District = DistrictId.Imbaba,
-            HasJobOpportunities = false,
-            HasCrimeOpportunities = false,
-            TravelTimeMinutes = 0
-        },
-        new Location
-        {
-            Id = LocationId.Market,
-            Name = "Souk Al-Gom'a",
-            Description = "The Friday market under patched shade cloth, busy with food sellers, water filters, repair stalls, and delivery craft above the roofs.",
-            District = DistrictId.Imbaba,
-            HasJobOpportunities = true,
-            HasCrimeOpportunities = true,
-            AvailableJobTypes = [JobType.HouseCleaning, JobType.MarketPorter],
-            AvailableCrimeTypes = [CrimeType.PettyTheft, CrimeType.HashishTrade, CrimeType.Robbery, CrimeType.MarketFencing, CrimeType.NetworkErrand],
-            TravelTimeMinutes = 15,
-            HasCafe = true
-        },
-        new Location
-        {
-            Id = LocationId.Bakery,
-            Name = "Al-Forn Al-Baladi",
-            Description = "A traditional bakery where bread is baked in stone ovens and a temperamental microgrid controller helps keep the lights on.",
-            District = DistrictId.Imbaba,
-            HasJobOpportunities = true,
-            HasCrimeOpportunities = false,
-            AvailableJobTypes = [JobType.BakeryWork],
-            TravelTimeMinutes = 10
-        },
-        new Location
-        {
-            Id = LocationId.CallCenter,
-            Name = "TechConnect Office",
-            Description = "A call center serving international clients, where speech software scores your script and a supervisor decides what the software missed.",
-            District = DistrictId.Dokki,
-            HasJobOpportunities = true,
-            HasCrimeOpportunities = false,
-            AvailableJobTypes = [JobType.CallCenterWork],
-            TravelTimeMinutes = 45
-        },
-        new Location
-        {
-            Id = LocationId.Square,
-            Name = "Midan Al-Tahrir",
-            Description = "The exposed central square where autonomous taxis, old buses, street sellers, and delivery drones compete for cooler routes and strips of shade.",
-            District = DistrictId.DowntownCairo,
-            HasJobOpportunities = true,
-            HasCrimeOpportunities = true,
-            AvailableJobTypes = [JobType.StreetVending],
-            AvailableCrimeTypes = [CrimeType.PettyTheft, CrimeType.Robbery, CrimeType.HashishTrade, CrimeType.DokkiDrop],
-            TravelTimeMinutes = 40,
-            HasBar = true
-        },
-        new Location
-        {
-            Id = LocationId.Clinic,
-            Name = "Rahma Clinic",
-            Description = "A cramped low-cost clinic where heat cases fill the hallway and a working diagnostic scanner or refrigerated cabinet is a precious resource.",
-            District = DistrictId.ArdAlLiwa,
-            HasJobOpportunities = true,
-            HasCrimeOpportunities = false,
-            AvailableJobTypes = [JobType.ClinicReception],
-            HasClinicServices = true,
-            ClinicVisitBaseCost = 35,
-            ClinicOpenDays = [DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Thursday],
-            TravelTimeMinutes = 25
-        },
-        new Location
-        {
-            Id = LocationId.Workshop,
-            Name = "Abu Samir Sewing Workshop",
-            Description = "A noisy garment workshop cooled by reed screens and rebuilt fans, with a side bench for repairing imported service robots and mobility aids.",
-            District = DistrictId.ArdAlLiwa,
-            HasJobOpportunities = true,
-            HasCrimeOpportunities = true,
-            AvailableJobTypes = [JobType.WorkshopSewing, JobType.RoboticsScavenging],
-            AvailableCrimeTypes = [CrimeType.PettyTheft, CrimeType.HashishTrade, CrimeType.WorkshopContraband],
-            TravelTimeMinutes = 20
-        },
-        new Location
-        {
-            Id = LocationId.Cafe,
-            Name = "Ahwa El-Galaa",
-            Description = "A Dokki street cafe serving tea and neighborhood gossip beneath a solar awning beside a marked lane for autonomous electric taxis.",
-            District = DistrictId.Dokki,
-            HasJobOpportunities = true,
-            HasCrimeOpportunities = false,
-            AvailableJobTypes = [JobType.CafeService],
-            TravelTimeMinutes = 35,
-            HasCafe = true
-        },
-        new Location
-        {
-            Id = LocationId.Pharmacy,
-            Name = "Saidaleya Al-Nahda",
-            Description = "A discount pharmacy in Bulaq al-Dakrour with stacked boxes, temperature strips, and women comparing generic medicine that survived the last refrigeration cut.",
-            District = DistrictId.BulaqAlDakrour,
-            HasJobOpportunities = true,
-            HasCrimeOpportunities = false,
-            AvailableJobTypes = [JobType.PharmacyStock],
-            HasClinicServices = true,
-            ClinicVisitBaseCost = 46,
-            ClinicOpenDays = [DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Tuesday, DayOfWeek.Thursday],
-            TravelTimeMinutes = 30,
-            HasCafe = true
-        },
-        new Location
-        {
-            Id = LocationId.Depot,
-            Name = "Bulaq Microbus Depot",
-            Description = "A chaotic transport yard where autonomous-taxi routes are argued over beside idling microbuses and everybody is late for something.",
-            District = DistrictId.BulaqAlDakrour,
-            HasJobOpportunities = true,
-            HasCrimeOpportunities = true,
-            AvailableJobTypes = [JobType.MicrobusDispatch],
-            AvailableCrimeTypes = [CrimeType.PettyTheft, CrimeType.Robbery, CrimeType.DepotFareSkim, CrimeType.BulaqProtectionRacket],
-            TravelTimeMinutes = 30,
-            HasBilliards = true
-        },
-        new Location
-        {
-            Id = LocationId.Laundry,
-            Name = "Shubra Steam Laundry",
-            Description = "A hot narrow laundry where steam, starch, battery fumes, rationed water, and neighborhood gossip cling to everything at once.",
-            District = DistrictId.Shubra,
-            HasJobOpportunities = true,
-            HasCrimeOpportunities = true,
-            AvailableJobTypes = [JobType.LaundryPressing],
-            AvailableCrimeTypes = [CrimeType.PettyTheft, CrimeType.HashishTrade, CrimeType.ShubraBundleLift],
-            TravelTimeMinutes = 40,
-            HasBilliards = true
-        },
-        new Location
-        {
-            Id = LocationId.FishMarket,
-            Name = "Wikalet Al-Samak",
-            Description = "A fish market where wet floors, cheap digital scales, failing cold cells, and smaller catches crowd every step.",
-            District = DistrictId.Imbaba,
-            HasJobOpportunities = true,
-            HasCrimeOpportunities = false,
-            AvailableJobTypes = [JobType.FishSorter],
-            TravelTimeMinutes = 20
-        },
-        new Location
-        {
-            Id = LocationId.PlantShop,
-            Name = "Mashrabiya Plant Stall",
-            Description = "A cramped Dokki plant stall packed with herbs, flowers, cheap pots, and improvised filters for rooftop air.",
-            District = DistrictId.Dokki,
-            HasJobOpportunities = false,
-            HasCrimeOpportunities = false,
-            TravelTimeMinutes = 38
-        }
-    ];
-
-    private static IReadOnlyList<Location> _locations = DefaultLocations;
-
-    public static IReadOnlyList<Location> AllLocations => _locations;
+    public static IReadOnlyList<Location> AllLocations => GetConfiguredLocations();
 
     public static void ConfigureLocations(IEnumerable<Location> locations)
     {
@@ -211,22 +48,22 @@ public sealed class WorldState
 
     public Location? GetCurrentLocation()
     {
-        return _locations.FirstOrDefault(l => l.Id == CurrentLocationId);
+        return GetConfiguredLocations().FirstOrDefault(location => location.Id == CurrentLocationId);
     }
 
     public IEnumerable<Location> GetLocationsInCurrentDistrict()
     {
-        return _locations.Where(l => l.District == CurrentDistrict);
+        return GetConfiguredLocations().Where(location => location.District == CurrentDistrict);
     }
 
     public IEnumerable<Location> GetTravelableLocations()
     {
-        return _locations.Where(l => l.Id != CurrentLocationId);
+        return GetConfiguredLocations().Where(location => location.Id != CurrentLocationId);
     }
 
     public void TravelTo(LocationId locationId)
     {
-        var location = _locations.FirstOrDefault(l => l.Id == locationId);
+        var location = GetConfiguredLocations().FirstOrDefault(candidate => candidate.Id == locationId);
         if (location is not null)
         {
             CurrentLocationId = locationId;
@@ -251,5 +88,11 @@ public sealed class WorldState
 
         _activeDistrictConditions.Clear();
         _activeDistrictConditions.AddRange(configuredConditions);
+    }
+
+    private static IReadOnlyList<Location> GetConfiguredLocations()
+    {
+        return _locations
+            ?? throw new InvalidOperationException("Location content is not configured. Configure GameContentCatalog before querying locations.");
     }
 }

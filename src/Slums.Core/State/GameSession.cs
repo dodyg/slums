@@ -62,7 +62,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     internal GameCrimeState CrimeState => _crimeState;
 
     public GameSession(Random? sharedRandom = null, GameContentCatalog? contentCatalog = null)
-        : this(sharedRandom, initializeWorldState: true, contentCatalog ?? GameContentCatalog.FromLegacyRegistries())
+        : this(sharedRandom, initializeWorldState: true, contentCatalog ?? GameContentCatalog.FromConfiguredRegistries())
     {
     }
 
@@ -82,6 +82,25 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         _investmentState = new GameInvestmentState();
         _rentState = new RentState();
         _contentCatalog = contentCatalog;
+        if (contentCatalog.Backgrounds.Count > 0)
+        {
+            BackgroundRegistry.Configure(contentCatalog.Backgrounds);
+        }
+
+        if (contentCatalog.Jobs.Count > 0)
+        {
+            JobRegistry.Configure(contentCatalog.Jobs);
+        }
+
+        if (contentCatalog.Locations.Count > 0)
+        {
+            WorldState.ConfigureLocations(contentCatalog.Locations);
+        }
+
+        if (contentCatalog.RandomEvents.Count > 0)
+        {
+            RandomEventRegistry.Configure(contentCatalog.RandomEvents);
+        }
         _useDynamicDistrictConditions = sharedRandom is not null;
 #pragma warning disable CA5394 // Gameplay randomness does not require cryptographic strength
         _sharedRandom = sharedRandom ?? new GameRandom((ulong)Random.Shared.NextInt64());
@@ -111,7 +130,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     public static GameSession CreateForRestore(Random sharedRandom, GameContentCatalog? contentCatalog = null)
     {
         ArgumentNullException.ThrowIfNull(sharedRandom);
-        return new GameSession(sharedRandom, initializeWorldState: false, contentCatalog ?? GameContentCatalog.FromLegacyRegistries());
+        return new GameSession(sharedRandom, initializeWorldState: false, contentCatalog ?? GameContentCatalog.FromConfiguredRegistries());
     }
 
     internal GameContentCatalog ContentCatalog => _contentCatalog;

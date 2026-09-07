@@ -1,69 +1,15 @@
 namespace Slums.Core.Characters;
 
+/// <summary>Provides configured background definitions to legacy callers.</summary>
 public static class BackgroundRegistry
 {
-    private static readonly Background DefaultMedicalSchoolDropout = new()
-    {
-        Type = BackgroundType.MedicalSchoolDropout,
-        Name = "Medical School Dropout",
-        Description = "You were studying to become a doctor, but your family's financial crisis forced you to quit. Your medical knowledge still helps you care for your mother.",
-        StoryIntro = "Three years of medical school. Three years of dreaming of a white coat and a stethoscope. Then Baba died, and the tuition money evaporated. Now another hot night has left your mother coughing beside a cooling unit the building cannot power all day.",
-        StartingMoney = 80,
-        StartingHealth = 100,
-        StartingEnergy = 70,
-        StartingHunger = 75,
-        StartingStress = 35,
-        MotherStartingHealth = 60,
-        FoodStockpile = 2,
-        InkIntroKnot = "intro_medical"
-    };
-
-    private static readonly Background DefaultReleasedPoliticalPrisoner = new()
-    {
-        Type = BackgroundType.ReleasedPoliticalPrisoner,
-        Name = "Released Political Prisoner",
-        Description = "You spent two years in detention for participating in a protest. Now you're out, but the shadow of your arrest follows you. Employers are wary.",
-        StoryIntro = "The cell door opened eight months ago. Your mother aged ten years in the two you were inside. The neighbors whisper, the biometric checkpoints remember, and the amn el-dawla file — a name Cairo kept long after the ministry changed its own — never really closes. But you're still here.",
-        StartingMoney = 30,
-        StartingHealth = 80,
-        StartingEnergy = 60,
-        StartingHunger = 60,
-        StartingStress = 50,
-        MotherStartingHealth = 50,
-        FoodStockpile = 1,
-        InkIntroKnot = "intro_prisoner"
-    };
-
-    private static readonly Background DefaultSudaneseRefugee = new()
-    {
-        Type = BackgroundType.SudaneseRefugee,
-        Name = "Sudanese Refugee",
-        Description = "You fled Khartoum with your mother when the fighting intensified. Cairo was supposed to be temporary. That was three years ago. Your Arabic has a slight accent that marks you as different.",
-        StoryIntro = "You still dream of the Nile in Khartoum, before the jets came. In Imbaba, your mother keeps her Sudanese ID sealed beside the household water cards. Your papers and your belonging are both questioned, and the ayna question never stops.",
-        StartingMoney = 50,
-        StartingHealth = 90,
-        StartingEnergy = 75,
-        StartingHunger = 70,
-        StartingStress = 40,
-        MotherStartingHealth = 65,
-        FoodStockpile = 2,
-        InkIntroKnot = "intro_sudanese"
-    };
-
-    private static IReadOnlyList<Background> _backgrounds =
-    [
-        DefaultMedicalSchoolDropout,
-        DefaultReleasedPoliticalPrisoner,
-        DefaultSudaneseRefugee
-    ];
+    private static IReadOnlyList<Background>? _backgrounds;
 
     public static Background MedicalSchoolDropout => GetByType(BackgroundType.MedicalSchoolDropout);
-
     public static Background ReleasedPoliticalPrisoner => GetByType(BackgroundType.ReleasedPoliticalPrisoner);
-
     public static Background SudaneseRefugee => GetByType(BackgroundType.SudaneseRefugee);
 
-    public static IReadOnlyList<Background> AllBackgrounds => _backgrounds;
+    public static IReadOnlyList<Background> AllBackgrounds => GetConfiguredBackgrounds();
 
     public static void Configure(IEnumerable<Background> backgrounds)
     {
@@ -88,7 +34,13 @@ public static class BackgroundRegistry
 
     private static Background GetConfigured(BackgroundType type)
     {
-        return _backgrounds.FirstOrDefault(background => background.Type == type)
+        return GetConfiguredBackgrounds().FirstOrDefault(background => background.Type == type)
             ?? throw new InvalidOperationException($"No background configured for {type}.");
+    }
+
+    private static IReadOnlyList<Background> GetConfiguredBackgrounds()
+    {
+        return _backgrounds
+            ?? throw new InvalidOperationException("Background content is not configured. Configure GameContentCatalog before querying backgrounds.");
     }
 }

@@ -92,7 +92,13 @@ internal sealed class SadConsoleGame : IGame
         var newsFlashes = _contentRepository.LoadNewsFlashes();
         var items = _contentRepository.LoadItems();
         var npcSchedules = _contentRepository.LoadNpcSchedules();
-        _contentCatalog = new GameContentCatalog(randomEvents, districtConditions, npcSchedules);
+        _contentCatalog = new GameContentCatalog(
+            backgrounds,
+            locations,
+            jobs,
+            randomEvents,
+            districtConditions,
+            npcSchedules);
 
         var knotNames = InkStoryCatalog.GetKnotNames();
         EndingKnotCatalog.ValidateKnownKnots(knotNames);
@@ -111,10 +117,6 @@ internal sealed class SadConsoleGame : IGame
             items,
             npcSchedules);
 
-        BackgroundRegistry.Configure(backgrounds);
-        JobRegistry.Configure(jobs);
-        WorldState.ConfigureLocations(locations);
-        RandomEventRegistry.Configure(randomEvents);
         DistrictConditionRegistry.Configure(districtConditions);
         PetRegistry.Configure(pets);
         PlantRegistry.Configure(plants);

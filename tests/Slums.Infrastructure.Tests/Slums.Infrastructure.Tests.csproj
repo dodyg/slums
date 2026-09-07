@@ -10,6 +10,11 @@
     <ProjectReference Include="..\..\src\Slums.Infrastructure\Slums.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Slums.Application\Slums.Application.csproj" />
     <ProjectReference Include="..\..\src\Slums.Core\Slums.Core.csproj" />
+    <ProjectReference Include="..\Slums.TestSupport\Slums.TestSupport.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Slums.TestSupport\TestAssemblyContentSetup.cs" Link="TestAssemblyContentSetup.cs" />
   </ItemGroup>
 
   <ItemGroup>

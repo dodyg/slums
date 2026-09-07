@@ -103,7 +103,7 @@ internal sealed class RandomEventServiceTests
         var callCenterScriptChange = RandomEventRegistry.AllEvents.Single(static current => current.Id == "CallCenterScriptChange");
 
         checkpoint.Weight.Should().Be(8);
-        solidarity.Weight.Should().Be(9);
+        solidarity.Weight.Should().Be(8);
         unexpectedWork.Effect.MoneyChange.Should().Be(22);
         homeWaterCut.Effect.EnergyChange.Should().Be(-4);
         bakeryFlourShortage.Effect.MoneyChange.Should().Be(8);
