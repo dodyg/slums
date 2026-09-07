@@ -33,18 +33,13 @@ public sealed class GameSessionTerritorySnapshot
 
         foreach (var entry in Districts)
         {
-            if (!Enum.TryParse<DistrictId>(entry.District, out var district))
-            {
-                continue;
-            }
+            var district = SaveValueParser.ParseEnum<DistrictId>(entry.District, "territory district");
 
             var influence = new Dictionary<FactionId, int>();
             foreach (var kvp in entry.FactionInfluence)
             {
-                if (Enum.TryParse<FactionId>(kvp.Key, out var faction))
-                {
-                    influence[faction] = kvp.Value;
-                }
+                var faction = SaveValueParser.ParseEnum<FactionId>(kvp.Key, "territory faction");
+                influence[faction] = kvp.Value;
             }
 
             gameSession.Territory.RestoreEntry(district, influence, entry.Tension, entry.LastConflictDay);

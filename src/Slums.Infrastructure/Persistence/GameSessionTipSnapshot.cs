@@ -47,12 +47,12 @@ public sealed record GameSessionTipSnapshot
         var tips = Tips.Select(static s => new Tip
         {
             Id = s.Id,
-            Type = Enum.Parse<TipType>(s.Type),
-            Source = Enum.Parse<NpcId>(s.Source),
+            Type = SaveValueParser.ParseEnum<TipType>(s.Type, "tip type"),
+            Source = SaveValueParser.ParseEnum<NpcId>(s.Source, "tip source"),
             Content = s.Content,
             DayGenerated = s.DayGenerated,
             ExpiresAfterDay = s.ExpiresAfterDay,
-            RelevantDistrict = s.RelevantDistrict is not null ? Enum.Parse<DistrictId>(s.RelevantDistrict) : null,
+            RelevantDistrict = s.RelevantDistrict is not null ? SaveValueParser.ParseEnum<DistrictId>(s.RelevantDistrict, "tip district") : null,
             Acknowledged = s.Acknowledged,
             Ignored = s.Ignored,
             Delivered = s.Delivered,
@@ -62,7 +62,7 @@ public sealed record GameSessionTipSnapshot
         var ignoredCounts = new Dictionary<NpcId, int>();
         foreach (var kvp in IgnoredCounts)
         {
-            ignoredCounts[Enum.Parse<NpcId>(kvp.Key)] = kvp.Value;
+            ignoredCounts[SaveValueParser.ParseEnum<NpcId>(kvp.Key, "ignored tip source")] = kvp.Value;
         }
 
         gameSession.RestoreTips(tips, ignoredCounts);

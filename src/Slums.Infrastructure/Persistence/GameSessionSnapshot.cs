@@ -126,9 +126,9 @@ public sealed record GameSessionSnapshot
 
     private static GameRandom CreateFallbackRandom()
     {
-#pragma warning disable CA5394 // Gameplay randomness does not require cryptographic strength
-        return new GameRandom((ulong)Random.Shared.NextInt64());
-#pragma warning restore CA5394
+        // Saves written before RNG persistence cannot reproduce their old stream. Use a stable
+        // seed rather than drawing from process-global randomness during restoration.
+        return new GameRandom(0x534C554D535F4C47UL);
     }
 
     public GameSession Restore()
@@ -139,15 +139,7 @@ public sealed record GameSessionSnapshot
             ? new GameRandom(RandomState)
             : CreateFallbackRandom();
 
-        var gameSession = new GameSession(restoredRandom);
-
-        // The constructor rolls district conditions (consuming draws) and Restore() overwrites
-        // them with the saved conditions below. Rewind the random stream to the saved state so
-        // gameplay continues the exact sequence of the original run.
-        if (RandomState is not null)
-        {
-            gameSession.RestoreRandomState(RandomState);
-        }
+        var gameSession = GameSession.CreateForRestore(restoredRandom);
 
         return gameSession.RestoreFromSnapshot(_ =>
         {
@@ -219,11 +211,11 @@ public sealed record GameSessionSnapshot
             gameSession.RestoreInvestmentState(Investments, TotalInvestmentEarnings);
 
             var trainedSkills = TrainedSkillsToday.ToDictionary(
-                kvp => Enum.Parse<SkillId>(kvp.Key),
+                kvp => SaveValueParser.ParseEnum<SkillId>(kvp.Key, "trained skill id"),
                 kvp => kvp.Value);
             gameSession.RestoreTrainedSkillsToday(trainedSkills);
 
-            var homeUpgrades = HomeUpgrades.Select(static u => Enum.Parse<HomeUpgrade>(u));
+            var homeUpgrades = HomeUpgrades.Select(static u => SaveValueParser.ParseEnum<HomeUpgrade>(u, "home upgrade"));
             gameSession.RestoreHomeUpgrades(homeUpgrades);
 
             gameSession.RestoreRamadanState(
@@ -236,7 +228,7 @@ public sealed record GameSessionSnapshot
                 CommunityEvents.ConsecutiveSkips,
                 CommunityEvents.TotalAttended,
                 CommunityEvents.LastAttendanceDay,
-                CommunityEvents.AttendedThisWeek.Select(static s => Enum.Parse<Slums.Core.Community.CommunityEventId>(s)),
+                CommunityEvents.AttendedThisWeek.Select(static s => SaveValueParser.ParseEnum<Slums.Core.Community.CommunityEventId>(s, "community event")),
                 CommunityEvents.LastWeekResetDay,
                 CommunityEvents.HasTeaCircleInvitation);
 
@@ -246,10 +238,7 @@ public sealed record GameSessionSnapshot
                 CommunityAdaptation.SuccessfulActions,
                 CommunityAdaptation.ShelterContributions);
 
-            if (Enum.TryParse<WeatherType>(CurrentWeather, out var weatherType))
-            {
-                gameSession.RestoreWeather(weatherType);
-            }
+            gameSession.RestoreWeather(SaveValueParser.ParseEnum<WeatherType>(CurrentWeather, "weather"));
 
             DistrictHeat.Restore(gameSession);
             Territory.Restore(gameSession);

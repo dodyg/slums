@@ -22,6 +22,13 @@ internal sealed class WorldEnrichmentSnapshotTests
             DurationDays = 4
         };
         NewsRegistry.Configure([definition]);
+        ItemRegistry.Configure([new ItemDefinition
+        {
+            Id = "transit_pass",
+            Name = "Transit pass",
+            Description = "A route token",
+            MaximumQuantity = 5
+        }]);
 
         var original = new Slums.Core.State.GameSession();
         original.News.Activate(definition, 3);

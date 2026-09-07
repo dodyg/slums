@@ -26,8 +26,7 @@ public sealed record GameSessionNewsSnapshot
     {
         ArgumentNullException.ThrowIfNull(gameSession);
         var lastGenerated = LastGeneratedByCategory
-            .Where(static item => Enum.TryParse<NewsCategory>(item.Key, out _))
-            .ToDictionary(static item => Enum.Parse<NewsCategory>(item.Key), static item => item.Value);
+            .ToDictionary(static item => SaveValueParser.ParseEnum<NewsCategory>(item.Key, "news category"), static item => item.Value);
         gameSession.News.Restore(ActiveFlashes, SeenDefinitionIds, lastGenerated, LastGeneratedDay);
     }
 }

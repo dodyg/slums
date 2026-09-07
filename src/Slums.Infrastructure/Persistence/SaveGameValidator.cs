@@ -19,6 +19,13 @@ public static class SaveGameValidator
 
         var problems = new List<string>();
 
+        SaveGameSnapshotValidator.Validate(snapshot, problems);
+
+        if (problems.Count > 0)
+        {
+            throw new InvalidDataException("Save data validation failed: " + string.Join("; ", problems));
+        }
+
         if (snapshot.Clock.Day < 1)
         {
             problems.Add($"day {snapshot.Clock.Day} is below 1");
@@ -104,6 +111,12 @@ public static class SaveGameValidator
             return;
         }
 
+        if (snapshot.Relationships.Npcs is null || snapshot.Relationships.Factions is null)
+        {
+            problems.Add("relationship dictionaries are missing");
+            return;
+        }
+
         if (snapshot.Relationships.Npcs.Count != Enum.GetValues<NpcId>().Length)
         {
             problems.Add($"relationships contain {snapshot.Relationships.Npcs.Count} NPC entries; expected {Enum.GetValues<NpcId>().Length}");
@@ -111,6 +124,12 @@ public static class SaveGameValidator
 
         foreach (var (npcName, relationship) in snapshot.Relationships.Npcs)
         {
+            if (relationship is null)
+            {
+                problems.Add($"relationship NPC '{npcName}' has no state");
+                continue;
+            }
+
             if (!Enum.TryParse<NpcId>(npcName, out var npcId) || !Enum.IsDefined(npcId))
             {
                 problems.Add($"relationship NPC '{npcName}' is not declared");
@@ -154,6 +173,12 @@ public static class SaveGameValidator
             return;
         }
 
+        if (snapshot.JobProgress.Tracks is null)
+        {
+            problems.Add("job track dictionary is missing");
+            return;
+        }
+
         if (snapshot.JobProgress.Tracks.Count != Enum.GetValues<JobType>().Length)
         {
             problems.Add($"job tracks contain {snapshot.JobProgress.Tracks.Count} entries; expected {Enum.GetValues<JobType>().Length}");
@@ -161,6 +186,12 @@ public static class SaveGameValidator
 
         foreach (var (jobName, track) in snapshot.JobProgress.Tracks)
         {
+            if (track is null)
+            {
+                problems.Add($"job track '{jobName}' has no state");
+                continue;
+            }
+
             if (!Enum.TryParse<JobType>(jobName, out var jobType) || !Enum.IsDefined(jobType))
             {
                 problems.Add($"job track '{jobName}' is not declared");

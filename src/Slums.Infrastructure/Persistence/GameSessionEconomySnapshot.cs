@@ -62,15 +62,8 @@ public sealed class GameSessionEconomySnapshot
 
         foreach (var entry in NpcEconomies)
         {
-            if (!Enum.TryParse<NpcId>(entry.Npc, out var npc))
-            {
-                continue;
-            }
-
-            if (!Enum.TryParse<NpcWealthLevel>(entry.WealthLevel, out var wealth))
-            {
-                wealth = NpcWealthLevel.Stable;
-            }
+            var npc = SaveValueParser.ParseEnum<NpcId>(entry.Npc, "NPC economy NPC");
+            var wealth = SaveValueParser.ParseEnum<NpcWealthLevel>(entry.WealthLevel, "NPC wealth level");
 
             var owedTo = RestoreDebtorMap(entry.MoneyOwedTo);
             var owedBy = RestoreDebtorMap(entry.MoneyOwedBy);
@@ -81,15 +74,8 @@ public sealed class GameSessionEconomySnapshot
         var playerDebts = new List<PlayerDebt>();
         foreach (var d in PlayerDebts)
         {
-            if (!Enum.TryParse<DebtSource>(d.Source, out var source))
-            {
-                continue;
-            }
-
-            if (!Enum.TryParse<DebtCollectionState>(d.CollectionState, out var state))
-            {
-                state = DebtCollectionState.Current;
-            }
+            var source = SaveValueParser.ParseEnum<DebtSource>(d.Source, "debt source");
+            var state = SaveValueParser.ParseEnum<DebtCollectionState>(d.CollectionState, "debt collection state");
 
             playerDebts.Add(new PlayerDebt
             {
@@ -114,13 +100,15 @@ public sealed class GameSessionEconomySnapshot
         foreach (var snap in snapshots)
         {
             DebtorId debtor;
-            if (snap.DebtorType == "Npc" && snap.NpcId is not null && Enum.TryParse<NpcId>(snap.NpcId, out var npc))
+            if (snap.DebtorType == "Npc" && snap.NpcId is not null)
             {
-                debtor = DebtorId.FromNpc(npc);
+                debtor = DebtorId.FromNpc(SaveValueParser.ParseEnum<NpcId>(snap.NpcId, "debtor NPC"));
             }
             else
             {
-                debtor = DebtorId.Player;
+                debtor = snap.DebtorType == "Player"
+                    ? DebtorId.Player
+                    : throw new InvalidDataException($"Save field 'debtor type' contains unknown value '{snap.DebtorType}'.");
             }
 
             result[debtor] = snap.Amount;

@@ -56,6 +56,6 @@ public sealed record GameSessionPlayerSnapshot
 
     public IEnumerable<KeyValuePair<SkillId, int>> EnumerateSkillLevels()
     {
-        return SkillLevelsById.Select(static pair => new KeyValuePair<SkillId, int>(Enum.Parse<SkillId>(pair.Key), pair.Value));
+        return SkillLevelsById.Select(static pair => new KeyValuePair<SkillId, int>(SaveValueParser.ParseEnum<SkillId>(pair.Key, "skill id"), pair.Value));
     }
 }

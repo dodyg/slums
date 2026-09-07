@@ -57,7 +57,7 @@ public sealed record GameSessionPhoneSnapshot
         var messages = Messages.Select(static s => new PhoneMessage
         {
             Id = s.Id,
-            Type = Enum.Parse<PhoneMessageType>(s.Type),
+            Type = SaveValueParser.ParseEnum<PhoneMessageType>(s.Type, "phone message type"),
             Sender = s.Sender,
             SenderNpcId = s.SenderNpcId,
             Content = s.Content,

@@ -98,17 +98,35 @@ public sealed class JsonSaveGameStore : ISaveGameStore
             return LoadGameResult.Corrupt(exception.Message);
         }
 
-        // Ownership of the session transfers to the caller through LoadGameResult.
+        try
+        {
+            // Ownership of the session transfers to the caller through LoadGameResult.
 #pragma warning disable CA2000
-        var loadedSession = LoadedGameSession.Create(
-            slot,
-            document.CheckpointName,
-            document.CreatedUtc,
-            document.LastPlayedUtc,
-            document.NarrativeProgress.LastKnot,
-            document.SessionSnapshot.Restore);
+            var loadedSession = LoadedGameSession.Create(
+                slot,
+                document.CheckpointName,
+                document.CreatedUtc,
+                document.LastPlayedUtc,
+                document.NarrativeProgress.LastKnot,
+                document.SessionSnapshot.Restore);
 #pragma warning restore CA2000
-        return LoadGameResult.Loaded(loadedSession);
+            return LoadGameResult.Loaded(loadedSession);
+        }
+        catch (InvalidDataException exception)
+        {
+            LogInvalidSaveRestore(_logger, path, exception);
+            return LoadGameResult.Corrupt($"Save data could not be restored: {exception.Message}");
+        }
+        catch (InvalidOperationException exception)
+        {
+            LogInvalidSaveRestore(_logger, path, exception);
+            return LoadGameResult.Corrupt($"Save data could not be restored: {exception.Message}");
+        }
+        catch (ArgumentException exception)
+        {
+            LogInvalidSaveRestore(_logger, path, exception);
+            return LoadGameResult.Corrupt($"Save data could not be restored: {exception.Message}");
+        }
     }
 
     public async Task<IReadOnlyList<SaveSlotMetadata>> ListSlotsAsync(CancellationToken cancellationToken = default)
@@ -255,6 +273,9 @@ public sealed class JsonSaveGameStore : ISaveGameStore
     private static readonly Action<ILogger, string, Exception?> LogInvalidSaveDataDelegate =
         LoggerMessage.Define<string>(LogLevel.Warning, new EventId(5, "InvalidSaveData"), "Rejecting save file {Path} because it failed validation.");
 
+    private static readonly Action<ILogger, string, Exception?> LogInvalidSaveRestoreDelegate =
+        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(6, "InvalidSaveRestore"), "Rejecting save file {Path} because restoration failed.");
+
     private static readonly Action<ILogger, string, Exception?> LogSaveCompletedDelegate =
         LoggerMessage.Define<string>(LogLevel.Debug, new EventId(4, "SaveCompleted"), "Save completed for slot {Slot}.");
 
@@ -269,6 +290,9 @@ public sealed class JsonSaveGameStore : ISaveGameStore
 
     private static void LogInvalidSaveData(ILogger logger, string path, Exception exception) =>
         LogInvalidSaveDataDelegate(logger, path, exception);
+
+    private static void LogInvalidSaveRestore(ILogger logger, string path, Exception exception) =>
+        LogInvalidSaveRestoreDelegate(logger, path, exception);
 
     private static void LogSaveCompleted(ILogger logger, string slot) =>
         LogSaveCompletedDelegate(logger, slot, null);

@@ -34,11 +34,7 @@ public sealed class GameSessionDistrictHeatSnapshot
 
         foreach (var entry in Entries)
         {
-            if (!Enum.TryParse<DistrictId>(entry.District, out var district))
-            {
-                continue;
-            }
-
+            var district = SaveValueParser.ParseEnum<DistrictId>(entry.District, "district heat district");
             gameSession.DistrictHeat.RestoreEntry(district, entry.Heat, entry.DecayRate, entry.BaselineHeat);
         }
 

@@ -73,7 +73,8 @@ internal sealed class JsonSaveGameStoreTests
             [
                 new InvestmentSnapshot(InvestmentType.FoulCart, 150, 8, 12, 3, false)
             ],
-            totalInvestmentEarnings: 27);
+                totalInvestmentEarnings: 27);
+            gameSession.Clock.SetTime(11, 6, 0);
             gameSession.Player.Stats.SetEnergy(100);
             gameSession.Player.Skills.SetLevel(Slums.Core.Skills.SkillId.Physical, 2);
             gameSession.Player.Skills.SetLevel(Slums.Core.Skills.SkillId.RobotRepair, 3);
@@ -85,7 +86,7 @@ internal sealed class JsonSaveGameStoreTests
             await store.SaveAsync(SaveGameRequest.Create(gameSession, "crime_warning"), "slot1").ConfigureAwait(false);
             var result = await store.LoadAsync("slot1").ConfigureAwait(false);
 
-            result.Kind.Should().Be(LoadGameResultKind.Loaded);
+            result.Kind.Should().Be(LoadGameResultKind.Loaded, result.Detail);
             var loadedSession = result.Session!;
             using (loadedSession)
             {

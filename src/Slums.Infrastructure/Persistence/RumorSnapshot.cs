@@ -42,15 +42,15 @@ public sealed record RumorSnapshot(
     public Rumor Restore()
     {
         return new Rumor(
-            Enum.Parse<RumorId>(Id),
+            SaveValueParser.ParseEnum<RumorId>(Id, "rumor id"),
             SourceAction,
-            Enum.Parse<DistrictId>(District),
+            SaveValueParser.ParseEnum<DistrictId>(District, "rumor district"),
             DayCreated,
             InitialIntensity,
             IsPositive,
-            AffectedNpcs.Select(static npc => Enum.Parse<NpcId>(npc)).ToHashSet(),
+            AffectedNpcs.Select(static npc => SaveValueParser.ParseEnum<NpcId>(npc, "rumor NPC")).ToHashSet(),
             TrustModifier,
-            NpcsWhoHeard.Select(static npc => Enum.Parse<NpcId>(npc)).ToHashSet())
+            NpcsWhoHeard.Select(static npc => SaveValueParser.ParseEnum<NpcId>(npc, "rumor heard NPC")).ToHashSet())
         {
             Intensity = Intensity,
             Age = Age
