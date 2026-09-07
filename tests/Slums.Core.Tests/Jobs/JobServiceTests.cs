@@ -26,6 +26,23 @@ internal sealed class JobServiceTests
     }
 
     [Test]
+    public void GetAvailableJobs_ShouldUseAdvertisedContentTypes()
+    {
+        var service = new JobService();
+        var location = new Location
+        {
+            Id = LocationId.Bakery,
+            Name = "Content-defined work site",
+            HasJobOpportunities = true,
+            AvailableJobTypes = [JobType.CallCenterWork]
+        };
+
+        var jobs = service.GetAvailableJobs(location, new PlayerCharacter(), new RelationshipState(), new JobProgressState()).ToList();
+
+        jobs.Should().ContainSingle().Which.Type.Should().Be(JobType.CallCenterWork);
+    }
+
+    [Test]
     public void GetAvailableJobs_ShouldReturnWorkshopShift_ForWorkshop()
     {
         var service = new JobService();

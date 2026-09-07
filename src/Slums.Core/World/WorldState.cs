@@ -1,5 +1,8 @@
 namespace Slums.Core.World;
 
+using Slums.Core.Crimes;
+using Slums.Core.Jobs;
+
 public sealed class Location
 {
     public LocationId Id { get; init; }
@@ -8,6 +11,8 @@ public sealed class Location
     public DistrictId District { get; init; }
     public bool HasJobOpportunities { get; init; }
     public bool HasCrimeOpportunities { get; init; }
+    public IReadOnlyList<JobType> AvailableJobTypes { get; init; } = [];
+    public IReadOnlyList<CrimeType> AvailableCrimeTypes { get; init; } = [];
     public bool HasClinicServices { get; init; }
     public int ClinicVisitBaseCost { get; init; }
     public IReadOnlyList<DayOfWeek> ClinicOpenDays { get; init; } = [];
@@ -45,6 +50,8 @@ public sealed class WorldState
             District = DistrictId.Imbaba,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
+            AvailableJobTypes = [JobType.HouseCleaning, JobType.MarketPorter],
+            AvailableCrimeTypes = [CrimeType.PettyTheft, CrimeType.HashishTrade, CrimeType.Robbery, CrimeType.MarketFencing, CrimeType.NetworkErrand],
             TravelTimeMinutes = 15,
             HasCafe = true
         },
@@ -56,6 +63,7 @@ public sealed class WorldState
             District = DistrictId.Imbaba,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
+            AvailableJobTypes = [JobType.BakeryWork],
             TravelTimeMinutes = 10
         },
         new Location
@@ -66,6 +74,7 @@ public sealed class WorldState
             District = DistrictId.Dokki,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
+            AvailableJobTypes = [JobType.CallCenterWork],
             TravelTimeMinutes = 45
         },
         new Location
@@ -76,6 +85,8 @@ public sealed class WorldState
             District = DistrictId.DowntownCairo,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
+            AvailableJobTypes = [JobType.StreetVending],
+            AvailableCrimeTypes = [CrimeType.PettyTheft, CrimeType.Robbery, CrimeType.HashishTrade, CrimeType.DokkiDrop],
             TravelTimeMinutes = 40,
             HasBar = true
         },
@@ -87,6 +98,7 @@ public sealed class WorldState
             District = DistrictId.ArdAlLiwa,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
+            AvailableJobTypes = [JobType.ClinicReception],
             HasClinicServices = true,
             ClinicVisitBaseCost = 35,
             ClinicOpenDays = [DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Thursday],
@@ -100,6 +112,8 @@ public sealed class WorldState
             District = DistrictId.ArdAlLiwa,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
+            AvailableJobTypes = [JobType.WorkshopSewing, JobType.RoboticsScavenging],
+            AvailableCrimeTypes = [CrimeType.PettyTheft, CrimeType.HashishTrade, CrimeType.WorkshopContraband],
             TravelTimeMinutes = 20
         },
         new Location
@@ -110,6 +124,7 @@ public sealed class WorldState
             District = DistrictId.Dokki,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
+            AvailableJobTypes = [JobType.CafeService],
             TravelTimeMinutes = 35,
             HasCafe = true
         },
@@ -121,6 +136,7 @@ public sealed class WorldState
             District = DistrictId.BulaqAlDakrour,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
+            AvailableJobTypes = [JobType.PharmacyStock],
             HasClinicServices = true,
             ClinicVisitBaseCost = 46,
             ClinicOpenDays = [DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Tuesday, DayOfWeek.Thursday],
@@ -135,6 +151,8 @@ public sealed class WorldState
             District = DistrictId.BulaqAlDakrour,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
+            AvailableJobTypes = [JobType.MicrobusDispatch],
+            AvailableCrimeTypes = [CrimeType.PettyTheft, CrimeType.Robbery, CrimeType.DepotFareSkim, CrimeType.BulaqProtectionRacket],
             TravelTimeMinutes = 30,
             HasBilliards = true
         },
@@ -146,6 +164,8 @@ public sealed class WorldState
             District = DistrictId.Shubra,
             HasJobOpportunities = true,
             HasCrimeOpportunities = true,
+            AvailableJobTypes = [JobType.LaundryPressing],
+            AvailableCrimeTypes = [CrimeType.PettyTheft, CrimeType.HashishTrade, CrimeType.ShubraBundleLift],
             TravelTimeMinutes = 40,
             HasBilliards = true
         },
@@ -157,6 +177,7 @@ public sealed class WorldState
             District = DistrictId.Imbaba,
             HasJobOpportunities = true,
             HasCrimeOpportunities = false,
+            AvailableJobTypes = [JobType.FishSorter],
             TravelTimeMinutes = 20
         },
         new Location

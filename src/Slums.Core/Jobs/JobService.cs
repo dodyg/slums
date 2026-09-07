@@ -114,7 +114,7 @@ public sealed class JobService
             return false;
         }
 
-        if (!IsJobAvailableAtLocation(resolvedJob.Type, location.Id))
+        if (!location.AvailableJobTypes.Contains(resolvedJob.Type))
         {
             reason = $"{resolvedJob.Name} is not available at {location.Name}.";
             return false;
@@ -138,21 +138,9 @@ public sealed class JobService
             return [];
         }
 
-        return location.Id switch
-        {
-            _ when location.Id == LocationId.Bakery => [ResolveShift(JobType.BakeryWork, player, relationshipState, jobProgressState)],
-            _ when location.Id == LocationId.Market => [ResolveShift(JobType.HouseCleaning, player, relationshipState, jobProgressState), ResolveShift(JobType.MarketPorter, player, relationshipState, jobProgressState)],
-            _ when location.Id == LocationId.CallCenter => [ResolveShift(JobType.CallCenterWork, player, relationshipState, jobProgressState)],
-            _ when location.Id == LocationId.Clinic => [ResolveShift(JobType.ClinicReception, player, relationshipState, jobProgressState)],
-            _ when location.Id == LocationId.Workshop => [ResolveShift(JobType.WorkshopSewing, player, relationshipState, jobProgressState), ResolveShift(JobType.RoboticsScavenging, player, relationshipState, jobProgressState)],
-            _ when location.Id == LocationId.Cafe => [ResolveShift(JobType.CafeService, player, relationshipState, jobProgressState)],
-            _ when location.Id == LocationId.Pharmacy => [ResolveShift(JobType.PharmacyStock, player, relationshipState, jobProgressState)],
-            _ when location.Id == LocationId.Depot => [ResolveShift(JobType.MicrobusDispatch, player, relationshipState, jobProgressState)],
-            _ when location.Id == LocationId.Laundry => [ResolveShift(JobType.LaundryPressing, player, relationshipState, jobProgressState)],
-            _ when location.Id == LocationId.Square => [ResolveShift(JobType.StreetVending, player, relationshipState, jobProgressState)],
-            _ when location.Id == LocationId.FishMarket => [ResolveShift(JobType.FishSorter, player, relationshipState, jobProgressState)],
-            _ => []
-        };
+        return location.AvailableJobTypes
+            .Select(jobType => ResolveShift(jobType, player, relationshipState, jobProgressState))
+            .ToArray();
     }
 
     private static JobResult PerformMistakeShift(JobShift job, PlayerCharacter player, JobProgressState jobProgressState, int currentDay, Random? random, int payModifier)
@@ -708,24 +696,4 @@ public sealed class JobService
         };
     }
 
-    private static bool IsJobAvailableAtLocation(JobType jobType, LocationId locationId)
-    {
-        return jobType switch
-        {
-            JobType.BakeryWork => locationId == LocationId.Bakery,
-            JobType.HouseCleaning => locationId == LocationId.Market,
-            JobType.CallCenterWork => locationId == LocationId.CallCenter,
-            JobType.ClinicReception => locationId == LocationId.Clinic,
-            JobType.WorkshopSewing => locationId == LocationId.Workshop,
-            JobType.CafeService => locationId == LocationId.Cafe,
-            JobType.PharmacyStock => locationId == LocationId.Pharmacy,
-            JobType.MicrobusDispatch => locationId == LocationId.Depot,
-            JobType.LaundryPressing => locationId == LocationId.Laundry,
-            JobType.StreetVending => locationId == LocationId.Square,
-            JobType.FishSorter => locationId == LocationId.FishMarket,
-            JobType.MarketPorter => locationId == LocationId.Market,
-            JobType.RoboticsScavenging => locationId == LocationId.Workshop,
-            _ => false
-        };
-    }
 }

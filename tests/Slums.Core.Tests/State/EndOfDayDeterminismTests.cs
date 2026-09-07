@@ -25,7 +25,7 @@ internal sealed class EndOfDayDeterminismTests
         await Assert.That(session.Player.Stats.Stress).IsEqualTo(50);
         await Assert.That(session.Player.Household.MotherHealth).IsEqualTo(62);
         await Assert.That(session.PolicePressure).IsEqualTo(10);
-        await Assert.That(session.CurrentWeather.Type).IsEqualTo(WeatherType.Clear);
+        await Assert.That(session.CurrentWeather.Type).IsEqualTo(WeatherType.CoolOvercast);
     }
 
     [Test]

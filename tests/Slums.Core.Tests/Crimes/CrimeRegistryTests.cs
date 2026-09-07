@@ -80,7 +80,8 @@ internal sealed class CrimeRegistryTests
             Id = LocationId.Square,
             Name = "Midan Al-Tahrir",
             District = DistrictId.DowntownCairo,
-            HasCrimeOpportunities = true
+            HasCrimeOpportunities = true,
+            AvailableCrimeTypes = [CrimeType.PettyTheft, CrimeType.Robbery, CrimeType.HashishTrade, CrimeType.DokkiDrop]
         };
         var relationships = new RelationshipState();
         relationships.SetNpcRelationship(NpcId.RunnerYoussef, 15, 1);

@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Crimes;
 using Slums.Core.Events;
 using Slums.Core.Jobs;
 using Slums.Core.World;
@@ -43,10 +44,10 @@ public static class ContentCatalogValidator
         var problems = new List<string>();
 
         ValidateBackgrounds(backgrounds, knownInkKnots, problems);
-        ValidateLocations(locations, problems);
+        ValidateLocations(locations, jobs, problems);
         ValidateJobs(jobs, problems);
         ValidateRandomEvents(randomEvents, knownInkKnots, problems);
-        ValidateDistrictConditions(districtConditions, problems);
+        ValidateDistrictConditions(districtConditions, randomEvents, problems);
         ValidatePets(pets, locations, problems);
         ValidatePlants(plants, locations, problems);
         if (robots is not null)
@@ -123,7 +124,7 @@ public static class ContentCatalogValidator
         }
     }
 
-    private static void ValidateLocations(IReadOnlyList<Location> locations, List<string> problems)
+    private static void ValidateLocations(IReadOnlyList<Location> locations, IReadOnlyList<JobShift> jobs, List<string> problems)
     {
         if (locations.Count == 0)
         {
@@ -153,6 +154,8 @@ public static class ContentCatalogValidator
             {
                 problems.Add($"locations: '{location.Id.Value}' has negative clinic visit cost ({location.ClinicVisitBaseCost}).");
             }
+
+            ValidateOpportunityTypes(location, jobs, problems);
         }
 
         var declaredIds = LocationId.All;
@@ -175,6 +178,36 @@ public static class ContentCatalogValidator
         if (missingDistricts.Length > 0)
         {
             problems.Add($"locations: no location covers districts {string.Join(", ", missingDistricts)}.");
+        }
+    }
+
+    private static void ValidateOpportunityTypes(Location location, IReadOnlyList<JobShift> jobs, List<string> problems)
+    {
+        var jobTypes = new HashSet<JobType>();
+        foreach (var jobType in location.AvailableJobTypes)
+        {
+            if (!jobTypes.Add(jobType) || !Enum.IsDefined(jobType) || !jobs.Any(job => job.Type == jobType))
+            {
+                problems.Add($"locations: '{location.Id.Value}' advertises unknown or duplicate job type {jobType}.");
+            }
+        }
+
+        var crimeTypes = new HashSet<CrimeType>();
+        foreach (var crimeType in location.AvailableCrimeTypes)
+        {
+            if (!crimeTypes.Add(crimeType) || !Enum.IsDefined(crimeType))
+            {
+                problems.Add($"locations: '{location.Id.Value}' advertises unknown or duplicate crime type {crimeType}.");
+            }
+        }
+
+        if (location.HasJobOpportunities != (location.AvailableJobTypes.Count > 0))
+        {
+            problems.Add($"locations: '{location.Id.Value}' job opportunity flag does not match its advertised jobs.");
+        }
+        if (location.HasCrimeOpportunities != (location.AvailableCrimeTypes.Count > 0))
+        {
+            problems.Add($"locations: '{location.Id.Value}' crime opportunity flag does not match its advertised crimes.");
         }
     }
 
@@ -297,7 +330,10 @@ public static class ContentCatalogValidator
         }
     }
 
-    private static void ValidateDistrictConditions(IReadOnlyList<DistrictConditionDefinition> districtConditions, List<string> problems)
+    private static void ValidateDistrictConditions(
+        IReadOnlyList<DistrictConditionDefinition> districtConditions,
+        IReadOnlyList<RandomEvent> randomEvents,
+        List<string> problems)
     {
         if (districtConditions.Count == 0)
         {
@@ -305,6 +341,7 @@ public static class ContentCatalogValidator
             return;
         }
 
+        var configuredEventIds = randomEvents.Select(static randomEvent => randomEvent.Id).ToHashSet(StringComparer.Ordinal);
         var configuredIds = new HashSet<string>(StringComparer.Ordinal);
         foreach (var condition in districtConditions)
         {
@@ -340,6 +377,29 @@ public static class ContentCatalogValidator
             if (condition.MinPolicePressure is int minPressure && condition.MaxPolicePressure is int maxPressure && minPressure > maxPressure)
             {
                 problems.Add($"district_conditions: '{condition.Id}' has min police pressure {minPressure} above max {maxPressure}.");
+            }
+
+            ValidateRandomEventReferences(condition, condition.Effect.BoostedRandomEventIds, "boosted", configuredEventIds, problems);
+            ValidateRandomEventReferences(condition, condition.Effect.SuppressedRandomEventIds, "suppressed", configuredEventIds, problems);
+        }
+    }
+
+    private static void ValidateRandomEventReferences(
+        DistrictConditionDefinition condition,
+        IEnumerable<string> referencedEventIds,
+        string label,
+        HashSet<string> configuredEventIds,
+        List<string> problems)
+    {
+        foreach (var eventId in referencedEventIds)
+        {
+            if (string.IsNullOrWhiteSpace(eventId))
+            {
+                problems.Add($"district_conditions: '{condition.Id}' contains an empty {label} random event id.");
+            }
+            else if (!configuredEventIds.Contains(eventId))
+            {
+                problems.Add($"district_conditions: '{condition.Id}' references unknown {label} random event '{eventId}'.");
             }
         }
     }

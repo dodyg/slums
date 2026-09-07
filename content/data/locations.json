@@ -1,13 +1,17 @@
 [
   {
     "Id": {
-      "Value": "home"
+    "Value": "home"
     },
     "Name": "Your Apartment",
     "Description": "A small two-room flat you share with your mother, supplied by rotating pump hours and a rooftop solar-and-storage co-op when the heat has not drained its batteries.",
     "District": "Imbaba",
     "HasJobOpportunities": false,
     "HasCrimeOpportunities": false,
+    "AvailableJobTypes": [],
+    "AvailableCrimeTypes": [],
+    "AvailableJobTypes": [],
+    "AvailableCrimeTypes": [],
     "TravelTimeMinutes": 0
   },
   {
@@ -19,6 +23,10 @@
     "District": "Imbaba",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,
+    "AvailableJobTypes": ["HouseCleaning", "MarketPorter"],
+    "AvailableCrimeTypes": ["PettyTheft", "HashishTrade", "Robbery", "MarketFencing", "NetworkErrand"],
+    "AvailableJobTypes": ["HouseCleaning", "MarketPorter"],
+    "AvailableCrimeTypes": ["PettyTheft", "HashishTrade", "Robbery", "MarketFencing", "NetworkErrand"],
     "TravelTimeMinutes": 15,
     "HasCafe": true
   },
@@ -31,6 +39,10 @@
     "District": "Imbaba",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
+    "AvailableJobTypes": ["BakeryWork"],
+    "AvailableCrimeTypes": [],
+    "AvailableJobTypes": ["BakeryWork"],
+    "AvailableCrimeTypes": [],
     "TravelTimeMinutes": 10
   },
   {
@@ -42,6 +54,10 @@
     "District": "Dokki",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
+    "AvailableJobTypes": ["CallCenterWork"],
+    "AvailableCrimeTypes": [],
+    "AvailableJobTypes": ["CallCenterWork"],
+    "AvailableCrimeTypes": [],
     "TravelTimeMinutes": 45
   },
   {
@@ -53,6 +69,8 @@
     "District": "DowntownCairo",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,
+    "AvailableJobTypes": ["StreetVending"],
+    "AvailableCrimeTypes": ["PettyTheft", "Robbery", "HashishTrade", "DokkiDrop"],
     "TravelTimeMinutes": 40,
     "HasBar": true
   },
@@ -65,6 +83,8 @@
     "District": "ArdAlLiwa",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
+    "AvailableJobTypes": ["ClinicReception"],
+    "AvailableCrimeTypes": [],
     "HasClinicServices": true,
     "ClinicVisitBaseCost": 35,
     "ClinicOpenDays": ["Saturday", "Sunday", "Monday", "Wednesday", "Thursday"],
@@ -79,6 +99,8 @@
     "District": "ArdAlLiwa",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,
+    "AvailableJobTypes": ["WorkshopSewing", "RoboticsScavenging"],
+    "AvailableCrimeTypes": ["PettyTheft", "HashishTrade", "WorkshopContraband"],
     "TravelTimeMinutes": 20
   },
   {
@@ -90,6 +112,8 @@
     "District": "Dokki",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
+    "AvailableJobTypes": ["CafeService"],
+    "AvailableCrimeTypes": [],
     "TravelTimeMinutes": 35,
     "HasCafe": true
   },
@@ -102,6 +126,8 @@
     "District": "BulaqAlDakrour",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
+    "AvailableJobTypes": ["PharmacyStock"],
+    "AvailableCrimeTypes": [],
     "HasClinicServices": true,
     "ClinicVisitBaseCost": 46,
     "ClinicOpenDays": ["Saturday", "Sunday", "Tuesday", "Thursday"],
@@ -117,6 +143,8 @@
     "District": "BulaqAlDakrour",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,
+    "AvailableJobTypes": ["MicrobusDispatch"],
+    "AvailableCrimeTypes": ["PettyTheft", "Robbery", "DepotFareSkim", "BulaqProtectionRacket"],
     "TravelTimeMinutes": 30,
     "HasBilliards": true
   },
@@ -129,6 +157,8 @@
     "District": "Shubra",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": true,
+    "AvailableJobTypes": ["LaundryPressing"],
+    "AvailableCrimeTypes": ["PettyTheft", "HashishTrade", "ShubraBundleLift"],
     "TravelTimeMinutes": 40,
     "HasBilliards": true
   },
@@ -141,6 +171,8 @@
     "District": "Imbaba",
     "HasJobOpportunities": true,
     "HasCrimeOpportunities": false,
+    "AvailableJobTypes": ["FishSorter"],
+    "AvailableCrimeTypes": [],
     "TravelTimeMinutes": 20
   },
   {
@@ -152,6 +184,8 @@
     "District": "Dokki",
     "HasJobOpportunities": false,
     "HasCrimeOpportunities": false,
+    "AvailableJobTypes": [],
+    "AvailableCrimeTypes": [],
     "TravelTimeMinutes": 38
   }
 ]

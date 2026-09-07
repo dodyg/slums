@@ -37,7 +37,10 @@ public static class CrimeRegistry
             _ => GetImbabaCrimes(location, relationshipState)
         };
 
-        return crimes.Where(crime => currentStreetRep >= crime.StreetRepRequired).ToArray();
+        return crimes
+            .Where(crime => location.AvailableCrimeTypes.Contains(crime.Type))
+            .Where(crime => currentStreetRep >= crime.StreetRepRequired)
+            .ToArray();
     }
 
     public static IReadOnlyList<CrimeOpportunityStatus> GetCrimeOpportunityStatuses(Location location, RelationshipState relationshipState)
@@ -52,7 +55,7 @@ public static class CrimeRegistry
 
         var currentStreetRep = GetStreetReputation(location, relationshipState);
 
-        return location switch
+        var statuses = location switch
         {
             { Id: var id } when id == LocationId.Square => GetDokkiCrimeStatuses(location, relationshipState, currentStreetRep),
             { District: DistrictId.Dokki } => GetDokkiCrimeStatuses(location, relationshipState, currentStreetRep),
@@ -61,6 +64,8 @@ public static class CrimeRegistry
             { District: DistrictId.ArdAlLiwa } => GetArdAlLiwaCrimeStatuses(location, relationshipState, currentStreetRep),
             _ => GetImbabaCrimeStatuses(location, relationshipState, currentStreetRep)
         };
+
+        return statuses.Where(status => location.AvailableCrimeTypes.Contains(status.Attempt.Type)).ToArray();
     }
 
     private static List<CrimeAttempt> GetImbabaCrimes(Location location, RelationshipState relationshipState)

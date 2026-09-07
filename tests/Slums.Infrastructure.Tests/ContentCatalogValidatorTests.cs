@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Slums.Core.Characters;
+using Slums.Core.Crimes;
 using Slums.Core.Events;
 using Slums.Core.Inventory;
 using Slums.Core.Jobs;
@@ -193,6 +194,30 @@ internal sealed class ContentCatalogValidatorTests
     }
 
     [Test]
+    public async Task Validate_UnknownAdvertisedOpportunity_Fails()
+    {
+        var catalog = BuildValidCatalog() with
+        {
+            Locations =
+            [
+                new Location
+                {
+                    Id = LocationId.Home,
+                    Name = "Home",
+                    District = DistrictId.Imbaba,
+                    HasJobOpportunities = true,
+                    AvailableJobTypes = [(JobType)999]
+                },
+                .. ValidLocations().Where(static location => location.Id != LocationId.Home)
+            ]
+        };
+
+        var act = () => Validate(catalog);
+
+        act.Should().Throw<ContentLoadException>().WithMessage("*advertises unknown or duplicate job type*");
+    }
+
+    [Test]
     public async Task Validate_UncoveredDistrict_Fails()
     {
         var catalog = BuildValidCatalog() with
@@ -277,6 +302,75 @@ internal sealed class ContentCatalogValidatorTests
         var act = () => Validate(catalog);
 
         act.Should().Throw<ContentLoadException>().WithMessage("*'bad_condition' has min police pressure 80 above max 20*");
+    }
+
+    [Test]
+    public async Task Validate_DistrictConditionReferencesUnknownBoostedEvent_Fails()
+    {
+        var catalog = BuildValidCatalog() with
+        {
+            DistrictConditions =
+            [
+                new DistrictConditionDefinition
+                {
+                    Id = "bad_condition",
+                    Title = "Bad",
+                    Weight = 1,
+                    MinDay = 1,
+                    Effect = new DistrictConditionEffect { BoostedRandomEventIds = ["not_an_event"] }
+                }
+            ]
+        };
+
+        var act = () => Validate(catalog);
+
+        act.Should().Throw<ContentLoadException>().WithMessage("*'bad_condition' references unknown boosted random event 'not_an_event'*");
+    }
+
+    [Test]
+    public async Task Validate_DistrictConditionReferencesUnknownSuppressedEvent_Fails()
+    {
+        var catalog = BuildValidCatalog() with
+        {
+            DistrictConditions =
+            [
+                new DistrictConditionDefinition
+                {
+                    Id = "bad_condition",
+                    Title = "Bad",
+                    Weight = 1,
+                    MinDay = 1,
+                    Effect = new DistrictConditionEffect { SuppressedRandomEventIds = ["not_an_event"] }
+                }
+            ]
+        };
+
+        var act = () => Validate(catalog);
+
+        act.Should().Throw<ContentLoadException>().WithMessage("*'bad_condition' references unknown suppressed random event 'not_an_event'*");
+    }
+
+    [Test]
+    public async Task Validate_DistrictConditionReferencesConfiguredEvent_DoesNotThrow()
+    {
+        var catalog = BuildValidCatalog() with
+        {
+            DistrictConditions =
+            [
+                new DistrictConditionDefinition
+                {
+                    Id = "test_condition",
+                    Title = "Test",
+                    Weight = 1,
+                    MinDay = 1,
+                    Effect = new DistrictConditionEffect { BoostedRandomEventIds = ["test_event"] }
+                }
+            ]
+        };
+
+        var act = () => Validate(catalog);
+
+        act.Should().NotThrow();
     }
 
     [Test]

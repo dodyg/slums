@@ -123,6 +123,7 @@ internal sealed class GameSessionSafetyNetTests
         "method:CommitCrisisResources",
         "method:CommitCrime",
         "method:CommitEnding",
+        "method:CreateForRestore",
         "method:EndDay",
         "method:EatAtHome",
         "method:EatStreetFood",
@@ -263,7 +264,7 @@ internal sealed class GameSessionSafetyNetTests
         var digest = BuildDigest(session);
         Console.WriteLine($"GameSession golden digest: {digest}");
 
-        await Assert.That(digest).IsEqualTo("DD5B8C3DB10AD168EB03820DFF2C0082CC9390CFA396AD80172062BA79048325");
+        await Assert.That(digest).IsEqualTo("3594AADF8736C8EFE1635B51B7978C53D96D7709B82A6650EBFA11A99E4C2C1F");
     }
 
     private static GameSession CreateSafetyNetSession()

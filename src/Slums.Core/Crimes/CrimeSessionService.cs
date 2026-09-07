@@ -60,7 +60,7 @@ internal static class CrimeSessionService
             crimes.Add(new CrimeAttempt(CrimeType.ShubraBundleLift, 68, 24, 12, 0, 15));
         }
 
-        return crimes;
+        return crimes.Where(crime => location.AvailableCrimeTypes.Contains(crime.Type)).ToArray();
     }
 
     public static string? GetCrimeBlockReason(GameSession session)
