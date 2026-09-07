@@ -61,6 +61,12 @@ public static class InkStoryCatalog
             , ["salma_arc_decision"] = typeof(string)
             , ["mahmoud_arc_decision"] = typeof(string)
             , ["ummkarim_arc_decision"] = typeof(string)
+            , ["holiday_coptic_christmas_witnessed"] = typeof(bool)
+            , ["holiday_sham_el_nessim_witnessed"] = typeof(bool)
+            , ["holiday_ramadan_witnessed"] = typeof(bool)
+            , ["holiday_eid_al_fitr_witnessed"] = typeof(bool)
+            , ["holiday_eid_al_adha_witnessed"] = typeof(bool)
+            , ["holiday_mulid_witnessed"] = typeof(bool)
         };
 
     /// <summary>Gets the gameplay globals that every compiled story must declare.</summary>

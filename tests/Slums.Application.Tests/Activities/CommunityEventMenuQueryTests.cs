@@ -22,4 +22,18 @@ internal sealed class CommunityEventMenuQueryTests
         fridayGathering.CanAttend.Should().BeFalse();
         fridayGathering.UnavailabilityReason.Should().Contain("Not enough time");
     }
+
+    [Test]
+    public void GetStatuses_ShouldExplainSeasonalAnchorWhenMulidIsUnavailable()
+    {
+        var session = new GameSession();
+        session.Clock.SetTime(25, 8, 0);
+
+        var status = new CommunityEventMenuQuery()
+            .GetStatuses(CommunityEventMenuContext.Create(session))
+            .Single(item => item.Event.Id == CommunityEventId.MulidFestival);
+
+        status.CanAttend.Should().BeFalse();
+        status.UnavailabilityReason.Should().Contain("days 23, 24, 110, 111");
+    }
 }

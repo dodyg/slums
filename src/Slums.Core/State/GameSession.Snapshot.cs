@@ -79,8 +79,8 @@ public sealed partial class GameSession
     internal void SetCrimeCounters(int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay)
         => CrimeSessionService.SetCrimeCounters(this, totalCrimeEarnings, crimesCommitted, lastCrimeDay);
 
-    internal void RestoreCrimeState(int policePressure, int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay, bool hasCrimeCommittedToday)
-        => CrimeSessionService.RestoreCrimeState(this, policePressure, totalCrimeEarnings, crimesCommitted, lastCrimeDay, hasCrimeCommittedToday);
+    internal void RestoreCrimeState(int policePressure, int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay, bool hasCrimeCommittedToday, int crimeRouteLockedUntilDay = 0)
+        => CrimeSessionService.RestoreCrimeState(this, policePressure, totalCrimeEarnings, crimesCommitted, lastCrimeDay, hasCrimeCommittedToday, crimeRouteLockedUntilDay);
 
     internal void RestoreWorkState(int totalHonestWorkEarnings, int honestShiftsCompleted, int lastHonestWorkDay, int lastPublicFacingWorkDay)
     {

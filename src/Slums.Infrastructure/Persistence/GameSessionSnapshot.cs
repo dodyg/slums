@@ -174,7 +174,8 @@ public sealed record GameSessionSnapshot
                 Crime.TotalCrimeEarnings,
                 Crime.CrimesCommitted,
                 Crime.LastCrimeDay,
-                Crime.HasCrimeCommittedToday);
+                Crime.HasCrimeCommittedToday,
+                Crime.CrimeRouteLockedUntilDay);
 
             gameSession.RestoreWorkState(
                 Work.TotalHonestWorkEarnings,

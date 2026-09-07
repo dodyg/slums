@@ -87,6 +87,9 @@ public sealed class CommunityEventRegistry
             RequiresNpcInvitation: false,
             IsSeasonal: true,
             HasPickpocketRisk: true)
+        {
+            SeasonalAnchorDays = [23, 24, 110, 111]
+        }
     ];
 
     public static IReadOnlyList<CommunityEventDefinition> AllEvents => Events;

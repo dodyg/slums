@@ -1,6 +1,7 @@
 using Slums.Core.Calendar;
 using Slums.Core.Characters;
 using Slums.Core.Home;
+using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.Weather;
 using Slums.Core.World;
@@ -62,6 +63,7 @@ internal static class DailyStatResolution
         var holidayState = HolidayRegistry.GetHolidayState(GameCalendar.GetDate(session.Clock.Day));
         if (holidayState.IsActive)
         {
+            session.SetStoryFlag(StoryFlags.GetHolidayWitnessedFlag(holidayState.Id));
             if (holidayState.StressModifier.HasValue && holidayState.StressModifier.Value != 0)
             {
                 player.Stats.ModifyStress(holidayState.StressModifier.Value);

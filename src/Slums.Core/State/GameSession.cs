@@ -131,6 +131,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     public int HonestShiftsCompleted { get => _workState.HonestShiftsCompleted; private set => _workState.HonestShiftsCompleted = value; }
     public int DaysSurvived { get => _runState.DaysSurvived; internal set => _runState.DaysSurvived = value; }
     public int LastCrimeDay { get => _crimeState.LastCrimeDay; private set => _crimeState.LastCrimeDay = value; }
+    public int CrimeRouteLockedUntilDay => _crimeState.CrimeRouteLockedUntilDay;
     public int LastHonestWorkDay { get => _workState.LastHonestWorkDay; private set => _workState.LastHonestWorkDay = value; }
     public int LastPublicFacingWorkDay { get => _workState.LastPublicFacingWorkDay; private set => _workState.LastPublicFacingWorkDay = value; }
     public IReadOnlyCollection<string> StoryFlags => _storyFlags;

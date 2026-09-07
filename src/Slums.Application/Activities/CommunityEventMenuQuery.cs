@@ -10,16 +10,22 @@ public sealed class CommunityEventMenuQuery
 
         return context
             .AvailableEvents
+            .Concat(context.SeasonallyUnavailableEvents)
             .Select(evt =>
             {
+                var seasonalUnavailable = context.SeasonallyUnavailableEvents.Any(item => item.Id == evt.Id);
                 var canAfford = context.PlayerMoney >= evt.MoneyCost;
                 var remainingMinutes = (context.EndOfDayHour * 60) - ((context.CurrentHour * 60) + context.CurrentMinute);
                 var hasTime = remainingMinutes >= evt.TimeCostMinutes;
                 var alreadyAttended = context.Attendance.AttendedThisWeek.Contains(evt.Id);
-                var canAttend = canAfford && hasTime && !alreadyAttended;
+                var canAttend = !seasonalUnavailable && canAfford && hasTime && !alreadyAttended;
 
                 string? reason = null;
-                if (alreadyAttended)
+                if (seasonalUnavailable)
+                {
+                    reason = $"Returns during the {evt.Name.Replace(" Festival", string.Empty, StringComparison.Ordinal)} season (days {string.Join(", ", evt.SeasonalAnchorDays)}).";
+                }
+                else if (alreadyAttended)
                 {
                     reason = "Already attended this week.";
                 }

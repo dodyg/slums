@@ -9,4 +9,6 @@ internal sealed class GameCrimeState
     public int LastCrimeDay { get; set; }
 
     public bool CrimeCommittedToday { get; set; }
+
+    public int CrimeRouteLockedUntilDay { get; set; }
 }

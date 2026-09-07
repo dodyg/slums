@@ -1,5 +1,59 @@
 # Community solidarity and territory events
 
+=== event_street_code_retaliation_imbaba ===
+The rumor reaches the Imbaba crew before you can decide whether Khalid's warning was kindness or procedure. A message waits at the edge of the market: fifteen pounds for the trouble your conversation caused, or five days with no one in the network answering your calls.
+
+*   [Pay 15 LE and keep the route open]
+    You hand over the money. Nobody calls it forgiveness. The route remains open because you paid for the privilege of being tolerated.
+    # MONEY:-15
+    # CRIME_LOCK:3
+    # MESSAGE:You paid for a narrow peace. The street network will remember the price.
+    -> DONE
+
+*   [Refuse and accept the lockout]
+    You keep your money and let the silence settle. Five days is long enough for a hungry household to feel every closed door.
+    # FACTION_REP:ImbabaCrew,-10
+    # CRIME_LOCK:5
+    # STRESS:8
+    # MESSAGE:You refuse the demand. The Imbaba routes close, and the refusal becomes its own rumor.
+    -> DONE
+
+=== event_street_code_retaliation_dokki ===
+The Dokki route sends a message through a runner who does not sit down. The demand is fifteen pounds for being seen with Khalid, or five days of closed doors while the route decides whether you are worth the risk.
+
+*   [Pay 15 LE and keep the route open]
+    You pay. The runner counts twice, then leaves without promising that the next mistake will be this cheap.
+    # MONEY:-15
+    # CRIME_LOCK:3
+    # MESSAGE:You paid for a narrow peace. The street network will remember the price.
+    -> DONE
+
+*   [Refuse and accept the lockout]
+    You refuse. The route does not argue; it simply stops existing for you.
+    # FACTION_REP:DokkiThugs,-10
+    # CRIME_LOCK:5
+    # STRESS:8
+    # MESSAGE:You refuse the demand. The Dokki routes close, and the refusal becomes its own rumor.
+    -> DONE
+
+=== event_street_code_retaliation_prisoner ===
+The old prisoner network hears about Khalid through people who learned to survive by treating every police conversation as evidence. Fifteen pounds buys a little patience. Refusal buys five days of silence.
+
+*   [Pay 15 LE and keep the route open]
+    You pay into a hand that does not thank you. The network stays available, but the debt is now part of the account.
+    # MONEY:-15
+    # CRIME_LOCK:3
+    # MESSAGE:You paid for a narrow peace. The street network will remember the price.
+    -> DONE
+
+*   [Refuse and accept the lockout]
+    You keep the money. The network closes ranks, and the next five days become a test of how much honest work can carry.
+    # FACTION_REP:ExPrisonerNetwork,-10
+    # CRIME_LOCK:5
+    # STRESS:8
+    # MESSAGE:You refuse the demand. The prisoner routes close, and the refusal becomes its own rumor.
+    -> DONE
+
 === event_friday_rooftop ===
 The rooftop belongs to everyone on Friday, once the fiercest heat has passed. Women spread mats beneath patched shade cloth. Children thread between water tanks, solar panels, and clay planters fed with kitchen rinse water. The call to prayer drifts up from the minaret two blocks away.
 

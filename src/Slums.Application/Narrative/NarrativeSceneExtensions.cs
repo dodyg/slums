@@ -107,6 +107,9 @@ public static class NarrativeSceneExtensions
                 case PolicePressureEffect police:
                     state.AdjustPolicePressure(police.Change);
                     break;
+                case CrimeRouteLockEffect lockEffect:
+                    state.LockCrimeRoutes(lockEffect.Days);
+                    break;
                 case EndingCommitmentEffect ending:
                     state.CommitEnding(ending.Ending, ending.Sacrifice);
                     break;

@@ -15,4 +15,8 @@ public sealed record CommunityEventDefinition(
     bool RequiresRamadan,
     bool RequiresNpcInvitation,
     bool IsSeasonal,
-    bool HasPickpocketRisk);
+    bool HasPickpocketRisk)
+{
+    /// <summary>Game-clock days on which a seasonal event can be attended.</summary>
+    public IReadOnlyList<int> SeasonalAnchorDays { get; init; } = [];
+}

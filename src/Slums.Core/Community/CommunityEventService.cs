@@ -2,6 +2,7 @@ using Slums.Core.Characters;
 using Slums.Core.Clock;
 using Slums.Core.Diagnostics;
 using Slums.Core.Relationships;
+using Slums.Core.Narrative;
 using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
@@ -36,6 +37,11 @@ internal static class CommunityEventService
             }
 
             if (evt.HasPickpocketRisk && session.World.CurrentDistrict != DistrictId.Imbaba)
+            {
+                continue;
+            }
+
+            if (evt.IsSeasonal && !evt.SeasonalAnchorDays.Contains(session.Clock.Day))
             {
                 continue;
             }
@@ -113,12 +119,28 @@ internal static class CommunityEventService
         }
 
         session.EventAttendance.RecordAttendance(eventId, session.Clock.Day);
+        MarkHolidayWitnessed(session, eventId);
         var trustMessage = trustGained > 0 ? $" Trust +{trustGained} with neighbors." : "";
         var backgroundMessage = backgroundBonus > 0 ? $" Background bonus: +{backgroundBonus} trust." : "";
         session.RaiseEvent($"You attend {definition.Name}. Stress {definition.StressChange}.{trustMessage}{backgroundMessage}");
         session.RecordMutation(MutationCategories.Community, "AttendCommunityEvent", before, session.CaptureStats(), $"{definition.Name} (stress {definition.StressChange}, trust gained: {trustGained})");
         session.AdvanceTime(definition.TimeCostMinutes);
         return true;
+    }
+
+    private static void MarkHolidayWitnessed(GameSession session, CommunityEventId eventId)
+    {
+        var flag = eventId switch
+        {
+            CommunityEventId.RamadanIftarSharing => StoryFlags.HolidayRamadanWitnessed,
+            CommunityEventId.MulidFestival => StoryFlags.HolidayMulidWitnessed,
+            _ => null
+        };
+
+        if (flag is not null)
+        {
+            session.SetStoryFlag(flag);
+        }
     }
 
     internal static bool RequestEmergencySupport(GameSession session)

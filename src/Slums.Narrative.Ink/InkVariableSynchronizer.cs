@@ -66,6 +66,12 @@ internal static class InkVariableSynchronizer
         TrySetGlobalVariable(story, "salma_arc_decision", sceneState.CentralDecisions.GetValueOrDefault("NurseSalma", string.Empty));
         TrySetGlobalVariable(story, "mahmoud_arc_decision", sceneState.CentralDecisions.GetValueOrDefault("HajjMahmoud", string.Empty));
         TrySetGlobalVariable(story, "ummkarim_arc_decision", sceneState.CentralDecisions.GetValueOrDefault("UmmKarim", string.Empty));
+        TrySetGlobalVariable(story, "holiday_coptic_christmas_witnessed", sceneState.HolidayCopticChristmasWitnessed);
+        TrySetGlobalVariable(story, "holiday_sham_el_nessim_witnessed", sceneState.HolidayShamElNessimWitnessed);
+        TrySetGlobalVariable(story, "holiday_ramadan_witnessed", sceneState.HolidayRamadanWitnessed);
+        TrySetGlobalVariable(story, "holiday_eid_al_fitr_witnessed", sceneState.HolidayEidAlFitrWitnessed);
+        TrySetGlobalVariable(story, "holiday_eid_al_adha_witnessed", sceneState.HolidayEidAlAdhaWitnessed);
+        TrySetGlobalVariable(story, "holiday_mulid_witnessed", sceneState.HolidayMulidWitnessed);
 
         if (!string.IsNullOrWhiteSpace(sceneState.Background))
         {

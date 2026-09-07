@@ -14,6 +14,8 @@ public sealed record GameSessionCrimeSnapshot
 
     public bool HasCrimeCommittedToday { get; init; }
 
+    public int CrimeRouteLockedUntilDay { get; init; }
+
     public static GameSessionCrimeSnapshot Capture(GameSession gameSession)
     {
         ArgumentNullException.ThrowIfNull(gameSession);
@@ -24,7 +26,8 @@ public sealed record GameSessionCrimeSnapshot
             TotalCrimeEarnings = gameSession.TotalCrimeEarnings,
             CrimesCommitted = gameSession.CrimesCommitted,
             LastCrimeDay = gameSession.LastCrimeDay,
-            HasCrimeCommittedToday = gameSession.HasCrimeCommittedToday
+            HasCrimeCommittedToday = gameSession.HasCrimeCommittedToday,
+            CrimeRouteLockedUntilDay = gameSession.CrimeRouteLockedUntilDay
         };
     }
 }

@@ -30,6 +30,8 @@ public abstract record NarrativeEffect;
 
 public sealed record EndingCommitmentEffect(EndingId Ending, string Sacrifice) : NarrativeEffect;
 
+public sealed record CrimeRouteLockEffect(int Days) : NarrativeEffect;
+
 public sealed record CentralCharacterDecisionEffect(CentralCharacterId Character, CentralArcDecision Decision) : NarrativeEffect;
 
 public sealed record NarrativeOutcome

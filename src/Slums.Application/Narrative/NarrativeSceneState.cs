@@ -57,6 +57,12 @@ public sealed record NarrativeSceneState(
     public int LastTelemedicineTriageDay { get; init; }
     public int AllocationModelConfidence { get; init; }
     public IReadOnlyDictionary<string, string> CentralDecisions { get; init; } = new Dictionary<string, string>();
+    public bool HolidayCopticChristmasWitnessed { get; init; }
+    public bool HolidayShamElNessimWitnessed { get; init; }
+    public bool HolidayRamadanWitnessed { get; init; }
+    public bool HolidayEidAlFitrWitnessed { get; init; }
+    public bool HolidayEidAlAdhaWitnessed { get; init; }
+    public bool HolidayMulidWitnessed { get; init; }
 
     public static NarrativeSceneState Create(GameSession gameSession)
     {
@@ -107,6 +113,12 @@ public sealed record NarrativeSceneState(
             LastTelemedicineTriageDay = gameSession.Technology.LastTelemedicineTriageDay,
             AllocationModelConfidence = gameSession.Technology.AllocationModelConfidence
             , CentralDecisions = gameSession.CentralCharacterArcs.Decisions.ToDictionary(static pair => pair.Key.ToString(), static pair => pair.Value.ToString())
+            , HolidayCopticChristmasWitnessed = gameSession.StoryFlags.Contains(StoryFlags.HolidayCopticChristmasWitnessed)
+            , HolidayShamElNessimWitnessed = gameSession.StoryFlags.Contains(StoryFlags.HolidayShamElNessimWitnessed)
+            , HolidayRamadanWitnessed = gameSession.StoryFlags.Contains(StoryFlags.HolidayRamadanWitnessed)
+            , HolidayEidAlFitrWitnessed = gameSession.StoryFlags.Contains(StoryFlags.HolidayEidAlFitrWitnessed)
+            , HolidayEidAlAdhaWitnessed = gameSession.StoryFlags.Contains(StoryFlags.HolidayEidAlAdhaWitnessed)
+            , HolidayMulidWitnessed = gameSession.StoryFlags.Contains(StoryFlags.HolidayMulidWitnessed)
         };
 
         return sceneState;

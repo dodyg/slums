@@ -1,6 +1,7 @@
 using Slums.Core.Characters;
 using Slums.Core.Crimes;
 using Slums.Core.Narrative;
+using Slums.Core.Rumors;
 
 namespace Slums.Core.State;
 
@@ -41,4 +42,10 @@ public sealed partial class GameSession
 
     public void AdjustPolicePressure(int delta)
         => CrimeSessionService.AdjustPolicePressure(this, delta);
+
+    public void LockCrimeRoutes(int days)
+        => CrimeSessionService.LockCrimeRoutes(this, days);
+
+    public bool HandleOfficerKhalidConversation(Random? random = null)
+        => StreetCodeService.ObserveOfficerConversation(this, random);
 }

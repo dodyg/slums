@@ -4,11 +4,12 @@ namespace Slums.Core.Rumors;
 
 public static class RumorPropagator
 {
-    public static void Propagate(RumorState rumorState, RelationshipState relationships, int currentDay)
+    public static IReadOnlyList<(Rumor Rumor, NpcId Npc)> Propagate(RumorState rumorState, RelationshipState relationships, int currentDay)
     {
         ArgumentNullException.ThrowIfNull(rumorState);
         ArgumentNullException.ThrowIfNull(relationships);
 
+        var notifications = new List<(Rumor Rumor, NpcId Npc)>();
         foreach (var rumor in rumorState.ActiveRumors)
         {
             if (rumor.NpcsWhoHeard.Count >= rumor.AffectedNpcs.Count)
@@ -53,6 +54,7 @@ public static class RumorPropagator
             foreach (var npcId in newlyHeard)
             {
                 rumor.NpcsWhoHeard.Add(npcId);
+                notifications.Add((rumor, npcId));
                 var trustChange = rumor.TrustModifier;
 
                 var npcRelationship = relationships.GetNpcRelationship(npcId);
@@ -71,5 +73,7 @@ public static class RumorPropagator
                 relationships.ModifyNpcTrust(npcId, trustChange);
             }
         }
+
+        return notifications;
     }
 }

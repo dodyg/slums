@@ -1,4 +1,5 @@
 using Slums.Core.Crimes;
+using Slums.Core.Calendar;
 using Slums.Core.World;
 
 namespace Slums.Core.Narrative;
@@ -80,6 +81,12 @@ public static class StoryFlags
     public const string SeasonEidAlAdhaSeen = "season_eid_al_adha_seen";
     public const string SeasonCopticChristmasSeen = "season_coptic_christmas_seen";
     public const string SeasonShamElNessimSeen = "season_sham_el_nessim_seen";
+    public const string HolidayCopticChristmasWitnessed = "holiday_coptic_christmas_witnessed";
+    public const string HolidayShamElNessimWitnessed = "holiday_sham_el_nessim_witnessed";
+    public const string HolidayRamadanWitnessed = "holiday_ramadan_witnessed";
+    public const string HolidayEidAlFitrWitnessed = "holiday_eid_al_fitr_witnessed";
+    public const string HolidayEidAlAdhaWitnessed = "holiday_eid_al_adha_witnessed";
+    public const string HolidayMulidWitnessed = "holiday_mulid_witnessed";
     public const string SeasonSummerSolsticeSeen = "season_summer_solstice_seen";
     public const string SeasonAutumnFirstSeen = "season_autumn_first_seen";
     public const string SeasonWinterFirstRainSeen = "season_winter_first_rain_seen";
@@ -98,6 +105,19 @@ public static class StoryFlags
     public const string CommunityIsolationSignalSeen = "community_isolation_signal_seen";
     public const string CommunityFridayPrisonerSeen = "community_friday_prisoner_seen";
     public const string CommunityFridayMedicalSeen = "community_friday_medical_seen";
+    public const string StreetCodeRetaliationImbabaSeen = "street_code_retaliation_imbaba_seen";
+    public const string StreetCodeRetaliationDokkiSeen = "street_code_retaliation_dokki_seen";
+    public const string StreetCodeRetaliationPrisonerSeen = "street_code_retaliation_prisoner_seen";
+
+    public static string GetHolidayWitnessedFlag(HolidayId holidayId) => holidayId switch
+    {
+        HolidayId.CopticChristmas => HolidayCopticChristmasWitnessed,
+        HolidayId.ShamElNessim => HolidayShamElNessimWitnessed,
+        HolidayId.Ramadan => HolidayRamadanWitnessed,
+        HolidayId.EidAlFitr => HolidayEidAlFitrWitnessed,
+        HolidayId.EidAlAdha => HolidayEidAlAdhaWitnessed,
+        _ => string.Empty
+    };
 
     public const string DebtLoanSharkFirstWarningSeen = "debt_loan_shark_first_warning_seen";
     public const string DebtLoanSharkVisitSeen = "debt_loan_shark_visit_seen";

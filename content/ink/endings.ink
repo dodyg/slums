@@ -142,6 +142,24 @@ But every rung you climbed belongs to someone else too: stolen delivery routes, 
 -> ending_crisis_reflection
 
 === ending_crisis_reflection ===
+{holiday_coptic_christmas_witnessed:
+The Abdo family's Christmas table remains in your memory: food shared across a stairwell that was never designed to make room for everyone.
+}
+{holiday_sham_el_nessim_witnessed:
+You remember Sham el-Nessim in the lane, a small public joy that survived the heat, the dust, and the city's uneven promises.
+}
+{holiday_ramadan_witnessed:
+Ramadan left its mark in shared iftar, altered work hours, and the practical mercy of neighbors who understood that faith and hunger occupy the same room.
+}
+{holiday_eid_al_fitr_witnessed:
+Eid al-Fitr returns in memory as both generosity and pressure: gifts, sweets, and the quiet arithmetic of what a household could spare.
+}
+{holiday_eid_al_adha_witnessed:
+Eid al-Adha is remembered through the meat shared down the stairs, a brief surplus made meaningful by who received it.
+}
+{holiday_mulid_witnessed:
+The mulid's crowded streets taught you that celebration in Cairo is also logistics: shade, food, watchfulness, and people making room for one another.
+}
 {crisis_resolution_state == "SharedEmergencyPlan":
 The rooftop cooperative remains imperfect but answerable to its residents. Your ending carries the memory of water rosters, repaired storage, and a decision made in public.
 }

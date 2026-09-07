@@ -67,6 +67,11 @@ internal static class CrimeSessionService
     {
         ArgumentNullException.ThrowIfNull(session);
 
+        if (session.CrimeRouteLockedUntilDay >= session.Clock.Day)
+        {
+            return $"The criminal routes are closed to you until day {session.CrimeRouteLockedUntilDay + 1}.";
+        }
+
         if (session.CurrentWeather.BlocksCrime)
         {
             return WeatherActivityRules.GetCrimeBlockReason(session.CurrentWeather);
@@ -264,6 +269,20 @@ internal static class CrimeSessionService
         session.DistrictHeat.AddHeat(session.World.CurrentDistrict, delta);
     }
 
+    public static void LockCrimeRoutes(GameSession session, int days)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        if (days <= 0)
+        {
+            return;
+        }
+
+        session.CrimeState.CrimeRouteLockedUntilDay = Math.Max(
+            session.CrimeState.CrimeRouteLockedUntilDay,
+            session.Clock.Day + days - 1);
+        session.RaiseEvent($"Criminal contacts shut their routes to you for {days} days.");
+    }
+
     public static void SetPolicePressure(GameSession session, int value)
     {
         ArgumentNullException.ThrowIfNull(session);
@@ -284,12 +303,13 @@ internal static class CrimeSessionService
         session.CrimeState.LastCrimeDay = Math.Max(0, lastCrimeDay);
     }
 
-    public static void RestoreCrimeState(GameSession session, int policePressure, int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay, bool hasCrimeCommittedToday)
+    public static void RestoreCrimeState(GameSession session, int policePressure, int totalCrimeEarnings, int crimesCommitted, int lastCrimeDay, bool hasCrimeCommittedToday, int crimeRouteLockedUntilDay = 0)
     {
         ArgumentNullException.ThrowIfNull(session);
         session.DistrictHeat.SetHeatAll(policePressure);
         SetCrimeCounters(session, totalCrimeEarnings, crimesCommitted, lastCrimeDay);
         session.CrimeState.CrimeCommittedToday = hasCrimeCommittedToday;
+        session.CrimeState.CrimeRouteLockedUntilDay = Math.Max(0, crimeRouteLockedUntilDay);
     }
 
     private static FactionId GetFactionForCurrentCrimeRoute(GameSession session)

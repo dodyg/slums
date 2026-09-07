@@ -11,4 +11,5 @@ public enum RumorId
     SkippingCommunityEvents,
     HighDistrictHeat,
     FlashingMoneyAround
+    , SeenWithPolice
 }

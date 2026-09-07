@@ -9,7 +9,8 @@ public sealed record CommunityEventMenuContext(
     int CurrentMinute,
     int EndOfDayHour,
     IReadOnlyList<CommunityEventDefinition> AvailableEvents,
-    CommunityEventAttendance Attendance)
+    CommunityEventAttendance Attendance,
+    IReadOnlyList<CommunityEventDefinition> SeasonallyUnavailableEvents)
 {
     public static CommunityEventMenuContext Create(GameSession gameSession)
     {
@@ -21,6 +22,10 @@ public sealed record CommunityEventMenuContext(
             gameSession.Clock.Minute,
             22,
             gameSession.GetAvailableCommunityEvents(),
-            gameSession.EventAttendance);
+            gameSession.EventAttendance,
+            CommunityEventRegistry.AllEvents
+                .Where(static evt => evt.IsSeasonal)
+                .Where(evt => !gameSession.GetAvailableCommunityEvents().Any(available => available.Id == evt.Id))
+                .ToArray());
     }
 }

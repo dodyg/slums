@@ -48,7 +48,11 @@ internal static class DailyInformationResolution
     internal static void ResolveRumors(GameSession session)
     {
         session.Rumors.DecayAll();
-        RumorPropagator.Propagate(session.Rumors, session.Relationships, session.Clock.Day);
+        var newlyHeardRumors = RumorPropagator.Propagate(session.Rumors, session.Relationships, session.Clock.Day);
+        foreach (var (rumor, npcId) in newlyHeardRumors)
+        {
+            StreetCodeService.ApplyRumorConsequence(session, rumor, npcId);
+        }
         foreach (var rumor in session.Rumors.ActiveRumors)
         {
             foreach (var npcId in rumor.AffectedNpcs)

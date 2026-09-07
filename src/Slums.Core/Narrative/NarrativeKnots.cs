@@ -16,6 +16,9 @@ public static class NarrativeKnots
     public const string CrimeWarning = "crime_warning";
     public const string CrimePoliceEncounter = "crime_police_encounter";
     public const string CrimeGangRetaliation = "crime_gang_retaliation";
+    public const string StreetCodeRetaliationImbaba = "event_street_code_retaliation_imbaba";
+    public const string StreetCodeRetaliationDokki = "event_street_code_retaliation_dokki";
+    public const string StreetCodeRetaliationPrisoner = "event_street_code_retaliation_prisoner";
     public const string MotherClinicFirstVisit = "mother_clinic_first_visit";
     public const string EventPublicWorkHeat = "event_public_work_heat";
     public const string BackgroundMedicalClinic = "background_medical_clinic";

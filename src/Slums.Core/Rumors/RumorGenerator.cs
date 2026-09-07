@@ -41,6 +41,18 @@ public static class RumorGenerator
             GetNpcsInDistrict(DistrictId.Imbaba), trustModifier: -2);
     }
 
+    public static Rumor OnSeenWithPolice(DistrictId district, int day)
+    {
+        var criminalContacts = new HashSet<NpcId>
+        {
+            NpcId.FixerUmmKarim,
+            NpcId.FenceHanan,
+            NpcId.RunnerYoussef
+        };
+        return CreateRumor(RumorId.SeenWithPolice, "Seen speaking privately with Officer Khalid",
+            district, day, intensity: 7, isPositive: false, criminalContacts, trustModifier: -3);
+    }
+
     private static Rumor CreateRumor(
         RumorId id, string sourceAction, DistrictId district, int day,
         int intensity, bool isPositive, IReadOnlySet<NpcId> affectedNpcs, int trustModifier)

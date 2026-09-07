@@ -49,6 +49,12 @@ VAR mona_arc_decision = ""
 VAR salma_arc_decision = ""
 VAR mahmoud_arc_decision = ""
 VAR ummkarim_arc_decision = ""
+VAR holiday_coptic_christmas_witnessed = false
+VAR holiday_sham_el_nessim_witnessed = false
+VAR holiday_ramadan_witnessed = false
+VAR holiday_eid_al_fitr_witnessed = false
+VAR holiday_eid_al_adha_witnessed = false
+VAR holiday_mulid_witnessed = false
 
 INCLUDE crime.ink
 INCLUDE events.ink

@@ -37,6 +37,7 @@ internal static class InkTagEffectParser
             "CRISIS_DECISION" => ParseCrisisDecision(tag, value),
             "CRISIS_RESOLUTION" => ParseCrisisResolution(tag, value),
             "POLICE" => new PolicePressureEffect(ParseIntEffect(tag, value)),
+            "CRIME_LOCK" => new CrimeRouteLockEffect(ParsePositiveIntEffect(tag, value)),
             "ENDING_COMMIT" => ParseEndingCommitment(tag, value),
             "CENTRAL_DECISION" => ParseCentralDecision(tag, value),
             _ => null

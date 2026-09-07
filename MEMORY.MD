@@ -340,11 +340,12 @@ Per-NPC wealth tracking (Struggling/Poor/Stable/Comfortable). Weekly resolution:
 
 ## Rumors and Word of Mouth
 
-9 rumor types (CrimeSuccess, CrimeDetected, RentUnpaid, ExpensivePurchase, SeenWithCriminal, DevotedDaughter, SkippingCommunityEvents, HighDistrictHeat, FlashingMoneyAround).
+10 rumor types (CrimeSuccess, CrimeDetected, RentUnpaid, ExpensivePurchase, SeenWithCriminal, SeenWithPolice, DevotedDaughter, SkippingCommunityEvents, HighDistrictHeat, FlashingMoneyAround).
 
 - Rumors propagate to NPCs based on trust networks over 1-3 days
 - Positive rumors decay -3/day, negative -2/day. Expire after 4 days or intensity reaches 0.
 - When an NPC hears a rumor, their trust is modified by the rumor's TrustModifier
+- Recent crime followed by an out-of-home Khalid conversation can create SeenWithPolice (40% base; same-day public work 15%; +10 at high heat; Khalid trust 20+ halves the final chance; Home is exempt). Khalid provides a warning tip first. If the rumor reaches a criminal contact under negative faction reputation, a faction-specific Ink retaliation queues; paying 15 LE locks routes for 3 days, refusing costs 10 faction reputation, 8 stress, and locks routes for 5 days. Lockout and flags persist.
 
 ## Information Network (Tips)
 
@@ -356,7 +357,7 @@ Per-NPC wealth tracking (Struggling/Poor/Stable/Comfortable). Weekly resolution:
 
 ## Community Solidarity Events
 
-5 events: FridayRooftopGathering, RamadanIftarSharing, NeighborhoodCleanup, RooftopTeaCircle, MulidFestival. MulidFestival is available on run days 23-24 and 110-111; holiday attendance records witnessed flags for ending epilogue variation.
+5 events: FridayRooftopGathering, RamadanIftarSharing, NeighborhoodCleanup, RooftopTeaCircle, MulidFestival. MulidFestival is available only on run days 23-24 and 110-111; the menu explains seasonal unavailability, and holiday effects/attendance record witnessed flags for ending epilogue variation.
 
 - Attendance tracked with consecutive skips
 - Skipping 3+: neighbor concern or trust loss. Skipping 5+: trust penalties with Mona, UmmKarim, Salma

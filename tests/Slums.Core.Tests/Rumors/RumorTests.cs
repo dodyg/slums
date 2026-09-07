@@ -1,4 +1,6 @@
 using Slums.Core.Characters;
+using FluentAssertions;
+using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.Rumors;
 using Slums.Core.State;
@@ -155,6 +157,49 @@ internal sealed class RumorTests
 
         await Assert.That(purchase.SourceAction).IsEqualTo("Where did that money come from?");
         await Assert.That(skippedEvents.SourceAction).IsEqualTo("Too good for the neighborhood");
+    }
+
+    [Test]
+    public void StreetCode_RecentCrimeOutsideHomeCanCreateSeenWithPoliceRumor()
+    {
+        var session = new GameSession();
+        session.Clock.SetTime(5, 8, 0);
+        session.RestoreCrimeState(0, 0, 1, 4, false);
+        session.World.TravelTo(LocationId.Square);
+
+        StreetCodeService.ObserveOfficerConversation(session, new AlwaysLowRandom()).Should().BeTrue();
+
+        session.Rumors.ActiveRumors.Should().ContainSingle(item => item.Id == RumorId.SeenWithPolice);
+        session.Tips.GetTipsFromNpc(NpcId.OfficerKhalid).Should().ContainSingle();
+    }
+
+    [Test]
+    public void StreetCode_HomeConversationIsExempt()
+    {
+        var session = new GameSession();
+        session.Clock.SetTime(5, 8, 0);
+        session.RestoreCrimeState(0, 0, 1, 4, false);
+
+        StreetCodeService.ObserveOfficerConversation(session, new AlwaysLowRandom()).Should().BeFalse();
+        session.Rumors.ActiveRumors.Should().BeEmpty();
+    }
+
+    [Test]
+    public void StreetCode_HeardByCriminalContactQueuesRetaliationAndPenalizesFaction()
+    {
+        var session = new GameSession();
+        session.Relationships.SetFactionStanding(FactionId.ImbabaCrew, -1);
+        var rumor = RumorGenerator.OnSeenWithPolice(DistrictId.Imbaba, session.Clock.Day);
+
+        StreetCodeService.ApplyRumorConsequence(session, rumor, NpcId.FixerUmmKarim);
+
+        session.PendingNarrativeScenes.Should().Contain(NarrativeKnots.StreetCodeRetaliationImbaba);
+        session.Relationships.GetFactionStanding(FactionId.ImbabaCrew).Reputation.Should().Be(-4);
+    }
+
+    private sealed class AlwaysLowRandom : Random
+    {
+        public override int Next(int maxValue) => 0;
     }
 
     [Test]

@@ -33,6 +33,10 @@ public sealed class TalkNpcCommand
         }
 
         var request = _requestFactory.Create(TalkNpcContext.Create(gameSession), npcId, random);
+        if (npcId == NpcId.OfficerKhalid)
+        {
+            gameSession.HandleOfficerKhalidConversation(random);
+        }
         gameSession.AdvanceTime(GameSession.ConversationDurationMinutes);
         return request;
     }

@@ -149,6 +149,12 @@ internal static class InkStoryValidator
                     throw InvalidTag(tag, "expected a positive integer value");
                 }
                 break;
+            case "CRIME_LOCK":
+                if (!int.TryParse(payload, out var lockDays) || lockDays <= 0)
+                {
+                    throw InvalidTag(tag, "expected a positive integer value");
+                }
+                break;
             case "CRISIS_DECISION":
                 ValidateEnumValue<CityCrisisDecision>(tag, payload, CityCrisisDecision.None);
                 break;
