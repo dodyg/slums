@@ -2,8 +2,6 @@ using Slums.Core.Inventory;
 
 namespace Slums.Application.Inventory;
 
-public sealed record InventoryEntryDisplay(string Id, string Name, string Description, int Quantity);
-
 public sealed class InventoryMenuQuery
 {
     public IReadOnlyList<InventoryEntryDisplay> GetEntries(InventoryMenuContext context)

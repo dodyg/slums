@@ -41,8 +41,3 @@ internal static class ScreenTransition
         SwitchTo(parent);
     }
 }
-
-internal interface IActionKeySuppressor
-{
-    public void SuppressActionKeysUntilRelease();
-}

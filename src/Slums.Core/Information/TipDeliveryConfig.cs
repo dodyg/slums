@@ -21,10 +21,3 @@ public static class TipDeliveryConfig
         return TipDeliveryMethod.Phone;
     }
 }
-
-public enum TipDeliveryMethod
-{
-    InPerson,
-    Phone,
-    Emergency
-}

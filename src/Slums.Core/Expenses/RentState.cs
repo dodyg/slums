@@ -98,24 +98,3 @@ public sealed class RentState
         _graceDaysRemaining = Math.Clamp(graceDays, 0, 14);
     }
 }
-
-public enum RentWarningType
-{
-    None,
-    First,
-    Final,
-    Eviction
-}
-
-public sealed record RentResult
-{
-    public bool Paid { get; init; }
-    public int AmountPaid { get; init; }
-    public int CurrentUnpaidDays { get; init; }
-    public int AccumulatedDebt { get; init; }
-    public RentWarningType WarningType { get; init; }
-    public bool GraceApplied { get; init; }
-    public int GraceDaysRemaining { get; init; }
-
-    public static RentResult Empty => new();
-}

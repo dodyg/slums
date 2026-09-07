@@ -64,11 +64,3 @@ public sealed record GameClock
 
     public GameDayOfWeek DayOfWeek => (GameDayOfWeek)((Day - 1) % 7);
 }
-
-public enum TimeOfDay
-{
-    Morning,
-    Afternoon,
-    Evening,
-    Night
-}

@@ -3,18 +3,6 @@ using Slums.Core.State;
 
 namespace Slums.Application.Narrative;
 
-public sealed record CityCrisisStatus(
-    CityCrisisPhase Phase,
-    int BeatIndex,
-    int EvidenceCollected,
-    int ResourcesCommitted,
-    int CooperativeCondition,
-    CityCrisisDecision Decision,
-    CityCrisisResolution Resolution,
-    CityCrisisDecision PendingCallbackDecision,
-    int CallbackDueDay,
-    string ImmediateObligation);
-
 public static class CityCrisisStatusQuery
 {
     public static CityCrisisStatus Execute(GameSession gameSession)

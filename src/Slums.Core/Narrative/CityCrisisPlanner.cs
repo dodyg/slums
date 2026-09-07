@@ -1,7 +1,5 @@
 namespace Slums.Core.Narrative;
 
-public sealed record CityCrisisBeat(int Index, int EarliestDay, string KnotName, CityCrisisPhase Phase);
-
 /// <summary>Derives the next crisis beat from time and persistent crisis state.</summary>
 public static class CityCrisisPlanner
 {

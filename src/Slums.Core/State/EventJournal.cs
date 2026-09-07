@@ -1,24 +1,5 @@
 namespace Slums.Core.State;
 
-/// <summary>Origin of an event journal entry.</summary>
-public enum EventSource
-{
-    /// <summary>A regular gameplay event raised by the session.</summary>
-    GameEvent,
-
-    /// <summary>An automatic financial transaction or deduction.</summary>
-    AutoTransaction,
-
-    /// <summary>Feedback produced by UI-layer actions.</summary>
-    System
-}
-
-/// <summary>A single structured event journal entry.</summary>
-/// <param name="Day">The game day the event occurred.</param>
-/// <param name="Source">What produced the entry.</param>
-/// <param name="Message">Human-readable event text.</param>
-public sealed record EventJournalEntry(int Day, EventSource Source, string Message);
-
 /// <summary>
 /// Structured journal of events and automatic transactions, owned by the session so it is
 /// included in snapshots and survives save/load. The UI renders from this journal.

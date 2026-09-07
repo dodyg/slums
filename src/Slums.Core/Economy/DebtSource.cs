@@ -7,11 +7,3 @@ public enum DebtSource
     LoanShark,
     CommunityMutualAid
 }
-
-public enum DebtCollectionState
-{
-    Current,
-    Overdue,
-    Escalating,
-    Critical
-}

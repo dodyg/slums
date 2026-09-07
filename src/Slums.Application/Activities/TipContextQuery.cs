@@ -52,5 +52,3 @@ public sealed class TipContextQuery
             .ToArray();
     }
 }
-
-public sealed record TipContextHint(string Content, bool IsWarning, bool IsEmergency);

@@ -3,13 +3,6 @@ namespace Slums.Core.Characters;
 using Slums.Core.Skills;
 using Slums.Core.Robotics;
 
-public enum BackgroundType
-{
-    MedicalSchoolDropout,
-    ReleasedPoliticalPrisoner,
-    SudaneseRefugee
-}
-
 public sealed class PlayerCharacter
 {
     private readonly PlayerIdentityState _identity;
