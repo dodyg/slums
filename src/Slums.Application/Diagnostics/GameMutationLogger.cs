@@ -73,26 +73,29 @@ public sealed class GameMutationLogger : IDisposable
 
     private static string FormatSnapshot(IReadOnlyDictionary<string, object?> before, IReadOnlyDictionary<string, object?> after)
     {
-        var entries = new List<string>(before.Count + after.Count + 1);
-        foreach (var kvp in before)
+        var entries = new List<string>(Math.Min(MaxSnapshotEntries, before.Count + after.Count));
+        var beforeEntries = FormatSnapshotPart(before, entries);
+        var afterEntries = FormatSnapshotPart(after, entries);
+        return $"Before={{{beforeEntries}}} After={{{afterEntries}}}";
+    }
+
+    private static string FormatSnapshotPart(IReadOnlyDictionary<string, object?> values, List<string> entries)
+    {
+        var partEntries = new List<string>(Math.Min(values.Count, MaxSnapshotEntries));
+        foreach (var kvp in values)
         {
-            entries.Add($"{kvp.Key}={kvp.Value}");
             if (entries.Count >= MaxSnapshotEntries)
             {
-                return string.Join(", ", entries) + ", …";
+                partEntries.Add("…");
+                break;
             }
+
+            var entry = $"{kvp.Key}={kvp.Value}";
+            entries.Add(entry);
+            partEntries.Add(entry);
         }
 
-        foreach (var kvp in after)
-        {
-            entries.Add($"{kvp.Key}={kvp.Value}");
-            if (entries.Count >= MaxSnapshotEntries)
-            {
-                return string.Join(", ", entries) + ", …";
-            }
-        }
-
-        return entries.Count == 0 ? "{}" : string.Join(", ", entries);
+        return string.Join(", ", partEntries);
     }
 
     public void Dispose()

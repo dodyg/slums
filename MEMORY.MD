@@ -25,7 +25,7 @@ tests/
   Slums.Narrative.Ink.Tests/
 content/
   ink/                  # .ink source files, compiled to main.json
-  data/                 # JSON: world catalogs, jobs, locations, random events, news, infrastructure, items, schedules
+  data/                 # JSON: world catalogs, jobs, locations, random events, news, infrastructure, items, schedules, investments, technology actions
 ```
 
 **Dependency Direction**: Always inward. `Slums.Core` references nothing. UI never contains business logic.
@@ -38,7 +38,7 @@ content/
 `EndingService` accepts either the original combined-support-trust route or an organized shelter route (Community Organizing 4, two attended events, and three shelter contributions) for `NetworkShelter`; both retain the day and savings requirements.
 Shared signal helpers like `NarrativeSignalRules` live in `Slums.Core.Narrative` so both the core runtime flow and application menu/status queries reuse the same rules.
 Application-layer context builders prefer narrow snapshots over carrying the full `GameSession` when a smaller view is enough.
-Repo-owned JSON content in `content/data/` is authoritative during app bootstrap; missing or invalid files fail fast.
+Repo-owned JSON content in `content/data/` is authoritative during app bootstrap; missing or invalid files fail fast. Investments, digital services, and technical repairs are loaded from JSON into the immutable session catalog alongside the other gameplay definitions.
 
 ## Core Simulation Loop
 

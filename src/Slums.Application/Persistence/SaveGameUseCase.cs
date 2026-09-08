@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Slums.Core.Diagnostics;
 
 namespace Slums.Application.Persistence;
 
@@ -23,7 +24,7 @@ public sealed class SaveGameUseCase
     }
 
     private static readonly Action<ILogger, string, Guid, int, int, Exception?> LogSavingGameDelegate =
-        LoggerMessage.Define<string, Guid, int, int>(LogLevel.Information, new EventId(200, "SavingGame"),
+        LoggerMessage.Define<string, Guid, int, int>(LogLevel.Information, new EventId(LogEvents.SavingGame, "SavingGame"),
             "Saving game to slot {Slot}. RunId={RunId}, Day={Day}, Money={Money}");
 
     private static void LogSavingGame(ILogger logger, string slot, Guid runId, int day, int money) =>

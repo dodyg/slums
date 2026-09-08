@@ -1,0 +1,46 @@
+[
+  {
+    "Type": "RepairHandset",
+    "Name": "Repair Smart Handset",
+    "Description": "Reseal the cracked handset and restore a little reliability to its repairable battery and wallet board.",
+    "RequiredLocation": { "Value": "home" },
+    "RequiredSkillLevel": 4,
+    "TimeCostMinutes": 90,
+    "MoneyCost": 6,
+    "EnergyCost": 8,
+    "PartsRequired": 1
+  },
+  {
+    "Type": "RestoreSolarStorage",
+    "Name": "Restore Solar Storage",
+    "Description": "Use salvaged cells and a patient bench session to keep the neighborhood storage bank useful through an outage.",
+    "RequiredLocation": { "Value": "workshop" },
+    "RequiredSkillLevel": 6,
+    "TimeCostMinutes": 120,
+    "MoneyCost": 10,
+    "EnergyCost": 10,
+    "PartsRequired": 2
+  },
+  {
+    "Type": "RestoreWaterPump",
+    "Name": "Restore Water Pump",
+    "Description": "Rebuild a worn rooftop pump relay so the block can ration water through the next interruption.",
+    "RequiredLocation": { "Value": "workshop" },
+    "RequiredSkillLevel": 6,
+    "TimeCostMinutes": 120,
+    "MoneyCost": 8,
+    "EnergyCost": 10,
+    "PartsRequired": 2
+  },
+  {
+    "Type": "TakeRepairBenchContract",
+    "Name": "Take Repair Bench Contract",
+    "Description": "Repair a courier relay for a local cooperative. The job pays, but your own spare parts leave the shelf.",
+    "RequiredLocation": { "Value": "workshop" },
+    "RequiredSkillLevel": 8,
+    "TimeCostMinutes": 180,
+    "MoneyCost": 0,
+    "EnergyCost": 15,
+    "PartsRequired": 2
+  }
+]

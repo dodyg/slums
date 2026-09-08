@@ -6,6 +6,8 @@ using Slums.Core.Robotics;
 using Slums.Core.Inventory;
 using Slums.Core.Relationships;
 using Slums.Core.World.News;
+using Slums.Core.Investments;
+using Slums.Core.Technology;
 
 namespace Slums.Application.Content;
 
@@ -32,4 +34,10 @@ public interface IContentRepository
     public IReadOnlyList<ItemDefinition> LoadItems();
 
     public IReadOnlyList<NpcScheduleDefinition> LoadNpcSchedules();
+
+    public IReadOnlyList<InvestmentDefinition> LoadInvestments();
+
+    public IReadOnlyList<DigitalServiceActionDefinition> LoadDigitalServices();
+
+    public IReadOnlyList<TechnicalRepairActionDefinition> LoadTechnicalRepairs();
 }

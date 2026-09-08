@@ -227,6 +227,7 @@ Hard boundaries, regardless of context: avoid graphic violence, child harm, expl
 - Keep shared narrative signal rules and scene-trigger catalogs in `Slums.Core` when both `GameSession` and application queries need the same logic.
 - Route player-triggered gameplay mutations through `Slums.Application` commands/queries instead of calling `GameSession` directly from SadConsole screens.
 - World content is owned by immutable `GameContentCatalog` instances injected into `GameSession` (JSON-loaded at bootstrap, `TestContent.Catalog` in tests). `Slums.Core` has no mutable static registries and no `Configure()` shims; never reintroduce process-global content state.
+- Investments, digital services, and technical repairs are repo-owned catalogs in `content/data/`; load and validate them through `IContentRepository` and `ContentBootstrapper` rather than adding code defaults in `Slums.Core`.
 - Every price preview and commit flows through `PriceModifierPipeline` (`Slums.Core/Expenses`) so quoted and charged prices cannot drift; new priced actions must call it, not recompute modifiers.
 - Apply completed Ink outcomes through `ApplyNarrativeOutcomeCommand` and `GameSession.ApplyNarrativeOutcome`; the narrative screen owns presentation/navigation only, while the session records the source knot and checks failure endings.
 - Keep selectable endings two-stage: `GameSession` stores a pending ending commitment until the final Ink choice applies an `EndingCommitmentEffect`; automatic failure endings remain immediate.

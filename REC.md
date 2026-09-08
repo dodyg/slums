@@ -3,7 +3,7 @@
 Date: 2026-09-08 (updated after remediation pass on the same date)
 Source: codebase audit of `src/`, `tests/`, `content/` against `AGENTS.md` and `REQS.md`.
 
-Status: items 1, 3–10 from the original audit have been implemented and were removed from
+Status: items 1–10 from the original audit have been implemented and were removed from
 this file. The "healthy" findings (dependency direction, TUnit-only tests, `ScreenTransition`
 convention) remain true and preserved. What follows is the remaining work, most of it
 optional polish.
@@ -37,7 +37,7 @@ optional polish.
    list rows share render/hit-test geometry, `NumberKeyMapper` is wired on every list screen,
    `GameScreenNavigator.NavigateTo` suppresses parent keys on the way into a sub-screen, and
    TravelScreen's walk/transport hit areas come from shared layout helpers.
-7. **Test-vs-bootstrap divergence** (was item 9). Fixture loads all 11 JSON files;
+7. **Test-vs-bootstrap divergence** (was item 9). Fixture loads all 14 JSON files;
    `ContentCatalogValidator` takes the full catalog (no optional skips) and also validates
    bulletin text, gameplay summary, and null effect/effect lists per district condition;
    shipped `random_events.json` condition-id coverage has a dedicated test; the five dead
@@ -51,6 +51,9 @@ optional polish.
    uses `!`; `StoryFlags` is exposed as `IReadOnlySet<string>` so call sites stop rebuilding
    sets; static-castrated CA1822 members were made static where the service truly had no
    instance state.
+9. **All gameplay catalogs are repo-owned JSON.** Investments, digital services, and
+   technical repairs now load through `JsonContentRepository`, are validated with the full
+   catalog, and are supplied to sessions by `ContentBootstrapper` and `TestContent`.
 
 Validation after the pass: `dotnet build Slums.slnx` clean; all five test projects green
 (Core 1276, Application 216, Game 33, Infrastructure 97, Narrative.Ink 227).
@@ -59,31 +62,20 @@ Validation after the pass: `dotnet build Slums.slnx` clean; all five test projec
 
 ## Remaining work
 
-### 1. Load investment, digital-service, and technical-repair definitions from JSON
-
-`InvestmentDefinitions`, `DigitalServiceDefinitions`, and `TechnicalRepairDefinitions` are
-still code-owned defaults inside `Slums.Core` (wire format goes through
-`GameContentCatalog`'s optional constructor parameters). AGENTS.md prefers repo-owned JSON.
-Move them to `content/data/*.json`, add `JsonContentRepository` loaders plus
-`ContentCatalogValidator` rules, and drop the code defaults.
-
-Acceptance: no game-content arrays in `Slums.Core`; bootstrap validates them like the other
-eleven collections.
-
-### 2. Optionally split `GameSession` partials by area
+### 1. Optionally split `GameSession` partials by area
 
 `GameSession.{Commerce,Care,Travel,Narrative}.cs` region-style partials remain a
 maintainability nicety. The API freeze is already enforced; only do the split if/when a
 feature forces the issue.
 
-### 3. Intent logging policy for application commands/queries
+### 2. Intent logging policy for application commands/queries
 
 Roughly a hundred commands/queries emit no logs by design (mutations are journaled through
 `GameSession.RecordMutation` and surfaced by `GameMutationLogger`). If intent-level logging
 is ever wanted for support diagnostics, add it per command via `LogEvents` — do not log
 inside `Slums.Core` services.
 
-### 4. Manual QA for input gating
+### 3. Manual QA for input gating
 
 Hold-Enter across `Game -> Work -> Return` and mouse-click-on-rendered-row at 100x28 were
 addressed structurally (gate on every screen, shared row geometry, navigator suppression).

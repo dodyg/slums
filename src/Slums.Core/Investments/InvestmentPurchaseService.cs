@@ -181,11 +181,9 @@ internal static class InvestmentPurchaseService
         session.InvestmentState.ActiveInvestments.Clear();
         foreach (var snapshot in investments)
         {
-            var definition = session.ContentCatalog.GetInvestment(snapshot.Type);
-            if (definition is not null)
-            {
-                session.InvestmentState.ActiveInvestments.Add(Investment.Restore(snapshot, definition.RiskProfile));
-            }
+            var definition = session.ContentCatalog.GetInvestment(snapshot.Type)
+                ?? throw new InvalidOperationException($"Cannot restore investment {snapshot.Type}: its content definition is missing.");
+            session.InvestmentState.ActiveInvestments.Add(Investment.Restore(snapshot, definition.RiskProfile));
         }
 
         session.InvestmentState.TotalInvestmentEarnings = totalInvestmentEarnings;

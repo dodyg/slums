@@ -77,7 +77,7 @@ internal static class SaveGameSnapshotValidator
         ValidateRun(snapshot.Run, snapshot.Clock.Day, problems);
         ValidateNarrative(snapshot.Narrative, problems);
         ValidateHouseholdAssets(snapshot.HouseholdAssets, snapshot.Clock.Day, problems);
-        ValidateInvestments(snapshot.Investments, problems);
+        ValidateInvestments(snapshot.Investments, contentCatalog, problems);
         ValidateTrainedSkills(snapshot.TrainedSkillsToday, problems);
         ValidateHomeUpgrades(snapshot.HomeUpgrades, problems);
         ValidateRamadan(snapshot.Ramadan, problems);
@@ -400,7 +400,7 @@ internal static class SaveGameSnapshotValidator
         AddNonNegative(assets.TotalHerbEarnings, "herb earnings", problems);
     }
 
-    private static void ValidateInvestments(IReadOnlyList<InvestmentSnapshot>? investments, List<string> problems)
+    private static void ValidateInvestments(IReadOnlyList<InvestmentSnapshot>? investments, GameContentCatalog contentCatalog, List<string> problems)
     {
         if (!HasReasonableCount(investments, "investments", problems))
         {
@@ -415,6 +415,10 @@ internal static class SaveGameSnapshotValidator
                 continue;
             }
             ValidateEnum(investment.Type, "investment type", problems);
+            if (contentCatalog.GetInvestment(investment.Type) is null)
+            {
+                problems.Add($"investment {investment.Type} is not declared");
+            }
             if (!types.Add(investment.Type))
             {
                 problems.Add($"investments contain duplicate type {investment.Type}");
@@ -728,6 +732,10 @@ internal static class SaveGameSnapshotValidator
         ValidateStringList(news.SeenDefinitionIds, "seen news", problems, requireNonEmpty: true);
         foreach (var id in news.SeenDefinitionIds)
         {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                continue;
+            }
             if (contentCatalog.GetNewsFlashById(id) is null)
             {
                 problems.Add($"seen news '{id}' is not declared");
@@ -777,7 +785,13 @@ internal static class SaveGameSnapshotValidator
                 problems.Add($"inventory item '{pair.Key}' is not declared");
                 continue;
             }
-            if (pair.Value <= 0 || pair.Value > contentCatalog.GetItem(pair.Key)!.MaximumQuantity)
+            var item = contentCatalog.GetItem(pair.Key);
+            if (item is null)
+            {
+                continue;
+            }
+
+            if (pair.Value <= 0 || pair.Value > item.MaximumQuantity)
             {
                 problems.Add($"inventory item '{pair.Key}' has quantity {pair.Value} outside its configured limit");
             }

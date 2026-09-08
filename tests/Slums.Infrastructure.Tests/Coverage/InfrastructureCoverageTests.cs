@@ -1,4 +1,6 @@
 using FluentAssertions;
+using Slums.Core.Content;
+using Slums.Core.Investments;
 using Slums.Core.State;
 using Slums.Core.Weather;
 using Slums.Infrastructure.Persistence;
@@ -41,6 +43,35 @@ internal sealed class InfrastructureCoverageTests
         SaveGameSnapshotValidator.Validate(snapshot, TestContent.Catalog, problems);
 
         problems.Should().Contain(problem => problem.Contains("police pressure", StringComparison.Ordinal));
+    }
+
+    [Test]
+    public void SnapshotValidator_ShouldRejectInvestmentMissingFromCatalog()
+    {
+        var snapshot = GameSessionSnapshot.Capture(TestSessions.Create()) with
+        {
+            Investments = [new InvestmentSnapshot(InvestmentType.FoulCart, 150, 8, 12, 1, false)]
+        };
+        var catalogWithoutInvestments = new GameContentCatalog(
+            TestContent.Catalog.Backgrounds,
+            TestContent.Catalog.Locations,
+            TestContent.Catalog.Jobs,
+            TestContent.Catalog.RandomEvents,
+            TestContent.Catalog.DistrictConditions,
+            TestContent.Catalog.NpcSchedules,
+            TestContent.Catalog.Pets,
+            TestContent.Catalog.Plants,
+            TestContent.Catalog.Robots,
+            TestContent.Catalog.NewsFlashes,
+            TestContent.Catalog.Items,
+            investments: [],
+            digitalServices: TestContent.Catalog.DigitalServices,
+            technicalRepairs: TestContent.Catalog.TechnicalRepairs);
+        var problems = new List<string>();
+
+        SaveGameSnapshotValidator.Validate(snapshot, catalogWithoutInvestments, problems);
+
+        problems.Should().Contain(problem => problem.Contains("investment FoulCart is not declared", StringComparison.Ordinal));
     }
 
     [Test]

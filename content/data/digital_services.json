@@ -1,0 +1,12 @@
+[
+  {
+    "Type": "SubmitBiometricAppeal",
+    "Name": "Submit Biometric Appeal",
+    "Description": "Use the handset to correct a disputed identity record. The form may be accepted, but the review remains visible to the institution.",
+    "RequiredLocation": { "Value": "home" },
+    "RequiredSkillLevel": 6,
+    "TimeCostMinutes": 90,
+    "MoneyCost": 5,
+    "EnergyCost": 8
+  }
+]

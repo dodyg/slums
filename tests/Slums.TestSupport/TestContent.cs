@@ -5,6 +5,8 @@ using Slums.Core.Content;
 using Slums.Core.Inventory;
 using Slums.Core.Relationships;
 using Slums.Core.World.News;
+using Slums.Core.Investments;
+using Slums.Core.Technology;
 using Slums.Infrastructure.Content;
 
 namespace Slums.TestSupport;
@@ -28,7 +30,10 @@ public static class TestContent
     public static GameContentCatalog CatalogWith(
         IEnumerable<NewsFlashDefinition>? newsFlashes = null,
         IEnumerable<ItemDefinition>? items = null,
-        IEnumerable<NpcScheduleDefinition>? npcSchedules = null)
+        IEnumerable<NpcScheduleDefinition>? npcSchedules = null,
+        IEnumerable<InvestmentDefinition>? investments = null,
+        IEnumerable<DigitalServiceActionDefinition>? digitalServices = null,
+        IEnumerable<TechnicalRepairActionDefinition>? technicalRepairs = null)
     {
         return new GameContentCatalog(
             Catalog.Backgrounds,
@@ -41,7 +46,10 @@ public static class TestContent
             Catalog.Plants,
             Catalog.Robots,
             newsFlashes ?? Catalog.NewsFlashes,
-            items ?? Catalog.Items);
+            items ?? Catalog.Items,
+            investments ?? Catalog.Investments,
+            digitalServices ?? Catalog.DigitalServices,
+            technicalRepairs ?? Catalog.TechnicalRepairs);
     }
 
     /// <summary>Creates a content catalog provider pre-published with the shared catalog.</summary>
@@ -68,7 +76,10 @@ public static class TestContent
             repository.LoadPlants(),
             repository.LoadRobots(),
             repository.LoadNewsFlashes(),
-            repository.LoadItems());
+            repository.LoadItems(),
+            repository.LoadInvestments(),
+            repository.LoadDigitalServices(),
+            repository.LoadTechnicalRepairs());
     }
 
     /// <summary>Walks upward from the test output directory until the repository content folder is found.</summary>

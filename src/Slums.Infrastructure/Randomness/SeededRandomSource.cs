@@ -1,5 +1,7 @@
 using Slums.Application.Randomness;
 using Slums.Core.Randomness;
+using Microsoft.Extensions.Logging;
+using Slums.Core.Diagnostics;
 
 namespace Slums.Infrastructure.Randomness;
 
@@ -9,15 +11,32 @@ namespace Slums.Infrastructure.Randomness;
 /// </summary>
 public sealed class SeededRandomSource : IRandomSource
 {
+    private readonly ILogger<SeededRandomSource>? _logger;
+
     public SeededRandomSource()
-        : this(NewEntropySeed())
+        : this(NewEntropySeed(), null)
     {
     }
 
     public SeededRandomSource(int seed)
+        : this(seed, null)
     {
-        SharedRandom = new GameRandom(unchecked((ulong)seed));
     }
+
+    public SeededRandomSource(ILogger<SeededRandomSource> logger)
+        : this(NewEntropySeed(), logger)
+    {
+    }
+
+    private SeededRandomSource(int seed, ILogger<SeededRandomSource>? logger)
+    {
+        _logger = logger;
+        Seed = seed;
+        SharedRandom = new GameRandom(unchecked((ulong)seed));
+        LogSeedCreated(_logger, seed);
+    }
+
+    public int Seed { get; }
 
     public Random SharedRandom { get; }
 
@@ -25,5 +44,16 @@ public sealed class SeededRandomSource : IRandomSource
     private static int NewEntropySeed()
     {
         return Guid.NewGuid().GetHashCode();
+    }
+
+    private static readonly Action<ILogger, int, Exception?> LogSeedCreatedDelegate =
+        LoggerMessage.Define<int>(LogLevel.Debug, new EventId(global::Slums.Core.Diagnostics.LogEvents.RandomSeedCreated, "RandomSeedCreated"), "Created gameplay random source with seed {Seed}.");
+
+    private static void LogSeedCreated(ILogger<SeededRandomSource>? logger, int seed)
+    {
+        if (logger is not null)
+        {
+            LogSeedCreatedDelegate(logger, seed, null);
+        }
     }
 }

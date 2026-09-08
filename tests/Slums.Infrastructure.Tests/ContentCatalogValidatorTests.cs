@@ -9,6 +9,8 @@ using Slums.Core.Relationships;
 using Slums.Core.Robotics;
 using Slums.Core.World;
 using Slums.Core.World.News;
+using Slums.Core.Investments;
+using Slums.Core.Technology;
 using Slums.Infrastructure.Content;
 using TUnit;
 
@@ -79,6 +81,9 @@ internal sealed class ContentCatalogValidatorTests
         var newsFlashes = repository.LoadNewsFlashes();
         var items = repository.LoadItems();
         var schedules = repository.LoadNpcSchedules();
+        var investments = repository.LoadInvestments();
+        var digitalServices = repository.LoadDigitalServices();
+        var technicalRepairs = repository.LoadTechnicalRepairs();
         var knotNames = Directory.EnumerateFiles(ResolveRepositoryInkDirectory(), "*.ink")
             .SelectMany(File.ReadLines)
             .Where(static line => line.StartsWith("=== ", StringComparison.Ordinal) && line.EndsWith(" ===", StringComparison.Ordinal))
@@ -97,7 +102,10 @@ internal sealed class ContentCatalogValidatorTests
             robots,
             newsFlashes,
             items,
-            schedules);
+            schedules,
+            investments,
+            digitalServices,
+            technicalRepairs);
 
         act.Should().NotThrow();
     }
@@ -585,7 +593,10 @@ internal sealed class ContentCatalogValidatorTests
             catalog.Robots,
             catalog.NewsFlashes,
             catalog.Items,
-            catalog.NpcSchedules);
+            catalog.NpcSchedules,
+            catalog.Investments,
+            catalog.DigitalServices,
+            catalog.TechnicalRepairs);
     }
 
     private static readonly HashSet<string> KnownKnots = new(StringComparer.Ordinal)
@@ -643,7 +654,10 @@ internal sealed class ContentCatalogValidatorTests
             ValidRobots(),
             [ValidNewsFlash()],
             [new ItemDefinition { Id = "papers", Name = "Papers", Description = "Documents", MaximumQuantity = 1 }],
-            []);
+            [],
+            ValidInvestments(),
+            ValidDigitalServices(),
+            ValidTechnicalRepairs());
     }
 
     private sealed record TestCatalog(
@@ -657,7 +671,41 @@ internal sealed class ContentCatalogValidatorTests
         IReadOnlyList<RobotDefinition> Robots,
         IReadOnlyList<NewsFlashDefinition> NewsFlashes,
         IReadOnlyList<ItemDefinition> Items,
-        IReadOnlyList<NpcScheduleDefinition> NpcSchedules);
+        IReadOnlyList<NpcScheduleDefinition> NpcSchedules,
+        IReadOnlyList<InvestmentDefinition> Investments,
+        IReadOnlyList<DigitalServiceActionDefinition> DigitalServices,
+        IReadOnlyList<TechnicalRepairActionDefinition> TechnicalRepairs);
+
+    private static InvestmentDefinition[] ValidInvestments()
+    {
+        return Enum.GetValues<InvestmentType>()
+            .Select(type => new InvestmentDefinition
+            {
+                Type = type,
+                Name = type.ToString(),
+                Description = "A test investment.",
+                Cost = 1,
+                WeeklyIncomeMin = 1,
+                WeeklyIncomeMax = 2,
+                OpportunityLocationId = LocationId.Home,
+                RiskProfile = new InvestmentRiskProfile { WeeklyFailureChance = 0.01, BetrayalChance = 0.01 }
+            })
+            .ToArray();
+    }
+
+    private static DigitalServiceActionDefinition[] ValidDigitalServices()
+    {
+        return Enum.GetValues<DigitalServiceActionType>()
+            .Select(type => new DigitalServiceActionDefinition(type, type.ToString(), "A test digital service.", LocationId.Home, 1, 10, 1, 1))
+            .ToArray();
+    }
+
+    private static TechnicalRepairActionDefinition[] ValidTechnicalRepairs()
+    {
+        return Enum.GetValues<TechnicalRepairActionType>()
+            .Select(type => new TechnicalRepairActionDefinition(type, type.ToString(), "A test repair.", LocationId.Workshop, 1, 10, 1, 1, 1))
+            .ToArray();
+    }
 
     private static RobotDefinition[] ValidRobots()
     {

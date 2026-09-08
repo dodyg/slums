@@ -12,6 +12,8 @@ using Slums.Core.Relationships;
 using Slums.Core.World.News;
 using Slums.Core.Heat;
 using Slums.Core.Diagnostics;
+using Slums.Core.Investments;
+using Slums.Core.Technology;
 
 namespace Slums.Infrastructure.Content;
 
@@ -83,6 +85,21 @@ public sealed class JsonContentRepository : IContentRepository
     public IReadOnlyList<NpcScheduleDefinition> LoadNpcSchedules()
     {
         return Load(Path.Combine(_contentDirectory, "npc_schedules.json"), ContentJsonContext.Default.ListNpcScheduleDefinition);
+    }
+
+    public IReadOnlyList<InvestmentDefinition> LoadInvestments()
+    {
+        return Load(Path.Combine(_contentDirectory, "investments.json"), ContentJsonContext.Default.ListInvestmentDefinition);
+    }
+
+    public IReadOnlyList<DigitalServiceActionDefinition> LoadDigitalServices()
+    {
+        return Load(Path.Combine(_contentDirectory, "digital_services.json"), ContentJsonContext.Default.ListDigitalServiceActionDefinition);
+    }
+
+    public IReadOnlyList<TechnicalRepairActionDefinition> LoadTechnicalRepairs()
+    {
+        return Load(Path.Combine(_contentDirectory, "technical_repairs.json"), ContentJsonContext.Default.ListTechnicalRepairActionDefinition);
     }
 
     private List<T> Load<T>(string path, System.Text.Json.Serialization.Metadata.JsonTypeInfo<List<T>> jsonTypeInfo)

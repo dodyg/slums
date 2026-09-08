@@ -367,6 +367,31 @@ internal sealed class JsonSaveGameStoreTests
     }
 
     [Test]
+    public async Task LoadAsync_ShouldReturnCorrupt_WhenSeenNewsContainsBlankDefinitionId()
+    {
+        var saveDirectory = CreateTempDirectory("slums-save-tests");
+        try
+        {
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory, TestContent.CreateProvider());
+            await store.SaveAsync(SaveGameRequest.Create(TestSessions.Create(), null), "slot1").ConfigureAwait(false);
+
+            var path = Path.Combine(saveDirectory, "slot1.json");
+            var json = await File.ReadAllTextAsync(path).ConfigureAwait(false);
+            json = json.Replace("\"SeenDefinitionIds\": []", "\"SeenDefinitionIds\": [\"\"]", StringComparison.Ordinal);
+            await File.WriteAllTextAsync(path, json).ConfigureAwait(false);
+
+            var result = await store.LoadAsync("slot1").ConfigureAwait(false);
+
+            result.Kind.Should().Be(LoadGameResultKind.Corrupt);
+            result.Detail.Should().Contain("seen news");
+        }
+        finally
+        {
+            DeleteDirectory(saveDirectory);
+        }
+    }
+
+    [Test]
     public async Task SaveAsync_ShouldRejectInvalidSlot()
     {
         var saveDirectory = CreateTempDirectory("slums-save-tests");

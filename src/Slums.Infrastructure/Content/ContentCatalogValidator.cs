@@ -8,6 +8,8 @@ using Slums.Core.Inventory;
 using Slums.Core.Relationships;
 using Slums.Core.World.News;
 using Slums.Core.Clock;
+using Slums.Core.Investments;
+using Slums.Core.Technology;
 
 namespace Slums.Infrastructure.Content;
 
@@ -30,7 +32,10 @@ public static class ContentCatalogValidator
         IReadOnlyList<RobotDefinition> robots,
         IReadOnlyList<NewsFlashDefinition> newsFlashes,
         IReadOnlyList<ItemDefinition> items,
-        IReadOnlyList<NpcScheduleDefinition> npcSchedules)
+        IReadOnlyList<NpcScheduleDefinition> npcSchedules,
+        IReadOnlyList<InvestmentDefinition> investments,
+        IReadOnlyList<DigitalServiceActionDefinition> digitalServices,
+        IReadOnlyList<TechnicalRepairActionDefinition> technicalRepairs)
     {
         ArgumentNullException.ThrowIfNull(backgrounds);
         ArgumentNullException.ThrowIfNull(locations);
@@ -44,6 +49,9 @@ public static class ContentCatalogValidator
         ArgumentNullException.ThrowIfNull(newsFlashes);
         ArgumentNullException.ThrowIfNull(items);
         ArgumentNullException.ThrowIfNull(npcSchedules);
+        ArgumentNullException.ThrowIfNull(investments);
+        ArgumentNullException.ThrowIfNull(digitalServices);
+        ArgumentNullException.ThrowIfNull(technicalRepairs);
 
         var problems = new List<string>();
 
@@ -58,6 +66,9 @@ public static class ContentCatalogValidator
         ValidateNews(newsFlashes, locations, items, knownInkKnots, problems);
         ValidateItems(items, problems);
         ValidateNpcSchedules(npcSchedules, locations, problems);
+        ValidateInvestments(investments, locations, problems);
+        ValidateDigitalServices(digitalServices, locations, problems);
+        ValidateTechnicalRepairs(technicalRepairs, locations, problems);
 
         if (problems.Count > 0)
         {
@@ -646,6 +657,135 @@ public static class ContentCatalogValidator
             }
         }
     }
+
+    private static void ValidateInvestments(IReadOnlyList<InvestmentDefinition> investments, IReadOnlyList<Location> locations, List<string> problems)
+    {
+        if (investments.Count == 0)
+        {
+            problems.Add("investments: catalog is empty.");
+            return;
+        }
+
+        var locationIds = locations.Select(static location => location.Id).ToHashSet();
+        var configuredTypes = new HashSet<InvestmentType>();
+        foreach (var investment in investments)
+        {
+            if (!configuredTypes.Add(investment.Type))
+            {
+                problems.Add($"investments: duplicate type {investment.Type}.");
+            }
+            if (string.IsNullOrWhiteSpace(investment.Name) || string.IsNullOrWhiteSpace(investment.Description))
+            {
+                problems.Add($"investments: {investment.Type} must have a name and description.");
+            }
+            if (investment.Cost < 0 || investment.WeeklyIncomeMin < 0 || investment.WeeklyIncomeMax < investment.WeeklyIncomeMin)
+            {
+                problems.Add($"investments: {investment.Type} has invalid cost or income bounds.");
+            }
+            if (!Enum.IsDefined(investment.PerkType))
+            {
+                problems.Add($"investments: {investment.Type} has an unknown perk type {investment.PerkType}.");
+            }
+            if (!locationIds.Contains(investment.OpportunityLocationId))
+            {
+                problems.Add($"investments: {investment.Type} references missing opportunity location '{investment.OpportunityLocationId.Value}'.");
+            }
+            if (investment.RequiredRelationshipNpc is NpcId relationshipNpc && !Enum.IsDefined(relationshipNpc))
+            {
+                problems.Add($"investments: {investment.Type} references unknown relationship NPC {relationshipNpc}.");
+            }
+            if (investment.OpportunityNpc is NpcId opportunityNpc && !Enum.IsDefined(opportunityNpc))
+            {
+                problems.Add($"investments: {investment.Type} references unknown opportunity NPC {opportunityNpc}.");
+            }
+            if (investment.RequiredRelationshipTrust is < 0 or > 100 || investment.RequiredMedicalLevel is < 0 || investment.RequiredPhysicalLevel is < 0)
+            {
+                problems.Add($"investments: {investment.Type} has invalid skill or relationship requirements.");
+            }
+
+            var risk = investment.RiskProfile;
+            if (risk is null || !IsProbability(risk.WeeklyFailureChance) || !IsProbability(risk.ExtortionChance) ||
+                !IsProbability(risk.PoliceHeatChance) || !IsProbability(risk.BetrayalChance) ||
+                risk.ExtortionAmountMin < 0 || risk.ExtortionAmountMax < risk.ExtortionAmountMin)
+            {
+                problems.Add($"investments: {investment.Type} has an invalid risk profile.");
+            }
+        }
+
+        var missingTypes = Enum.GetValues<InvestmentType>().Where(type => !configuredTypes.Contains(type)).ToArray();
+        if (missingTypes.Length > 0)
+        {
+            problems.Add($"investments: missing types {string.Join(", ", missingTypes)}.");
+        }
+    }
+
+    private static void ValidateDigitalServices(IReadOnlyList<DigitalServiceActionDefinition> services, IReadOnlyList<Location> locations, List<string> problems)
+    {
+        if (services.Count == 0)
+        {
+            problems.Add("digital_services: catalog is empty.");
+            return;
+        }
+
+        var locationIds = locations.Select(static location => location.Id).ToHashSet();
+        var configuredTypes = new HashSet<DigitalServiceActionType>();
+        foreach (var service in services)
+        {
+            if (!configuredTypes.Add(service.Type))
+            {
+                problems.Add($"digital_services: duplicate type {service.Type}.");
+            }
+            if (string.IsNullOrWhiteSpace(service.Name) || string.IsNullOrWhiteSpace(service.Description))
+            {
+                problems.Add($"digital_services: {service.Type} must have a name and description.");
+            }
+            if (!locationIds.Contains(service.RequiredLocation) || service.RequiredSkillLevel < 0 || service.TimeCostMinutes <= 0 || service.MoneyCost < 0 || service.EnergyCost < 0)
+            {
+                problems.Add($"digital_services: {service.Type} has an invalid location, skill, or cost.");
+            }
+        }
+
+        var missingTypes = Enum.GetValues<DigitalServiceActionType>().Where(type => !configuredTypes.Contains(type)).ToArray();
+        if (missingTypes.Length > 0)
+        {
+            problems.Add($"digital_services: missing types {string.Join(", ", missingTypes)}.");
+        }
+    }
+
+    private static void ValidateTechnicalRepairs(IReadOnlyList<TechnicalRepairActionDefinition> repairs, IReadOnlyList<Location> locations, List<string> problems)
+    {
+        if (repairs.Count == 0)
+        {
+            problems.Add("technical_repairs: catalog is empty.");
+            return;
+        }
+
+        var locationIds = locations.Select(static location => location.Id).ToHashSet();
+        var configuredTypes = new HashSet<TechnicalRepairActionType>();
+        foreach (var repair in repairs)
+        {
+            if (!configuredTypes.Add(repair.Type))
+            {
+                problems.Add($"technical_repairs: duplicate type {repair.Type}.");
+            }
+            if (string.IsNullOrWhiteSpace(repair.Name) || string.IsNullOrWhiteSpace(repair.Description))
+            {
+                problems.Add($"technical_repairs: {repair.Type} must have a name and description.");
+            }
+            if (!locationIds.Contains(repair.RequiredLocation) || repair.RequiredSkillLevel < 0 || repair.TimeCostMinutes <= 0 || repair.MoneyCost < 0 || repair.EnergyCost < 0 || repair.PartsRequired < 0)
+            {
+                problems.Add($"technical_repairs: {repair.Type} has an invalid location, skill, or cost.");
+            }
+        }
+
+        var missingTypes = Enum.GetValues<TechnicalRepairActionType>().Where(type => !configuredTypes.Contains(type)).ToArray();
+        if (missingTypes.Length > 0)
+        {
+            problems.Add($"technical_repairs: missing types {string.Join(", ", missingTypes)}.");
+        }
+    }
+
+    private static bool IsProbability(double value) => value is >= 0 and <= 1;
 
     private static bool IsPercentage(int value) => value is >= 0 and <= 100;
 }

@@ -20,7 +20,7 @@ The repository contains a playable .NET 10 vertical slice with:
 - a nine-skill progression model with shared metadata; `RobotRepair` and `CyberHacking` are presented as Technical Repair and Digital Literacy for save compatibility
 - reactive city news with source reliability, district effects, one-shot player responses, and event-journal entries
 - infrastructure service state for electricity, water, transport, and clinic medicine, with gameplay impacts and snapshot persistence
-- JSON-authored inventory items and NPC schedule windows used by response actions, status views, and talk availability
+- JSON-authored inventory items, NPC schedule windows, investment opportunities, digital services, and technical repair actions used by response actions, status views, and talk availability
 - eight ending identifiers: four failure outcomes and four good or ambiguous long-term outcomes, with threshold-gated player choices for the latter
 - visible morning survival forecasts and one-time background-specific emergency support during the first week
 - a research-grounded 2060 climate baseline expressed through hotter seasonal weather, water and power rotations, climate-stressed food supply, heat-aware work, and community-run adaptation
@@ -35,7 +35,7 @@ The repository contains a playable .NET 10 vertical slice with:
 - Provisioning preservation converts scarce staple units into a persisted meal reserve with preview/commit parity
 - two-stage ending commitments: pending final scenes persist before the sacrifice choice, then existing ending IDs and epilogues remain authoritative
 
-Repo-owned JSON and Ink content are authoritative and fail fast during bootstrap. There is no normal-runtime fallback narrative or content catalog.
+Repo-owned JSON and Ink content are authoritative and fail fast during bootstrap. All gameplay catalogs, including investments and technology actions, are loaded through `GameContentCatalog`; there is no normal-runtime fallback narrative or content catalog.
 
 ## Design Direction
 

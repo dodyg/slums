@@ -13,7 +13,7 @@ namespace Slums.Core.Content;
 
 /// <summary>
 /// Immutable world-definition snapshot owned by a game session. Sessions never mutate the
-/// catalog, so instances (including the shared code defaults) can be reused freely.
+/// catalog, so instances can be reused freely.
 /// </summary>
 public sealed class GameContentCatalog
 {
@@ -52,9 +52,9 @@ public sealed class GameContentCatalog
         Robots = Array.AsReadOnly((robots ?? []).ToArray());
         NewsFlashes = Array.AsReadOnly((newsFlashes ?? []).ToArray());
         Items = Array.AsReadOnly((items ?? []).ToArray());
-        Investments = Array.AsReadOnly((investments ?? InvestmentDefinitions.Defaults).ToArray());
-        DigitalServices = Array.AsReadOnly((digitalServices ?? DigitalServiceDefinitions.Defaults).ToArray());
-        TechnicalRepairs = Array.AsReadOnly((technicalRepairs ?? TechnicalRepairDefinitions.Defaults).ToArray());
+        Investments = Array.AsReadOnly((investments ?? []).ToArray());
+        DigitalServices = Array.AsReadOnly((digitalServices ?? []).ToArray());
+        TechnicalRepairs = Array.AsReadOnly((technicalRepairs ?? []).ToArray());
     }
 
     /// <summary>Background definitions available to this session.</summary>

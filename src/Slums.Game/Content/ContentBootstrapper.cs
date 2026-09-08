@@ -41,6 +41,9 @@ internal sealed class ContentBootstrapper : IContentBootstrapper
         var newsFlashes = _contentRepository.LoadNewsFlashes();
         var items = _contentRepository.LoadItems();
         var npcSchedules = _contentRepository.LoadNpcSchedules();
+        var investments = _contentRepository.LoadInvestments();
+        var digitalServices = _contentRepository.LoadDigitalServices();
+        var technicalRepairs = _contentRepository.LoadTechnicalRepairs();
         var catalog = new GameContentCatalog(
             backgrounds,
             locations,
@@ -52,7 +55,10 @@ internal sealed class ContentBootstrapper : IContentBootstrapper
             plants,
             robots,
             newsFlashes,
-            items);
+            items,
+            investments,
+            digitalServices,
+            technicalRepairs);
 
         var knotNames = InkStoryCatalog.GetKnotNames();
         EndingKnotCatalog.ValidateKnownKnots(knotNames);
@@ -69,7 +75,10 @@ internal sealed class ContentBootstrapper : IContentBootstrapper
             robots,
             newsFlashes,
             items,
-            npcSchedules);
+            npcSchedules,
+            investments,
+            digitalServices,
+            technicalRepairs);
 
         _contentCatalogProvider.Publish(catalog);
         LogContentConfigured(_logger);

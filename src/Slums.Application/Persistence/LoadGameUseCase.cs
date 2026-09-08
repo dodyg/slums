@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Slums.Core.Diagnostics;
 
 namespace Slums.Application.Persistence;
 
@@ -34,15 +35,15 @@ public sealed class LoadGameUseCase
     }
 
     private static readonly Action<ILogger, string, Exception?> LogLoadingGameDelegate =
-        LoggerMessage.Define<string>(LogLevel.Information, new EventId(201, "LoadingGame"),
+        LoggerMessage.Define<string>(LogLevel.Information, new EventId(LogEvents.LoadingGame, "LoadingGame"),
             "Loading game from slot {Slot}.");
 
     private static readonly Action<ILogger, string, Guid, int, Exception?> LogGameLoadedDelegate =
-        LoggerMessage.Define<string, Guid, int>(LogLevel.Information, new EventId(202, "GameLoaded"),
+        LoggerMessage.Define<string, Guid, int>(LogLevel.Information, new EventId(LogEvents.GameLoaded, "GameLoaded"),
             "Loaded game from slot {Slot}. RunId={RunId}, Day={Day}");
 
     private static readonly Action<ILogger, string, LoadGameResultKind, string?, Exception?> LogGameLoadFailedDetailDelegate =
-        LoggerMessage.Define<string, LoadGameResultKind, string?>(LogLevel.Warning, new EventId(204, "GameLoadFailedDetail"),
+        LoggerMessage.Define<string, LoadGameResultKind, string?>(LogLevel.Warning, new EventId(LogEvents.GameLoadFailed, "GameLoadFailedDetail"),
             "Failed to load game from slot {Slot}: {Kind} ({Detail}).");
 
     private static void LogLoadingGame(ILogger logger, string slot) => LogLoadingGameDelegate(logger, slot, null);
