@@ -30,10 +30,10 @@ internal static class FoodShopService
 
         baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(session.Territory, session.World.CurrentDistrict);
         baseModifier += MealService.GetUmmKarimFoodDiscount(session);
-        baseModifier += NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict);
+        var foodPriceShock = NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict, session.ContentCatalog.NewsFlashes);
+        baseModifier += foodPriceShock;
         baseModifier -= InvestmentPurchaseService.GetFoodCostDiscount(session, session.World.CurrentDistrict);
 
-        var foodPriceShock = NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict);
         var modifiedCost = session.LocationPricing.GetFoodCost(session.World.CurrentDistrict)
             + baseModifier
             - ProvisioningCalculator.GetFoodPriceReduction(session.Player.Skills.GetLevel(SkillId.Provisioning), foodPriceShock);
@@ -54,7 +54,7 @@ internal static class FoodShopService
 
         baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(session.Territory, session.World.CurrentDistrict);
         baseModifier += MealService.GetUmmKarimFoodDiscount(session);
-        baseModifier += NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict);
+        baseModifier += NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict, session.ContentCatalog.NewsFlashes);
 
         var modifiedCost = session.LocationPricing.GetStreetFoodCost(session.World.CurrentDistrict) + baseModifier;
         return Math.Max(1, modifiedCost);

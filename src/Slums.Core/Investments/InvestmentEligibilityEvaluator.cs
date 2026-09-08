@@ -20,7 +20,7 @@ public static class InvestmentEligibilityEvaluator
 
         if (definition.OpportunityLocationId != context.CurrentLocationId)
         {
-            reasons.Add($"This opportunity is only discussed at {GetLocationName(definition.OpportunityLocationId)}.");
+            reasons.Add($"This opportunity is only discussed at {GetLocationName(definition.OpportunityLocationId, context.Locations)}.");
         }
 
         if (definition.OpportunityNpc is NpcId sponsorNpc && !context.ReachableNpcs.Contains(sponsorNpc))
@@ -68,8 +68,8 @@ public static class InvestmentEligibilityEvaluator
         return new InvestmentEligibility(reasons.Count == 0, reasons);
     }
 
-    private static string GetLocationName(LocationId locationId)
+    private static string GetLocationName(LocationId locationId, IReadOnlyList<Location>? locations)
     {
-        return WorldState.AllLocations.FirstOrDefault(location => location.Id == locationId)?.Name ?? locationId.Value;
+        return locations?.FirstOrDefault(location => location.Id == locationId)?.Name ?? locationId.Value;
     }
 }

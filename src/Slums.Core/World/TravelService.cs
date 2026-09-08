@@ -16,7 +16,7 @@ internal static class TravelService
     {
         ArgumentNullException.ThrowIfNull(session);
         var before = session.CaptureStats();
-        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
+        var location = session.World.GetLocationById(locationId);
         if (location is null)
         {
             session.RecordMutation(MutationCategories.GuardRejected, "TryTravelTo", before, session.CaptureStats(), $"Location {locationId} not found");
@@ -81,7 +81,7 @@ internal static class TravelService
     {
         ArgumentNullException.ThrowIfNull(session);
         var before = session.CaptureStats();
-        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
+        var location = session.World.GetLocationById(locationId);
         if (location is null)
         {
             session.RecordMutation(MutationCategories.GuardRejected, "TryWalkTo", before, session.CaptureStats(), $"Location {locationId} not found");
@@ -133,35 +133,35 @@ internal static class TravelService
     internal static bool CanAfford(GameSession session, LocationId locationId)
     {
         ArgumentNullException.ThrowIfNull(session);
-        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
+        var location = session.World.GetLocationById(locationId);
         return location is not null && session.Player.Stats.Money >= GetTravelCost(session, location);
     }
 
     internal static int GetTravelCost(GameSession session, LocationId locationId)
     {
         ArgumentNullException.ThrowIfNull(session);
-        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
+        var location = session.World.GetLocationById(locationId);
         return location is null ? 0 : GetTravelCost(session, location);
     }
 
     internal static int GetTravelTimeMinutes(GameSession session, LocationId locationId)
     {
         ArgumentNullException.ThrowIfNull(session);
-        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
+        var location = session.World.GetLocationById(locationId);
         return location is null ? 0 : GetTravelTimeMinutes(session, location);
     }
 
     internal static int GetWalkTimeMinutes(GameSession session, LocationId locationId)
     {
         ArgumentNullException.ThrowIfNull(session);
-        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
+        var location = session.World.GetLocationById(locationId);
         return location is null ? 0 : GetWalkTimeMinutes(session, location);
     }
 
     internal static string? GetTravelConditionSummary(GameSession session, LocationId locationId)
     {
         ArgumentNullException.ThrowIfNull(session);
-        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == locationId);
+        var location = session.World.GetLocationById(locationId);
         if (location is null)
         {
             return null;
@@ -179,7 +179,7 @@ internal static class TravelService
         }
 
         var infrastructureTravel = InfrastructureImpactCalculator.GetTravelCostModifier(session.Infrastructure, location.District);
-        var newsTravel = NewsImpactCalculator.GetTravelCostModifier(session.News, location.District);
+        var newsTravel = NewsImpactCalculator.GetTravelCostModifier(session.News, location.District, session.ContentCatalog.NewsFlashes);
         if (infrastructureTravel != 0)
         {
             summaries.Add($"Transport service pressure adds {infrastructureTravel} LE and time to this trip.");
@@ -209,7 +209,7 @@ internal static class TravelService
             + (districtCondition?.Effect.TravelCostModifier ?? 0)
             + session.CurrentWeather.TravelCostModifier
             + InfrastructureImpactCalculator.GetTravelCostModifier(session.Infrastructure, destination.District)
-            + NewsImpactCalculator.GetTravelCostModifier(session.News, destination.District);
+            + NewsImpactCalculator.GetTravelCostModifier(session.News, destination.District, session.ContentCatalog.NewsFlashes);
         return Math.Max(1, modifiedCost);
     }
 

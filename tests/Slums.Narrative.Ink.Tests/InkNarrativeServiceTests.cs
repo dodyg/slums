@@ -100,6 +100,21 @@ internal sealed class InkNarrativeServiceTests
     }
 
     [Test]
+    public void SelectChoice_ShouldThrow_WhenChoiceIndexIsOutsideActiveScene()
+    {
+        var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
+        StartScene(service, "intro_medical");
+
+        FluentActions.Invoking(() => service.SelectChoice(-1))
+            .Should()
+            .Throw<ArgumentOutOfRangeException>();
+
+        FluentActions.Invoking(() => service.SelectChoice(service.CurrentChoices.Count))
+            .Should()
+            .Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
     public void StartScene_ShouldEndScene_WhenKnotDoesNotExist()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);

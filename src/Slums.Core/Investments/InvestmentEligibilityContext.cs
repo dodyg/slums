@@ -14,4 +14,5 @@ public sealed record InvestmentEligibilityContext(
     int StreetSmartsLevel,
     int MedicalLevel,
     int PhysicalLevel,
-    BackgroundType BackgroundType);
+    BackgroundType BackgroundType,
+    IReadOnlyList<Location>? Locations = null);

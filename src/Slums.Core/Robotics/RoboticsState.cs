@@ -3,6 +3,12 @@ namespace Slums.Core.Robotics;
 public sealed class RoboticsState
 {
     private readonly List<OwnedRobot> _robots = [];
+    private readonly IReadOnlyList<RobotDefinition> _definitions;
+
+    public RoboticsState(IEnumerable<RobotDefinition>? definitions = null)
+    {
+        _definitions = (definitions ?? RobotRegistry.AllDefinitions).Where(static definition => definition is not null).ToArray();
+    }
 
     public IReadOnlyList<OwnedRobot> Robots => _robots;
 
@@ -15,6 +21,12 @@ public sealed class RoboticsState
     public OwnedRobot? GetRobot(Guid robotId)
     {
         return _robots.FirstOrDefault(robot => robot.Id == robotId);
+    }
+
+    public RobotDefinition GetDefinition(RobotType type)
+    {
+        return _definitions.FirstOrDefault(definition => definition.Type == type)
+            ?? throw new InvalidOperationException($"No robot definition configured for {type}.");
     }
 
     public bool CanBuyParts(int quantity)
@@ -70,7 +82,7 @@ public sealed class RoboticsState
         }
 
         Parts--;
-        robot.Repair(RobotRegistry.GetByType(robot.Type).RepairCondition);
+        robot.Repair(GetDefinition(robot.Type).RepairCondition);
         return true;
     }
 

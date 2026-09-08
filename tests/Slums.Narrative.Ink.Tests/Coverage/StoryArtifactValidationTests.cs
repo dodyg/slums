@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Security.Cryptography;
 using FluentAssertions;
 using InkStoryException = Ink.Runtime.StoryException;
 using Slums.Core.Endings;
@@ -47,6 +48,24 @@ internal sealed class StoryArtifactValidationTests
     }
 
     [Test]
+    public void InkSources_HaveFreshnessManifest()
+    {
+        var sourceDirectory = ResolveInkSourceDirectory();
+        var manifestPath = Path.Combine(sourceDirectory, "source-manifest.sha256");
+        File.Exists(manifestPath).Should().BeTrue("the manifest must be committed with the compiled artifact");
+
+        var expected = File.ReadAllLines(manifestPath)
+            .Where(static line => !string.IsNullOrWhiteSpace(line))
+            .Select(static line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .ToDictionary(static parts => parts[1], static parts => parts[0].ToUpperInvariant(), StringComparer.Ordinal);
+        var actual = Directory.EnumerateFiles(sourceDirectory, "*.ink", SearchOption.TopDirectoryOnly)
+            .Select(static path => (Name: Path.GetFileName(path), Hash: Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)))))
+            .ToDictionary(static item => item.Name, static item => item.Hash, StringComparer.Ordinal);
+
+        actual.Should().BeEquivalentTo(expected, "editing an Ink source requires recompiling and updating the committed source manifest");
+    }
+
+    [Test]
     public async Task CompiledArtifact_HasNoOrphanEndingKnots()
     {
         var knotNames = StoryTraversalHelper.GetAllKnotNames().ToHashSet(StringComparer.Ordinal);
@@ -76,6 +95,17 @@ internal sealed class StoryArtifactValidationTests
 
         act.Should().Throw<InvalidOperationException>()
             .Which.Message.Should().Contain("unknown effect tag key");
+    }
+
+    [Test]
+    public void InkValidator_RejectsEffectTagsWithoutColon()
+    {
+        const string invalidStory = "{\"root\":[\"#\",\"^MONEY 10\",\"/#\"]}";
+
+        var act = () => InkStoryValidator.Validate(invalidStory);
+
+        act.Should().Throw<InvalidOperationException>()
+            .Which.Message.Should().Contain("missing ':' separator");
     }
 
     [Test]
@@ -148,5 +178,22 @@ internal sealed class StoryArtifactValidationTests
         }
 
         return null;
+    }
+
+    private static string ResolveInkSourceDirectory()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            var candidate = Path.Combine(directory.FullName, "content", "ink");
+            if (File.Exists(Path.Combine(candidate, "source-manifest.sha256")))
+            {
+                return candidate;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not locate content/ink for freshness validation.");
     }
 }

@@ -115,6 +115,13 @@ internal sealed class CrimeScreen : ScreenSurface
             return true;
         }
 
+        var numberIndex = NumberKeyMapper.GetPressedNumberIndex(keyboard, _crimeAttempts.Count);
+        if (numberIndex is int selectedIndex)
+        {
+            _selectedIndex = selectedIndex;
+            return true;
+        }
+
         if (_actionKeyGate.TryConsumeConfirm(keyboard.IsKeyPressed(Keys.Enter)))
         {
             AttemptSelectedCrime();
@@ -139,9 +146,10 @@ internal sealed class CrimeScreen : ScreenSurface
         }
 
         var cellPosition = state.SurfaceCellPosition;
+        var effectiveListY = ListY + Math.Min(_tipContextQuery.GetCrimeHints(_gameState).Count, MaxTipHints);
         for (var i = 0; i < _crimeAttempts.Count; i++)
         {
-            var blockStartY = ListY + (i * ListRowHeight);
+            var blockStartY = effectiveListY + (i * ListRowHeight);
             if (cellPosition.Y < blockStartY || cellPosition.Y >= blockStartY + ListRowHeight)
             {
                 continue;

@@ -93,6 +93,11 @@ internal static class InkStoryValidator
                 var separator = tag.IndexOf(':', StringComparison.Ordinal);
                 if (separator <= 0)
                 {
+                    if (separator < 0 && LooksLikeColonlessEffectKey(tag.Trim().ToUpperInvariant()))
+                    {
+                        throw InvalidTag(tag, "effect tag is missing ':' separator");
+                    }
+
                     return;
                 }
 
@@ -117,6 +122,11 @@ internal static class InkStoryValidator
         var separator = tag.IndexOf(':', StringComparison.Ordinal);
         if (separator <= 0)
         {
+            if (separator < 0 && LooksLikeColonlessEffectKey(tag.Trim().ToUpperInvariant()))
+            {
+                throw InvalidTag(tag, "effect tag is missing ':' separator");
+            }
+
             return;
         }
 
@@ -271,5 +281,13 @@ internal static class InkStoryValidator
     private static bool LooksLikeEffectKey(string key)
     {
         return key.Length > 0 && key.All(static character => character is (>= 'A' and <= 'Z') or (>= '0' and <= '9') or '_');
+    }
+
+    private static bool LooksLikeColonlessEffectKey(string key)
+    {
+        var firstToken = key.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).FirstOrDefault();
+        return firstToken is not null
+            && (IntegerTags.Contains(firstToken, StringComparer.Ordinal)
+                || ChoiceEffectTags.Contains(firstToken, StringComparer.Ordinal));
     }
 }

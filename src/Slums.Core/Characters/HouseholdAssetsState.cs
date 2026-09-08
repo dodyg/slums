@@ -8,6 +8,16 @@ public sealed class HouseholdAssetsState
     private const int HomeCookingBonusCap = 3;
     private readonly List<OwnedPet> _pets = [];
     private readonly List<OwnedPlant> _plants = [];
+    private readonly IReadOnlyList<PetDefinition> _petDefinitions;
+    private readonly IReadOnlyList<PlantDefinition> _plantDefinitions;
+
+    public HouseholdAssetsState(
+        IEnumerable<PetDefinition>? petDefinitions = null,
+        IEnumerable<PlantDefinition>? plantDefinitions = null)
+    {
+        _petDefinitions = (petDefinitions ?? PetRegistry.AllDefinitions).Where(static definition => definition is not null).ToArray();
+        _plantDefinitions = (plantDefinitions ?? PlantRegistry.AllDefinitions).Where(static definition => definition is not null).ToArray();
+    }
 
     public IReadOnlyList<OwnedPet> Pets => _pets;
 
@@ -30,6 +40,18 @@ public sealed class HouseholdAssetsState
     public OwnedPet? GetFishTank()
     {
         return _pets.FirstOrDefault(static pet => pet.Type == PetType.Fish);
+    }
+
+    public PetDefinition GetPetDefinition(PetType type)
+    {
+        return _petDefinitions.FirstOrDefault(definition => definition.Type == type)
+            ?? throw new InvalidOperationException($"No pet definition configured for {type}.");
+    }
+
+    public PlantDefinition GetPlantDefinition(PlantType type)
+    {
+        return _plantDefinitions.FirstOrDefault(definition => definition.Type == type)
+            ?? throw new InvalidOperationException($"No plant definition configured for {type}.");
     }
 
     public bool TryTriggerStreetCatEncounter(int currentDay)
@@ -87,14 +109,14 @@ public sealed class HouseholdAssetsState
     {
         return _pets
             .Where(pet => !pet.IsUpkeepPaidForWeek(currentWeek))
-            .Sum(pet => PetRegistry.GetByType(pet.Type).WeeklyCareCost);
+            .Sum(pet => GetPetDefinition(pet.Type).WeeklyCareCost);
     }
 
     public int GetPlantCareCostDue(int currentWeek)
     {
         return _plants
             .Where(plant => !plant.IsBaseCarePaidForWeek(currentWeek))
-            .Sum(plant => PlantRegistry.GetByType(plant.Type).WeeklyCareCost);
+            .Sum(plant => GetPlantDefinition(plant.Type).WeeklyCareCost);
     }
 
     public bool HasPetCareDue(int currentWeek)
@@ -153,7 +175,7 @@ public sealed class HouseholdAssetsState
 
         foreach (var pet in _pets)
         {
-            var definition = PetRegistry.GetByType(pet.Type);
+            var definition = GetPetDefinition(pet.Type);
             total += definition.PassiveMotherHealthBonus;
             if (pet.IsUpkeepPaidForWeek(currentWeek))
             {
@@ -168,7 +190,7 @@ public sealed class HouseholdAssetsState
 
         foreach (var plant in _plants)
         {
-            var definition = PlantRegistry.GetByType(plant.Type);
+            var definition = GetPlantDefinition(plant.Type);
             total += definition.PassiveMotherHealthBonus;
             if (plant.IsBaseCarePaidForWeek(currentWeek))
             {
@@ -187,7 +209,7 @@ public sealed class HouseholdAssetsState
 
         foreach (var plant in _plants)
         {
-            var definition = PlantRegistry.GetByType(plant.Type);
+            var definition = GetPlantDefinition(plant.Type);
             total += definition.CookingBonus;
             total += definition.CookingBonusPerUpgrade * plant.GetActiveUpgradeCount(currentWeek);
         }
@@ -214,7 +236,7 @@ public sealed class HouseholdAssetsState
         var totalIncome = 0;
         foreach (var plant in _plants)
         {
-            var definition = PlantRegistry.GetByType(plant.Type);
+            var definition = GetPlantDefinition(plant.Type);
             if (plant.TryResolveHarvest(currentDay, currentWeek, definition, out var income))
             {
                 totalIncome += income;

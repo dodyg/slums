@@ -2,8 +2,11 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Slums.Core.Characters;
 using Slums.Core.Content;
 using Slums.Core.Events;
+using Slums.Core.Inventory;
 using Slums.Core.Jobs;
+using Slums.Core.Robotics;
 using Slums.Core.World;
+using Slums.Core.World.News;
 using Slums.Infrastructure.Content;
 
 namespace Slums.TestSupport;
@@ -21,7 +24,12 @@ public static class ContentCatalogTestFixture
             repository.LoadJobs(),
             repository.LoadRandomEvents(),
             repository.LoadDistrictConditions(),
-            repository.LoadNpcSchedules());
+            repository.LoadNpcSchedules(),
+            repository.LoadPets(),
+            repository.LoadPlants(),
+            repository.LoadRobots(),
+            repository.LoadNewsFlashes(),
+            repository.LoadItems());
 
         BackgroundRegistry.Configure(catalog.Backgrounds);
         JobRegistry.Configure(catalog.Jobs);

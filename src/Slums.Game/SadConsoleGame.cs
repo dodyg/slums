@@ -29,6 +29,8 @@ internal sealed class SadConsoleGame : IGame
     private readonly ISaveGameStore _saveGameStore;
     private readonly SaveGameUseCase _saveGameUseCase;
     private readonly LoadGameUseCase _loadGameUseCase;
+    private readonly NewGameUseCase _newGameUseCase;
+    private readonly IGameContentCatalogProvider _contentCatalogProvider;
     private readonly IRandomSource _randomSource;
     private readonly IContentRepository _contentRepository;
     private readonly GameMutationLogger _mutationLogger;
@@ -40,6 +42,8 @@ internal sealed class SadConsoleGame : IGame
         ISaveGameStore saveGameStore,
         SaveGameUseCase saveGameUseCase,
         LoadGameUseCase loadGameUseCase,
+        NewGameUseCase newGameUseCase,
+        IGameContentCatalogProvider contentCatalogProvider,
         IRandomSource randomSource,
         IContentRepository contentRepository,
         GameMutationLogger mutationLogger)
@@ -49,6 +53,8 @@ internal sealed class SadConsoleGame : IGame
         _saveGameStore = saveGameStore;
         _saveGameUseCase = saveGameUseCase;
         _loadGameUseCase = loadGameUseCase;
+        _newGameUseCase = newGameUseCase;
+        _contentCatalogProvider = contentCatalogProvider;
         _randomSource = randomSource;
         _contentRepository = contentRepository;
         _mutationLogger = mutationLogger;
@@ -57,6 +63,7 @@ internal sealed class SadConsoleGame : IGame
     public void Run()
     {
         ConfigureContent();
+        _ = _contentCatalog ?? throw new InvalidOperationException("Content bootstrap completed without a catalog.");
 
         Settings.WindowTitle = "Slums";
         Settings.AllowWindowResize = false;
@@ -66,7 +73,8 @@ internal sealed class SadConsoleGame : IGame
             _saveGameStore,
             _saveGameUseCase,
             _loadGameUseCase,
-            new NewGameUseCase(_randomSource, _contentCatalog),
+            _newGameUseCase,
+            _randomSource,
             _mutationLogger);
 
         Builder gameConfig = new Builder()
@@ -75,8 +83,18 @@ internal sealed class SadConsoleGame : IGame
             .SetStartingScreen(host => new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, runtime));
 
         global::SadConsole.Game.Create(gameConfig);
+        global::SadConsole.GameHost.Instance.FrameUpdate += StopWhenQuitRequested;
         global::SadConsole.Game.Instance.Run();
+        global::SadConsole.GameHost.Instance.FrameUpdate -= StopWhenQuitRequested;
         global::SadConsole.Game.Instance.Dispose();
+
+        void StopWhenQuitRequested(object? sender, GameHost host)
+        {
+            if (runtime.QuitRequested)
+            {
+                host.Dispose();
+            }
+        }
     }
 
     private void ConfigureContent()
@@ -98,7 +116,12 @@ internal sealed class SadConsoleGame : IGame
             jobs,
             randomEvents,
             districtConditions,
-            npcSchedules);
+            npcSchedules,
+            pets,
+            plants,
+            robots,
+            newsFlashes,
+            items);
 
         var knotNames = InkStoryCatalog.GetKnotNames();
         EndingKnotCatalog.ValidateKnownKnots(knotNames);
@@ -117,6 +140,7 @@ internal sealed class SadConsoleGame : IGame
             items,
             npcSchedules);
 
+        _contentCatalogProvider.Publish(_contentCatalog);
         DistrictConditionRegistry.Configure(districtConditions);
         PetRegistry.Configure(pets);
         PlantRegistry.Configure(plants);

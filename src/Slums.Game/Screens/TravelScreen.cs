@@ -7,6 +7,7 @@ using Slums.Core.Clock;
 using Slums.Core.State;
 using Slums.Game.Rendering;
 using Slums.Core.World;
+using Slums.Game.Input;
 
 namespace Slums.Game.Screens;
 
@@ -17,6 +18,7 @@ internal sealed class TravelScreen : ScreenSurface
     private readonly GameScreen _parentScreen;
     private readonly TravelCommand _travelCommand = new();
     private readonly TipContextQuery _tipContextQuery = new();
+    private readonly ScreenActionKeyGate _actionKeyGate = new();
     private int _selectedIndex;
     private int _mouseSelectedIndex = -1;
 
@@ -30,6 +32,7 @@ internal sealed class TravelScreen : ScreenSurface
         IsFocused = true;
         UseMouse = true;
         FocusOnMouseClick = true;
+        _actionKeyGate.SuppressActionKeysUntilRelease();
     }
 
     public override void Render(TimeSpan delta)
@@ -91,7 +94,14 @@ internal sealed class TravelScreen : ScreenSurface
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Enter))
+        var numberIndex = NumberKeyMapper.GetPressedNumberIndex(keyboard, _locations.Count);
+        if (numberIndex is int selectedIndex)
+        {
+            _selectedIndex = selectedIndex;
+            return true;
+        }
+
+        if (_actionKeyGate.TryConsumeConfirm(keyboard.IsKeyPressed(Keys.Enter)))
         {
             TravelToSelected();
             return true;
@@ -103,7 +113,7 @@ internal sealed class TravelScreen : ScreenSurface
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Escape))
+        if (_actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape)))
         {
             ReturnToParentScreen();
             return true;
@@ -148,15 +158,16 @@ internal sealed class TravelScreen : ScreenSurface
         var detailStartY = TravelScreenLayout.GetDetailStartY(Surface.Height);
         if (cellPosition.Y == detailStartY + 2)
         {
-            var transportLabel = "Transport:";
-            if (cellPosition.X >= 2 && cellPosition.X < 2 + transportLabel.Length + 10)
+            const int detailStartX = 2;
+            const string transportLabel = "[Transport]:";
+            if (cellPosition.X >= detailStartX && cellPosition.X < detailStartX + transportLabel.Length)
             {
                 TravelToSelected();
                 return true;
             }
 
-            var walkPrefix = $"Transport: {_gameState.GetTravelCost(_locations[_selectedIndex].Id)} LE / {_gameState.GetTravelTimeMinutes(_locations[_selectedIndex].Id)} min | ";
-            if (cellPosition.X >= 2 + walkPrefix.Length && cellPosition.X < 2 + walkPrefix.Length + 10)
+            var walkPrefix = $"[Transport]: {_gameState.GetTravelCost(_locations[_selectedIndex].Id)} LE / {_gameState.GetTravelTimeMinutes(_locations[_selectedIndex].Id)} min | ";
+            if (cellPosition.X >= detailStartX + walkPrefix.Length && cellPosition.X < detailStartX + walkPrefix.Length + "[Walk]".Length)
             {
                 WalkToSelected();
                 return true;

@@ -36,14 +36,31 @@ public sealed class JsonSaveGameStore : ISaveGameStore
         Directory.CreateDirectory(_saveDirectory);
         var path = GetSlotPath(slot);
         var now = DateTimeOffset.UtcNow;
-        var existingDocument = await ReadDocumentAsync(path, cancellationToken).ConfigureAwait(false);
+        DateTimeOffset createdUtc;
+        try
+        {
+            createdUtc = (await ReadDocumentAsync(path, cancellationToken).ConfigureAwait(false))?.CreatedUtc ?? now;
+        }
+        catch (JsonException exception)
+        {
+            LogSaveReadJsonFailure(_logger, path, exception);
+            createdUtc = now;
+        }
+        catch (IOException exception)
+        {
+            LogSaveReadIoFailure(_logger, path, exception);
+            createdUtc = now;
+        }
+
+        var snapshot = GameSessionSnapshot.Capture(request.GameSession);
+        SaveGameValidator.Validate(snapshot);
 
         var document = new GameSessionSaveDocument(
             CurrentSaveVersion,
-            existingDocument?.CreatedUtc ?? now,
+            createdUtc,
             now,
             request.CheckpointName,
-            GameSessionSnapshot.Capture(request.GameSession),
+            snapshot,
             new NarrativeProgressSnapshot { LastKnot = request.LastKnot });
 
         await WriteAtomicAsync(path, document, cancellationToken).ConfigureAwait(false);

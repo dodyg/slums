@@ -12,7 +12,8 @@ public static class NewsService
         InfrastructureState infrastructure,
         EventJournal journal,
         int currentDay,
-        Random random)
+        Random random,
+        IReadOnlyList<NewsFlashDefinition>? definitions = null)
     {
         ArgumentNullException.ThrowIfNull(news);
         ArgumentNullException.ThrowIfNull(infrastructure);
@@ -23,19 +24,20 @@ public static class NewsService
         infrastructure.AdvanceDay();
 
         #pragma warning disable CA5394 // Seeded gameplay randomness is intentional and persisted with the session.
-        var shouldGenerate = currentDay >= 2 && NewsRegistry.All.Count > 0 && random.Next(100) < DailyGenerationChancePercent;
+        var availableDefinitions = definitions ?? NewsRegistry.All;
+        var shouldGenerate = currentDay >= 2 && availableDefinitions.Count > 0 && random.Next(100) < DailyGenerationChancePercent;
         #pragma warning restore CA5394
         if (!shouldGenerate)
         {
             return null;
         }
 
-        var eligible = NewsRegistry.All
+        var eligible = availableDefinitions
             .Where(definition => definition.MinimumDay <= currentDay)
             .Where(definition => definition.Weight > 0 && definition.DurationDays > 0)
             .Where(definition => !news.HasSeen(definition.Id))
             .Where(definition => currentDay - news.LastGeneratedDayFor(definition.Category) >= definition.CooldownDays)
-            .Where(definition => !news.ActiveFlashes.Any(active => NewsRegistry.GetById(active.DefinitionId)?.Category == definition.Category))
+            .Where(definition => !news.ActiveFlashes.Any(active => availableDefinitions.FirstOrDefault(candidate => candidate.Id == active.DefinitionId)?.Category == definition.Category))
             .ToArray();
         if (eligible.Length == 0)
         {

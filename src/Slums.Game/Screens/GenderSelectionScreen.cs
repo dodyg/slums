@@ -6,6 +6,7 @@ using Slums.Application.Characters;
 using Slums.Core.Characters;
 using Slums.Core.State;
 using Slums.Game.Rendering;
+using Slums.Game.Input;
 
 namespace Slums.Game.Screens;
 
@@ -14,6 +15,7 @@ internal sealed class GenderSelectionScreen : ScreenSurface
     private readonly GameRuntime _runtime;
     private readonly GameSession _gameState;
     private int _selectedIndex;
+    private readonly ScreenActionKeyGate _actionKeyGate = new();
 
     private static readonly (Gender Gender, string Label, string Description)[] Options =
     [
@@ -31,6 +33,7 @@ internal sealed class GenderSelectionScreen : ScreenSurface
         IsFocused = true;
         UseMouse = true;
         FocusOnMouseClick = true;
+        _actionKeyGate.SuppressActionKeysUntilRelease();
     }
 
     public override void Render(TimeSpan delta)
@@ -85,13 +88,20 @@ internal sealed class GenderSelectionScreen : ScreenSurface
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Enter))
+        var numberIndex = NumberKeyMapper.GetPressedNumberIndex(keyboard, Options.Length);
+        if (numberIndex is int selectedIndex)
+        {
+            _selectedIndex = selectedIndex;
+            return true;
+        }
+
+        if (_actionKeyGate.TryConsumeConfirm(keyboard.IsKeyPressed(Keys.Enter)))
         {
             ConfirmSelection();
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Escape))
+        if (_actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape)))
         {
             ScreenTransition.SwitchTo(new MainMenuScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime));
             return true;

@@ -12,7 +12,7 @@ internal static class WeeklyEconomyResolution
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(random);
 
-        var hardshipModifier = NewsImpactCalculator.GetNpcHardshipModifier(session.News);
+        var hardshipModifier = NewsImpactCalculator.GetNpcHardshipModifier(session.News, session.ContentCatalog.NewsFlashes);
         NpcEconomyResolver.ResolveWeek(session.NpcEconomies, session.Relationships, session.Clock.Day, random, hardshipModifier);
         if (hardshipModifier > 0)
         {

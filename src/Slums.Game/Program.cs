@@ -21,6 +21,8 @@ using IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<SaveGameUseCase>();
         services.AddSingleton<LoadGameUseCase>();
         services.AddSingleton<IRandomSource, SeededRandomSource>();
+        services.AddSingleton<IGameContentCatalogProvider, GameContentCatalogProvider>();
+        services.AddSingleton<NewGameUseCase>();
         services.AddSingleton<GameMutationLogger>();
         services.AddSingleton<IGame>(serviceProvider => new SadConsoleGame(
             serviceProvider.GetRequiredService<ILogger<SadConsoleGame>>(),
@@ -28,6 +30,8 @@ using IHost host = Host.CreateDefaultBuilder(args)
             serviceProvider.GetRequiredService<ISaveGameStore>(),
             serviceProvider.GetRequiredService<SaveGameUseCase>(),
             serviceProvider.GetRequiredService<LoadGameUseCase>(),
+            serviceProvider.GetRequiredService<NewGameUseCase>(),
+            serviceProvider.GetRequiredService<IGameContentCatalogProvider>(),
             serviceProvider.GetRequiredService<IRandomSource>(),
             serviceProvider.GetRequiredService<IContentRepository>(),
             serviceProvider.GetRequiredService<GameMutationLogger>()));

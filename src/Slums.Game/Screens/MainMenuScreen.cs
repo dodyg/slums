@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
+using Slums.Game.Input;
 
 namespace Slums.Game.Screens;
 
@@ -10,6 +11,7 @@ internal sealed class MainMenuScreen : ScreenSurface
     private static readonly string[] MenuItems = ["New Game", "Load Game", "Quit"];
     private readonly GameRuntime _runtime;
     private int _selectedIndex;
+    private readonly ScreenActionKeyGate _actionKeyGate = new();
 
     public MainMenuScreen(int width, int height, GameRuntime runtime) : base(width, height)
     {
@@ -18,6 +20,7 @@ internal sealed class MainMenuScreen : ScreenSurface
         IsFocused = true;
         UseMouse = true;
         FocusOnMouseClick = true;
+        _actionKeyGate.SuppressActionKeysUntilRelease();
     }
 
     public override void Render(TimeSpan delta)
@@ -61,7 +64,7 @@ internal sealed class MainMenuScreen : ScreenSurface
             return true;
         }
         
-        if (keyboard.IsKeyPressed(Keys.Enter))
+        if (_actionKeyGate.TryConsumeConfirm(keyboard.IsKeyPressed(Keys.Enter)))
         {
             ExecuteSelection();
             return true;
@@ -116,7 +119,7 @@ internal sealed class MainMenuScreen : ScreenSurface
                 ScreenTransition.FadeTo(new LoadGameScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime));
                 break;
             case 2:
-                Environment.Exit(0);
+                _runtime.RequestQuit();
                 break;
         }
     }

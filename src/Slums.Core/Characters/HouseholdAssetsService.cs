@@ -63,7 +63,7 @@ internal static class HouseholdAssetsService
             return false;
         }
 
-        var definition = PetRegistry.GetByType(PetType.Fish);
+        var definition = session.Player.HouseholdAssets.GetPetDefinition(PetType.Fish);
         if (session.Player.Stats.Money < definition.OneTimeCost)
         {
             session.RecordMutation(MutationCategories.GuardRejected, "BuyFishTank", before, session.CaptureStats(), $"Not enough money (need {definition.OneTimeCost} LE, have {session.Player.Stats.Money} LE)");
@@ -96,7 +96,7 @@ internal static class HouseholdAssetsService
             return false;
         }
 
-        var definition = PlantRegistry.GetByType(plantType);
+        var definition = session.Player.HouseholdAssets.GetPlantDefinition(plantType);
         if (session.Player.Stats.Money < definition.OneTimeCost)
         {
             session.RecordMutation(MutationCategories.GuardRejected, "BuyPlant", before, session.CaptureStats(), $"Not enough money (need {definition.OneTimeCost} LE, have {session.Player.Stats.Money} LE)");
@@ -122,7 +122,7 @@ internal static class HouseholdAssetsService
             return false;
         }
 
-        var definition = RobotRegistry.GetByType(robotType);
+        var definition = session.Player.Robotics.GetDefinition(robotType);
         if (!session.Player.Robotics.CanPurchaseRobot)
         {
             session.RecordMutation(MutationCategories.GuardRejected, "BuyRobot", before, session.CaptureStats(), "Robot limit reached");
@@ -222,7 +222,7 @@ internal static class HouseholdAssetsService
             return false;
         }
 
-        var definition = RobotRegistry.GetByType(robot.Type);
+        var definition = session.Player.Robotics.GetDefinition(robot.Type);
         var repairCost = RobotRepairCostCalculator.GetRepairCost(
             session.Player.Skills.GetLevel(SkillId.RobotRepair),
             definition.RepairCost);
@@ -350,7 +350,7 @@ internal static class HouseholdAssetsService
         }
 
         session.Player.Stats.ModifyMoney(-cost);
-        var definition = PlantRegistry.GetByType(plant.Type);
+        var definition = session.Player.HouseholdAssets.GetPlantDefinition(plant.Type);
         session.RaiseEvent($"{definition.Name}: {PlantUpgradeCatalog.GetName(upgradeType)} added for {cost} LE.");
         session.RecordMutation(MutationCategories.HouseholdAsset, "UpgradePlant", before, session.CaptureStats(), $"Upgraded {definition.Name} with {PlantUpgradeCatalog.GetName(upgradeType)} for {cost} LE");
         return true;

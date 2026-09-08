@@ -16,7 +16,7 @@ public sealed class SaveGameUseCase
     public Task ExecuteAsync(SaveGameRequest request, string slot, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentException.ThrowIfNullOrWhiteSpace(slot);
+        SaveSlotRules.EnsureValidSlot(slot);
 
         LogSavingGame(_logger, slot, request.GameSession.RunId, request.GameSession.DaysSurvived, request.GameSession.Player.Stats.Money);
         return _saveGameStore.SaveAsync(request, slot, cancellationToken);

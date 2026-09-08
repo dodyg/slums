@@ -70,11 +70,18 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     {
         Clock = new GameClock();
         _playerIdentity = new PlayerIdentityState();
-        Player = new PlayerCharacter(_playerIdentity, new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new HouseholdAssetsState(), new SkillState(), new RoboticsState());
-        World = new WorldState();
+        Player = new PlayerCharacter(
+            _playerIdentity,
+            new SurvivalStats(),
+            new NutritionState(),
+            new HouseholdCareState(),
+            new HouseholdAssetsState(contentCatalog.Pets, contentCatalog.Plants),
+            new SkillState(),
+            new RoboticsState(contentCatalog.Robots));
+        World = new WorldState(contentCatalog.Locations);
         Relationships = new RelationshipState();
         JobProgress = new JobProgressState();
-        Jobs = new JobService();
+        Jobs = new JobService(contentCatalog.Jobs);
         _runState = new GameRunState();
         _crimeState = new GameCrimeState();
         _workState = new GameWorkState();
@@ -82,25 +89,6 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         _investmentState = new GameInvestmentState();
         _rentState = new RentState();
         _contentCatalog = contentCatalog;
-        if (contentCatalog.Backgrounds.Count > 0)
-        {
-            BackgroundRegistry.Configure(contentCatalog.Backgrounds);
-        }
-
-        if (contentCatalog.Jobs.Count > 0)
-        {
-            JobRegistry.Configure(contentCatalog.Jobs);
-        }
-
-        if (contentCatalog.Locations.Count > 0)
-        {
-            WorldState.ConfigureLocations(contentCatalog.Locations);
-        }
-
-        if (contentCatalog.RandomEvents.Count > 0)
-        {
-            RandomEventRegistry.Configure(contentCatalog.RandomEvents);
-        }
         _useDynamicDistrictConditions = sharedRandom is not null;
 #pragma warning disable CA5394 // Gameplay randomness does not require cryptographic strength
         _sharedRandom = sharedRandom ?? new GameRandom((ulong)Random.Shared.NextInt64());
@@ -133,7 +121,8 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         return new GameSession(sharedRandom, initializeWorldState: false, contentCatalog ?? GameContentCatalog.FromConfiguredRegistries());
     }
 
-    internal GameContentCatalog ContentCatalog => _contentCatalog;
+    /// <summary>Gets the immutable content catalog used by this session.</summary>
+    public GameContentCatalog ContentCatalog => _contentCatalog;
 
     public Guid RunId { get => _runState.RunId; private set => _runState.RunId = value; }
 
@@ -220,7 +209,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     public IReadOnlyList<NewsFlashDefinition> GetActiveNewsDefinitions()
     {
         return News.ActiveFlashes
-            .Select(static flash => NewsRegistry.GetById(flash.DefinitionId))
+            .Select(flash => _contentCatalog.NewsFlashes.FirstOrDefault(definition => definition.Id == flash.DefinitionId))
             .OfType<NewsFlashDefinition>()
             .ToArray();
     }

@@ -178,7 +178,7 @@
     "Effect": {
       "TravelTimeMinutesModifier": 12,
       "WorkStressModifier": 3,
-      "BoostedRandomEventIds": ["StreetVendorPermitSweep", "ImbabaNightPatrol"],
+      "BoostedRandomEventIds": ["NeighborhoodRumor", "NeighborhoodSolidarity"],
       "SuppressedRandomEventIds": []
     }
   },
@@ -208,7 +208,7 @@
     "Effect": {
       "WorkPayModifier": 2,
       "FoodCostModifier": -1,
-      "BoostedRandomEventIds": ["FishMarketCatch", "FishMarketScrap"],
+      "BoostedRandomEventIds": ["GoodNeighbour", "UnexpectedWork"],
       "SuppressedRandomEventIds": []
     }
   },

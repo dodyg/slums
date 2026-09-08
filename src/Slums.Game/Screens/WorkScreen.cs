@@ -5,6 +5,7 @@ using SadRogue.Primitives;
 using Slums.Application.Activities;
 using Slums.Core.State;
 using Slums.Game.Rendering;
+using Slums.Game.Input;
 
 namespace Slums.Game.Screens;
 
@@ -20,6 +21,7 @@ internal sealed class WorkScreen : ScreenSurface
     private readonly GameScreen _parentScreen;
     private readonly WorkCommand _workCommand = new();
     private readonly TipContextQuery _tipContextQuery = new();
+    private readonly ScreenActionKeyGate _actionKeyGate = new();
     private int _selectedIndex;
 
     public WorkScreen(int width, int height, GameSession gameState, WorkMenuContext context, List<WorkMenuStatus> jobs, GameScreen parentScreen)
@@ -33,6 +35,7 @@ internal sealed class WorkScreen : ScreenSurface
         IsFocused = true;
         UseMouse = true;
         FocusOnMouseClick = true;
+        _actionKeyGate.SuppressActionKeysUntilRelease();
     }
 
     public override void Render(TimeSpan delta)
@@ -87,13 +90,20 @@ internal sealed class WorkScreen : ScreenSurface
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Enter))
+        var numberIndex = NumberKeyMapper.GetPressedNumberIndex(keyboard, _jobs.Count);
+        if (numberIndex is int selectedIndex)
+        {
+            _selectedIndex = selectedIndex;
+            return true;
+        }
+
+        if (_actionKeyGate.TryConsumeConfirm(keyboard.IsKeyPressed(Keys.Enter)))
         {
             WorkSelectedJob();
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Escape))
+        if (_actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape)))
         {
             ReturnToParentScreen();
             return true;
@@ -111,9 +121,10 @@ internal sealed class WorkScreen : ScreenSurface
         }
 
         var cellPosition = state.SurfaceCellPosition;
+        var effectiveListY = ListY + Math.Min(_tipContextQuery.GetWorkHints(_gameState).Count, 2);
         for (var i = 0; i < _jobs.Count; i++)
         {
-            var blockStartY = ListY + i * ListRowHeight;
+            var blockStartY = effectiveListY + i * ListRowHeight;
             if (cellPosition.Y >= blockStartY &&
                 cellPosition.Y < blockStartY + ListRowHeight &&
                 cellPosition.X >= ListX &&

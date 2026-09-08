@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.Persistence;
+using Slums.Game.Input;
 
 namespace Slums.Game.Screens;
 
@@ -14,6 +15,7 @@ internal sealed class LoadGameScreen : ScreenSurface
     private int _selectedIndex;
     private Task<IReadOnlyList<SaveSlotMetadata>>? _pendingSlots;
     private Task<LoadGameResult>? _pendingLoad;
+    private readonly ScreenActionKeyGate _actionKeyGate = new();
 
     public LoadGameScreen(int width, int height, GameRuntime runtime)
         : base(width, height)
@@ -22,6 +24,7 @@ internal sealed class LoadGameScreen : ScreenSurface
         IsFocused = true;
         UseMouse = true;
         FocusOnMouseClick = true;
+        _actionKeyGate.SuppressActionKeysUntilRelease();
         RefreshSlotsAsync();
     }
 
@@ -108,7 +111,7 @@ internal sealed class LoadGameScreen : ScreenSurface
 
         if (_slots.Count == 0)
         {
-            if (keyboard.IsKeyPressed(Keys.Escape))
+            if (_actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape)))
             {
                 ReturnToMainMenu();
                 return true;
@@ -129,7 +132,14 @@ internal sealed class LoadGameScreen : ScreenSurface
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Enter))
+        var numberIndex = NumberKeyMapper.GetPressedNumberIndex(keyboard, _slots.Count);
+        if (numberIndex is int selectedIndex)
+        {
+            _selectedIndex = selectedIndex;
+            return true;
+        }
+
+        if (_actionKeyGate.TryConsumeConfirm(keyboard.IsKeyPressed(Keys.Enter)))
         {
             var slot = _slots[_selectedIndex];
             _statusMessage = "Loading...";
@@ -137,7 +147,7 @@ internal sealed class LoadGameScreen : ScreenSurface
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Escape))
+        if (_actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape)))
         {
             ReturnToMainMenu();
             return true;

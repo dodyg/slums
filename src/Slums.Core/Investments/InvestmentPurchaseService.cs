@@ -297,6 +297,7 @@ internal static class InvestmentPurchaseService
             session.Player.Skills.GetLevel(SkillId.StreetSmarts),
             session.Player.Skills.GetLevel(SkillId.Medical),
             session.Player.Skills.GetLevel(SkillId.Physical),
-            session.Player.BackgroundType));
+            session.Player.BackgroundType,
+            session.World.Locations));
     }
 }

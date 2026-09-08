@@ -48,10 +48,14 @@ public sealed class InkNarrativeService : INarrativeService
 
     public void SelectChoice(int choiceIndex)
     {
-        if (_currentStory is null || choiceIndex < 0 || choiceIndex >= _currentStory.currentChoices.Count)
+        if (_currentStory is null)
         {
-            LogInvalidChoice(_logger, choiceIndex);
-            return;
+            throw new InvalidOperationException("Cannot select a choice when no Ink scene is active.");
+        }
+
+        if (choiceIndex < 0 || choiceIndex >= _currentStory.currentChoices.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(choiceIndex), choiceIndex, "The choice index is outside the active Ink scene.");
         }
 
         _currentStory.ChooseChoiceIndex(choiceIndex);
@@ -122,9 +126,6 @@ public sealed class InkNarrativeService : INarrativeService
     private static readonly Action<ILogger, string, Exception?> LogSceneStartedDelegate =
         LoggerMessage.Define<string>(LogLevel.Information, new EventId(1, "SceneStarted"), "Started Ink scene: {KnotName}");
 
-    private static readonly Action<ILogger, int, Exception?> LogInvalidChoiceDelegate =
-        LoggerMessage.Define<int>(LogLevel.Warning, new EventId(2, "InvalidChoice"), "Invalid choice selection: {ChoiceIndex}");
-
     private static readonly Action<ILogger, Exception?> LogSceneEndedDelegate =
         LoggerMessage.Define(LogLevel.Debug, new EventId(3, "SceneEnded"), "Ended Ink scene");
 
@@ -133,9 +134,6 @@ public sealed class InkNarrativeService : INarrativeService
 
     private static void LogSceneStarted(ILogger logger, string knotName) =>
         LogSceneStartedDelegate(logger, knotName, null);
-
-    private static void LogInvalidChoice(ILogger logger, int choiceIndex) =>
-        LogInvalidChoiceDelegate(logger, choiceIndex, null);
 
     private static void LogSceneEnded(ILogger logger) =>
         LogSceneEndedDelegate(logger, null);

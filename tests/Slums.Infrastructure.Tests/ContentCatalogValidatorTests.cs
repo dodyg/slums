@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Slums.Core.Characters;
 using Slums.Core.Crimes;
 using Slums.Core.Events;
@@ -70,6 +71,45 @@ internal sealed class ContentCatalogValidatorTests
             newsFlashes: [news],
             items: items,
             npcSchedules: schedules);
+
+        act.Should().NotThrow();
+    }
+
+    [Test]
+    public void Validate_RepositoryCatalog_WithAllOptionalCatalogs_DoesNotThrow()
+    {
+        var contentDirectory = ResolveRepositoryContentDirectory();
+        var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
+        var backgrounds = repository.LoadBackgrounds();
+        var locations = repository.LoadLocations();
+        var jobs = repository.LoadJobs();
+        var randomEvents = repository.LoadRandomEvents();
+        var districtConditions = repository.LoadDistrictConditions();
+        var pets = repository.LoadPets();
+        var plants = repository.LoadPlants();
+        var robots = repository.LoadRobots();
+        var newsFlashes = repository.LoadNewsFlashes();
+        var items = repository.LoadItems();
+        var schedules = repository.LoadNpcSchedules();
+        var knotNames = Directory.EnumerateFiles(ResolveRepositoryInkDirectory(), "*.ink")
+            .SelectMany(File.ReadLines)
+            .Where(static line => line.StartsWith("=== ", StringComparison.Ordinal) && line.EndsWith(" ===", StringComparison.Ordinal))
+            .Select(static line => line[4..^4])
+            .ToHashSet(StringComparer.Ordinal);
+
+        var act = () => ContentCatalogValidator.Validate(
+            backgrounds,
+            locations,
+            jobs,
+            randomEvents,
+            districtConditions,
+            pets,
+            plants,
+            knotNames,
+            robots,
+            newsFlashes,
+            items,
+            schedules);
 
         act.Should().NotThrow();
     }
@@ -487,6 +527,40 @@ internal sealed class ContentCatalogValidatorTests
         "intro_SudaneseRefugee",
         "event_test_scene"
     };
+
+    private static string ResolveRepositoryContentDirectory()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            var candidate = Path.Combine(directory.FullName, "content", "data");
+            if (File.Exists(Path.Combine(candidate, "backgrounds.json")))
+            {
+                return candidate;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not locate repository content/data.");
+    }
+
+    private static string ResolveRepositoryInkDirectory()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            var candidate = Path.Combine(directory.FullName, "content", "ink");
+            if (File.Exists(Path.Combine(candidate, "main.json")))
+            {
+                return candidate;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not locate repository content/ink.");
+    }
 
     private static TestCatalog BuildValidCatalog()
     {

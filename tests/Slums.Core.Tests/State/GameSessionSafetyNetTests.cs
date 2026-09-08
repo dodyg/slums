@@ -63,6 +63,7 @@ internal sealed class GameSessionSafetyNetTests
         "property:News",
         "property:NpcEconomies",
         "property:CentralCharacterArcs",
+        "property:ContentCatalog",
         "property:PendingEndingId",
         "property:PendingEndingKnot",
         "property:PendingNarrativeScenes",

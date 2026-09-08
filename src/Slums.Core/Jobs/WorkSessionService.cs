@@ -47,7 +47,7 @@ internal static class WorkSessionService
             session.JobProgress,
             session.Clock.Day,
             random ?? session.SharedRandom,
-            NewsImpactCalculator.GetJobPayModifier(session.News, job.Type)
+            NewsImpactCalculator.GetJobPayModifier(session.News, job.Type, session.ContentCatalog.NewsFlashes)
             + InvestmentPurchaseService.GetJobPayModifier(session, job.Type));
 
         if (result.Success)
@@ -77,7 +77,7 @@ internal static class WorkSessionService
                 if (workingRobot is not null)
                 {
                     workingRobot.Damage(10);
-                    session.RaiseEvent($"The {RobotRegistry.GetByType(workingRobot.Type).Name} takes wear on the scavenging run. Condition: {workingRobot.Condition}%.");
+                    session.RaiseEvent($"The {session.Player.Robotics.GetDefinition(workingRobot.Type).Name} takes wear on the scavenging run. Condition: {workingRobot.Condition}%.");
                 }
 
                 if (RobotCapabilityRules.GetSalvageBonusParts(session.Player.Robotics) > 0 && session.Player.Robotics.CanBuyParts(1))
@@ -124,7 +124,7 @@ internal static class WorkSessionService
         ArgumentNullException.ThrowIfNull(session);
         var preview = ApplyDistrictConditionToJobPreview(session, session.Jobs.PreviewJob(jobType, session.Player, session.Relationships, session.JobProgress));
         var modifiers = preview.ActiveModifiers.ToList();
-        var payModifier = NewsImpactCalculator.GetJobPayModifier(session.News, jobType);
+        var payModifier = NewsImpactCalculator.GetJobPayModifier(session.News, jobType, session.ContentCatalog.NewsFlashes);
         if (payModifier != 0)
         {
             modifiers.Add($"City news changes this shift's pay by {payModifier} LE.");

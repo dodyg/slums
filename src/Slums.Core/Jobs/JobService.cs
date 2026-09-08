@@ -7,6 +7,13 @@ namespace Slums.Core.Jobs;
 
 public sealed class JobService
 {
+    private readonly IReadOnlyList<JobShift> _jobs;
+
+    public JobService(IEnumerable<JobShift>? jobs = null)
+    {
+        _jobs = (jobs ?? JobRegistry.AllJobs).Where(static job => job is not null).ToArray();
+    }
+
 #pragma warning disable CA1822
     public JobPreview PreviewJob(JobType jobType, PlayerCharacter player, RelationshipState relationshipState, JobProgressState jobProgressState)
 #pragma warning restore CA1822
@@ -174,7 +181,7 @@ public sealed class JobService
             mistakeMade: true);
     }
 
-    private static JobShift ResolveShift(JobType jobType, PlayerCharacter player, RelationshipState relationshipState, JobProgressState jobProgressState)
+    private JobShift ResolveShift(JobType jobType, PlayerCharacter player, RelationshipState relationshipState, JobProgressState jobProgressState)
     {
         var track = jobProgressState.GetTrack(jobType);
 
@@ -193,13 +200,13 @@ public sealed class JobService
             JobType.FishSorter => ResolveFishSorterShift(player, track),
             JobType.MarketPorter => ResolveMarketPorterShift(track),
             JobType.RoboticsScavenging => ResolveRoboticsShift(player),
-            _ => JobRegistry.GetJobByType(jobType) ?? throw new ArgumentOutOfRangeException(nameof(jobType))
+            _ => _jobs.FirstOrDefault(job => job.Type == jobType) ?? throw new ArgumentOutOfRangeException(nameof(jobType))
         };
     }
 
-    private static JobShift ResolveRoboticsShift(PlayerCharacter player)
+    private JobShift ResolveRoboticsShift(PlayerCharacter player)
     {
-        var baseShift = JobRegistry.RoboticsScavenging;
+        var baseShift = GetRequiredJob(JobType.RoboticsScavenging);
         if (player.Skills.GetLevel(SkillId.RobotRepair) >= JobVariantThresholds.SkillLevel2)
         {
             return CreateShiftVariant(baseShift, "Drone Teardown Line", "Take the teardown bench where Abu Samir lets you crack open dead delivery drones for the good boards.", 8, 2, 0, 0, 0);
@@ -208,9 +215,9 @@ public sealed class JobService
         return baseShift;
     }
 
-    private static JobShift ResolveBakeryShift(PlayerCharacter player, JobTrackProgress track)
+    private JobShift ResolveBakeryShift(PlayerCharacter player, JobTrackProgress track)
     {
-        var baseShift = JobRegistry.BakeryWork;
+        var baseShift = GetRequiredJob(JobType.BakeryWork);
         if (track.Reliability >= JobVariantThresholds.Reliability75 && player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel3)
         {
             return CreateShiftVariant(baseShift, "Bakery Dough Prep", "Start before dawn shaping and loading trays for the first rush.", 9, 5, 2, 30, 5);
@@ -224,9 +231,9 @@ public sealed class JobService
         return baseShift;
     }
 
-    private static JobShift ResolveHouseCleaningShift(JobTrackProgress track)
+    private JobShift ResolveHouseCleaningShift(JobTrackProgress track)
     {
-        var baseShift = JobRegistry.HouseCleaning;
+        var baseShift = GetRequiredJob(JobType.HouseCleaning);
         if (track.Reliability >= JobVariantThresholds.Reliability80)
         {
             return CreateShiftVariant(baseShift, "Full Apartment Cleaning", "A full-day flat cleaning for repeat clients who pay a little more and judge every detail.", 7, 4, 2, 60, 5);
@@ -240,9 +247,9 @@ public sealed class JobService
         return baseShift;
     }
 
-    private static JobShift ResolveCallCenterShift(PlayerCharacter player, JobTrackProgress track)
+    private JobShift ResolveCallCenterShift(PlayerCharacter player, JobTrackProgress track)
     {
-        var baseShift = JobRegistry.CallCenterWork;
+        var baseShift = GetRequiredJob(JobType.CallCenterWork);
         if (player.Skills.GetLevel(SkillId.CyberHacking) >= SkillThresholds.AdvancedLevel)
         {
             return CreateShiftVariant(baseShift, "Digital Dispatch Queue", "Route service requests through the call center's brittle allocation console. The queue pays for accuracy, not heroics.", 7, -1, 1, 0, 0);
@@ -261,9 +268,9 @@ public sealed class JobService
         return baseShift;
     }
 
-    private static JobShift ResolveClinicShift(PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
+    private JobShift ResolveClinicShift(PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
     {
-        var baseShift = JobRegistry.ClinicReception;
+        var baseShift = GetRequiredJob(JobType.ClinicReception);
         var salmaTrust = relationshipState.GetNpcRelationship(NpcId.NurseSalma).Trust;
         if (salmaTrust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70)
         {
@@ -282,9 +289,9 @@ public sealed class JobService
         return baseShift;
     }
 
-    private static JobShift ResolveWorkshopShift(RelationshipState relationshipState, JobTrackProgress track)
+    private JobShift ResolveWorkshopShift(RelationshipState relationshipState, JobTrackProgress track)
     {
-        var baseShift = JobRegistry.WorkshopSewing;
+        var baseShift = GetRequiredJob(JobType.WorkshopSewing);
         var abuSamirTrust = relationshipState.GetNpcRelationship(NpcId.WorkshopBossAbuSamir).Trust;
         if (abuSamirTrust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability75)
         {
@@ -299,9 +306,9 @@ public sealed class JobService
         return baseShift;
     }
 
-    private static JobShift ResolveCafeShift(PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
+    private JobShift ResolveCafeShift(PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
     {
-        var baseShift = JobRegistry.CafeService;
+        var baseShift = GetRequiredJob(JobType.CafeService);
         var nadiaTrust = relationshipState.GetNpcRelationship(NpcId.CafeOwnerNadia).Trust;
         if (nadiaTrust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70)
         {
@@ -317,9 +324,9 @@ public sealed class JobService
         return ApplySudanesePenalty(player, baseShift);
     }
 
-    private static JobShift ResolvePharmacyShift(PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
+    private JobShift ResolvePharmacyShift(PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
     {
-        var baseShift = JobRegistry.PharmacyStock;
+        var baseShift = GetRequiredJob(JobType.PharmacyStock);
         var mariamTrust = relationshipState.GetNpcRelationship(NpcId.PharmacistMariam).Trust;
         if (mariamTrust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70)
         {
@@ -334,9 +341,9 @@ public sealed class JobService
         return baseShift;
     }
 
-    private static JobShift ResolveDepotShift(PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
+    private JobShift ResolveDepotShift(PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
     {
-        var baseShift = JobRegistry.MicrobusDispatch;
+        var baseShift = GetRequiredJob(JobType.MicrobusDispatch);
         var safaaTrust = relationshipState.GetNpcRelationship(NpcId.DispatcherSafaa).Trust;
         if (safaaTrust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability70)
         {
@@ -351,9 +358,9 @@ public sealed class JobService
         return baseShift;
     }
 
-    private static JobShift ResolveLaundryShift(RelationshipState relationshipState, JobTrackProgress track)
+    private JobShift ResolveLaundryShift(RelationshipState relationshipState, JobTrackProgress track)
     {
-        var baseShift = JobRegistry.LaundryPressing;
+        var baseShift = GetRequiredJob(JobType.LaundryPressing);
         var imanTrust = relationshipState.GetNpcRelationship(NpcId.LaundryOwnerIman).Trust;
         if (imanTrust >= JobVariantThresholds.Trust20 && track.Reliability >= JobVariantThresholds.Reliability75)
         {
@@ -368,9 +375,9 @@ public sealed class JobService
         return baseShift;
     }
 
-    private static JobShift ResolveStreetVendingShift(PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
+    private JobShift ResolveStreetVendingShift(PlayerCharacter player, RelationshipState relationshipState, JobTrackProgress track)
     {
-        var baseShift = JobRegistry.StreetVending;
+        var baseShift = GetRequiredJob(JobType.StreetVending);
         var tarekTrust = relationshipState.GetNpcRelationship(NpcId.VendorTarek).Trust;
         if (tarekTrust >= JobVariantThresholds.Trust15 && track.Reliability >= JobVariantThresholds.Reliability70)
         {
@@ -387,9 +394,9 @@ public sealed class JobService
         return ApplySudanesePenalty(player, baseShift);
     }
 
-    private static JobShift ResolveFishSorterShift(PlayerCharacter player, JobTrackProgress track)
+    private JobShift ResolveFishSorterShift(PlayerCharacter player, JobTrackProgress track)
     {
-        var baseShift = JobRegistry.FishSorter;
+        var baseShift = GetRequiredJob(JobType.FishSorter);
         if (track.Reliability >= JobVariantThresholds.Reliability75 && player.Skills.GetLevel(SkillId.Physical) >= JobVariantThresholds.SkillLevel3)
         {
             return CreateShiftVariant(baseShift, "Morning Auction Prep", "Sort the premium catch before the auctioneer arrives and the big buyers start bidding.", 8, -3, 1, 0, 0);
@@ -403,9 +410,9 @@ public sealed class JobService
         return baseShift;
     }
 
-    private static JobShift ResolveMarketPorterShift(JobTrackProgress track)
+    private JobShift ResolveMarketPorterShift(JobTrackProgress track)
     {
-        var baseShift = JobRegistry.MarketPorter;
+        var baseShift = GetRequiredJob(JobType.MarketPorter);
         if (track.Reliability >= JobVariantThresholds.Reliability80)
         {
             return CreateShiftVariant(baseShift, "Wholesale Carry", "Move bulk orders for the biggest stallholders who pay by weight and distance.", 7, -4, 2, 0, 0);
@@ -417,6 +424,12 @@ public sealed class JobService
         }
 
         return baseShift;
+    }
+
+    private JobShift GetRequiredJob(JobType jobType)
+    {
+        return _jobs.FirstOrDefault(job => job.Type == jobType)
+            ?? throw new InvalidOperationException($"No job configured for {jobType}.");
     }
 
     private static JobShift ApplySudanesePenalty(PlayerCharacter player, JobShift shift)

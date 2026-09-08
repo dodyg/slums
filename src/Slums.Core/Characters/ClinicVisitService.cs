@@ -132,7 +132,7 @@ internal static class ClinicVisitService
     internal static IReadOnlyList<Location> GetClinicLocations(GameSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
-        return WorldState.AllLocations
+        return session.World.Locations
             .Where(location => location.HasClinicServices)
             .ToList();
     }
@@ -140,7 +140,7 @@ internal static class ClinicVisitService
     internal static ClinicTravelOption GetClinicTravelOption(GameSession session, LocationId clinicLocationId)
     {
         ArgumentNullException.ThrowIfNull(session);
-        var location = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == clinicLocationId);
+        var location = session.World.GetLocationById(clinicLocationId);
         if (location is null || !location.HasClinicServices)
         {
             return new ClinicTravelOption(
@@ -180,7 +180,7 @@ internal static class ClinicVisitService
     {
         ArgumentNullException.ThrowIfNull(session);
         var before = session.CaptureStats();
-        var clinicLocation = WorldState.AllLocations.FirstOrDefault(candidate => candidate.Id == clinicLocationId);
+        var clinicLocation = session.World.GetLocationById(clinicLocationId);
         if (clinicLocation is not null && WeatherActivityRules.BlocksTravelTo(session.CurrentWeather, clinicLocation.District))
         {
             var reason = WeatherActivityRules.GetTravelBlockReason(session.CurrentWeather, clinicLocation.District);

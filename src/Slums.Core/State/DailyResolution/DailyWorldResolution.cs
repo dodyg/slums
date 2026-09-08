@@ -86,12 +86,12 @@ internal static class DailyWorldResolution
         session.RaiseEvent($"Weather: {WeatherModifiers.GetDisplayName(session.CurrentWeather.Type)}");
         session.RaiseEvent("You return home for the night.");
 
-        var newNews = NewsService.ResolveStartOfDay(session.News, session.Infrastructure, session.EventJournal, session.Clock.Day, random);
+        var newNews = NewsService.ResolveStartOfDay(session.News, session.Infrastructure, session.EventJournal, session.Clock.Day, random, session.ContentCatalog.NewsFlashes);
         if (newNews is not null)
         {
             foreach (var district in newNews.AffectedDistricts)
             {
-                var pressure = NewsImpactCalculator.GetPolicePressureModifier(session.News, district);
+                var pressure = NewsImpactCalculator.GetPolicePressureModifier(session.News, district, session.ContentCatalog.NewsFlashes);
                 if (pressure > 0)
                 {
                     session.DistrictHeat.AddHeat(district, pressure);

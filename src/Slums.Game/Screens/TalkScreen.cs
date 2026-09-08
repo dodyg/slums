@@ -7,6 +7,7 @@ using Slums.Core.Information;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Game.Rendering;
+using Slums.Game.Input;
 
 namespace Slums.Game.Screens;
 
@@ -22,6 +23,7 @@ internal sealed class TalkScreen : ScreenSurface
     private readonly IReadOnlyList<TalkNpcStatus> _npcs;
     private readonly GameScreen _parentScreen;
     private readonly TalkNpcCommand _talkNpcCommand = new();
+    private readonly ScreenActionKeyGate _actionKeyGate = new();
     private int _selectedIndex;
 
     public TalkScreen(int width, int height, GameRuntime runtime, GameSession gameState, TalkNpcContext context, IReadOnlyList<TalkNpcStatus> npcs, GameScreen parentScreen)
@@ -35,6 +37,7 @@ internal sealed class TalkScreen : ScreenSurface
         IsFocused = true;
         UseMouse = true;
         FocusOnMouseClick = true;
+        _actionKeyGate.SuppressActionKeysUntilRelease();
     }
 
     private static Color GetTrustColor(int trust) => trust switch
@@ -83,7 +86,14 @@ internal sealed class TalkScreen : ScreenSurface
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Enter))
+        var numberIndex = NumberKeyMapper.GetPressedNumberIndex(keyboard, _npcs.Count);
+        if (numberIndex is int selectedIndex)
+        {
+            _selectedIndex = selectedIndex;
+            return true;
+        }
+
+        if (_actionKeyGate.TryConsumeConfirm(keyboard.IsKeyPressed(Keys.Enter)))
         {
             if (!_npcs[_selectedIndex].IsAvailable)
             {
@@ -91,20 +101,20 @@ internal sealed class TalkScreen : ScreenSurface
                 return true;
             }
             var npcId = _npcs[_selectedIndex].NpcId;
-            var talkScene = _talkNpcCommand.Execute(_gameState, npcId, _gameState.SharedRandom);
+            var talkScene = _talkNpcCommand.Execute(_gameState, npcId, _runtime.SharedRandom);
             if (talkScene is null)
             {
                 return true;
             }
 
             _runtime.NarrativeService.StartScene(talkScene.KnotName, talkScene.SceneState);
-            _talkNpcCommand.Commit(_gameState, talkScene, _gameState.SharedRandom);
+            _talkNpcCommand.Commit(_gameState, talkScene, _runtime.SharedRandom);
             IsFocused = false;
             ScreenTransition.FadeTo(new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, _parentScreen));
             return true;
         }
 
-        if (keyboard.IsKeyPressed(Keys.Escape))
+        if (_actionKeyGate.TryConsumeCancel(keyboard.IsKeyPressed(Keys.Escape)))
         {
             ReturnToParentScreen();
             return true;

@@ -6,11 +6,20 @@ using Slums.Core.Jobs;
 public sealed class WorldState
 {
     private readonly List<ActiveDistrictCondition> _activeDistrictConditions = [];
-    private static IReadOnlyList<Location>? _locations;
+    private static IReadOnlyList<Location>? _configuredLocations;
+    private readonly IReadOnlyList<Location> _locations;
+
+    public WorldState(IEnumerable<Location>? locations = null)
+    {
+        _locations = locations is null
+            ? GetConfiguredLocations()
+            : Array.AsReadOnly(locations.Where(static location => location is not null).ToArray());
+    }
 
     public DistrictId CurrentDistrict { get; private set; } = DistrictId.Imbaba;
     public LocationId CurrentLocationId { get; private set; } = LocationId.Home;
     public IReadOnlyList<ActiveDistrictCondition> ActiveDistrictConditions => _activeDistrictConditions;
+    public IReadOnlyList<Location> Locations => _locations;
 
     public static IReadOnlyList<Location> AllLocations => GetConfiguredLocations();
 
@@ -24,27 +33,32 @@ public sealed class WorldState
             throw new InvalidOperationException("At least one location must be configured.");
         }
 
-        _locations = configuredLocations;
+        _configuredLocations = configuredLocations;
+    }
+
+    public Location? GetLocationById(LocationId locationId)
+    {
+        return _locations.FirstOrDefault(location => location.Id == locationId);
     }
 
     public Location? GetCurrentLocation()
     {
-        return GetConfiguredLocations().FirstOrDefault(location => location.Id == CurrentLocationId);
+        return GetLocationById(CurrentLocationId);
     }
 
     public IEnumerable<Location> GetLocationsInCurrentDistrict()
     {
-        return GetConfiguredLocations().Where(location => location.District == CurrentDistrict);
+        return _locations.Where(location => location.District == CurrentDistrict);
     }
 
     public IEnumerable<Location> GetTravelableLocations()
     {
-        return GetConfiguredLocations().Where(location => location.Id != CurrentLocationId);
+        return _locations.Where(location => location.Id != CurrentLocationId);
     }
 
     public void TravelTo(LocationId locationId)
     {
-        var location = GetConfiguredLocations().FirstOrDefault(candidate => candidate.Id == locationId);
+        var location = GetLocationById(locationId);
         if (location is not null)
         {
             CurrentLocationId = locationId;
@@ -73,7 +87,7 @@ public sealed class WorldState
 
     private static IReadOnlyList<Location> GetConfiguredLocations()
     {
-        return _locations
+        return _configuredLocations
             ?? throw new InvalidOperationException("Location content is not configured. Configure GameContentCatalog before querying locations.");
     }
 }

@@ -25,7 +25,7 @@ public sealed record SurvivalForecast(
     {
         ArgumentNullException.ThrowIfNull(gameSession);
 
-        var transportReserve = WorldState.AllLocations
+        var transportReserve = gameSession.World.Locations
             .Where(static location => location.HasJobOpportunities)
             .Select(location => gameSession.GetTravelCost(location.Id))
             .DefaultIfEmpty(RecurringExpenses.TravelCost)

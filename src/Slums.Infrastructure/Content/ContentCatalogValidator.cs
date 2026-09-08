@@ -54,10 +54,16 @@ public static class ContentCatalogValidator
         {
             ValidateRobots(robots, locations, problems);
         }
-        if (newsFlashes is not null && items is not null && npcSchedules is not null)
+        if (newsFlashes is not null)
         {
-            ValidateNews(newsFlashes, locations, items, knownInkKnots, problems);
+            ValidateNews(newsFlashes, locations, items ?? [], knownInkKnots, problems);
+        }
+        if (items is not null)
+        {
             ValidateItems(items, problems);
+        }
+        if (npcSchedules is not null)
+        {
             ValidateNpcSchedules(npcSchedules, locations, problems);
         }
 
