@@ -25,7 +25,7 @@ tests/
   Slums.Narrative.Ink.Tests/
 content/
   ink/                  # .ink source files, compiled to main.json
-  data/                 # JSON: world catalogs, jobs, locations, random events, news, infrastructure, items, schedules, investments, technology actions
+  data/                 # JSON: world catalogs, jobs, locations, random events, news, items, schedules, investments, digital services, technical repairs
 ```
 
 **Dependency Direction**: Always inward. `Slums.Core` references nothing. UI never contains business logic.
@@ -463,7 +463,7 @@ Rest recovery (base 30) and overnight recovery (base 15) modified by:
 
 ## Diagnostics
 
-Every significant game state change records a `GameMutationRecord` with RunId, timestamp, category (20 categories), action, before/after stats, and reason. Categories include Work, Crime, DayTransition, Travel, Food, Clinic, Entertainment, Investment, Rest, Shop, Training, Community, Economy, Phone, Information, etc. Application layer logs these via structured `ILogger` events.
+Every significant game state change records a `GameMutationRecord` with RunId, timestamp, category (23 categories), action, before/after stats, and reason. Categories include Work, Crime, DayTransition, Travel, Food, Clinic, Entertainment, Investment, Rest, Shop, Training, Community, Economy, Phone, Information, etc. Application layer logs these via structured `ILogger` events.
 
 ## Narrative System
 

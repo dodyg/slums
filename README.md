@@ -121,6 +121,7 @@ content/
 
 ## Planning documents
 
+- `REQS.md` is the authoritative product requirements (setting, tone, systems, and content boundaries).
 - `PLAN.MD` tracks the current implementation shape and next execution priorities.
 - `MEMORY.MD` captures the current architecture and simulation notes for future sessions.
 - `AGENTS.md` defines repository execution and architecture rules for future agents.
