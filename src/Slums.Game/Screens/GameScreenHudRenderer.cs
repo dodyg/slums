@@ -5,6 +5,7 @@ using Slums.Application.Activities;
 using Slums.Application.HouseholdAssets;
 using Slums.Application.Investments;
 using Slums.Core.Characters;
+using Slums.Core.Clock;
 using Slums.Core.State;
 using Slums.Core.Heat;
 using Slums.Core.World;
@@ -56,6 +57,15 @@ internal static class GameScreenHudRenderer
         return statusContext.UnpaidRentDays > 0
             ? $"Rent debt: {statusContext.AccumulatedRentDebt} LE ({statusContext.UnpaidRentDays}d)"
             : $"Rent: {statusContext.RentCost} LE due today";
+    }
+
+    public static string BuildDayOverviewText(GameStatusContext statusContext)
+    {
+        var daySchedule = DayScheduleRegistry.GetModifiers(statusContext.Clock.DayOfWeek);
+        var holidaySuffix = string.IsNullOrEmpty(statusContext.HolidayName)
+            ? string.Empty
+            : $" | {statusContext.HolidayName}";
+        return $"Day {statusContext.Clock.Day} ({daySchedule.DayName}) - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2} | {statusContext.SeasonName} | {statusContext.WeatherName}{holidaySuffix}";
     }
 
     public static string TrimToWidth(string text, int maxLength)

@@ -363,9 +363,7 @@ internal sealed class GameScreen : ScreenSurface, IActionKeySuppressor
             var width = Surface.Width - 4;
             var y = 1;
 
-            var dayOfWeek = statusContext.Clock.DayOfWeek;
-            var daySchedule = DayScheduleRegistry.GetModifiers(dayOfWeek);
-            Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth($"Day {statusContext.Clock.Day} ({daySchedule.DayName}) - {statusContext.Clock.TimeOfDay} | {statusContext.Clock.Hour:D2}:{statusContext.Clock.Minute:D2} | {statusContext.SeasonName} | {statusContext.WeatherName}", width), Color.White);
+            Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth(GameScreenHudRenderer.BuildDayOverviewText(statusContext), width), Color.White);
             Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth($"Location: {location}", width), Color.White);
             Surface.Print(2, y++, GameScreenHudRenderer.TrimToWidth($"District: {districtName}", width), Color.White);
             var policeColor = statusContext.PolicePressure >= PolicePressureThresholds.ArrestWarning ? Color.Red

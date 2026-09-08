@@ -14,6 +14,23 @@ namespace Slums.Application.Tests.Activities;
 internal sealed class GameStatusPageQueryTests
 {
     [Test]
+    public void Create_ShouldExposeHolidayName_WhenSessionClockIsOnAHoliday()
+    {
+        var gameState = TestSessions.Create();
+        gameState.Clock.SetTime(day: 151, hour: 10, minute: 0);
+
+        GameStatusContext.Create(gameState).HolidayName.Should().Be("Ramadan");
+    }
+
+    [Test]
+    public void Create_ShouldLeaveHolidayNameEmpty_WhenNoHolidayIsActive()
+    {
+        var gameState = TestSessions.Create();
+
+        GameStatusContext.Create(gameState).HolidayName.Should().BeNull();
+    }
+
+    [Test]
     public void GetPages_ShouldExposeExpectedPageSet()
     {
         var query = new GameStatusPageQuery();
