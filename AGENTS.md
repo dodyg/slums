@@ -10,9 +10,9 @@ Before coding, read:
 
 1. `REQS.md`
 2. `PLAN.MD`
-3. `AGENTS.md`
-4. `MEMORY.MD`
-5. `OPP.md` (engineering-quality debt to fix; work top-down)
+3. `MEMORY.MD`
+4. `AGENTS.md`
+5. `REC.md` (engineering-quality debt to fix; work top-down)
 
 Do not start implementation from memory alone.
 
@@ -45,6 +45,7 @@ tests/
   Slums.Game.Tests/
   Slums.Infrastructure.Tests/
   Slums.Narrative.Ink.Tests/
+  Slums.TestSupport/
 content/
   ink/
   data/
@@ -139,19 +140,13 @@ Put these here:
 
 ## Coding Standards
 
-Follow these defaults:
+`.editorconfig` and `Directory.Build.props` enforce the mechanical rules (file-scoped namespaces, braces, explicit modifiers, nullable, warnings-as-errors). Additionally:
 
 - one type per file
-- file-scoped namespaces
-- explicit access modifiers
 - PascalCase for types and members
 - `_camelCase` private fields
-- braces on all control flow
-- nullable enabled
-- warnings treated as errors
 - XML docs on public APIs that matter
-
-Prefer simple, testable classes over deep inheritance.
+- prefer simple, testable classes over deep inheritance
 
 ## Build and Tooling Rules
 
@@ -166,7 +161,7 @@ Use central package management. Prefer repo-wide shared settings instead of dupl
 
 ## Platform and Architecture Notes
 
-This project uses SadConsole with the SFML host, which depends on CSFML native libraries. SadConsole v10.9.0 uses SFML 3.x (upgraded from 2.x), which includes a rewritten sprite batcher for improved rendering performance. Be aware of the following when switching between environments:
+This project uses SadConsole with the SFML host, which depends on CSFML native libraries. Be aware of the following when switching between environments:
 
 **Windows (PowerShell/CMD):**
 - Builds and runs without issues on x86-64 Windows
@@ -194,21 +189,11 @@ This project uses SadConsole with the SFML host, which depends on CSFML native l
 
 ## Testing Expectations
 
-Every rule change should come with comprehensive tests using **TUnit** as the testing framework. Comprehensive unit tests are mandatory for all layers to ensure reliability and enable safe refactoring.
+Every rule change should come with comprehensive tests to ensure reliability and enable safe refactoring.
 
-- Test framework: **TUnit** (latest version)
+- Test framework: **TUnit** — do not mix xUnit or NUnit with it
 - Assertion library: **FluentAssertions**
 - Mocking library: **NSubstitute**
-
-**All test projects must use TUnit consistently.** Do not mix xUnit or NUnit with TUnit.
-
-Minimum expectation by layer:
-
-- `Slums.Core.Tests`: unit tests for rules and state transitions
-- `Slums.Application.Tests`: use-case orchestration tests
-- `Slums.Game.Tests`: UI-shell and input-helper tests that do not belong in application/domain test assemblies
-- `Slums.Narrative.Ink.Tests`: scene loading, variable sync, and choice progression
-- `Slums.Infrastructure.Tests`: serialization and content-loading tests
 
 **Running Tests:**
 - Use this validation workflow from the repo root:
@@ -222,43 +207,15 @@ Minimum expectation by layer:
 
 Run existing build and test commands before finishing work.
 
-## Vertical Slice Priority
+## Roadmap
 
-Implement in this order unless the plan is updated:
-
-1. solution scaffold
-2. basic SadConsole host
-3. core survival state and time loop
-4. background selection
-5. one Ink narrative slice
-6. honest work loop
-7. crime loop with police pressure
-8. save/load
-9. expanded content and endings
-
-Prefer finishing one thin playable slice over partially building many systems.
+The vertical slice is complete. `PLAN.MD` is the authoritative execution roadmap; prefer finishing one thin playable increment over partially building many systems.
 
 ## Content and Writing Constraints
 
-Respect the requirements file:
+`REQS.md` is authoritative for setting, technology, climate, tone, and themes — read its "Setting Scope" and "Content Boundaries" sections before writing any prose or content.
 
-- keep the setting grounded in Cairo
-- set the story in Cairo in 2060, where mature but uneven digital technology coexists with severe inequality and aging infrastructure
-- use repairable smart handsets, digital wallets, solar-and-storage microgrids, autonomous electric transit, delivery drones and ground robots, biometric systems, telemedicine, and bounded machine-learning services as sources of access, labor, surveillance, risk, and consequence rather than effortless solutions
-- write through a realistic Afrofuturist lens: Cairo's African communities, languages, faiths, repair cultures, mutual-aid networks, and local institutions shape the future instead of serving as scenery for imported technology
-- treat 2060 Cairo as hotter than the present, with a longer hot season, hotter nights, recurrent heatwaves, severe water pressure, climate-stressed food supply, and unequal access to cooling and reliable infrastructure
-- keep average rainfall scarce while allowing rare rain to overwhelm dry, poorly maintained drains; do not turn Cairo into a generally wet climate
-- show locally governed adaptation through shade, reflective roofs, repaired solar storage, water committees, altered work hours, cooling rooms, food cooperatives, and neighborhood warning networks
-- do not treat persistent omniscient AI, everyday cybernetics, or portable nuclear power as normal 2060 infrastructure; keep them absent, rare, or speculative when they appear
-- keep the tone gritty and realistic
-- keep crime consequence-heavy
-- do not glamorize harmful activity
-- avoid graphic violence
-- avoid child harm
-- avoid explicit drug use depiction
-- avoid explicit torture or police brutality detail
-
-If content touches those boundaries, choose implication and consequence over explicit detail.
+Hard boundaries, regardless of context: avoid graphic violence, child harm, explicit drug use depiction, and explicit torture or police brutality detail. Choose implication and consequence over explicit detail, and do not glamorize harmful activity.
 
 ## Working Rules for Future Agents
 
