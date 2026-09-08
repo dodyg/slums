@@ -713,7 +713,7 @@ Each rumor tracks:
   - Released Political Prisoner: negative rumors start at +2 intensity (existing suspicion).
   - Medical School Dropout: can counter medical-related rumors more effectively (flat -2 intensity bonus).
 - No-snitching pressure: after a crime, speaking with Officer Khalid outside Home can be observed and create the `SeenWithPolice` rumor. The base observation chance is 40%; same-day public-facing work lowers it to 15%, high police heat adds 10 points, and Khalid trust of 20+ halves the final chance. Khalid warns the player first, and Home is exempt.
-- If the rumor reaches a criminal contact while that contact's faction reputation is below zero, the faction loses standing and queues an Ink retaliation scene. The player can pay 10-25 LE to keep the route open for three days or refuse and accept a five-day temporary crime-route lockout plus reputation/stress consequences. The lockout and retaliation flags persist through save/load.
+- If the rumor reaches a criminal contact while that contact's faction reputation is below zero, the faction loses standing and queues an Ink retaliation scene. The player can pay 15 LE to keep the route open for three days or refuse and accept a five-day temporary crime-route lockout plus reputation/stress consequences. The lockout and retaliation flags persist through save/load.
 
 ## Territory Dynamics
 
