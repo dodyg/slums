@@ -12,6 +12,7 @@ using Slums.Core.State;
 using Slums.Core.Technology;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Coverage;
 
@@ -53,7 +54,7 @@ internal sealed class HighValueApplicationCoverageTests
     [Test]
     public void CommunityAndAttendCommands_ShouldReturnFalseWhenTheActionIsUnavailable()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         new CommunityActionCommand().Execute(session, CommunityActionType.CoordinateCoolingRoom).Should().BeFalse();
         new AttendCommunityEventCommand().Execute(session, CommunityEventId.MulidFestival).Should().BeFalse();
@@ -62,7 +63,7 @@ internal sealed class HighValueApplicationCoverageTests
     [Test]
     public void TechnicalAndDigitalCommands_ShouldRejectUnavailableActions()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         new TechnicalRepairCommand().Execute(session, TechnicalRepairActionType.RepairHandset).Should().BeFalse();
         new DigitalServiceCommand().Execute(session, DigitalServiceActionType.SubmitBiometricAppeal).Should().BeFalse();
@@ -71,7 +72,7 @@ internal sealed class HighValueApplicationCoverageTests
     [Test]
     public void HouseholdUpgradeCommands_ShouldRejectMissingAssets()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         new PlantUpgradeCommand().Execute(session, Guid.NewGuid(), PlantUpgradeType.BiggerPot).Should().BeFalse();
         new FishTankUpgradeCommand().Execute(session, FishTankUpgradeType.BetterFilter).Should().BeFalse();
@@ -92,7 +93,7 @@ internal sealed class HighValueApplicationCoverageTests
     {
         var logger = Substitute.For<ILogger<GameMutationLogger>>();
         logger.IsEnabled(Arg.Any<LogLevel>()).Returns(false);
-        var session = new GameSession();
+        var session = TestSessions.Create();
         using var mutationLogger = new GameMutationLogger(logger);
 
         mutationLogger.Attach(session);

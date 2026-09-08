@@ -3,6 +3,7 @@ using Slums.Core.Calendar;
 using Slums.Core.State;
 using Slums.Core.Weather;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Calendar;
 
@@ -11,7 +12,7 @@ internal sealed class CalendarServiceTests
     [Test]
     public void CalendarQueries_ShouldReadTheSessionClock()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(8, 13, 30);
 
         CalendarService.GetCurrentWeek(session).Should().Be(2);
@@ -22,7 +23,7 @@ internal sealed class CalendarServiceTests
     [Test]
     public void RestoreWeather_ShouldReplaceTheSessionWeather()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         CalendarService.RestoreWeather(session, WeatherType.Khamsin);
 

@@ -3,6 +3,7 @@ using Slums.Application.Phone;
 using Slums.Core.Phone;
 using Slums.Core.State;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Phone;
 
@@ -12,7 +13,7 @@ internal sealed class PhoneReplaceCommandTests
     public void Execute_ReplacesLostPhone()
     {
         var command = new PhoneReplaceCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Phone.LosePhone(3);
         session.Player.Stats.SetMoney(100);
 
@@ -28,7 +29,7 @@ internal sealed class PhoneReplaceCommandTests
     public void Execute_FailsWhenPhoneNotLost()
     {
         var command = new PhoneReplaceCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(100);
 
         var (success, _) = command.Execute(session);
@@ -40,7 +41,7 @@ internal sealed class PhoneReplaceCommandTests
     public void Execute_FailsWhenNotEnoughMoney()
     {
         var command = new PhoneReplaceCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Phone.LosePhone(3);
         session.Player.Stats.SetMoney(20);
 

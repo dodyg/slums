@@ -5,6 +5,7 @@ using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.Training;
 using Slums.Core.World;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Training;
 
@@ -37,7 +38,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_GetAvailableTrainingActivities_ShouldReturnExerciseAtHome()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
 
         var activities = state.GetAvailableTrainingActivities();
 
@@ -47,7 +48,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_GetAvailableTrainingActivities_ShouldRequireNpcTrust()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
 
         var medicalTraining = TrainingRegistry.AllActivities.First(a => a.Type == TrainingActivityType.StudyMedical);
         await Assert.That(medicalTraining).IsNotNull();
@@ -59,7 +60,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_GetAvailableTrainingActivities_ShouldShowMedicalWithEnoughTrust()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Relationships.SetNpcRelationship(NpcId.NurseSalma, 15, 0);
 
         var available = state.GetAvailableTrainingActivities();
@@ -69,7 +70,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldSucceedAndGrantSkill()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 19, 0);
 
@@ -86,7 +87,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldFailWhenEnergyTooLow()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(5);
         state.Clock.SetTime(1, 19, 0);
 
@@ -99,7 +100,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldFailWhenMoneyTooLow()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(100);
         state.Player.Stats.SetMoney(0);
         state.Clock.SetTime(1, 19, 0);
@@ -112,7 +113,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldFailOutsideEveningHours()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 10, 0);
 
@@ -125,7 +126,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldFailWhenSkillAtCap()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(100);
         state.Player.Skills.SetLevel(SkillId.Physical, 10);
         state.Clock.SetTime(1, 19, 0);
@@ -139,7 +140,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldFailWhenAlreadyTrainedToday()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 19, 0);
 
@@ -156,7 +157,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldFailWhenNotAtHome()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.World.TravelTo(LocationId.Market);
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 19, 0);
@@ -170,7 +171,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_EndDay_ShouldResetTrainingTracker()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(100);
         state.Player.Stats.SetMoney(1000);
         state.Clock.SetTime(1, 19, 0);
@@ -188,8 +189,8 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_BackgroundMedicalDropout_ShouldReduceStressOnStudyMedical()
     {
-        var state = new GameSession();
-        state.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        var state = TestSessions.Create();
+        state.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
         state.Relationships.SetNpcRelationship(NpcId.NurseSalma, 15, 0);
         state.Player.Stats.SetEnergy(100);
         state.Player.Stats.SetStress(50);
@@ -205,8 +206,8 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_BackgroundRefugee_ShouldReduceEnergyOnExercise()
     {
-        var state = new GameSession();
-        state.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        var state = TestSessions.Create();
+        state.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 18, 0);
 
@@ -222,8 +223,8 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_BackgroundPrisoner_ShouldReduceEnergyOnStreetDice()
     {
-        var state = new GameSession();
-        state.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+        var state = TestSessions.Create();
+        state.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
         state.Relationships.SetNpcRelationship(NpcId.RunnerYoussef, 10, 0);
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 19, 0);
@@ -240,7 +241,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldRecordMutation()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 19, 0);
 
@@ -255,7 +256,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldDeductTimeAndEnergy()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 18, 0);
 
@@ -271,7 +272,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldGateRobotRepairBehindAbuSamirTrust()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
 
         var available = state.GetAvailableTrainingActivities();
         await Assert.That(available.Any(a => a.Type == TrainingActivityType.RobotRepairBench)).IsFalse();
@@ -280,7 +281,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldGrantRobotRepair_WithAbuSamirTrust()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 10, 0);
         state.Player.Stats.SetEnergy(100);
         state.Player.Stats.SetMoney(1000);
@@ -296,7 +297,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldGateCyberHackingBehindUmmKarimTrust()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
 
         var available = state.GetAvailableTrainingActivities();
         await Assert.That(available.Any(a => a.Type == TrainingActivityType.NetworkErrandPractice)).IsFalse();
@@ -305,7 +306,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldGrantCyberHacking_WithUmmKarimTrust()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Relationships.SetNpcRelationship(NpcId.FixerUmmKarim, 10, 0);
         state.Player.Stats.SetEnergy(100);
         state.Player.Stats.SetMoney(1000);
@@ -321,7 +322,7 @@ internal sealed class TrainingTests
     [Test]
     public async Task GameSession_TryPerformTraining_ShouldReachNewCommunitySkillsFromHome()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(100);
         state.Player.Stats.SetMoney(100);
         state.Clock.SetTime(1, 19, 0);

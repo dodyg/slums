@@ -2,6 +2,7 @@ using Slums.Core.Home;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Home;
 
@@ -10,7 +11,7 @@ internal sealed class HomeUpgradeServiceTests
     [Test]
     public async Task Purchase_ShouldApplyUpgradeAndKeepSessionDiagnostics()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var moneyBefore = session.Player.Stats.Money;
 
         var result = HomeUpgradeService.Purchase(session, HomeUpgrade.CleanBedding);
@@ -24,7 +25,7 @@ internal sealed class HomeUpgradeServiceTests
     [Test]
     public async Task RestAtHome_ShouldRejectWhenSessionIsAwayFromHome()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Market);
 
         var result = HomeUpgradeService.RestAtHome(session);

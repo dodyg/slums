@@ -3,6 +3,7 @@ using Slums.Core.Investments;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Investments;
 
@@ -11,7 +12,7 @@ internal sealed class InvestmentPurchaseServiceTests
     [Test]
     public void MakeInvestment_ShouldUseEligibilityAndSessionOwnedInvestmentState()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(300);
         session.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 30, 1);
 
@@ -25,9 +26,9 @@ internal sealed class InvestmentPurchaseServiceTests
     [Test]
     public void Restore_ShouldHydrateTheExistingInvestmentState()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var state = session.ActiveInvestments;
-        var definition = InvestmentRegistry.GetByType(InvestmentType.FoulCart);
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.FoulCart);
         definition.Should().NotBeNull();
 
         InvestmentPurchaseService.Restore(

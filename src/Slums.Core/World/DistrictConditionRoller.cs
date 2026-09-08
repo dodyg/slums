@@ -71,9 +71,7 @@ internal static class DistrictConditionRoller
         Random random)
     {
         var totalWeight = candidates.Sum(static definition => definition.Weight);
-#pragma warning disable CA5394
         var roll = random.Next(1, totalWeight + 1);
-#pragma warning restore CA5394
         var cumulativeWeight = 0;
         foreach (var candidate in candidates)
         {

@@ -5,6 +5,7 @@ using Slums.Application.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Narrative.Ink.Tests;
 
@@ -12,7 +13,7 @@ internal sealed class InkNarrativeServiceTests
 {
     private static void StartScene(Slums.Narrative.Ink.InkNarrativeService service, string knotName)
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         service.StartScene(knotName, NarrativeSceneState.Create(state));
     }
 
@@ -20,7 +21,7 @@ internal sealed class InkNarrativeServiceTests
     public void StartScene_ShouldLoadMedicalIntroText()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
-        var state = new GameSession();
+        var state = TestSessions.Create();
 
         service.StartScene("intro_medical", NarrativeSceneState.Create(state));
 
@@ -65,14 +66,14 @@ internal sealed class InkNarrativeServiceTests
     public void StartScene_ShouldBranchOnSynchronizedMoney()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
-        var lowMoneyState = new GameSession();
+        var lowMoneyState = TestSessions.Create();
         lowMoneyState.Player.Stats.SetMoney(20);
 
         service.StartScene("intro_done", NarrativeSceneState.Create(lowMoneyState));
 
         service.CurrentText.Should().Contain("wallet is already thin");
 
-        var comfortableMoneyState = new GameSession();
+        var comfortableMoneyState = TestSessions.Create();
         comfortableMoneyState.Player.Stats.SetMoney(80);
         service.StartScene("intro_done", NarrativeSceneState.Create(comfortableMoneyState));
 
@@ -89,7 +90,7 @@ internal sealed class InkNarrativeServiceTests
     public void SelectChoice_ShouldAdvanceMedicalIntroScene()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
-        var state = new GameSession();
+        var state = TestSessions.Create();
         service.StartScene("intro_medical", NarrativeSceneState.Create(state));
 
         service.SelectChoice(0);
@@ -118,7 +119,7 @@ internal sealed class InkNarrativeServiceTests
     public void StartScene_ShouldEndScene_WhenKnotDoesNotExist()
     {
         var service = new Slums.Narrative.Ink.InkNarrativeService(NullLogger<Slums.Narrative.Ink.InkNarrativeService>.Instance);
-        var state = new GameSession();
+        var state = TestSessions.Create();
 
         FluentActions.Invoking(() => service.StartScene("missing_knot", NarrativeSceneState.Create(state)))
             .Should()
@@ -221,7 +222,7 @@ internal sealed class InkNarrativeServiceTests
             .Should().NotBeEmpty("the communal iftar should raise Landlord Hajj Mahmoud's trust");
 
         // Applying the outcome must change both NPCs, not just the last tag's target.
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.ApplyOutcome(outcome);
 
         session.Relationships.GetNpcRelationship(NpcId.NeighborMona).Trust.Should().Be(2);

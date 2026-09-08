@@ -3,6 +3,7 @@ using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Narrative;
 
@@ -75,7 +76,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingEmbarrassmentRecovery_ReturnsTrue_WhenEmbarrassedAndTrustRecovered()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetEmbarrassedState(NpcId.WorkshopBossAbuSamir, true);
         session.Relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 7, session.Clock.Day);
 
@@ -87,7 +88,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingEmbarrassmentRecovery_ReturnsFalse_WhenTrustTooLow()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetEmbarrassedState(NpcId.WorkshopBossAbuSamir, true);
         session.Relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 3, session.Clock.Day);
 
@@ -99,7 +100,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingEmbarrassmentRecovery_ReturnsFalse_WhenNotEmbarrassed()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 10, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -110,8 +111,8 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingPrisonerKhalid_ReturnsTrue_WhenPrisonerAndLowTrust()
     {
-        var session = new GameSession();
-        session.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+        var session = TestSessions.Create();
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
         session.Relationships.SetNpcRelationship(NpcId.OfficerKhalid, -5, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -123,7 +124,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingPrisonerKhalid_ReturnsFalse_WhenTrustPositive()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.OfficerKhalid, 5, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -135,7 +136,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingPrisonerKhalid_ReturnsFalse_WhenNotPrisoner()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.OfficerKhalid, -5, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -147,7 +148,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingSudaneseMariam_ReturnsTrue_WhenSudaneseAndTrustHigh()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 12, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -159,7 +160,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingSudaneseMariam_ReturnsFalse_WhenTrustTooLow()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 8, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -171,7 +172,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingSudaneseMariam_ReturnsFalse_WhenNotSudanese()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 15, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -183,7 +184,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingYoussefEmbedded_ReturnsTrue_When3CrimesAndHighTrust()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.RunnerYoussef, 18, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -194,7 +195,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingYoussefEmbedded_ReturnsFalse_WhenBelow3Crimes()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.RunnerYoussef, 18, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -205,7 +206,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingYoussefEmbedded_ReturnsFalse_WhenTrustTooLow()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.RunnerYoussef, 10, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -216,7 +217,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingNadiaSuspicion_ReturnsTrue_WhenDoubleLifeAndHighTrust()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.CafeOwnerNadia, 12, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -227,7 +228,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingNadiaSuspicion_ReturnsFalse_WhenNoCrimes()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.CafeOwnerNadia, 12, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -238,7 +239,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingNadiaSuspicion_ReturnsFalse_WhenNoHonestWork()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.CafeOwnerNadia, 12, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -249,7 +250,7 @@ internal sealed class NarrativeSignalRulesExtendedTests
     [Test]
     public async Task HasPendingNadiaSuspicion_ReturnsFalse_WhenTrustTooLow()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.CafeOwnerNadia, 8, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);

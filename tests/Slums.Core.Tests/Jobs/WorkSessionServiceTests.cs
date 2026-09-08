@@ -3,6 +3,7 @@ using Slums.Core.Jobs;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Jobs;
 
@@ -11,7 +12,7 @@ internal sealed class WorkSessionServiceTests
     [Test]
     public void GetAvailable_ShouldUseTheSessionLocationAndSchedule()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Bakery);
 
         var jobs = WorkSessionService.GetAvailable(session);
@@ -22,7 +23,7 @@ internal sealed class WorkSessionServiceTests
     [Test]
     public void Work_ShouldRecordTheWorkMutationThroughTheSession()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Bakery);
         var job = WorkSessionService.GetAvailable(session).Single(static candidate => candidate.Type == JobType.BakeryWork);
 

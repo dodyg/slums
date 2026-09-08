@@ -8,6 +8,7 @@ using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Investments;
 
@@ -17,7 +18,7 @@ internal sealed class InvestmentPerkTests
     public void FoulCart_ShouldReduceStaplePrice_AndStopWhileSuspended()
     {
         var session = CreatePurchasedSession(InvestmentType.FoulCart, 300, LocationId.Home, (NpcId.LandlordHajjMahmoud, 30));
-        var baseSession = new GameSession();
+        var baseSession = TestSessions.Create();
 
         session.GetFoodCost().Should().Be(baseSession.GetFoodCost() - 1);
         session.ActiveInvestments[0].Suspend();
@@ -53,7 +54,7 @@ internal sealed class InvestmentPerkTests
     public void Kiosk_ShouldReducePhoneRefillPrice_AndStopWhileSuspended()
     {
         var session = CreatePurchasedSession(InvestmentType.Kiosk, 300, LocationId.Market, (NpcId.FixerUmmKarim, 40));
-        var baseSession = new GameSession();
+        var baseSession = TestSessions.Create();
         var baseRefillCost = baseSession.Phone.CreditWeekCost;
 
         session.RefillPhoneCredit().Success.Should().BeTrue();
@@ -69,7 +70,7 @@ internal sealed class InvestmentPerkTests
     public void MarketStall_ShouldReduceFoodPriceOnlyInPurchaseDistrict()
     {
         var session = CreatePurchasedSession(InvestmentType.MarketStall, 300, LocationId.Square, (NpcId.RunnerYoussef, 25));
-        var baseSession = new GameSession();
+        var baseSession = TestSessions.Create();
         baseSession.World.TravelTo(LocationId.Square);
         var discountedDistrictCost = session.GetFoodCost();
 
@@ -95,7 +96,7 @@ internal sealed class InvestmentPerkTests
     {
         var session = CreatePurchasedSession(InvestmentType.HerbalRemedyTrade, 500, LocationId.Pharmacy, (NpcId.PharmacistMariam, 15));
         session.Player.Skills.SetLevel(SkillId.Medical, 2);
-        var withoutPerk = new GameSession();
+        var withoutPerk = TestSessions.Create();
         withoutPerk.World.TravelTo(LocationId.Pharmacy);
         withoutPerk.Player.Skills.SetLevel(SkillId.Medical, 2);
         withoutPerk.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 15, 1);
@@ -129,7 +130,7 @@ internal sealed class InvestmentPerkTests
         LocationId location,
         params (NpcId Npc, int Trust)[] relationships)
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(money);
         session.World.TravelTo(location);
         foreach (var (npc, trust) in relationships)

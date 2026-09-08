@@ -3,6 +3,7 @@ using Slums.Core.Phone;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.State;
 
@@ -11,7 +12,7 @@ internal sealed class ActivityTimeBoundaryTests
     [Test]
     public async Task TravelAcrossEndOfDay_ShouldFinishAtHomeAfterNightlyReset()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(day: 1, hour: 21, minute: 50);
 
         var result = session.TryTravelTo(LocationId.CallCenter);
@@ -26,11 +27,11 @@ internal sealed class ActivityTimeBoundaryTests
     [Test]
     public async Task WorkAcrossEndOfDay_ShouldApplyTerritoryImpactToWorkDistrict()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(day: 1, hour: 20, minute: 0);
         session.World.TravelTo(LocationId.CallCenter);
 
-        var result = session.WorkJob(JobRegistry.CallCenterWork, new Random(1));
+        var result = session.WorkJob(TestContent.Catalog.GetJob(JobType.CallCenterWork), new Random(1));
 
         await Assert.That(result.Success).IsTrue();
         await Assert.That(session.Clock.Day).IsEqualTo(2);
@@ -41,7 +42,7 @@ internal sealed class ActivityTimeBoundaryTests
     [Test]
     public async Task PhoneResponse_ShouldNotChargeMissedCallWhenThereIsNotEnoughTime()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(day: 1, hour: 21, minute: 30);
         var message = new PhoneMessage
         {
@@ -64,7 +65,7 @@ internal sealed class ActivityTimeBoundaryTests
     [Test]
     public async Task PhoneResponse_ShouldValidateCombinedMissedCallAndResponseCostAtomically()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.ModifyMoney(-95);
         var message = new PhoneMessage
         {

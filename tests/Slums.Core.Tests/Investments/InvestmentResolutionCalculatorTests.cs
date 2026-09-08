@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Slums.Core.Investments;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Investments;
 
@@ -9,7 +10,7 @@ internal sealed class InvestmentResolutionCalculatorTests
     [Test]
     public void Resolve_ShouldReturnIncome_WhenNoRiskTriggers()
     {
-        var definition = InvestmentRegistry.GetByType(InvestmentType.FoulCart);
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.FoulCart);
         var investment = new Investment(InvestmentType.FoulCart, 150, 8, 12, InvestmentRiskProfile.Low);
 
         var calculation = InvestmentResolutionCalculator.Resolve(
@@ -28,7 +29,7 @@ internal sealed class InvestmentResolutionCalculatorTests
     [Test]
     public void Resolve_ShouldMarkSuspension_WhenExtortionCannotBePaid()
     {
-        var definition = InvestmentRegistry.GetByType(InvestmentType.Kiosk);
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.Kiosk);
         var investment = new Investment(InvestmentType.Kiosk, 250, 10, 15, definition!.RiskProfile);
 
         var calculation = InvestmentResolutionCalculator.Resolve(
@@ -47,9 +48,9 @@ internal sealed class InvestmentResolutionCalculatorTests
     [Test]
     public void RegistryRiskProfiles_ShouldMatchBalanceTargets()
     {
-        var foulCart = InvestmentRegistry.GetByType(InvestmentType.FoulCart)!.RiskProfile;
-        var kiosk = InvestmentRegistry.GetByType(InvestmentType.Kiosk)!.RiskProfile;
-        var courier = InvestmentRegistry.GetByType(InvestmentType.HashishCourier)!.RiskProfile;
+        var foulCart = TestContent.Catalog.GetInvestment(InvestmentType.FoulCart)!.RiskProfile;
+        var kiosk = TestContent.Catalog.GetInvestment(InvestmentType.Kiosk)!.RiskProfile;
+        var courier = TestContent.Catalog.GetInvestment(InvestmentType.HashishCourier)!.RiskProfile;
 
         foulCart.WeeklyFailureChance.Should().Be(0.01);
         foulCart.BetrayalChance.Should().Be(0.02);

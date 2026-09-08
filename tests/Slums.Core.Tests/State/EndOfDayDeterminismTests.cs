@@ -3,6 +3,7 @@ using Slums.Core.Randomness;
 using Slums.Core.State;
 using Slums.Core.Weather;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.State;
 
@@ -11,8 +12,8 @@ internal sealed class EndOfDayDeterminismTests
     [Test]
     public async Task EndDay_WithGoldenSeed_ProducesTheRecordedDayTwoState()
     {
-        var session = new GameSession(new GameRandom(20260904));
-        session.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        var session = TestSessions.Create(new GameRandom(20260904));
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
 
         session.EndDay(session.SharedRandom);
 
@@ -31,12 +32,12 @@ internal sealed class EndOfDayDeterminismTests
     [Test]
     public async Task EndDay_WithTheSameSeed_IsRepeatableAcrossSessions()
     {
-        var first = new GameSession(new GameRandom(20260904));
-        first.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        var first = TestSessions.Create(new GameRandom(20260904));
+        first.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         first.EndDay(first.SharedRandom);
 
-        var second = new GameSession(new GameRandom(20260904));
-        second.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        var second = TestSessions.Create(new GameRandom(20260904));
+        second.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         second.EndDay(second.SharedRandom);
 
         await Assert.That(second.RandomState).IsEqualTo(first.RandomState);

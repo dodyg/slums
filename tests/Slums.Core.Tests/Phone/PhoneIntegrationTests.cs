@@ -3,6 +3,7 @@ using Slums.Core.Phone;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Phone;
 
@@ -11,7 +12,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_Initial_HasPhoneWithCredit()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         await Assert.That(session.Phone.IsOperational()).IsTrue();
         await Assert.That(session.Phone.CreditRemaining).IsEqualTo(7);
     }
@@ -19,14 +20,14 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_Initial_HasEmptyInbox()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         await Assert.That(session.PhoneMessages.Inbox).Count().IsEqualTo(0);
     }
 
     [Test]
     public async Task GameSession_RefillPhoneCredit_DeductsMoney()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(20);
 
         for (var i = 0; i < 7; i++)
@@ -46,7 +47,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_RefillPhoneCredit_FailsWhenNoMoney()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(2);
 
         for (var i = 0; i < 7; i++)
@@ -61,7 +62,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_RefillPhoneCredit_FailsWhenPhoneLost()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(100);
         session.Phone.LosePhone(1);
 
@@ -72,7 +73,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_RespondToMessage_Works()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.PhoneMessages.AddMessage(new PhoneMessage
         {
             Id = "test-1",
@@ -96,7 +97,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_RespondToMessage_DeductsMoneyCost()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(20);
         session.PhoneMessages.AddMessage(new PhoneMessage
         {
@@ -121,7 +122,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_RespondToMessage_FailsWhenNotOperational()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Phone.LosePhone(1);
         session.PhoneMessages.AddMessage(new PhoneMessage { Id = "test-1", Content = "Test", DayReceived = 1 });
 
@@ -132,7 +133,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_IgnoreMessage_Works()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.PhoneMessages.AddMessage(new PhoneMessage
         {
             Id = "test-1",
@@ -151,7 +152,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_IgnoreMessage_TrustErosionAfterThree()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.FixerUmmKarim, 12, 0);
 
         for (var i = 0; i < 4; i++)
@@ -175,7 +176,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_IgnoreMessage_NoTrustErosionForLowTrust()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 5, 0);
 
         for (var i = 0; i < 4; i++)
@@ -199,7 +200,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_ReplacePhone_RestoresFunctionality()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(100);
         session.Phone.LosePhone(3);
 
@@ -213,7 +214,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_ReplacePhone_FailsWhenNotLost()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(100);
 
         var (success, _) = session.ReplacePhone();
@@ -223,7 +224,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_ReplacePhone_FailsWhenNotEnoughMoney()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(20);
         session.Phone.LosePhone(3);
 
@@ -237,7 +238,7 @@ internal sealed class PhoneIntegrationTests
         var found = false;
         for (var seed = 0; seed < 50; seed++)
         {
-            var session = new GameSession(new Random(seed));
+            var session = TestSessions.Create(new Random(seed));
             session.Relationships.SetNpcRelationship(NpcId.FenceHanan, 12, 0);
             session.EndDay();
 
@@ -254,7 +255,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_EndDay_DrainsCredit()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.EndDay();
 
         await Assert.That(session.Phone.DaysSinceCreditRefill).IsEqualTo(1);
@@ -264,7 +265,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_EndDay_MarksMessagesAsMissedWhenNoCredit()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.PhoneMessages.AddMessage(new PhoneMessage
         {
             Id = "pending",
@@ -288,7 +289,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_RefillCredit_DeliversMissedMessages()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(100);
         session.PhoneMessages.AddMessage(new PhoneMessage
         {
@@ -314,7 +315,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_RespondToMissedCall_DeductsExtra1LE()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(20);
         session.PhoneMessages.AddMessage(new PhoneMessage
         {
@@ -340,7 +341,7 @@ internal sealed class PhoneIntegrationTests
     [Test]
     public async Task GameSession_RestorePhone_PreservesState()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Phone.LosePhone(5);
         session.PhoneMessages.AddMessage(new PhoneMessage
         {

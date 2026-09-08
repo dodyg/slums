@@ -5,6 +5,7 @@ using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.State.DailyResolution;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.State;
 
@@ -90,7 +91,7 @@ internal sealed class WeeklyEconomyResolutionTests
 
     private static GameSession CreateSession()
     {
-        return new GameSession(new GameRandom(42));
+        return TestSessions.Create(new GameRandom(42));
     }
 
     private static AlwaysHighRandom HighRollRandom()

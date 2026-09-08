@@ -6,8 +6,7 @@ namespace Slums.Core.World;
 
 internal sealed class LocationPricingService
 {
-#pragma warning disable CA1822
-    public int GetClinicVisitCost(Location location, RelationshipState relationships, SkillState skills)
+    public static int GetClinicVisitCost(Location location, RelationshipState relationships, SkillState skills)
     {
         ArgumentNullException.ThrowIfNull(location);
         ArgumentNullException.ThrowIfNull(relationships);
@@ -37,7 +36,7 @@ internal sealed class LocationPricingService
         return visitCost;
     }
 
-    public int GetFoodCost(DistrictId districtId)
+    public static int GetFoodCost(DistrictId districtId)
     {
         return districtId switch
         {
@@ -50,7 +49,7 @@ internal sealed class LocationPricingService
         };
     }
 
-    public int GetMedicineCost(DistrictId districtId, LocationId currentLocationId, RelationshipState relationships, SkillState skills)
+    public static int GetMedicineCost(DistrictId districtId, LocationId currentLocationId, RelationshipState relationships, SkillState skills)
     {
         ArgumentNullException.ThrowIfNull(relationships);
         ArgumentNullException.ThrowIfNull(skills);
@@ -75,7 +74,7 @@ internal sealed class LocationPricingService
             : districtCost;
     }
 
-    public int GetStreetFoodCost(DistrictId districtId)
+    public static int GetStreetFoodCost(DistrictId districtId)
     {
         return districtId switch
         {
@@ -88,7 +87,7 @@ internal sealed class LocationPricingService
         };
     }
 
-    public int GetTravelCost(Location destination, RelationshipState relationships)
+    public static int GetTravelCost(Location destination, RelationshipState relationships)
     {
         ArgumentNullException.ThrowIfNull(destination);
         ArgumentNullException.ThrowIfNull(relationships);
@@ -102,7 +101,7 @@ internal sealed class LocationPricingService
         return travelCost;
     }
 
-    public int GetTravelEnergyCost(Location destination, RelationshipState relationships)
+    public static int GetTravelEnergyCost(Location destination, RelationshipState relationships)
     {
         ArgumentNullException.ThrowIfNull(destination);
         ArgumentNullException.ThrowIfNull(relationships);
@@ -120,5 +119,4 @@ internal sealed class LocationPricingService
 
         return energyCost;
     }
-#pragma warning restore CA1822
 }

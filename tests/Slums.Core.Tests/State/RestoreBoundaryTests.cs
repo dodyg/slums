@@ -3,6 +3,7 @@ using Slums.Core.Randomness;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.State;
 
@@ -11,7 +12,7 @@ internal sealed class RestoreBoundaryTests
     [Test]
     public async Task RestoreFromSnapshot_ReturnsTheSameHydratedSession()
     {
-        var session = new GameSession(new GameRandom(20260904));
+        var session = TestSessions.Create(new GameRandom(20260904));
 
         var restored = session.RestoreFromSnapshot(target =>
         {
@@ -25,7 +26,7 @@ internal sealed class RestoreBoundaryTests
     [Test]
     public async Task RestoreFromSnapshot_RejectsANullRestoreDelegate()
     {
-        var session = new GameSession(new GameRandom(20260904));
+        var session = TestSessions.Create(new GameRandom(20260904));
 
         await Assert.That(() => session.RestoreFromSnapshot(null!)).Throws<ArgumentNullException>();
     }
@@ -33,7 +34,7 @@ internal sealed class RestoreBoundaryTests
     [Test]
     public async Task RestoreFromSnapshot_KeepsCompleteRegistriesAfterRestore()
     {
-        var session = new GameSession(new GameRandom(20260904));
+        var session = TestSessions.Create(new GameRandom(20260904));
 
         var restored = session.RestoreFromSnapshot(_ =>
         {

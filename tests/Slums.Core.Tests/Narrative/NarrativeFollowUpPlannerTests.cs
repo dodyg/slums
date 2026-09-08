@@ -3,6 +3,7 @@ using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Narrative;
 
@@ -11,7 +12,7 @@ internal sealed class NarrativeFollowUpPlannerTests
     [Test]
     public void GetEndOfDayTriggers_ShouldReturnBothKnownCrimeFollowUps_WhenSignalsArePending()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Household.SetMotherHealth(50);
         session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 18, session.Clock.Day);
 

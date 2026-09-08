@@ -3,6 +3,7 @@ using Slums.Application.HouseholdAssets;
 using Slums.Core.Characters;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.HouseholdAssets;
 
@@ -12,7 +13,7 @@ internal sealed class PlantUpgradeMenuQueryTests
     public void GetStatuses_ShouldExposeAllFourUpgradePaths()
     {
         var query = new PlantUpgradeMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.HouseholdAssets.BuyPlant(PlantType.Hibiscus, 1, 1);
         var plant = gameState.Player.HouseholdAssets.Plants.Should().ContainSingle().Subject;
 

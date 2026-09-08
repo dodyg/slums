@@ -12,6 +12,7 @@ using Slums.Core.World;
 using Slums.Core.Robotics;
 using Slums.Infrastructure.Persistence;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Infrastructure.Tests;
 
@@ -23,12 +24,12 @@ internal sealed class JsonSaveGameStoreTests
         var saveDirectory = CreateTempDirectory("slums-save-tests");
         try
         {
-            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory, TestContent.CreateProvider());
 
-            var gameSession = new Slums.Core.State.GameSession();
+            var gameSession = TestSessions.Create();
             var runId = Guid.NewGuid();
             gameSession.Player.ApplyGender(Gender.Female);
-            gameSession.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+            gameSession.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
             gameSession.RequestEmergencySupport();
             gameSession.Player.Stats.SetMoney(222);
             gameSession.Player.Nutrition.SetSatiety(41);
@@ -161,11 +162,11 @@ internal sealed class JsonSaveGameStoreTests
         var saveDirectory = CreateTempDirectory("slums-save-tests");
         try
         {
-            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory, TestContent.CreateProvider());
 
-            var gameSession = new Slums.Core.State.GameSession();
+            var gameSession = TestSessions.Create();
             gameSession.Player.ApplyGender(Gender.Male);
-            gameSession.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+            gameSession.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
             gameSession.Player.Stats.SetMoney(50);
 
             await store.SaveAsync(SaveGameRequest.Create(gameSession, null), "slot-male").ConfigureAwait(false);
@@ -264,7 +265,7 @@ internal sealed class JsonSaveGameStoreTests
             }
             """).ConfigureAwait(false);
 
-            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory, TestContent.CreateProvider());
             var result = await store.LoadAsync("slot1").ConfigureAwait(false);
 
             result.Kind.Should().Be(LoadGameResultKind.Incompatible);
@@ -282,7 +283,7 @@ internal sealed class JsonSaveGameStoreTests
         var saveDirectory = CreateTempDirectory("slums-save-tests");
         try
         {
-            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory, TestContent.CreateProvider());
 
             var result = await store.LoadAsync("slot1").ConfigureAwait(false);
 
@@ -301,7 +302,7 @@ internal sealed class JsonSaveGameStoreTests
         try
         {
             await File.WriteAllTextAsync(Path.Combine(saveDirectory, "slot1.json"), "{ this is not json").ConfigureAwait(false);
-            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory, TestContent.CreateProvider());
 
             var result = await store.LoadAsync("slot1").ConfigureAwait(false);
 
@@ -353,7 +354,7 @@ internal sealed class JsonSaveGameStoreTests
             }
             """).ConfigureAwait(false);
 
-            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory, TestContent.CreateProvider());
             var result = await store.LoadAsync("slot1").ConfigureAwait(false);
 
             result.Kind.Should().Be(LoadGameResultKind.Corrupt);
@@ -371,8 +372,8 @@ internal sealed class JsonSaveGameStoreTests
         var saveDirectory = CreateTempDirectory("slums-save-tests");
         try
         {
-            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
-            var gameSession = new Slums.Core.State.GameSession();
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory, TestContent.CreateProvider());
+            var gameSession = TestSessions.Create();
 
             var act = async () => await store.SaveAsync(SaveGameRequest.Create(gameSession, null), "../escape").ConfigureAwait(false);
 
@@ -391,8 +392,8 @@ internal sealed class JsonSaveGameStoreTests
         var saveDirectory = CreateTempDirectory("slums-save-tests");
         try
         {
-            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory);
-            var gameSession = new Slums.Core.State.GameSession();
+            var store = new JsonSaveGameStore(NullLogger<JsonSaveGameStore>.Instance, saveDirectory, TestContent.CreateProvider());
+            var gameSession = TestSessions.Create();
             gameSession.Player.Stats.SetMoney(100);
 
             await store.SaveAsync(SaveGameRequest.Create(gameSession, "first"), "slot1").ConfigureAwait(false);

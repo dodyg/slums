@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Application.Activities;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Activities;
 
@@ -20,7 +21,7 @@ internal sealed class ShopCommandTests
     public void Execute_ShouldThrow_WhenInvalidOptionId()
     {
         var command = new ShopCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         var act = () => command.Execute(session, (ShopOptionId)999);
 
@@ -31,7 +32,7 @@ internal sealed class ShopCommandTests
     public void Execute_OpenHouseholdAssets_ReturnsTrueWithoutMutation()
     {
         var command = new ShopCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var moneyBefore = session.Player.Stats.Money;
 
         var result = command.Execute(session, ShopOptionId.OpenHouseholdAssets);
@@ -44,7 +45,7 @@ internal sealed class ShopCommandTests
     public void Execute_BuyFood_CallsBuyFood()
     {
         var command = new ShopCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(50);
 
         var result = command.Execute(session, ShopOptionId.BuyFood);
@@ -56,7 +57,7 @@ internal sealed class ShopCommandTests
     public void Execute_BuyMedicine_CallsBuyMedicine()
     {
         var command = new ShopCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(100);
 
         var result = command.Execute(session, ShopOptionId.BuyMedicine);
@@ -68,7 +69,7 @@ internal sealed class ShopCommandTests
     public void Execute_BuyRobotParts_CallsWorkshopPurchase()
     {
         var command = new ShopCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(Slums.Core.World.LocationId.Workshop);
         session.Player.Stats.SetMoney(20);
 

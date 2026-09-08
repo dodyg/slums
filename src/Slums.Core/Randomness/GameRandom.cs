@@ -36,9 +36,20 @@ public sealed class GameRandom : Random
         }
     }
 
-    /// <summary>Creates a generator at an exact captured <paramref name="state"/>.</summary>
-    public GameRandom(GameRandomState state)
+    /// <summary>
+    /// Creates a generator seeded from process entropy for a brand-new run. This is the single
+    /// sanctioned source of unseeded gameplay randomness in the simulation; every other roll
+    /// must flow through a session-owned <see cref="GameRandom"/> so runs stay reproducible.
+    /// </summary>
+#pragma warning disable CA5394 // Gameplay randomness does not require cryptographic strength.
+    public static GameRandom FromEntropy()
     {
+        return new GameRandom(unchecked((ulong)Random.Shared.NextInt64()));
+    }
+#pragma warning restore CA5394 // Gameplay randomness does not require cryptographic strength.
+
+    /// <summary>Creates a generator at an exact captured <paramref name="state"/>.</summary>
+    public GameRandom(GameRandomState state)    {
         ArgumentNullException.ThrowIfNull(state);
 
         ValidateState(state);

@@ -12,7 +12,8 @@ public sealed record HouseholdAssetsMenuContext(
     int Money,
     int RobotRepairSkillLevel,
     Slums.Core.Characters.HouseholdAssetsState Assets,
-    RoboticsState Robotics)
+    RoboticsState Robotics,
+    Slums.Core.Content.GameContentCatalog Catalog)
 {
     public static HouseholdAssetsMenuContext Create(GameSession gameSession)
     {
@@ -25,6 +26,7 @@ public sealed record HouseholdAssetsMenuContext(
             gameSession.Player.Stats.Money,
             gameSession.Player.Skills.GetLevel(SkillId.RobotRepair),
             gameSession.Player.HouseholdAssets,
-            gameSession.Player.Robotics);
+            gameSession.Player.Robotics,
+            gameSession.ContentCatalog);
     }
 }

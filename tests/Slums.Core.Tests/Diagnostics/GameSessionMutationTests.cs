@@ -4,6 +4,7 @@ using Slums.Core.Jobs;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Diagnostics;
 
@@ -12,7 +13,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void Mutations_ShouldBeEmptyOnNewSession()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         session.Mutations.Should().BeEmpty();
     }
@@ -20,7 +21,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void RestAtHome_ShouldRecordMutation_WhenSuccessful()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Home);
 
         var result = session.RestAtHome();
@@ -34,7 +35,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void RestAtHome_ShouldRecordGuardRejection_WhenNotAtHome()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Market);
 
         var result = session.RestAtHome();
@@ -49,7 +50,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void BuyFood_ShouldRecordMutation_WhenSuccessful()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Home);
         session.Player.Stats.ModifyMoney(1000);
 
@@ -64,7 +65,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void BuyFood_ShouldRecordGuardRejection_WhenNotEnoughMoney()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(0);
 
         var result = session.BuyFood();
@@ -79,7 +80,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void EatAtHome_ShouldRecordGuardRejection_WhenNoFood()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Household.SetStaplesUnits(0);
 
         var result = session.EatAtHome();
@@ -94,7 +95,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void EndDay_ShouldRecordDayTransitionMutation()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         session.EndDay();
 
@@ -106,7 +107,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void MutationRecords_ShouldCarryRunId()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         session.EndDay();
 
@@ -116,7 +117,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void MutationRecords_ShouldCaptureBeforeAndAfterStats()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         session.EndDay();
 
@@ -132,7 +133,7 @@ internal sealed class GameSessionMutationTests
     [Test]
     public void MutationRecorded_ShouldFire_WhenMutationIsRecorded()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var eventCount = 0;
         GameMutationEventArgs? capturedArgs = null;
         session.MutationRecorded += (_, e) =>

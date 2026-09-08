@@ -1,5 +1,70 @@
 [
   {
+    "Id": "imbaba_steady_day",
+    "District": "Imbaba",
+    "Title": "Steady Day",
+    "BulletinText": "Imbaba is running on its usual pressure today.",
+    "GameplaySummary": "No extra district modifiers are pressing on the basics right now.",
+    "MinDay": 1,
+    "Weight": 1,
+    "Effect": {
+      "BoostedRandomEventIds": [],
+      "SuppressedRandomEventIds": []
+    }
+  },
+  {
+    "Id": "dokki_steady_day",
+    "District": "Dokki",
+    "Title": "Steady Day",
+    "BulletinText": "Dokki is tense but broadly predictable today.",
+    "GameplaySummary": "No extra district modifiers are pressing on the basics right now.",
+    "MinDay": 1,
+    "Weight": 1,
+    "Effect": {
+      "BoostedRandomEventIds": [],
+      "SuppressedRandomEventIds": []
+    }
+  },
+  {
+    "Id": "ardalliwa_steady_day",
+    "District": "ArdAlLiwa",
+    "Title": "Steady Day",
+    "BulletinText": "Ard al-Liwa is busy, but nothing is tipping over yet.",
+    "GameplaySummary": "No extra district modifiers are pressing on the basics right now.",
+    "MinDay": 1,
+    "Weight": 1,
+    "Effect": {
+      "BoostedRandomEventIds": [],
+      "SuppressedRandomEventIds": []
+    }
+  },
+  {
+    "Id": "bulaq_steady_day",
+    "District": "BulaqAlDakrour",
+    "Title": "Steady Day",
+    "BulletinText": "Bulaq al-Dakrour is carrying its usual noise without a fresh shock.",
+    "GameplaySummary": "No extra district modifiers are pressing on the basics right now.",
+    "MinDay": 1,
+    "Weight": 1,
+    "Effect": {
+      "BoostedRandomEventIds": [],
+      "SuppressedRandomEventIds": []
+    }
+  },
+  {
+    "Id": "shubra_steady_day",
+    "District": "Shubra",
+    "Title": "Steady Day",
+    "BulletinText": "Shubra is holding together without a new district squeeze today.",
+    "GameplaySummary": "No extra district modifiers are pressing on the basics right now.",
+    "MinDay": 1,
+    "Weight": 1,
+    "Effect": {
+      "BoostedRandomEventIds": [],
+      "SuppressedRandomEventIds": []
+    }
+  },
+  {
     "Id": "imbaba_utility_cut",
     "District": "Imbaba",
     "Title": "Water Rotation Missed",

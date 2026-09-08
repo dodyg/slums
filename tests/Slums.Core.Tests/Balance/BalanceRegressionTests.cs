@@ -5,6 +5,7 @@ using Slums.Core.Heat;
 using Slums.Core.Jobs;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Balance;
 
@@ -90,15 +91,15 @@ internal sealed class BalanceRegressionTests
         const int tolerance = 10;
         var minimumAcceptablePay = RecurringExpenses.DailyRentCost + RecurringExpenses.CheapMealCost - tolerance;
 
-        JobRegistry.AllJobs.Should().OnlyContain(job => job.BasePay - job.PayVariance >= minimumAcceptablePay);
+        TestContent.Catalog.Jobs.Should().OnlyContain(job => job.BasePay - job.PayVariance >= minimumAcceptablePay);
     }
 
     [Test]
     public void LowestPayingJobsMeetTheHonestWorkTarget()
     {
-        JobRegistry.HouseCleaning.BasePay.Should().Be(23);
-        JobRegistry.StreetVending.BasePay.Should().Be(23);
-        JobRegistry.MarketPorter.BasePay.Should().Be(23);
-        JobRegistry.FishSorter.BasePay.Should().Be(24);
+        TestContent.Catalog.GetJob(JobType.HouseCleaning).BasePay.Should().Be(23);
+        TestContent.Catalog.GetJob(JobType.StreetVending).BasePay.Should().Be(23);
+        TestContent.Catalog.GetJob(JobType.MarketPorter).BasePay.Should().Be(23);
+        TestContent.Catalog.GetJob(JobType.FishSorter).BasePay.Should().Be(24);
     }
 }

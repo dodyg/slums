@@ -1,6 +1,7 @@
 using Slums.Core.Entertainment;
 using Slums.Core.State;
 using Slums.Core.World;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Entertainment;
 
@@ -58,7 +59,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_GetAvailableEntertainmentActivities_ShouldReturnEmptyAtHome()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
 
         var activities = state.GetAvailableEntertainmentActivities();
 
@@ -68,7 +69,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_GetAvailableEntertainmentActivities_ShouldReturnCafeActivitiesAtCafe()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.World.TravelTo(LocationId.Cafe);
 
         var activities = state.GetAvailableEntertainmentActivities();
@@ -80,7 +81,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_GetAvailableEntertainmentActivities_ShouldReturnBarActivitiesAtSquare()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.World.TravelTo(LocationId.Square);
 
         var activities = state.GetAvailableEntertainmentActivities();
@@ -91,7 +92,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_ShouldReduceStress()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.World.TravelTo(LocationId.Cafe);
         state.Player.Stats.SetStress(50);
         var coffee = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Coffee);
@@ -105,7 +106,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_ShouldCostMoney()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.World.TravelTo(LocationId.Cafe);
         var moneyBefore = state.Player.Stats.Money;
         var coffee = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Coffee);
@@ -119,7 +120,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_ShouldAdvanceTime()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.World.TravelTo(LocationId.Cafe);
         var coffee = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Coffee);
 
@@ -132,7 +133,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_ShouldFailIfNotEnoughMoney()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.World.TravelTo(LocationId.Cafe);
         state.Player.Stats.ModifyMoney(-100);
         var coffee = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Coffee);
@@ -145,7 +146,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_ShouldFailIfNotEnoughEnergy()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.World.TravelTo(LocationId.Cafe);
         state.Player.Stats.SetEnergy(0);
         var shisha = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Shisha);
@@ -158,7 +159,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_ShouldFailIfActivityNotAvailableAtLocation()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         var coffee = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Coffee);
 
         var result = state.TryPerformEntertainment(coffee);
@@ -169,7 +170,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task GameSession_TryPerformEntertainment_BilliardsShouldCostEnergy()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.World.TravelTo(LocationId.Depot);
         var energyBefore = state.Player.Stats.Energy;
         var billiards = EntertainmentRegistry.AllActivities.First(a => a.Type == EntertainmentActivityType.Billiards);
@@ -183,7 +184,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task Location_HasCafe_ShouldBeTrueForCafe()
     {
-        var cafe = WorldState.AllLocations.First(l => l.Id == LocationId.Cafe);
+        var cafe = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Cafe);
 
         await Assert.That(cafe!.HasCafe).IsTrue();
     }
@@ -191,7 +192,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task Location_HasBar_ShouldBeTrueForSquare()
     {
-        var square = WorldState.AllLocations.First(l => l.Id == LocationId.Square);
+        var square = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Square);
 
         await Assert.That(square!.HasBar).IsTrue();
     }
@@ -199,7 +200,7 @@ internal sealed class EntertainmentTests
     [Test]
     public async Task Location_HasBilliards_ShouldBeTrueForDepot()
     {
-        var depot = WorldState.AllLocations.First(l => l.Id == LocationId.Depot);
+        var depot = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Depot);
 
         await Assert.That(depot!.HasBilliards).IsTrue();
     }

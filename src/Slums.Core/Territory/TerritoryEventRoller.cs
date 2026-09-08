@@ -79,9 +79,7 @@ internal static class TerritoryEventRoller
             var control = session.Territory.GetControl(DistrictId.Imbaba);
             if (control.TensionLevel >= TensionLevel.Elevated)
             {
-#pragma warning disable CA5394
                 if (random.Next(100) < 15)
-#pragma warning restore CA5394
                 {
                     var solidarity = TerritoryEventRegistry.RefugeeSolidarityEvent;
                     session.Player.Stats.ModifyStress(solidarity.StressModifier);

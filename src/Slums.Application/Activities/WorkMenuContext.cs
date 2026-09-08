@@ -31,7 +31,7 @@ public sealed record WorkMenuContext(
             gameSession.PolicePressure,
             gameSession.LastCrimeDay,
             options,
-            gameSession.StoryFlags.ToHashSet(StringComparer.Ordinal));
+            gameSession.StoryFlags);
     }
 
     public bool HasStoryFlag(string flag)

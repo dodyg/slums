@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.World;
 
@@ -10,7 +11,7 @@ internal sealed class TravelServiceTests
     [Test]
     public void TryWalkTo_ShouldKeepMoneyAndRecordTravelMutation()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var moneyBefore = session.Player.Stats.Money;
 
         TravelService.TryWalkTo(session, LocationId.Market).Should().BeTrue();
@@ -23,7 +24,7 @@ internal sealed class TravelServiceTests
     [Test]
     public void TryTravelTo_ShouldRejectTheCurrentLocationWithoutChangingMoney()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var moneyBefore = session.Player.Stats.Money;
 
         TravelService.TryTravelTo(session, LocationId.Home).Should().BeFalse();
@@ -35,7 +36,7 @@ internal sealed class TravelServiceTests
     [Test]
     public void CanAfford_ShouldReturnFalseForAnUnknownLocation()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         var unknownLocation = new LocationId("unknown");
         TravelService.CanAfford(session, unknownLocation).Should().BeFalse();

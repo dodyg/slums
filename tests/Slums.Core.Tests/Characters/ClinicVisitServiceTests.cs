@@ -3,6 +3,7 @@ using Slums.Core.Characters;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Characters;
 
@@ -11,7 +12,7 @@ internal sealed class ClinicVisitServiceTests
     [Test]
     public void CheckOnMother_ShouldUseTheClinicServiceMutationBoundary()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         ClinicVisitService.CheckOnMother(session);
 
@@ -22,7 +23,7 @@ internal sealed class ClinicVisitServiceTests
     [Test]
     public void GetClinicTravelOption_ShouldDescribeNonClinicLocationsAsInvalid()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         var option = ClinicVisitService.GetClinicTravelOption(session, LocationId.Market);
 
@@ -33,7 +34,7 @@ internal sealed class ClinicVisitServiceTests
     [Test]
     public void TravelAndTakeMotherToClinic_ShouldComposeTravelAndVisit()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Household.SetMotherHealth(50);
 
         var result = ClinicVisitService.TravelAndTakeMotherToClinic(session, LocationId.Clinic);

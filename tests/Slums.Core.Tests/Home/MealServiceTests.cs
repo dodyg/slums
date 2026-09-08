@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Core.Characters;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Home;
 
@@ -10,7 +11,7 @@ internal sealed class MealServiceTests
     [Test]
     public void EatAtHome_WhenFoodIsUnavailable_ReturnsFalseAndRaisesExpectedEvent()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Household.SetFoodStockpile(0);
 
         var result = session.EatAtHome();
@@ -22,7 +23,7 @@ internal sealed class MealServiceTests
     [Test]
     public void EatAtHome_WithCookingHerb_AppliesBonusAndRaisesBothEvents()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.HouseholdAssets.BuyPlant(PlantType.Mint, session.Clock.Day, session.CurrentWeek);
         session.Player.Stats.SetStress(20);
 
@@ -37,7 +38,7 @@ internal sealed class MealServiceTests
     [Test]
     public void EatAtHome_WithoutCookingHerb_DoesNotRaiseCookingBonusEvent()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         var result = session.EatAtHome();
 
@@ -48,7 +49,7 @@ internal sealed class MealServiceTests
     [Test]
     public void EatStreetFood_WhenMoneyIsInsufficient_ReturnsFalseAndRaisesExpectedEvent()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(0);
         var cost = session.GetStreetFoodCost();
 
@@ -61,7 +62,7 @@ internal sealed class MealServiceTests
     [Test]
     public void EatStreetFood_WhenMoneyIsAvailable_ReturnsTrueAndRaisesExpectedEvent()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var cost = session.GetStreetFoodCost();
 
         var result = session.EatStreetFood();

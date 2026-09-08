@@ -102,7 +102,7 @@ internal static class CrimeSessionService
         var modifiedAttempt = modifierEvaluation.Attempt;
         ApplyCrimeModifierSideEffects(session, modifierEvaluation.Signals);
         var districtHeat = session.DistrictHeat.GetHeat(session.World.CurrentDistrict);
-        var result = session.CrimeService.AttemptCrime(modifiedAttempt, session.Player, districtHeat, random ?? session.SharedRandom);
+        var result = CrimeService.AttemptCrime(modifiedAttempt, session.Player, districtHeat, random ?? session.SharedRandom);
         session.Player.Stats.ModifyEnergy(-result.EnergyCost);
         session.Player.Stats.ModifyStress(result.StressCost);
         ActivityLedgerSystem.RecordCrimeOutcome(session.CrimeState, session.Clock, result);
@@ -117,7 +117,7 @@ internal static class CrimeSessionService
                 session.ModifyFactionReputation(FactionId.ExPrisonerNetwork, 5);
             }
 
-            var storyFlags = session.StoryFlags.ToHashSet(StringComparer.Ordinal);
+            var storyFlags = session.StoryFlags;
             session.TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetFirstSuccessTrigger(storyFlags));
         }
 
@@ -125,7 +125,7 @@ internal static class CrimeSessionService
 
         session.DistrictHeat.AddHeat(session.World.CurrentDistrict, result.PolicePressureDelta);
         var updatedDistrictHeat = session.DistrictHeat.GetHeat(session.World.CurrentDistrict);
-        var currentStoryFlags = session.StoryFlags.ToHashSet(StringComparer.Ordinal);
+        var currentStoryFlags = session.StoryFlags;
         session.TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetPoliceEncounterTrigger(
             session.World.CurrentDistrict,
             districtHeat,
@@ -140,9 +140,9 @@ internal static class CrimeSessionService
             session.World.CurrentDistrict,
             session.Territory.GetControl(session.World.CurrentDistrict).ControllingFaction,
             session.Relationships,
-            session.StoryFlags.ToHashSet(StringComparer.Ordinal)));
+            session.StoryFlags));
 
-        if (session.TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetCrimeWarningTrigger(session.PolicePressure, session.StoryFlags.ToHashSet(StringComparer.Ordinal))))
+        if (session.TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetCrimeWarningTrigger(session.PolicePressure, session.StoryFlags)))
         {
             session.RaiseEvent("People are whispering that the police are getting close.");
         }
@@ -160,7 +160,7 @@ internal static class CrimeSessionService
 
         var modifierEvaluation = EvaluateCrimeModifiers(session, attempt);
         var districtHeat = session.DistrictHeat.GetHeat(session.World.CurrentDistrict);
-        var resolution = session.CrimeService.PreviewCrime(modifierEvaluation.Attempt, session.Player, districtHeat);
+        var resolution = CrimeService.PreviewCrime(modifierEvaluation.Attempt, session.Player, districtHeat);
         return new CrimeRoutePreview(modifierEvaluation.Attempt, resolution, modifierEvaluation.ActiveModifiers);
     }
 
@@ -260,7 +260,7 @@ internal static class CrimeSessionService
 
         if (signals.Contains(CrimeModifierSignal.PrisonerScrutiny))
         {
-            session.TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetPrisonerHeatTrigger(session.Player.BackgroundType, session.StoryFlags.ToHashSet(StringComparer.Ordinal)));
+            session.TryQueueNarrativeTrigger(CrimeNarrativePlanner.GetPrisonerHeatTrigger(session.Player.BackgroundType, session.StoryFlags));
         }
     }
 

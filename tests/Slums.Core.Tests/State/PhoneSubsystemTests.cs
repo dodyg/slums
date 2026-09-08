@@ -2,6 +2,7 @@ using Slums.Core.Phone;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.State;
 
@@ -9,7 +10,7 @@ internal sealed class PhoneSubsystemTests
 {
     private static GameSession CreateSession(int money = 100)
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(money);
         return session;
     }

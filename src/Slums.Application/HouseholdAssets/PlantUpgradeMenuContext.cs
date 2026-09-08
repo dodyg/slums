@@ -15,7 +15,7 @@ public sealed record PlantUpgradeMenuContext(
 
         var plant = gameSession.Player.HouseholdAssets.GetPlant(plantId)
             ?? throw new InvalidOperationException("Plant not found.");
-        var definition = PlantRegistry.GetByType(plant.Type);
+        var definition = gameSession.ContentCatalog.GetPlant(plant.Type);
         return new PlantUpgradeMenuContext(plant, definition, gameSession.CurrentWeek, gameSession.Player.Stats.Money);
     }
 }

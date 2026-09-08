@@ -8,7 +8,6 @@ public static class InvestmentResolutionCalculator
         return (definition.WeeklyIncomeMin + definition.WeeklyIncomeMax) / 2;
     }
 
-#pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
     public static InvestmentResolutionCalculation Resolve(Investment investment, InvestmentDefinition? definition, int currentMoney, Random rng)
     {
         ArgumentNullException.ThrowIfNull(investment);
@@ -107,5 +106,4 @@ public static class InvestmentResolutionCalculator
                 $"{definition.Name} earned {income} LE this week."),
             ShouldSuspend: false);
     }
-#pragma warning restore CA5394
 }

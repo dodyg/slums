@@ -13,20 +13,19 @@ public static class NewsService
         EventJournal journal,
         int currentDay,
         Random random,
-        IReadOnlyList<NewsFlashDefinition>? definitions = null)
+        IReadOnlyList<NewsFlashDefinition> definitions)
     {
         ArgumentNullException.ThrowIfNull(news);
         ArgumentNullException.ThrowIfNull(infrastructure);
         ArgumentNullException.ThrowIfNull(journal);
         ArgumentNullException.ThrowIfNull(random);
+        ArgumentNullException.ThrowIfNull(definitions);
 
         news.BeginDay(currentDay);
         infrastructure.AdvanceDay();
 
-        #pragma warning disable CA5394 // Seeded gameplay randomness is intentional and persisted with the session.
-        var availableDefinitions = definitions ?? NewsRegistry.All;
+        var availableDefinitions = definitions;
         var shouldGenerate = currentDay >= 2 && availableDefinitions.Count > 0 && random.Next(100) < DailyGenerationChancePercent;
-        #pragma warning restore CA5394
         if (!shouldGenerate)
         {
             return null;
@@ -64,9 +63,7 @@ public static class NewsService
     private static NewsFlashDefinition SelectWeighted(IReadOnlyList<NewsFlashDefinition> definitions, Random random)
     {
         var totalWeight = definitions.Sum(static definition => definition.Weight);
-        #pragma warning disable CA5394 // Seeded gameplay randomness is intentional and persisted with the session.
         var roll = random.Next(totalWeight);
-        #pragma warning restore CA5394
         foreach (var definition in definitions)
         {
             roll -= definition.Weight;

@@ -10,13 +10,13 @@ internal static class TechnicalRepairService
     internal static IReadOnlyList<TechnicalRepairPreview> GetPreviews(GameSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
-        return TechnicalRepairRegistry.All.Select(action => Preview(session, action.Type)).ToArray();
+        return session.ContentCatalog.TechnicalRepairs.Select(action => Preview(session, action.Type)).ToArray();
     }
 
     internal static TechnicalRepairPreview Preview(GameSession session, TechnicalRepairActionType actionType)
     {
         ArgumentNullException.ThrowIfNull(session);
-        var action = TechnicalRepairRegistry.Get(actionType);
+        var action = session.ContentCatalog.GetTechnicalRepair(actionType);
         var skillLevel = session.Player.Skills.GetLevel(SkillId.RobotRepair);
         var atRequiredLocation = session.World.CurrentLocationId == action.RequiredLocation;
         var hasSkill = skillLevel >= action.RequiredSkillLevel;

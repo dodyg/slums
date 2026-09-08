@@ -42,8 +42,17 @@ public sealed class NewsState
 
     public bool TryGetActive(string definitionId, out ActiveNewsFlash flash)
     {
-        flash = _active.FirstOrDefault(candidate => candidate.DefinitionId == definitionId)!;
-        return flash is not null;
+        foreach (var candidate in _active)
+        {
+            if (candidate.DefinitionId == definitionId)
+            {
+                flash = candidate;
+                return true;
+            }
+        }
+
+        flash = null!;
+        return false;
     }
 
     public bool TryUseResponse(string definitionId, string responseId)

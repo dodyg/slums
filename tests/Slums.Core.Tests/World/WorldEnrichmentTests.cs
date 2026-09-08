@@ -61,7 +61,6 @@ internal sealed class WorldEnrichmentTests
     [Test]
     public async Task NewsService_ShouldSelectWeightedDefinitionAndStartInfrastructureEffect()
     {
-        using var registryScope = new GlobalRegistryScope();
         var definition = new NewsFlashDefinition
         {
             Id = "route_news",
@@ -80,11 +79,10 @@ internal sealed class WorldEnrichmentTests
                 DurationDays = 2
             }]
         };
-        NewsRegistry.Configure([definition]);
         var news = new NewsState();
         var infrastructure = new InfrastructureState();
         var journal = new Slums.Core.State.EventJournal();
-        NewsService.ResolveStartOfDay(news, infrastructure, journal, 2, new AlwaysGeneratingRandom());
+        NewsService.ResolveStartOfDay(news, infrastructure, journal, 2, new AlwaysGeneratingRandom(), [definition]);
 
         await Assert.That(news.ActiveFlashes).Count().IsGreaterThan(0);
         await Assert.That(infrastructure.Get(DistrictId.BulaqAlDakrour, InfrastructureServiceType.Transport).Severity).IsEqualTo(InfrastructureSeverity.Strained);

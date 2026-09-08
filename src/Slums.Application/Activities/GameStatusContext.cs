@@ -1,5 +1,6 @@
 using Slums.Core.Calendar;
 using Slums.Core.Characters;
+using Slums.Core.Content;
 using Slums.Core.Community;
 using Slums.Core.Clock;
 using Slums.Core.Expenses;
@@ -46,7 +47,8 @@ public sealed record GameStatusContext(
     IReadOnlyCollection<InfrastructureServiceState> InfrastructureServices,
     IReadOnlyDictionary<string, int> Inventory,
     SurvivalForecast SurvivalForecast,
-    CommunityAdaptationState CommunityAdaptation)
+    CommunityAdaptationState CommunityAdaptation,
+    GameContentCatalog ContentCatalog)
 {
     public static GameStatusContext Create(GameSession gameSession)
     {
@@ -84,12 +86,13 @@ public sealed record GameStatusContext(
             gameSession.TotalInvestmentEarnings,
     GameCalendar.GetSeasonName(gameSession.GetCurrentSeason()),
     WeatherModifiers.GetDisplayName(gameSession.CurrentWeather.Type),
-    gameSession.StoryFlags.ToHashSet(StringComparer.Ordinal),
+    gameSession.StoryFlags,
     gameSession.GetActiveNewsDefinitions(),
     gameSession.Infrastructure.Services,
     gameSession.Inventory.Quantities,
     survivalForecast,
-    gameSession.CommunityAdaptation);
+    gameSession.CommunityAdaptation,
+    gameSession.ContentCatalog);
     }
 
     public bool HasStoryFlag(string flag)

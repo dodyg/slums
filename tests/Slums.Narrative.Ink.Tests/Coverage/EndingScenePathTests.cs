@@ -5,6 +5,7 @@ using Slums.Core.Endings;
 using Slums.Core.State;
 using Slums.Narrative.Ink.Tests.Helpers;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Narrative.Ink.Tests.Coverage;
 
@@ -53,8 +54,8 @@ internal sealed class EndingScenePathTests
     [Arguments(BackgroundType.SudaneseRefugee, EndingKnotCatalog.DestitutionSudanese)]
     public async Task Ending_Destitution_UsesBackgroundVariant(BackgroundType backgroundType, string expectedKnot)
     {
-        var session = new GameSession();
-        session.Player.ApplyBackground(BackgroundRegistry.GetByType(backgroundType));
+        var session = TestSessions.Create();
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(backgroundType));
 
         EndingService.GetInkKnot(session, EndingId.Destitution).Should().Be(expectedKnot);
         StoryTraversalHelper.ExplorePath(expectedKnot, CreateDefaultSceneState()).Text.Should().NotBeEmpty();

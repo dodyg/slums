@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Content;
 using Slums.Core.Heat;
 using Slums.Core.Investments;
 using Slums.Core.Narrative;
@@ -36,7 +37,7 @@ public sealed class GameStatusPageQuery
         var hasFishTank = assets.Pets.Any(static pet => pet.Type == PetType.Fish);
         var lines = new List<string>
         {
-            $"Cats: {catCount}/{PetRegistry.GetByType(PetType.Cat).MaxOwned}",
+            $"Cats: {catCount}/{context.ContentCatalog.GetPet(PetType.Cat).MaxOwned}",
             $"Fish tank: {(hasFishTank ? "yes" : "no")}",
             $"Plants: {assets.Plants.Count}/{HouseholdAssetsState.MaxPlants}",
             $"Weekly pet care due: {assets.GetPetCareCostDue(currentWeek)} LE",
@@ -60,9 +61,9 @@ public sealed class GameStatusPageQuery
         {
             foreach (var grouping in assets.Plants
                 .GroupBy(static plant => plant.Type)
-                .OrderBy(static group => PlantRegistry.GetByType(group.Key).Name, StringComparer.Ordinal))
+                .OrderBy(group => context.ContentCatalog.GetPlant(group.Key).Name, StringComparer.Ordinal))
             {
-                var definition = PlantRegistry.GetByType(grouping.Key);
+                var definition = context.ContentCatalog.GetPlant(grouping.Key);
                 lines.Add($"{definition.Name}: {grouping.Count()} owned");
             }
         }
@@ -227,7 +228,7 @@ public sealed class GameStatusPageQuery
 
         foreach (var investment in context.ActiveInvestments)
         {
-            var definition = InvestmentRegistry.GetByType(investment.Type);
+            var definition = context.ContentCatalog.GetInvestment(investment.Type);
             var name = definition?.Name ?? investment.Type.ToString();
             var state = investment.IsSuspended ? "Suspended this week" : $"Week {investment.WeeksActive}";
             var risk = definition?.RiskProfile;

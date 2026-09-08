@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Core.Endings;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Endings;
 
@@ -41,7 +42,7 @@ internal sealed class EndingChoiceTests
     [Test]
     public void LuxorChoice_ShouldRequireTheConcreteTrainFare()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.SetDaysSurvived(30);
         session.Clock.SetTime(30, 8, 0);
         session.Player.Stats.SetMoney(549);
@@ -56,7 +57,7 @@ internal sealed class EndingChoiceTests
 
     private static GameSession CreateStableSession()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.SetDaysSurvived(30);
         session.Clock.SetTime(30, 8, 0);
         session.RestoreWorkState(180, 6, 30, 30);

@@ -110,11 +110,9 @@ public static class NpcRegistry
         var pool = ConversationPoolRegistry.GetConversationPool(npcId, context);
         var seenKnots = relationship.SeenConversationKnots;
         var available = pool.Where(k => !seenKnots.Contains(k)).ToList();
-#pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
         return available.Count > 0
             ? available[random?.Next(available.Count) ?? 0]
             : pool[random?.Next(pool.Count) ?? 0];
-#pragma warning restore CA5394
     }
 
     public static string GetConversationContext(
@@ -165,8 +163,6 @@ public static class NpcRegistry
             motherHealth);
         var pool = ConversationPoolRegistry.GetConversationVariantPool(npcId, context);
         var available = pool.Where(variant => !relationship.SeenConversationVariantIds.Contains(variant)).ToList();
-#pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
         return (available.Count > 0 ? available : pool)[random?.Next(available.Count > 0 ? available.Count : pool.Count) ?? 0];
-#pragma warning restore CA5394
     }
 }

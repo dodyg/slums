@@ -5,6 +5,7 @@ using Slums.Core.State;
 using Slums.Core.World;
 using Slums.Core.Robotics;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.HouseholdAssets;
 
@@ -14,12 +15,12 @@ internal sealed class HouseholdAssetsMenuQueryTests
     public void GetStatuses_ShouldExposePlantShopCatalog()
     {
         var query = new HouseholdAssetsMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.PlantShop);
 
         var statuses = query.GetStatuses(HouseholdAssetsMenuContext.Create(gameState));
 
-        statuses.Should().HaveCount(PlantRegistry.AllDefinitions.Count);
+        statuses.Should().HaveCount(TestContent.Catalog.Plants.Count);
         statuses.Should().Contain(static status => status.Title == "Chamomile");
         statuses.Should().Contain(static status => status.Title == "Aloe Vera");
     }
@@ -28,7 +29,7 @@ internal sealed class HouseholdAssetsMenuQueryTests
     public void GetStatuses_ShouldExposeHomeManagement_WhenAssetsExist()
     {
         var query = new HouseholdAssetsMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.HouseholdAssets.TryTriggerStreetCatEncounter(1);
         gameState.Player.HouseholdAssets.BuyPlant(PlantType.AloeVera, 1, 1);
 
@@ -43,7 +44,7 @@ internal sealed class HouseholdAssetsMenuQueryTests
     public void GetStatuses_ShouldShowManageFishTank_WhenFishTankOwned()
     {
         var query = new HouseholdAssetsMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.HouseholdAssets.BuyFishTank(1, 1);
 
         var statuses = query.GetStatuses(HouseholdAssetsMenuContext.Create(gameState));
@@ -55,7 +56,7 @@ internal sealed class HouseholdAssetsMenuQueryTests
     public void GetStatuses_ShouldNotShowManageFishTank_WhenNoFishTankOwned()
     {
         var query = new HouseholdAssetsMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
 
         var statuses = query.GetStatuses(HouseholdAssetsMenuContext.Create(gameState));
 
@@ -66,7 +67,7 @@ internal sealed class HouseholdAssetsMenuQueryTests
     public void GetStatuses_ShouldExposeRoboticsWorkshopCatalogAndRepairs()
     {
         var query = new HouseholdAssetsMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Workshop);
         gameState.Player.Stats.SetMoney(500);
         gameState.BuyRobot(RobotType.SalvageCrawler);
@@ -85,7 +86,7 @@ internal sealed class HouseholdAssetsMenuQueryTests
     public void GetStatuses_ShouldDiscountRepairCost_WhenRobotRepairSkilled()
     {
         var query = new HouseholdAssetsMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Workshop);
         gameState.Player.Stats.SetMoney(500);
         gameState.BuyRobot(RobotType.SalvageCrawler);

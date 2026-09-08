@@ -19,7 +19,7 @@ public sealed class HouseholdAssetsMenuQuery
 
         if (context.CurrentLocationId == LocationId.FishMarket)
         {
-            var fishDefinition = PetRegistry.GetByType(PetType.Fish);
+            var fishDefinition = context.Catalog.GetPet(PetType.Fish);
             statuses.Add(new HouseholdAssetsMenuStatus(
                 HouseholdAssetActionType.BuyFishTank,
                 fishDefinition.Name,
@@ -33,7 +33,7 @@ public sealed class HouseholdAssetsMenuQuery
 
         if (context.CurrentLocationId == LocationId.PlantShop)
         {
-            foreach (var definition in PlantRegistry.AllDefinitions.OrderBy(static plant => plant.Name, StringComparer.Ordinal))
+            foreach (var definition in context.Catalog.Plants.OrderBy(static plant => plant.Name, StringComparer.Ordinal))
             {
                 statuses.Add(new HouseholdAssetsMenuStatus(
                     HouseholdAssetActionType.BuyPlant,
@@ -55,7 +55,7 @@ public sealed class HouseholdAssetsMenuQuery
 
     private static void AddHomeStatuses(HouseholdAssetsMenuContext context, List<HouseholdAssetsMenuStatus> statuses)
     {
-        var catDefinition = PetRegistry.GetByType(PetType.Cat);
+        var catDefinition = context.Catalog.GetPet(PetType.Cat);
         var catCount = context.Assets.Pets.Count(static pet => pet.Type == PetType.Cat);
         statuses.Add(new HouseholdAssetsMenuStatus(
             HouseholdAssetActionType.AdoptCat,
@@ -94,7 +94,7 @@ public sealed class HouseholdAssetsMenuQuery
         {
             plantCounts.TryGetValue(plant.Type, out var existingCount);
             plantCounts[plant.Type] = existingCount + 1;
-            var definition = PlantRegistry.GetByType(plant.Type);
+            var definition = context.Catalog.GetPlant(plant.Type);
             var label = plantCounts[plant.Type] == 1 ? definition.Name : $"{definition.Name} #{plantCounts[plant.Type]}";
             var upgradeCount = plant.GetActiveUpgradeCount(context.CurrentWeek);
             var careState = plant.IsBaseCarePaidForWeek(context.CurrentWeek) ? "care covered" : "care due";
@@ -111,7 +111,7 @@ public sealed class HouseholdAssetsMenuQuery
         var fishTank = context.Assets.GetFishTank();
         if (fishTank is not null)
         {
-            var fishDefinition = PetRegistry.GetByType(PetType.Fish);
+            var fishDefinition = context.Catalog.GetPet(PetType.Fish);
             var fishCareState = fishTank.IsUpkeepPaidForWeek(context.CurrentWeek) ? "care covered" : "care due";
             var fishUpgradeCount = fishTank.GetActiveUpgradeCount(context.CurrentWeek);
             statuses.Add(new HouseholdAssetsMenuStatus(
@@ -129,17 +129,17 @@ public sealed class HouseholdAssetsMenuQuery
         statuses.Add(new HouseholdAssetsMenuStatus(
             HouseholdAssetActionType.BuyRobotParts,
             "Buy Robot Part",
-            $"{RobotRegistry.PartsPurchaseCost} LE each | stock {context.Robotics.Parts}/{RobotRegistry.MaxParts}",
-            context.Robotics.CanBuyParts(1) && context.Money >= RobotRegistry.PartsPurchaseCost,
+            $"{RoboticsState.PartsPurchaseCost} LE each | stock {context.Robotics.Parts}/{RoboticsState.MaxParts}",
+            context.Robotics.CanBuyParts(1) && context.Money >= RoboticsState.PartsPurchaseCost,
             "Spare boards, actuators, and seals are mixed together. One part restores one repair step."));
 
-        foreach (var definition in RobotRegistry.AllDefinitions.OrderBy(static robot => robot.PurchaseCost))
+        foreach (var definition in context.Catalog.Robots.OrderBy(static robot => robot.PurchaseCost))
         {
             var alreadyOwned = context.Robotics.Robots.Any(robot => robot.Type == definition.Type);
             statuses.Add(new HouseholdAssetsMenuStatus(
                 HouseholdAssetActionType.BuyRobot,
                 $"Buy {definition.Name}",
-                $"{definition.PurchaseCost} LE | max {RobotRegistry.MaxOwnedRobots} robots",
+                $"{definition.PurchaseCost} LE | max {RoboticsState.MaxOwnedRobots} robots",
                 !alreadyOwned && context.Robotics.CanPurchaseRobot && context.Money >= definition.PurchaseCost,
                 alreadyOwned ? "You already own this model." : definition.Description,
                 RobotType: definition.Type));
@@ -147,7 +147,7 @@ public sealed class HouseholdAssetsMenuQuery
 
         foreach (var robot in context.Robotics.Robots)
         {
-            var definition = RobotRegistry.GetByType(robot.Type);
+            var definition = context.Catalog.GetRobot(robot.Type);
             var repairCost = RobotRepairCostCalculator.GetRepairCost(context.RobotRepairSkillLevel, definition.RepairCost);
             statuses.Add(new HouseholdAssetsMenuStatus(
                 HouseholdAssetActionType.RepairRobot,

@@ -3,9 +3,11 @@ using Slums.Core.World;
 
 namespace Slums.Core.Investments;
 
-public static class InvestmentRegistry
+/// <summary>Code-owned default investment definitions used when a catalog is built without JSON content.</summary>
+public static class InvestmentDefinitions
 {
-    private static readonly InvestmentDefinition[] DefaultDefinitions =
+    /// <summary>Gets the default investment definitions.</summary>
+    public static IReadOnlyList<InvestmentDefinition> Defaults { get; } =
     [
         new InvestmentDefinition
         {
@@ -197,23 +199,6 @@ public static class InvestmentRegistry
         }
     ];
 
-    private static IReadOnlyList<InvestmentDefinition> _definitions = DefaultDefinitions;
-
-    public static IReadOnlyList<InvestmentDefinition> AllDefinitions => _definitions;
-
-    public static void Configure(IEnumerable<InvestmentDefinition> definitions)
-    {
-        ArgumentNullException.ThrowIfNull(definitions);
-
-        var configuredDefinitions = definitions.Where(static definition => definition is not null).ToArray();
-        if (configuredDefinitions.Length == 0)
-        {
-            throw new InvalidOperationException("At least one investment definition must be configured.");
-        }
-
-        _definitions = configuredDefinitions;
-    }
-
     private static InvestmentRiskProfile CreateFoulCartRiskProfile() => new()
     {
         WeeklyFailureChance = 0.01,
@@ -323,9 +308,4 @@ public static class InvestmentRegistry
         ExtortionAmountMin = 12,
         ExtortionAmountMax = 20
     };
-
-    public static InvestmentDefinition? GetByType(InvestmentType type)
-    {
-        return _definitions.FirstOrDefault(d => d.Type == type);
-    }
 }

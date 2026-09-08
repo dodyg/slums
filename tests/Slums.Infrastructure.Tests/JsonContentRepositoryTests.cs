@@ -6,6 +6,7 @@ using Slums.Core.World;
 using Slums.Core.Robotics;
 using Slums.Infrastructure.Content;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Infrastructure.Tests;
 
@@ -122,7 +123,7 @@ internal sealed class JsonContentRepositoryTests
 
         var jobs = repository.LoadJobs();
 
-        jobs.Should().BeEquivalentTo(JobRegistry.AllJobs, options => options.WithStrictOrdering());
+        jobs.Should().BeEquivalentTo(TestContent.Catalog.Jobs, options => options.WithStrictOrdering());
     }
 
     [Test]
@@ -321,7 +322,7 @@ internal sealed class JsonContentRepositoryTests
             """);
 
             var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
-            var state = new Slums.Core.State.GameSession();
+            var state = TestSessions.Create();
             state.World.TravelTo(Slums.Core.World.LocationId.Clinic);
 
             var events = repository.LoadRandomEvents();
@@ -357,7 +358,7 @@ internal sealed class JsonContentRepositoryTests
             """);
 
             var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
-            var state = new Slums.Core.State.GameSession();
+            var state = TestSessions.Create();
             state.World.TravelTo(Slums.Core.World.LocationId.CallCenter);
 
             var events = repository.LoadRandomEvents();
@@ -401,9 +402,9 @@ internal sealed class JsonContentRepositoryTests
             """);
 
             var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, contentDirectory);
-            var bulaqState = new Slums.Core.State.GameSession();
+            var bulaqState = TestSessions.Create();
             bulaqState.World.TravelTo(Slums.Core.World.LocationId.Pharmacy);
-            var shubraState = new Slums.Core.State.GameSession();
+            var shubraState = TestSessions.Create();
             shubraState.World.TravelTo(Slums.Core.World.LocationId.Laundry);
             shubraState.Player.Stats.ModifyMoney(-10);
 
@@ -493,28 +494,16 @@ internal sealed class JsonContentRepositoryTests
     }
 
     [Test]
-    public void LoadDistrictConditions_FromRepositoryContent_ShouldConfigureDistrictConditionRegistry()
+    public void LoadDistrictConditions_FromRepositoryContent_ShouldProvideEffectsAndEventLists()
     {
         var repository = new JsonContentRepository(NullLogger<JsonContentRepository>.Instance, GetRepositoryContentDirectory());
-        var originalDefinitions = DistrictConditionRegistry.AllDefinitions.ToArray();
 
-        try
-        {
-            var conditions = repository.LoadDistrictConditions();
+        var conditions = repository.LoadDistrictConditions();
 
-            conditions.Should().OnlyContain(static condition =>
-                condition.Effect != null
-                && condition.Effect.BoostedRandomEventIds != null
-                && condition.Effect.SuppressedRandomEventIds != null);
-
-            var act = () => DistrictConditionRegistry.Configure(conditions);
-
-            act.Should().NotThrow();
-        }
-        finally
-        {
-            DistrictConditionRegistry.Configure(originalDefinitions);
-        }
+        conditions.Should().OnlyContain(static condition =>
+            condition.Effect != null
+            && condition.Effect.BoostedRandomEventIds != null
+            && condition.Effect.SuppressedRandomEventIds != null);
     }
 
     private static string CreateTempDirectory()

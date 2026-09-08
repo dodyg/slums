@@ -5,6 +5,7 @@ using Slums.Core.State;
 using Slums.Core.Territory;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Community;
 
@@ -13,7 +14,7 @@ internal sealed class CommunityOrganizingTests
     [Test]
     public void Preview_ShouldExplainTheFirstGate()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         var preview = session.PreviewCommunityAction(CommunityActionType.CoordinateCoolingRoom);
 
@@ -84,7 +85,7 @@ internal sealed class CommunityOrganizingTests
 
     private static GameSession CreateParticipatingSession(int skillLevel)
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Skills.SetLevel(SkillId.CommunityOrganizing, skillLevel);
         session.Player.Stats.SetMoney(100);
         session.Player.Stats.SetEnergy(100);

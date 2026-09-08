@@ -3,6 +3,7 @@ using Slums.Core.Home;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Home;
 
@@ -11,7 +12,7 @@ internal sealed class HomeUpgradeTests
     [Test]
     public async Task PurchaseSucceeds_WithEnoughMoneyAtHome()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetMoney(100);
         var result = state.TryPurchaseHomeUpgrade(HomeUpgrade.CleanBedding);
         await Assert.That(result).IsTrue();
@@ -22,7 +23,7 @@ internal sealed class HomeUpgradeTests
     [Test]
     public async Task PurchaseFails_WhenNotAtHome()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetMoney(100);
         state.World.TravelTo(LocationId.Bakery);
         var result = state.TryPurchaseHomeUpgrade(HomeUpgrade.CleanBedding);
@@ -33,7 +34,7 @@ internal sealed class HomeUpgradeTests
     [Test]
     public async Task PurchaseFails_WithInsufficientMoney()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetMoney(10);
         var result = state.TryPurchaseHomeUpgrade(HomeUpgrade.CleanBedding);
         await Assert.That(result).IsFalse();
@@ -43,7 +44,7 @@ internal sealed class HomeUpgradeTests
     [Test]
     public async Task PurchaseFails_WhenAlreadyOwned()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetMoney(100);
         state.TryPurchaseHomeUpgrade(HomeUpgrade.CleanBedding);
         var result = state.TryPurchaseHomeUpgrade(HomeUpgrade.CleanBedding);
@@ -53,7 +54,7 @@ internal sealed class HomeUpgradeTests
     [Test]
     public async Task GetAvailableHomeUpgrades_ShouldExcludePurchased()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.HomeUpgrades.Purchase(HomeUpgrade.CleanBedding);
         var available = state.GetAvailableHomeUpgrades();
         await Assert.That(available.Contains(HomeUpgrade.CleanBedding)).IsFalse();
@@ -72,7 +73,7 @@ internal sealed class HomeUpgradeTests
     [Test]
     public async Task RestAtHome_ShouldUseCalculatedRecovery()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Nutrition.Eat(MealQuality.Basic);
         state.Player.Stats.SetEnergy(50);
         state.RestAtHome();
@@ -82,7 +83,7 @@ internal sealed class HomeUpgradeTests
     [Test]
     public async Task RestAtHome_WithStress_ShouldHaveLowerRecovery()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Nutrition.Eat(MealQuality.Basic);
         state.Player.Stats.SetEnergy(20);
         state.Player.Stats.SetStress(70);
@@ -93,7 +94,7 @@ internal sealed class HomeUpgradeTests
     [Test]
     public async Task EndDay_ShouldApplyOvernightRecovery()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(30);
         state.EndDay();
         var energy = state.Player.Stats.Energy;
@@ -103,14 +104,14 @@ internal sealed class HomeUpgradeTests
     [Test]
     public async Task WindowScreen_ShouldReduceStressInEndDay()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.HomeUpgrades.Purchase(HomeUpgrade.WindowScreen);
         state.Player.Nutrition.Eat(MealQuality.Basic);
         state.Player.Stats.SetStress(50);
         state.EndDay();
         var stressWithScreen = state.Player.Stats.Stress;
 
-        var state2 = new GameSession();
+        var state2 = TestSessions.Create();
         state2.Player.Nutrition.Eat(MealQuality.Basic);
         state2.Player.Stats.SetStress(50);
         state2.EndDay();
@@ -122,12 +123,12 @@ internal sealed class HomeUpgradeTests
     [Test]
     public async Task RestoreHomeUpgrades_ShouldPersistUpgrades()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.HomeUpgrades.Purchase(HomeUpgrade.CleanBedding);
         state.HomeUpgrades.Purchase(HomeUpgrade.Fan);
         var upgrades = state.HomeUpgrades.PurchasedUpgrades.ToList();
 
-        var state2 = new GameSession();
+        var state2 = TestSessions.Create();
         state2.RestoreHomeUpgrades(upgrades);
         await Assert.That(state2.HomeUpgrades.HasUpgrade(HomeUpgrade.CleanBedding)).IsTrue();
         await Assert.That(state2.HomeUpgrades.HasUpgrade(HomeUpgrade.Fan)).IsTrue();

@@ -3,6 +3,7 @@ using Slums.Core.Economy;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Economy;
 
@@ -11,7 +12,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_Constructor_InitializesEconomy()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
 
         await Assert.That(session.NpcEconomies.Economies).IsNotEmpty();
         await Assert.That(session.PlayerDebts.Debts).IsEmpty();
@@ -20,8 +21,8 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_TryBorrowFromNpc_Success()
     {
-        var session = new GameSession(new Random(42));
-        session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
+        var session = TestSessions.Create(new Random(42));
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 15, 0);
 
         var result = session.TryBorrowFromNpc(NpcId.NeighborMona, 30);
@@ -35,7 +36,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_TryBorrowFromNpc_RejectsLowTrust()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 5, 0);
 
         var result = session.TryBorrowFromNpc(NpcId.LandlordHajjMahmoud, 30);
@@ -46,8 +47,8 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_TryBorrowFromNpc_SudaneseRefugee_CommunityMutualAid()
     {
-        var session = new GameSession(new Random(42));
-        session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
+        var session = TestSessions.Create(new Random(42));
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         session.Relationships.SetNpcRelationship(NpcId.NurseSalma, 15, 0);
 
         session.TryBorrowFromNpc(NpcId.NurseSalma, 30);
@@ -58,7 +59,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_TryBorrowFromNpc_RejectsExistingDebt()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 15, 0);
         session.Relationships.SetDebtState(NpcId.NeighborMona, true);
 
@@ -70,7 +71,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_TryBorrowFromNpc_RejectsStrugglingNpc()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.Relationships.SetNpcRelationship(NpcId.RunnerYoussef, 15, 0);
         session.NpcEconomies.SetWealthLevel(NpcId.RunnerYoussef, NpcWealthLevel.Struggling);
 
@@ -82,7 +83,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_TryBorrowFromLandlord_Success()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 10, 0);
 
         var result = session.TryBorrowFromLandlord(80);
@@ -95,7 +96,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_TryBorrowFromLandlord_RejectsLowTrust()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 2, 0);
 
         var result = session.TryBorrowFromLandlord(80);
@@ -106,7 +107,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_TryBorrowFromLoanShark_Success()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
 
         var result = session.TryBorrowFromLoanShark(200);
 
@@ -119,7 +120,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_TryBorrowFromLoanShark_RejectsExistingSharkDebt()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.TryBorrowFromLoanShark(200);
 
         var result = session.TryBorrowFromLoanShark(100);
@@ -130,8 +131,8 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_TryBorrowFromLoanShark_Prisoner_CapsAt200()
     {
-        var session = new GameSession(new Random(42));
-        session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.ReleasedPoliticalPrisoner));
+        var session = TestSessions.Create(new Random(42));
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
 
         var result = session.TryBorrowFromLoanShark(300);
 
@@ -142,7 +143,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_TryLendToNpc_Success()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.Player.Stats.SetMoney(100);
 
         var result = session.TryLendToNpc(NpcId.NeighborMona, 20);
@@ -157,7 +158,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_TryLendToNpc_RejectsInsufficientFunds()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.Player.Stats.SetMoney(5);
 
         var result = session.TryLendToNpc(NpcId.NeighborMona, 20);
@@ -168,7 +169,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_RefuseNpcLoan_DecreasesTrust()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 20, 0);
 
         var result = session.RefuseNpcLoan(NpcId.NeighborMona);
@@ -181,7 +182,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_RepayDebt_Success()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 15, 0);
         session.TryBorrowFromNpc(NpcId.NeighborMona, 30);
         var borrowed = session.Player.Stats.Money;
@@ -195,7 +196,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_RepayDebt_PartialPayment()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.TryBorrowFromLoanShark(200);
 
         var result = session.RepayDebt(DebtSource.LoanShark, 50);
@@ -207,8 +208,8 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_RepayDebt_FullPayment_ClearsDebtFlag()
     {
-        var session = new GameSession(new Random(42));
-        session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
+        var session = TestSessions.Create(new Random(42));
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 15, 0);
         session.TryBorrowFromNpc(NpcId.NeighborMona, 30);
 
@@ -222,7 +223,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_GetFoodCost_UmmKarimComfortable_AppliesDiscount()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.NpcEconomies.SetWealthLevel(NpcId.FixerUmmKarim, NpcWealthLevel.Comfortable);
 
         var cost = session.GetFoodCost();
@@ -233,7 +234,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_GetStreetFoodCost_UmmKarimNotComfortable_NoDiscount()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.NpcEconomies.SetWealthLevel(NpcId.FixerUmmKarim, NpcWealthLevel.Struggling);
 
         var costWithStruggling = session.GetStreetFoodCost();
@@ -246,7 +247,7 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_RestoreEconomyState_RestoresAllData()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
 
         var economies = new[]
         {
@@ -278,8 +279,8 @@ internal sealed class EconomyIntegrationTests
     [Test]
     public async Task GameSession_EndDay_DoesNotCrashWithEconomy()
     {
-        var session = new GameSession(new Random(42));
-        session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
+        var session = TestSessions.Create(new Random(42));
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
 
         session.EndDay();
 

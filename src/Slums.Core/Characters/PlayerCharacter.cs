@@ -1,5 +1,6 @@
 namespace Slums.Core.Characters;
 
+using Slums.Core.Content;
 using Slums.Core.Skills;
 using Slums.Core.Robotics;
 
@@ -7,9 +8,17 @@ public sealed class PlayerCharacter
 {
     private readonly PlayerIdentityState _identity;
 
-    public PlayerCharacter()
-        : this(new PlayerIdentityState(), new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new HouseholdAssetsState(), new SkillState(), new RoboticsState())
+    /// <summary>Creates a player character seeded with the definitions of <paramref name="contentCatalog"/>.</summary>
+    public PlayerCharacter(GameContentCatalog contentCatalog)
+        : this(new PlayerIdentityState(), new SurvivalStats(), new NutritionState(), new HouseholdCareState(), new HouseholdAssetsState(CatalogOf(contentCatalog).Pets, CatalogOf(contentCatalog).Plants), new SkillState(), new RoboticsState(CatalogOf(contentCatalog).Robots))
     {
+    }
+
+    /// <summary>Validates the catalog before its definitions are used by state construction.</summary>
+    private static GameContentCatalog CatalogOf(GameContentCatalog contentCatalog)
+    {
+        ArgumentNullException.ThrowIfNull(contentCatalog);
+        return contentCatalog;
     }
 
     internal PlayerCharacter(

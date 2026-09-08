@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Core.Phone;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Phone;
 
@@ -10,7 +11,7 @@ internal sealed class PhoneServiceTests
     [Test]
     public void RefillCredit_ShouldRecordPhoneMutationAndRestoreCredit()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(20);
         for (var i = 0; i < 7; i++)
         {
@@ -27,7 +28,7 @@ internal sealed class PhoneServiceTests
     [Test]
     public void RestoreState_ShouldHydrateTheExistingPhoneState()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var phone = session.Phone;
 
         PhoneService.RestoreState(session, true, 3, 4, false, null, false);

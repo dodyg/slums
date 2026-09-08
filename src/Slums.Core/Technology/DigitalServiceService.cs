@@ -10,13 +10,13 @@ internal static class DigitalServiceService
     internal static IReadOnlyList<DigitalServicePreview> GetPreviews(GameSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
-        return DigitalServiceRegistry.All.Select(action => Preview(session, action.Type)).ToArray();
+        return session.ContentCatalog.DigitalServices.Select(action => Preview(session, action.Type)).ToArray();
     }
 
     internal static DigitalServicePreview Preview(GameSession session, DigitalServiceActionType actionType)
     {
         ArgumentNullException.ThrowIfNull(session);
-        var action = DigitalServiceRegistry.Get(actionType);
+        var action = session.ContentCatalog.GetDigitalService(actionType);
         var skillLevel = session.Player.Skills.GetLevel(SkillId.CyberHacking);
         var atRequiredLocation = session.World.CurrentLocationId == action.RequiredLocation;
         var hasSkill = skillLevel >= action.RequiredSkillLevel;
@@ -48,9 +48,7 @@ internal static class DigitalServiceService
         session.Player.Stats.ModifyEnergy(-preview.Action.EnergyCost);
         session.Technology.RecordHandsetUse(2);
         session.Technology.RecordBiometricAppeal();
-#pragma warning disable CA5394 // Gameplay uncertainty does not require cryptographic strength
         var succeeds = session.SharedRandom.Next(0, 100) < preview.SuccessChance;
-#pragma warning restore CA5394
         if (succeeds)
         {
             session.Player.Stats.ModifyStress(-2);

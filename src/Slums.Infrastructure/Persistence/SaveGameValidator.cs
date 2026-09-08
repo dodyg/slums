@@ -1,3 +1,5 @@
+using Slums.Core.Content;
+
 namespace Slums.Infrastructure.Persistence;
 
 /// <summary>
@@ -7,12 +9,13 @@ namespace Slums.Infrastructure.Persistence;
 /// </summary>
 public static class SaveGameValidator
 {
-    public static void Validate(GameSessionSnapshot snapshot)
+    public static void Validate(GameSessionSnapshot snapshot, GameContentCatalog contentCatalog)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
+        ArgumentNullException.ThrowIfNull(contentCatalog);
 
         var problems = new List<string>();
-        SaveGameSnapshotValidator.Validate(snapshot, problems);
+        SaveGameSnapshotValidator.Validate(snapshot, contentCatalog, problems);
 
         if (problems.Count > 0)
         {

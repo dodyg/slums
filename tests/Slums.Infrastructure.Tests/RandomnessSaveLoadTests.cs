@@ -5,6 +5,7 @@ using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Infrastructure.Persistence;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Infrastructure.Tests;
 
@@ -21,7 +22,7 @@ internal sealed class RandomnessSaveLoadTests
         var originalAtSave = CaptureComparableState(original);
 
         // Restored session must match the original exactly at the save point.
-        var restored = save.Restore();
+        var restored = save.Restore(TestContent.Catalog);
         var restoredAtSave = CaptureComparableState(restored);
 
         var savePointDifferences = originalAtSave
@@ -73,7 +74,7 @@ internal sealed class RandomnessSaveLoadTests
         var originalDraws = Enumerable.Range(0, 50).Select(_ => original.SharedRandom.Next(1000)).ToArray();
 #pragma warning restore CA5394
 
-        var restored = save.Restore();
+        var restored = save.Restore(TestContent.Catalog);
 #pragma warning disable CA5394 // Gameplay randomness does not require cryptographic strength
         var restoredDraws = Enumerable.Range(0, 50).Select(_ => restored.SharedRandom.Next(1000)).ToArray();
 #pragma warning restore CA5394
@@ -88,7 +89,7 @@ internal sealed class RandomnessSaveLoadTests
         var originalConditions = original.World.ActiveDistrictConditions.Select(static c => c.District.ToString()).OrderBy(static d => d).ToArray();
 
         var save = GameSessionSnapshot.Capture(original);
-        var restored = save.Restore();
+        var restored = save.Restore(TestContent.Catalog);
         var restoredConditions = restored.World.ActiveDistrictConditions.Select(static c => c.District.ToString()).OrderBy(static d => d).ToArray();
 
         restoredConditions.Should().Equal(originalConditions);
@@ -96,8 +97,8 @@ internal sealed class RandomnessSaveLoadTests
 
     private static GameSession CreateSeededSession()
     {
-        var session = new GameSession(new GameRandom(20260809));
-        session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee));
+        var session = TestSessions.Create(new GameRandom(20260809));
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         return session;
     }
 

@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Slums.Core.Information;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Information;
 
@@ -24,7 +25,7 @@ internal sealed class ContactErosionRuleTests
     [Test]
     public void IgnoreMessage_ShouldErodeOnceForEachNewQualifyingIgnore()
     {
-        var session = new Slums.Core.State.GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(Slums.Core.Relationships.NpcId.NeighborMona, 15, 0);
 
         for (var i = 0; i < 3; i++)

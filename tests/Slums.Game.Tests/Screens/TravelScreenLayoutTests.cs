@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Core.World;
 using Slums.Game.Screens;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Game.Tests.Screens;
 
@@ -12,7 +13,7 @@ internal sealed class TravelScreenLayoutTests
     {
         var maxVisible = TravelScreenLayout.GetMaxVisibleDestinations(GameRuntime.ScreenHeight);
 
-        maxVisible.Should().BeGreaterOrEqualTo(WorldState.AllLocations.Count - 1);
+        maxVisible.Should().BeGreaterOrEqualTo(TestContent.Catalog.Locations.Count - 1);
     }
 
     [Test]

@@ -3,6 +3,7 @@ using Slums.Application.Narrative;
 using Slums.Core.Narrative;
 using Slums.Core.State;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Narrative;
 
@@ -11,7 +12,7 @@ internal sealed class CityCrisisCommandTests
     [Test]
     public void Commands_ShouldMutateTheCanonicalSessionState()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.RestoreCityCrisisState(2, 0, 0, 70, CityCrisisDecision.None, CityCrisisResolution.Unresolved);
 
         CollectCrisisEvidenceCommand.Execute(session, 2).Should().BeTrue();
@@ -29,7 +30,7 @@ internal sealed class CityCrisisCommandTests
     [Test]
     public void NarrativeOutcome_ShouldApplyCrisisEffectsAndPolicePressure()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.RestoreCityCrisisState(2, 0, 0, 70, CityCrisisDecision.None, CityCrisisResolution.Unresolved);
         var initialPressure = session.PolicePressure;
 

@@ -10,7 +10,7 @@ namespace Slums.Infrastructure.Randomness;
 public sealed class SeededRandomSource : IRandomSource
 {
     public SeededRandomSource()
-        : this(Environment.TickCount)
+        : this(NewEntropySeed())
     {
     }
 
@@ -20,4 +20,10 @@ public sealed class SeededRandomSource : IRandomSource
     }
 
     public Random SharedRandom { get; }
+
+    /// <summary>Draws a process-entropy seed without touching System.Random directly.</summary>
+    private static int NewEntropySeed()
+    {
+        return Guid.NewGuid().GetHashCode();
+    }
 }

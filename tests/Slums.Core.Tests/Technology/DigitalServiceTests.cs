@@ -4,6 +4,7 @@ using Slums.Core.State;
 using Slums.Core.Technology;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Technology;
 
@@ -75,7 +76,7 @@ internal sealed class DigitalServiceTests
 
     private static GameSession CreateSession(int skill)
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Skills.SetLevel(SkillId.CyberHacking, skill);
         session.Player.Stats.SetMoney(100);
         session.Player.Stats.SetEnergy(100);

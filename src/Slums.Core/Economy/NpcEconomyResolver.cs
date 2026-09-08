@@ -27,9 +27,7 @@ public static class NpcEconomyResolver
             }
 
             int roll;
-#pragma warning disable CA5394
             roll = random.Next(100);
-#pragma warning restore CA5394
 
             var hardshipChance = Math.Clamp(def.HardshipChance + hardshipModifier, 0, 100);
             if (roll < hardshipChance)
@@ -39,9 +37,7 @@ public static class NpcEconomyResolver
             else if (roll < hardshipChance + def.WindfallChance)
             {
                 int generousDays;
-#pragma warning disable CA5394
                 generousDays = random.Next(3, 6);
-#pragma warning restore CA5394
                 economy = economy.WithWindfall(currentDay, currentDay + generousDays);
                 economies.SetEconomy(npcId, economy);
             }
@@ -60,9 +56,7 @@ public static class NpcEconomyResolver
         if (lender.HasValue)
         {
             int amount;
-#pragma warning disable CA5394
             amount = random.Next(20, 41);
-#pragma warning restore CA5394
             economies.AddDebt(new DebtorId.NpcDebtor(npcId), new DebtorId.NpcDebtor(lender.Value), amount);
         }
     }

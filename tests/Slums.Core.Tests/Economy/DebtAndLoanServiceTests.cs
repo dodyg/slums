@@ -4,6 +4,7 @@ using Slums.Core.Economy;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Economy;
 
@@ -12,7 +13,7 @@ internal sealed class DebtAndLoanServiceTests
     [Test]
     public void ApplyRentPayment_ShouldCapPaymentAtAvailableArrearsAndMoney()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.RestoreRentState(1, 40, false, false);
 
         DebtAndLoanService.ApplyRentPayment(session, 100);
@@ -25,7 +26,7 @@ internal sealed class DebtAndLoanServiceTests
     [Test]
     public void BorrowFromNpc_ShouldPreserveDebtAndMutationRecording()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 15, 0);
 
         var result = DebtAndLoanService.BorrowFromNpc(session, NpcId.NeighborMona, 30);
@@ -38,7 +39,7 @@ internal sealed class DebtAndLoanServiceTests
     [Test]
     public void LendToNpc_ShouldUpdateRelationshipAndEconomyState()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var moneyBefore = session.Player.Stats.Money;
 
         var result = DebtAndLoanService.LendToNpc(session, NpcId.NeighborMona, 20);

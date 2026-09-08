@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Slums.Core.State;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.State;
 
@@ -58,7 +59,7 @@ internal sealed class EventJournalTests
     [Test]
     public async Task GameSession_RaiseEvent_JournalizesStructuredEntry()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         session.EndDay();
 

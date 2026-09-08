@@ -11,7 +11,7 @@ public sealed class InventoryMenuQuery
             .Where(static item => item.Value > 0)
             .Select(item =>
             {
-                var definition = ItemRegistry.GetById(item.Key);
+                var definition = context.Catalog.GetItem(item.Key);
                 return new InventoryEntryDisplay(item.Key, definition?.Name ?? item.Key, definition?.Description ?? "Unknown item.", item.Value);
             })
             .OrderBy(static item => item.Name, StringComparer.Ordinal)

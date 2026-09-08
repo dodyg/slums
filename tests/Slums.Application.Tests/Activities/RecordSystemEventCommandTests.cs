@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Application.Activities;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Activities;
 
@@ -10,7 +11,7 @@ internal sealed class RecordSystemEventCommandTests
     [Test]
     public void Execute_ShouldJournalSystemEntryAndRaiseGameEvent()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var command = new RecordSystemEventCommand();
         string? raisedMessage = null;
         session.GameEvent += (_, args) => raisedMessage = args.Message;
@@ -27,7 +28,7 @@ internal sealed class RecordSystemEventCommandTests
     [Test]
     public void Execute_ShouldThrow_WhenMessageIsNullOrWhitespace()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var command = new RecordSystemEventCommand();
 
         var nullMessage = () => command.Execute(session, null!);

@@ -3,6 +3,7 @@ using Slums.Core.Characters;
 using Slums.Core.Skills;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Skills;
 
@@ -11,9 +12,9 @@ internal sealed class SkillIntegrationTests
     [Test]
     public void ApplyBackground_ShouldGrantExpectedSkillBonuses()
     {
-        var player = new PlayerCharacter();
+        var player = new PlayerCharacter(TestContent.Catalog);
 
-        player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
 
         player.Skills.GetLevel(SkillId.Medical).Should().Be(3);
         player.Skills.GetLevel(SkillId.Persuasion).Should().Be(0);
@@ -22,8 +23,8 @@ internal sealed class SkillIntegrationTests
     [Test]
     public void BuyMedicine_ShouldUseReducedCost_WhenMedicalSkillIsHighEnough()
     {
-        var state = new GameSession();
-        state.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        var state = TestSessions.Create();
+        state.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
 
         state.GetMedicineCost().Should().Be(42);
     }

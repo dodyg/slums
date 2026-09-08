@@ -35,12 +35,10 @@ public static class StreetCodeService
             chance /= 2;
         }
 
-#pragma warning disable CA5394
         if (random.Next(100) >= chance)
         {
             return false;
         }
-#pragma warning restore CA5394
 
         session.Rumors.AddRumor(RumorGenerator.OnSeenWithPolice(session.World.CurrentDistrict, session.Clock.Day));
         session.RaiseEvent("Someone notices you speaking with Officer Khalid. In Cairo, observation becomes rumor before you get home.");

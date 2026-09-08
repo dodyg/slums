@@ -4,6 +4,7 @@ using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.State;
 
@@ -12,7 +13,7 @@ internal sealed class CrimeFactionOutcomeTests
     [Test]
     public void SuccessfulCrime_ShouldRaiseTheFactionControllingTheCurrentDistrict()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Workshop);
         var attempt = session.GetAvailableCrimes().First(crime => crime.Type == CrimeType.PettyTheft);
         var beforeExPrisoner = session.Relationships.GetFactionStanding(FactionId.ExPrisonerNetwork).Reputation;

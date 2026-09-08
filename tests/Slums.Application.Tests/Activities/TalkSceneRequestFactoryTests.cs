@@ -4,6 +4,7 @@ using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Activities;
 
@@ -12,7 +13,7 @@ internal sealed class TalkSceneRequestFactoryTests
     [Test]
     public void Create_ShouldPrepareRequestWithoutMutatingConversationHistory()
     {
-        var gameSession = new GameSession();
+        var gameSession = TestSessions.Create();
         gameSession.World.TravelTo(LocationId.Home);
 
         var context = TalkNpcContext.Create(gameSession);

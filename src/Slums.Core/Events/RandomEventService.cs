@@ -85,13 +85,13 @@ public sealed class RandomEventService
         {
             for (var i = 0; i < -effect.FoodChange; i++)
             {
-                gameState.Player.Household.ConsumeFood();
+                gameState.Player.Household.ConsumeFood(1);
             }
         }
 
         gameState.RaiseEvent(randomEvent.Description);
 
-        if (NarrativeSignalRules.HasPendingSudaneseSolidarity(gameState.Player.BackgroundType, randomEvent.Id, gameState.StoryFlags.ToHashSet(StringComparer.Ordinal)))
+        if (NarrativeSignalRules.HasPendingSudaneseSolidarity(gameState.Player.BackgroundType, randomEvent.Id, gameState.StoryFlags))
         {
             gameState.TryQueueNarrativeTrigger(new NarrativeSceneTrigger(NarrativeStoryFlags.BackgroundSudaneseSolidaritySeen, NarrativeKnots.BackgroundSudaneseSolidarity));
         }
@@ -104,9 +104,7 @@ public sealed class RandomEventService
         gameState.RecordMutation(MutationCategories.RandomEvent, "ApplyRandomEvent", before, gameState.CaptureStats(), $"Event: {randomEvent.Id} - {randomEvent.Description}");
     }
 
-#pragma warning disable CA1822
-    public IReadOnlyList<RandomEvent> RollDailyEvents(GameSession gameState, Random random)
-#pragma warning restore CA1822
+    public static IReadOnlyList<RandomEvent> RollDailyEvents(GameSession gameState, Random random)
     {
         ArgumentNullException.ThrowIfNull(gameState);
         ArgumentNullException.ThrowIfNull(random);
@@ -126,9 +124,7 @@ public sealed class RandomEventService
         while (eligibleEvents.Count > 0 && rolledEvents.Count < 2 && rolls < 2)
         {
             rolls++;
-#pragma warning disable CA5394
             if (random.NextDouble() > 0.55d)
-#pragma warning restore CA5394
             {
                 continue;
             }
@@ -144,9 +140,7 @@ public sealed class RandomEventService
     private static RandomEvent SelectWeightedEvent(IReadOnlyList<RandomEvent> events, GameSession gameState, Random random)
     {
         var totalWeight = events.Sum(gameState.GetEffectiveRandomEventWeight);
-#pragma warning disable CA5394
         var roll = random.Next(1, totalWeight + 1);
-#pragma warning restore CA5394
         var cumulativeWeight = 0;
 
         foreach (var randomEvent in events)

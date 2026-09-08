@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Core.Crimes;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.State;
 
@@ -10,7 +11,7 @@ internal sealed class CrimeTimeTests
     [Test]
     public void CommitCrime_ShouldAdvanceTheClockByTheRouteDuration()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var attempt = new CrimeAttempt(CrimeType.PettyTheft, 25, 0, 10, 0, 10);
         var before = (session.Clock.Hour * 60) + session.Clock.Minute;
 
@@ -23,7 +24,7 @@ internal sealed class CrimeTimeTests
     [Test]
     public void CommitCrime_ShouldApplyCrimeEffectsBeforeCrossingIntoTheNextDay()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(1, 21, 30);
         var attempt = new CrimeAttempt(CrimeType.PettyTheft, 25, 0, 10, 0, 10);
 

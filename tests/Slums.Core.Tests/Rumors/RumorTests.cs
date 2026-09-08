@@ -7,6 +7,7 @@ using Slums.Core.State;
 using Slums.Core.Weather;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Rumors;
 
@@ -162,7 +163,7 @@ internal sealed class RumorTests
     [Test]
     public void StreetCode_RecentCrimeOutsideHomeCanCreateSeenWithPoliceRumor()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(5, 8, 0);
         session.RestoreCrimeState(0, 0, 1, 4, false);
         session.World.TravelTo(LocationId.Square);
@@ -176,7 +177,7 @@ internal sealed class RumorTests
     [Test]
     public void StreetCode_HomeConversationIsExempt()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(5, 8, 0);
         session.RestoreCrimeState(0, 0, 1, 4, false);
 
@@ -187,7 +188,7 @@ internal sealed class RumorTests
     [Test]
     public void StreetCode_HeardByCriminalContactQueuesRetaliationAndPenalizesFaction()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetFactionStanding(FactionId.ImbabaCrew, -1);
         var rumor = RumorGenerator.OnSeenWithPolice(DistrictId.Imbaba, session.Clock.Day);
 
@@ -254,7 +255,7 @@ internal sealed class RumorTests
     [Test]
     public async Task GameSession_EndDay_GeneratesRumorOnSkips()
     {
-        var state = new GameSession(new Random(42));
+        var state = TestSessions.Create(new Random(42));
         state.Player.Nutrition.Eat(MealQuality.Basic);
         state.RestoreWeather(WeatherType.Clear);
 

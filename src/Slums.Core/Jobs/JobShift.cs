@@ -19,9 +19,7 @@ public sealed class JobShift
             return Math.Max(0, BasePay);
         }
 
-#pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
         var variance = random.Next(-PayVariance, PayVariance + 1);
-#pragma warning restore CA5394
         return Math.Max(0, BasePay + variance);
     }
 }

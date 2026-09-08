@@ -2,12 +2,22 @@ namespace Slums.Core.Robotics;
 
 public sealed class RoboticsState
 {
+    /// <summary>Maximum number of robots the flat and the alley can support at once.</summary>
+    public const int MaxOwnedRobots = 3;
+
+    /// <summary>Cost of one spare robot part.</summary>
+    public const int PartsPurchaseCost = 8;
+
+    /// <summary>Maximum number of spare robot parts the flat can hold.</summary>
+    public const int MaxParts = 20;
+
     private readonly List<OwnedRobot> _robots = [];
     private readonly IReadOnlyList<RobotDefinition> _definitions;
 
-    public RoboticsState(IEnumerable<RobotDefinition>? definitions = null)
+    public RoboticsState(IEnumerable<RobotDefinition> definitions)
     {
-        _definitions = (definitions ?? RobotRegistry.AllDefinitions).Where(static definition => definition is not null).ToArray();
+        ArgumentNullException.ThrowIfNull(definitions);
+        _definitions = definitions.Where(static definition => definition is not null).ToArray();
     }
 
     public IReadOnlyList<OwnedRobot> Robots => _robots;
@@ -16,7 +26,7 @@ public sealed class RoboticsState
 
     public bool HasAnyRobots => _robots.Count > 0;
 
-    public bool CanPurchaseRobot => _robots.Count < RobotRegistry.MaxOwnedRobots;
+    public bool CanPurchaseRobot => _robots.Count < MaxOwnedRobots;
 
     public OwnedRobot? GetRobot(Guid robotId)
     {
@@ -29,9 +39,15 @@ public sealed class RoboticsState
             ?? throw new InvalidOperationException($"No robot definition configured for {type}.");
     }
 
+    /// <summary>Gets the first owned robot of <paramref name="type"/> that is still operational, or <c>null</c>.</summary>
+    public OwnedRobot? GetOperational(RobotType type)
+    {
+        return _robots.FirstOrDefault(robot => robot.Type == type && robot.Condition > 0);
+    }
+
     public bool CanBuyParts(int quantity)
     {
-        return quantity > 0 && Parts + quantity <= RobotRegistry.MaxParts;
+        return quantity > 0 && Parts + quantity <= MaxParts;
     }
 
     public void AddParts(int quantity)
@@ -89,7 +105,7 @@ public sealed class RoboticsState
     public void Restore(IEnumerable<OwnedRobot> robots, int parts)
     {
         ArgumentNullException.ThrowIfNull(robots);
-        if (parts < 0 || parts > RobotRegistry.MaxParts)
+        if (parts < 0 || parts > MaxParts)
         {
             throw new ArgumentOutOfRangeException(nameof(parts));
         }

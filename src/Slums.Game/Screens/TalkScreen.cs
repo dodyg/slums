@@ -101,14 +101,14 @@ internal sealed class TalkScreen : ScreenSurface
                 return true;
             }
             var npcId = _npcs[_selectedIndex].NpcId;
-            var talkScene = _talkNpcCommand.Execute(_gameState, npcId, _runtime.SharedRandom);
+            var talkScene = _talkNpcCommand.Execute(_gameState, npcId);
             if (talkScene is null)
             {
                 return true;
             }
 
             _runtime.NarrativeService.StartScene(talkScene.KnotName, talkScene.SceneState);
-            _talkNpcCommand.Commit(_gameState, talkScene, _runtime.SharedRandom);
+            _talkNpcCommand.Commit(_gameState, talkScene);
             IsFocused = false;
             ScreenTransition.FadeTo(new NarrativeScreen(GameRuntime.ScreenWidth, GameRuntime.ScreenHeight, _runtime.NarrativeService, _gameState, _parentScreen));
             return true;

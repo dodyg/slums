@@ -4,6 +4,7 @@ using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Investments;
 
@@ -12,7 +13,7 @@ internal sealed class InvestmentResolutionTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldAddIncome_WhenRisksDoNotTrigger()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(300);
         gameState.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 30, 1);
 
@@ -35,7 +36,7 @@ internal sealed class InvestmentResolutionTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldSuspendOperation_WhenExtortionCannotBePaid()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(250);
         gameState.World.TravelTo(LocationId.Market);
         gameState.Relationships.SetNpcRelationship(NpcId.FixerUmmKarim, 40, 1);

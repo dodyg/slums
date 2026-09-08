@@ -29,9 +29,7 @@ public sealed class NewGameUseCase
     /// <summary>Creates a new game session backed by the shared random source.</summary>
     public GameSession Execute()
     {
-        var contentCatalog = _contentCatalog
-            ?? _contentCatalogProvider?.Current
-            ?? (_contentCatalogProvider is null ? GameContentCatalog.FromConfiguredRegistries() : null);
+        var contentCatalog = _contentCatalog ?? _contentCatalogProvider?.Current;
         if (contentCatalog is null)
         {
             throw new InvalidOperationException("Content must be bootstrapped before starting a new game.");

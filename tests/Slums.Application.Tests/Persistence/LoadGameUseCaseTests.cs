@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Slums.Application.Persistence;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Persistence;
 
@@ -18,7 +19,7 @@ internal sealed class LoadGameUseCaseTests
             DateTimeOffset.UtcNow.AddDays(-1),
             DateTimeOffset.UtcNow,
             "intro_medical",
-            static () => new Slums.Core.State.GameSession());
+            static () => TestSessions.Create());
         var expectedGameSession = loadedSession.GameSession;
         store.LoadAsync("slot1", Arg.Any<CancellationToken>()).Returns(LoadGameResult.Loaded(loadedSession));
         var useCase = new LoadGameUseCase(store, NullLogger<LoadGameUseCase>.Instance);
@@ -65,7 +66,7 @@ internal sealed class LoadGameUseCaseTests
             DateTimeOffset.UtcNow.AddDays(-1),
             DateTimeOffset.UtcNow,
             "intro_medical",
-            static () => new Slums.Core.State.GameSession());
+            static () => TestSessions.Create());
 
         var gameSession = loadedSession.TakeGameSession();
 
@@ -86,7 +87,7 @@ internal sealed class LoadGameUseCaseTests
             DateTimeOffset.UtcNow.AddDays(-1),
             DateTimeOffset.UtcNow,
             "intro_medical",
-            static () => new Slums.Core.State.GameSession());
+            static () => TestSessions.Create());
 
         loadedSession.Dispose();
 

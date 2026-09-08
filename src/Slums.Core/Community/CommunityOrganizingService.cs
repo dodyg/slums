@@ -55,7 +55,7 @@ internal static class CommunityOrganizingService
         switch (actionType)
         {
             case CommunityActionType.OrganizeWaterRationing:
-                session.Player.Household.ConsumeFood();
+                session.Player.Household.ConsumeFood(1);
                 session.CommunityAdaptation.AddWaterReserve(2);
                 session.Infrastructure.ReduceDisruption(session.World.CurrentDistrict, InfrastructureServiceType.Water, 1);
                 session.RaiseEvent("The water committee posts a fairer rooftop schedule. Two reserve units are set aside for the block.");

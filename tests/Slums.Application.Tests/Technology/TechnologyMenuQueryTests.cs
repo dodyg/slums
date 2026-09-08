@@ -5,6 +5,7 @@ using Slums.Core.State;
 using Slums.Core.Technology;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Technology;
 
@@ -54,7 +55,7 @@ internal sealed class TechnologyMenuQueryTests
 
     private static GameSession CreateHomeSession()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(100);
         session.Player.Stats.SetEnergy(100);
         session.World.TravelTo(LocationId.Home);

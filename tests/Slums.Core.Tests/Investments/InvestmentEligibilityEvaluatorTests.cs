@@ -4,6 +4,7 @@ using Slums.Core.Investments;
 using Slums.Core.Relationships;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Investments;
 
@@ -13,7 +14,7 @@ internal sealed class InvestmentEligibilityEvaluatorTests
     public void Evaluate_ShouldRequireTrustForFoulCart_WhenLocationAndCashAlreadyMatch()
     {
         var relationships = new RelationshipState();
-        var definition = InvestmentRegistry.GetByType(InvestmentType.FoulCart);
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.FoulCart);
 
         definition.Should().NotBeNull();
 

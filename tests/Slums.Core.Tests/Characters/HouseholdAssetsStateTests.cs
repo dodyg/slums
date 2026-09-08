@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Slums.Core.Characters;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Characters;
 
@@ -9,7 +10,7 @@ internal sealed class HouseholdAssetsStateTests
     [Test]
     public void AdoptCat_ShouldRequireEncounter_AndRespectCap()
     {
-        var assets = new HouseholdAssetsState();
+        var assets = new HouseholdAssetsState(TestContent.Catalog.Pets, TestContent.Catalog.Plants);
 
         assets.AdoptCat(1, 1).Should().BeFalse();
 
@@ -26,7 +27,7 @@ internal sealed class HouseholdAssetsStateTests
     [Test]
     public void ResolveWeeklyNeglect_ShouldReportMissedPetAndPlantCare()
     {
-        var assets = new HouseholdAssetsState();
+        var assets = new HouseholdAssetsState(TestContent.Catalog.Pets, TestContent.Catalog.Plants);
         assets.TryTriggerStreetCatEncounter(1);
         assets.AdoptCat(1, 1).Should().BeTrue();
         assets.BuyPlant(PlantType.Basil, 1, 1).Should().BeTrue();
@@ -41,7 +42,7 @@ internal sealed class HouseholdAssetsStateTests
     [Test]
     public void ResolveSellablePlantIncome_ShouldIncludeUpgradeBoosts()
     {
-        var assets = new HouseholdAssetsState();
+        var assets = new HouseholdAssetsState(TestContent.Catalog.Pets, TestContent.Catalog.Plants);
         assets.BuyPlant(PlantType.Chamomile, 1, 1).Should().BeTrue();
         var plant = assets.Plants.Should().ContainSingle().Subject;
         plant.PurchaseUpgrade(PlantUpgradeType.BiggerPot, 1);
@@ -56,7 +57,7 @@ internal sealed class HouseholdAssetsStateTests
     [Test]
     public void GetMotherDailyHealthBonus_ShouldReflectCareAndUpgrades()
     {
-        var assets = new HouseholdAssetsState();
+        var assets = new HouseholdAssetsState(TestContent.Catalog.Pets, TestContent.Catalog.Plants);
         assets.BuyFishTank(1, 1).Should().BeTrue();
         assets.BuyPlant(PlantType.AloeVera, 1, 1).Should().BeTrue();
         var plant = assets.Plants.Should().ContainSingle().Subject;
@@ -68,14 +69,14 @@ internal sealed class HouseholdAssetsStateTests
     [Test]
     public void GetFishTank_ShouldReturnNull_WhenNoFishTankOwned()
     {
-        var assets = new HouseholdAssetsState();
+        var assets = new HouseholdAssetsState(TestContent.Catalog.Pets, TestContent.Catalog.Plants);
         assets.GetFishTank().Should().BeNull();
     }
 
     [Test]
     public void GetFishTank_ShouldReturnFishTank_WhenOwned()
     {
-        var assets = new HouseholdAssetsState();
+        var assets = new HouseholdAssetsState(TestContent.Catalog.Pets, TestContent.Catalog.Plants);
         assets.BuyFishTank(1, 1);
 
         var fishTank = assets.GetFishTank();
@@ -86,14 +87,14 @@ internal sealed class HouseholdAssetsStateTests
     [Test]
     public void TryUpgradeFishTank_ShouldFail_WhenNoFishTankOwned()
     {
-        var assets = new HouseholdAssetsState();
+        var assets = new HouseholdAssetsState(TestContent.Catalog.Pets, TestContent.Catalog.Plants);
         assets.TryUpgradeFishTank(FishTankUpgradeType.BetterFilter, 1).Should().BeFalse();
     }
 
     [Test]
     public void TryUpgradeFishTank_ShouldSucceed_WhenUpgradeAvailable()
     {
-        var assets = new HouseholdAssetsState();
+        var assets = new HouseholdAssetsState(TestContent.Catalog.Pets, TestContent.Catalog.Plants);
         assets.BuyFishTank(1, 1);
 
         assets.TryUpgradeFishTank(FishTankUpgradeType.BetterFilter, 1).Should().BeTrue();
@@ -103,7 +104,7 @@ internal sealed class HouseholdAssetsStateTests
     [Test]
     public void TryUpgradeFishTank_ShouldFail_WhenAlreadyActive()
     {
-        var assets = new HouseholdAssetsState();
+        var assets = new HouseholdAssetsState(TestContent.Catalog.Pets, TestContent.Catalog.Plants);
         assets.BuyFishTank(1, 1);
         assets.TryUpgradeFishTank(FishTankUpgradeType.BetterFilter, 1).Should().BeTrue();
 
@@ -113,7 +114,7 @@ internal sealed class HouseholdAssetsStateTests
     [Test]
     public void GetMotherDailyHealthBonus_ShouldIncludeFishTankUpgradeBonus()
     {
-        var assets = new HouseholdAssetsState();
+        var assets = new HouseholdAssetsState(TestContent.Catalog.Pets, TestContent.Catalog.Plants);
         assets.BuyFishTank(1, 1);
         assets.GetFishTank()!.PurchaseUpgrade(FishTankUpgradeType.BetterFilter, 1);
         assets.GetFishTank()!.PurchaseUpgrade(FishTankUpgradeType.Heater, 1);

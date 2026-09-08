@@ -6,6 +6,7 @@ using Slums.Core.Events;
 using Slums.Core.Inventory;
 using Slums.Core.Jobs;
 using Slums.Core.Relationships;
+using Slums.Core.Robotics;
 using Slums.Core.World;
 using Slums.Core.World.News;
 using Slums.Infrastructure.Content;
@@ -20,15 +21,7 @@ internal sealed class ContentCatalogValidatorTests
     {
         var catalog = BuildValidCatalog();
 
-        var act = () => ContentCatalogValidator.Validate(
-            catalog.Backgrounds,
-            catalog.Locations,
-            catalog.Jobs,
-            catalog.RandomEvents,
-            catalog.DistrictConditions,
-            catalog.Pets,
-            catalog.Plants,
-            KnownKnots);
+        var act = () => Validate(catalog);
 
         act.Should().NotThrow();
     }
@@ -36,7 +29,6 @@ internal sealed class ContentCatalogValidatorTests
     [Test]
     public async Task Validate_WithWorldEnrichmentCatalog_DoesNotThrow()
     {
-        var catalog = BuildValidCatalog();
         var news = new NewsFlashDefinition
         {
             Id = "news",
@@ -59,18 +51,14 @@ internal sealed class ContentCatalogValidatorTests
         var items = new[] { new ItemDefinition { Id = "papers", Name = "Papers", Description = "Documents", MaximumQuantity = 1 } };
         var schedules = new[] { new NpcScheduleDefinition { Npc = NpcId.NeighborMona, Days = [Slums.Core.Clock.GameDayOfWeek.Saturday], StartMinute = 360, EndMinute = 600, Location = LocationId.Home, AbsenceReason = "At home." } };
 
-        var act = () => ContentCatalogValidator.Validate(
-            catalog.Backgrounds,
-            catalog.Locations,
-            catalog.Jobs,
-            catalog.RandomEvents,
-            catalog.DistrictConditions,
-            catalog.Pets,
-            catalog.Plants,
-            KnownKnots,
-            newsFlashes: [news],
-            items: items,
-            npcSchedules: schedules);
+        var catalog = BuildValidCatalog() with
+        {
+            NewsFlashes = [news],
+            Items = items,
+            NpcSchedules = schedules
+        };
+
+        var act = () => Validate(catalog);
 
         act.Should().NotThrow();
     }
@@ -117,31 +105,26 @@ internal sealed class ContentCatalogValidatorTests
     [Test]
     public async Task Validate_NewsResponseWithUnknownItem_Fails()
     {
-        var catalog = BuildValidCatalog();
-        var news = new NewsFlashDefinition
+        var catalog = BuildValidCatalog() with
         {
-            Id = "news",
-            Headline = "Headline",
-            Body = "Body",
-            SourceLabel = "Source",
-            MinimumDay = 1,
-            Weight = 1,
-            DurationDays = 2,
-            Responses = [new NewsResponseDefinition { Id = "prepare", Label = "Prepare", Type = NewsResponseType.Prepare, RequiredItemId = "missing", RequiredItemQuantity = 1 }]
+            NewsFlashes =
+            [
+                new NewsFlashDefinition
+                {
+                    Id = "news",
+                    Headline = "Headline",
+                    Body = "Body",
+                    SourceLabel = "Source",
+                    MinimumDay = 1,
+                    Weight = 1,
+                    DurationDays = 2,
+                    Responses = [new NewsResponseDefinition { Id = "prepare", Label = "Prepare", Type = NewsResponseType.Prepare, RequiredItemId = "missing", RequiredItemQuantity = 1 }]
+                }
+            ],
+            Items = [new ItemDefinition { Id = "papers", Name = "Papers", Description = "Documents", MaximumQuantity = 1 }]
         };
 
-        var act = () => ContentCatalogValidator.Validate(
-            catalog.Backgrounds,
-            catalog.Locations,
-            catalog.Jobs,
-            catalog.RandomEvents,
-            catalog.DistrictConditions,
-            catalog.Pets,
-            catalog.Plants,
-            KnownKnots,
-            newsFlashes: [news],
-            items: [new ItemDefinition { Id = "papers", Name = "Papers", Description = "Documents", MaximumQuantity = 1 }],
-            npcSchedules: []);
+        var act = () => Validate(catalog);
 
         act.Should().Throw<ContentLoadException>().WithMessage("*invalid required item*");
     }
@@ -400,7 +383,10 @@ internal sealed class ContentCatalogValidatorTests
                 new DistrictConditionDefinition
                 {
                     Id = "test_condition",
+                    District = DistrictId.Imbaba,
                     Title = "Test",
+                    BulletinText = "Test bulletin.",
+                    GameplaySummary = "Test summary.",
                     Weight = 1,
                     MinDay = 1,
                     Effect = new DistrictConditionEffect { BoostedRandomEventIds = ["test_event"] }
@@ -507,6 +493,84 @@ internal sealed class ContentCatalogValidatorTests
         exception.Message.Should().Contain("plants: catalog is empty");
     }
 
+    [Test]
+    public async Task Validate_DistrictConditionNullEffect_Fails()
+    {
+        var catalog = BuildValidCatalog() with
+        {
+            DistrictConditions =
+            [
+                new DistrictConditionDefinition { Id = "null_effect_condition", Title = "Bad", Weight = 1, MinDay = 1, Effect = null! }
+            ]
+        };
+
+        var act = () => Validate(catalog);
+
+        act.Should().Throw<ContentLoadException>().WithMessage("*'null_effect_condition' must provide an effect*");
+    }
+
+    [Test]
+    public async Task Validate_DistrictConditionNullBoostedEventIds_Fails()
+    {
+        var catalog = BuildValidCatalog() with
+        {
+            DistrictConditions =
+            [
+                new DistrictConditionDefinition
+                {
+                    Id = "null_boosted_condition",
+                    Title = "Bad",
+                    Weight = 1,
+                    MinDay = 1,
+                    Effect = new DistrictConditionEffect { BoostedRandomEventIds = null! }
+                }
+            ]
+        };
+
+        var act = () => Validate(catalog);
+
+        act.Should().Throw<ContentLoadException>().WithMessage("*'null_boosted_condition' must provide a boosted random event id list*");
+    }
+
+    [Test]
+    public async Task Validate_DistrictConditionNullSuppressedEventIds_Fails()
+    {
+        var catalog = BuildValidCatalog() with
+        {
+            DistrictConditions =
+            [
+                new DistrictConditionDefinition
+                {
+                    Id = "null_suppressed_condition",
+                    Title = "Bad",
+                    Weight = 1,
+                    MinDay = 1,
+                    Effect = new DistrictConditionEffect { SuppressedRandomEventIds = null! }
+                }
+            ]
+        };
+
+        var act = () => Validate(catalog);
+
+        act.Should().Throw<ContentLoadException>().WithMessage("*'null_suppressed_condition' must provide a suppressed random event id list*");
+    }
+
+    [Test]
+    public async Task Validate_DistrictConditionMissingBulletinText_Fails()
+    {
+        var catalog = BuildValidCatalog() with
+        {
+            DistrictConditions =
+            [
+                new DistrictConditionDefinition { Id = "no_bulletin_condition", Title = "Bad", BulletinText = "", Weight = 1, MinDay = 1 }
+            ]
+        };
+
+        var act = () => Validate(catalog);
+
+        act.Should().Throw<ContentLoadException>().WithMessage("*'no_bulletin_condition' has no bulletin text*");
+    }
+
     private static void Validate(TestCatalog catalog)
     {
         ContentCatalogValidator.Validate(
@@ -517,7 +581,11 @@ internal sealed class ContentCatalogValidatorTests
             catalog.DistrictConditions,
             catalog.Pets,
             catalog.Plants,
-            KnownKnots);
+            KnownKnots,
+            catalog.Robots,
+            catalog.NewsFlashes,
+            catalog.Items,
+            catalog.NpcSchedules);
     }
 
     private static readonly HashSet<string> KnownKnots = new(StringComparer.Ordinal)
@@ -569,9 +637,13 @@ internal sealed class ContentCatalogValidatorTests
             ValidLocations(),
             ValidJobs(),
             [new RandomEvent("test_event", "A test event", new RandomEventEffect { InkKnot = "event_test_scene" }, 1, 10, null)],
-            [new DistrictConditionDefinition { Id = "test_condition", Title = "Test", Weight = 1, MinDay = 1 }],
+            [new DistrictConditionDefinition { Id = "test_condition", District = DistrictId.Imbaba, Title = "Test", BulletinText = "Test bulletin.", GameplaySummary = "Test summary.", Weight = 1, MinDay = 1 }],
             ValidPets(),
-            ValidPlants());
+            ValidPlants(),
+            ValidRobots(),
+            [ValidNewsFlash()],
+            [new ItemDefinition { Id = "papers", Name = "Papers", Description = "Documents", MaximumQuantity = 1 }],
+            []);
     }
 
     private sealed record TestCatalog(
@@ -581,7 +653,41 @@ internal sealed class ContentCatalogValidatorTests
         IReadOnlyList<RandomEvent> RandomEvents,
         IReadOnlyList<DistrictConditionDefinition> DistrictConditions,
         IReadOnlyList<PetDefinition> Pets,
-        IReadOnlyList<PlantDefinition> Plants);
+        IReadOnlyList<PlantDefinition> Plants,
+        IReadOnlyList<RobotDefinition> Robots,
+        IReadOnlyList<NewsFlashDefinition> NewsFlashes,
+        IReadOnlyList<ItemDefinition> Items,
+        IReadOnlyList<NpcScheduleDefinition> NpcSchedules);
+
+    private static RobotDefinition[] ValidRobots()
+    {
+        return Enum.GetValues<RobotType>()
+            .Select(type => new RobotDefinition
+            {
+                Type = type,
+                Name = type.ToString(),
+                Description = "A test robot.",
+                PurchaseCost = 100,
+                RepairCost = 10,
+                RepairCondition = 40,
+                PurchaseLocationId = LocationId.Workshop
+            })
+            .ToArray();
+    }
+
+    private static NewsFlashDefinition ValidNewsFlash()
+    {
+        return new NewsFlashDefinition
+        {
+            Id = "valid_news",
+            Headline = "Headline",
+            Body = "Body",
+            SourceLabel = "Source",
+            MinimumDay = 1,
+            Weight = 1,
+            DurationDays = 2
+        };
+    }
 
     private static Background[] ValidBackgrounds()
     {

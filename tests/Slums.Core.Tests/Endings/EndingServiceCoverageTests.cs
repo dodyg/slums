@@ -3,6 +3,7 @@ using Slums.Core.Endings;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Endings;
 
@@ -11,7 +12,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task CheckEndings_ReturnsDestitution_WhenStarvingExhaustedAndBroke()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetMoney(0);
         state.Player.Stats.SetHunger(5);
         state.Player.Stats.SetEnergy(5);
@@ -24,7 +25,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task CheckEndings_DoesNotReturnDestitution_WhenMoneyAboveZero()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetMoney(1);
         state.Player.Stats.SetHunger(95);
         state.Player.Stats.SetEnergy(5);
@@ -37,7 +38,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task CheckEndings_ReturnsCrimeKingpin_WhenCrimeEarningsAndRepHigh()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.SetCrimeCounters(1000, 10);
         state.Relationships.SetFactionStanding(FactionId.ImbabaCrew, 55);
 
@@ -49,7 +50,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task CheckEndings_DoesNotReturnCrimeKingpin_WhenRepTooLow()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.SetCrimeCounters(1000, 10);
         state.Relationships.SetFactionStanding(FactionId.ImbabaCrew, 40);
 
@@ -61,7 +62,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task CheckEndings_DoesNotReturnCrimeKingpin_WhenEarningsTooLow()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.SetCrimeCounters(500, 10);
         state.Relationships.SetFactionStanding(FactionId.ImbabaCrew, 60);
 
@@ -73,7 +74,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task CheckEndings_ReturnsQuitTheLuxorDream_WhenCriteriaMet()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.SetDaysSurvived(30);
         state.Player.Stats.SetMoney(550);
         state.SetCrimeCounters(100, 2, lastCrimeDay: 20);
@@ -87,7 +88,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task CheckEndings_DoesNotReturnLuxor_WhenTooManyCrimes()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.SetDaysSurvived(30);
         state.Player.Stats.SetMoney(550);
         state.SetCrimeCounters(100, 5, lastCrimeDay: 20);
@@ -101,7 +102,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task CheckEndings_DoesNotReturnLuxor_WhenMotherHealthLow()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.SetDaysSurvived(30);
         state.Player.Stats.SetMoney(550);
         state.SetCrimeCounters(100, 2, lastCrimeDay: 20);
@@ -115,7 +116,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task CheckEndings_MotherDiedTakesPriorityOverArrested()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.SetPolicePressure(100);
         state.Player.Household.SetMotherHealth(0);
 
@@ -127,7 +128,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task CheckEndings_HealthZeroFoldsIntoDestitution()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetHealth(0);
         state.Player.Stats.SetMoney(0);
         state.Player.Stats.SetHunger(5);
@@ -141,7 +142,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task CheckEndings_DestitutionTakesPriorityOverArrested()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.SetPolicePressure(100);
         state.Player.Stats.SetMoney(0);
         state.Player.Stats.SetHunger(5);
@@ -156,7 +157,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task CheckEndings_ArrestedTakesPriorityOverEviction()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.SetPolicePressure(100);
         state.RestoreRentState(unpaidRentDays: 7, accumulatedRentDebt: 140, firstWarningGiven: true, finalWarningGiven: true);
 
@@ -179,7 +180,7 @@ internal sealed class EndingServiceCoverageTests
     [Test]
     public async Task GetInkKnot_ReturnsNonNullForAllEndings()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         foreach (var endingId in Enum.GetValues<EndingId>())
         {
             var knot = EndingService.GetInkKnot(state, endingId);

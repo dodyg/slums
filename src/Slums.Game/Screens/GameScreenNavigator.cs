@@ -300,6 +300,9 @@ internal sealed class GameScreenNavigator
 
     private void NavigateTo(ScreenSurface screen)
     {
+        // A held Enter/Escape must not re-fire inside the destination screen: the key press that
+        // opened this screen is consumed here, before focus transfers.
+        _parentScreen.SuppressActionKeysUntilRelease();
         _parentScreen.IsFocused = false;
         ScreenTransition.FadeTo(screen);
     }

@@ -4,6 +4,7 @@ using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Investments;
 
@@ -12,9 +13,9 @@ internal sealed class InvestmentEligibilityTests
     [Test]
     public void CheckInvestmentEligibility_ShouldRequireTrustForFoulCart()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(200);
-        var definition = InvestmentRegistry.GetByType(InvestmentType.FoulCart);
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.FoulCart);
         definition.Should().NotBeNull();
         var foulCart = definition!;
 
@@ -33,7 +34,7 @@ internal sealed class InvestmentEligibilityTests
     [Test]
     public void GetCurrentInvestmentOpportunities_ShouldReflectCurrentLocationContacts()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
 
         var homeOpportunities = gameState.GetCurrentInvestmentOpportunities().Select(static definition => definition.Type).ToArray();
         homeOpportunities.Should().Contain(InvestmentType.FoulCart);

@@ -4,6 +4,7 @@ using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Activities;
 
@@ -12,7 +13,7 @@ internal sealed class TalkNpcCommandTests
     [Test]
     public void Execute_ShouldAdvanceTimeAndRecordOneConversation()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Home);
         session.Clock.SetTime(1, 8, 0);
         var command = new TalkNpcCommand();
@@ -30,8 +31,9 @@ internal sealed class TalkNpcCommandTests
     [Test]
     public void Execute_ShouldRejectASecondMeaningfulConversationWithTheSameNpcThatDay()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Home);
+        session.Clock.SetTime(1, 8, 0);
         var command = new TalkNpcCommand();
         var firstRequest = command.Execute(session, NpcId.LandlordHajjMahmoud, new Random(1));
         command.Commit(session, firstRequest!, new Random(1));

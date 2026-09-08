@@ -3,6 +3,7 @@ using Slums.Core.Crimes;
 using Slums.Core.Relationships;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Crimes;
 
@@ -11,7 +12,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetCrimeOpportunityStatuses_ShouldShowStreetRepBlockReason_ForRobbery()
     {
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Market);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Market);
         var relationships = new RelationshipState();
 
         var statuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, relationships);
@@ -24,7 +25,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetCrimeOpportunityStatuses_ShouldShowTrustBlockReason_ForHananRoute()
     {
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Market);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Market);
         var relationships = new RelationshipState();
 
         var statuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, relationships);
@@ -37,7 +38,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetCrimeOpportunityStatuses_ShouldShowTrustOrRepBlockReason_ForDokkiDrop()
     {
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Square);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Square);
         var relationships = new RelationshipState();
 
         var statuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, relationships);
@@ -50,7 +51,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetAvailableCrimes_ShouldUnlockHananFencingRoute_WhenHananTrustIsHigh()
     {
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Market);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Market);
         var relationships = new RelationshipState();
         relationships.SetNpcRelationship(NpcId.FenceHanan, 10, 1);
 
@@ -62,7 +63,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetAvailableCrimes_ShouldUnlockDokkiDropRoute_WhenYoussefTrustIsHigh()
     {
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Square);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Square);
         var relationships = new RelationshipState();
         relationships.SetNpcRelationship(NpcId.RunnerYoussef, 15, 1);
         relationships.SetFactionStanding(FactionId.DokkiThugs, 15);
@@ -95,7 +96,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetAvailableCrimes_ShouldUnlockUmmKarimNetworkErrand_WhenTrustAndImbabaRepAreHigh()
     {
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Market);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Market);
         var relationships = new RelationshipState();
         relationships.SetNpcRelationship(NpcId.FixerUmmKarim, 12, 1);
         relationships.SetFactionStanding(FactionId.ImbabaCrew, 15);
@@ -108,7 +109,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetCrimeOpportunityStatuses_ShouldShowTrustOrRepBlockReason_ForDepotFareSkim()
     {
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Depot);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Depot);
         var relationships = new RelationshipState();
 
         var statuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, relationships);
@@ -121,7 +122,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetAvailableCrimes_ShouldUnlockDepotFareSkim_WhenSafaaTrustIsHigh()
     {
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Depot);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Depot);
         var relationships = new RelationshipState();
         relationships.SetNpcRelationship(NpcId.DispatcherSafaa, 10, 1);
 
@@ -133,7 +134,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetAvailableCrimes_ShouldUnlockShubraBundleLift_WhenImanTrustIsHigh()
     {
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Laundry);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Laundry);
         var relationships = new RelationshipState();
         relationships.SetNpcRelationship(NpcId.LaundryOwnerIman, 10, 1);
 
@@ -145,7 +146,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetAvailableCrimes_ShouldUseDokkiStanding_WhenFilteringStreetRep()
     {
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Square);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Square);
         var relationships = new RelationshipState();
         relationships.SetFactionStanding(FactionId.ImbabaCrew, 0);
         relationships.SetFactionStanding(FactionId.DokkiThugs, 10);
@@ -158,7 +159,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetAvailableCrimes_ShouldReturnBaseCrimes_ForArdAlLiwa()
     {
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Workshop);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.Workshop);
         var relationships = new RelationshipState();
         relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 20);
 
@@ -170,7 +171,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetAvailableCrimes_ShouldUnlockWorkshopContraband_WhenAbuSamirTrustAndExPrisonerRepAreHigh()
     {
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Workshop);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.Workshop);
         var relationships = new RelationshipState();
         relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 15, 1);
         relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 20);
@@ -183,7 +184,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetAvailableCrimes_ShouldNotUnlockWorkshopContraband_WhenOnlyTrustIsHigh()
     {
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Workshop);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.Workshop);
         var relationships = new RelationshipState();
         relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 15, 1);
         relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 5);
@@ -196,7 +197,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetAvailableCrimes_ShouldUnlockBulaqProtection_WhenSafaaTrustIsHigh()
     {
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Depot);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.Depot);
         var relationships = new RelationshipState();
         relationships.SetNpcRelationship(NpcId.DispatcherSafaa, 15, 1);
         relationships.SetFactionStanding(FactionId.ImbabaCrew, 20);
@@ -209,7 +210,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetCrimeOpportunityStatuses_ShouldShowBlockReason_ForWorkshopContraband()
     {
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Workshop);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.Workshop);
         var relationships = new RelationshipState();
 
         var statuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, relationships);
@@ -222,7 +223,7 @@ internal sealed class CrimeRegistryTests
     [Test]
     public void GetCrimeOpportunityStatuses_ShouldShowBlockReason_ForBulaqProtection()
     {
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Depot);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.Depot);
         var relationships = new RelationshipState();
 
         var statuses = CrimeRegistry.GetCrimeOpportunityStatuses(location, relationships);

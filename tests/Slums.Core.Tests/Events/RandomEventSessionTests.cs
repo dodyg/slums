@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Core.Events;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Events;
 
@@ -10,7 +11,7 @@ internal sealed class RandomEventSessionTests
     [Test]
     public void ApplyEvent_ShouldApplyEffectsAndRecordTheEvent()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var randomEvent = new RandomEvent(
             "session-test-event",
             "A small test event changes the household ledger.",

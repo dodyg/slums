@@ -4,6 +4,7 @@ using Slums.Core.Home;
 using Slums.Core.State;
 using Slums.Core.Weather;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Calendar;
 
@@ -210,7 +211,7 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_GetCurrentSeason_Day1_ReturnsAutumn()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
 
         var season = state.GetCurrentSeason();
 
@@ -220,7 +221,7 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_GetCurrentSeasonModifiers_Day1_ReturnsAutumnModifiers()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
 
         var modifiers = state.GetCurrentSeasonModifiers();
 
@@ -231,12 +232,12 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_EndDay_SummerAppliesMoreEnergyDrainThanAutumn()
     {
-        var autumn = new GameSession();
+        var autumn = TestSessions.Create();
         autumn.Player.Stats.SetEnergy(70);
         autumn.Player.Stats.SetStress(10);
         autumn.Player.Nutrition.Eat(MealQuality.Basic);
 
-        var summer = new GameSession();
+        var summer = TestSessions.Create();
         summer.Clock.SetTime(244, 6, 0);
         summer.Player.Stats.SetEnergy(70);
         summer.Player.Stats.SetStress(10);
@@ -251,12 +252,12 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_EndDay_SummerAppliesMoreStressThanAutumn()
     {
-        var autumn = new GameSession();
+        var autumn = TestSessions.Create();
         autumn.Player.Stats.SetEnergy(70);
         autumn.Player.Stats.SetStress(10);
         autumn.Player.Nutrition.Eat(MealQuality.Basic);
 
-        var summer = new GameSession();
+        var summer = TestSessions.Create();
         summer.Clock.SetTime(244, 6, 0);
         summer.Player.Stats.SetEnergy(70);
         summer.Player.Stats.SetStress(10);
@@ -287,11 +288,11 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_GetFoodCost_WinterAppliesNegativeModifier()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(64, 6, 0);
 
         int autumnCost;
-        var autumn = new GameSession();
+        var autumn = TestSessions.Create();
         autumnCost = autumn.GetFoodCost();
 
         state.Player.Stats.SetMoney(100);
@@ -303,11 +304,11 @@ internal sealed class SeasonalCalendarTests
     [Test]
     public async Task GameSession_GetFoodCost_SpringAppliesPositiveModifier()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(152, 6, 0);
 
         int autumnCost;
-        var autumn = new GameSession();
+        var autumn = TestSessions.Create();
         autumnCost = autumn.GetFoodCost();
 
         state.Player.Stats.SetMoney(100);

@@ -7,6 +7,7 @@ using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Activities;
 
@@ -16,7 +17,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeExpectedPageSet()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
 
         var pages = query.GetPages(GameStatusContext.Create(gameState));
 
@@ -27,8 +28,8 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeSkillAndNetworkDetails()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
-        gameState.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        var gameState = TestSessions.Create();
+        gameState.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
         gameState.Player.Skills.SetLevel(SkillId.Persuasion, 4);
         gameState.Relationships.SetFactionStanding(FactionId.ImbabaCrew, 22);
         gameState.Relationships.SetNpcRelationship(NpcId.FixerUmmKarim, 14, 2);
@@ -48,7 +49,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeWorkSkillsWithDisplayNames()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Skills.SetLevel(SkillId.RobotRepair, 2);
         gameState.Player.Skills.SetLevel(SkillId.CyberHacking, 1);
 
@@ -63,7 +64,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeDebtAndRelationshipMemorySignals()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.RestoreRentState(unpaidRentDays: 5, accumulatedRentDebt: 100, firstWarningGiven: true, finalWarningGiven: true);
         gameState.Relationships.SetNpcRelationship(NpcId.NurseSalma, 12, 2);
         gameState.Relationships.SetNpcRelationshipMemory(
@@ -91,7 +92,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldAvoidRepeatingOverviewFields_OnStatusPages()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Clinic);
         gameState.SetPolicePressure(65);
         gameState.RestoreRentState(unpaidRentDays: 3, accumulatedRentDebt: 60, firstWarningGiven: true, finalWarningGiven: false);
@@ -113,7 +114,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeDailyCityBulletins()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.SetActiveDistrictConditions(
         [
             new ActiveDistrictCondition { District = DistrictId.Imbaba, ConditionId = "imbaba_market_crackdown" },
@@ -132,7 +133,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeHouseholdAssets_OnHouseholdPage()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.HouseholdAssets.TryTriggerStreetCatEncounter(1);
         gameState.Player.HouseholdAssets.BuyFishTank(1, 1);
         gameState.Player.HouseholdAssets.BuyPlant(PlantType.Chamomile, 1, 1);
@@ -150,7 +151,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeCommunityAdaptation_OnHouseholdPage()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.CommunityAdaptation.AddCoolingRoomDays(3);
         gameState.CommunityAdaptation.AddWaterReserve(2);
         gameState.CommunityAdaptation.RecordSuccessfulAction(2);
@@ -166,8 +167,8 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeMorningSurvivalForecast()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
-        gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+        var gameState = TestSessions.Create();
+        gameState.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
 
         var household = query.GetPages(GameStatusContext.Create(gameState))
             .Single(static page => page.Title == "Household");
@@ -183,7 +184,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeProgressTrajectoryHints()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.SetDaysSurvived(30);
         gameState.SetCrimeCounters(totalCrimeEarnings: 1050, crimesCommitted: 2);
         gameState.SetPolicePressure(10);
@@ -203,9 +204,9 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldIncludeSignalsPage_WithActiveNarrativeHooks()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Clinic);
-        gameState.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        gameState.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
         gameState.SetPolicePressure(65);
         gameState.RestoreWorkState(0, 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: 0);
         gameState.SetCrimeCounters(150, 2, lastCrimeDay: 1);
@@ -226,7 +227,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeHeatPagePressureAndDistrictSignals()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Square);
         gameState.SetPolicePressure(65);
         gameState.SetCrimeCounters(totalCrimeEarnings: 120, crimesCommitted: 2, lastCrimeDay: 1);
@@ -245,7 +246,7 @@ internal sealed class GameStatusPageQueryTests
     public void GetPages_ShouldExposeInvestmentProgress_OnInvestmentPage()
     {
         var query = new GameStatusPageQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.RestoreInvestmentState(
         [
             new InvestmentSnapshot(InvestmentType.FoulCart, 150, 8, 12, 2, false)

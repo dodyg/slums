@@ -3,6 +3,7 @@ using Slums.Application.HouseholdAssets;
 using Slums.Core.Characters;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.HouseholdAssets;
 
@@ -12,7 +13,7 @@ internal sealed class FishTankUpgradeMenuQueryTests
     public void GetStatuses_ShouldExposeAllFourUpgradePaths()
     {
         var query = new FishTankUpgradeMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.HouseholdAssets.BuyFishTank(1, 1);
 
         var statuses = query.GetStatuses(FishTankUpgradeMenuContext.Create(gameState));
@@ -28,7 +29,7 @@ internal sealed class FishTankUpgradeMenuQueryTests
     public void GetStatuses_AllUpgradesShouldBeAvailable_WhenNonePurchased()
     {
         var query = new FishTankUpgradeMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.HouseholdAssets.BuyFishTank(1, 1);
         gameState.Player.Stats.SetMoney(100);
 
@@ -41,7 +42,7 @@ internal sealed class FishTankUpgradeMenuQueryTests
     public void GetStatuses_PermanentUpgrade_ShouldNotBeAvailable_WhenAlreadyOwned()
     {
         var query = new FishTankUpgradeMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.HouseholdAssets.BuyFishTank(1, 1);
         gameState.Player.Stats.SetMoney(100);
         gameState.Player.HouseholdAssets.GetFishTank()!.PurchaseUpgrade(FishTankUpgradeType.BetterFilter, 1);

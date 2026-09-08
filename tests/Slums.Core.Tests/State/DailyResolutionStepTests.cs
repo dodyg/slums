@@ -7,6 +7,7 @@ using Slums.Core.State;
 using Slums.Core.State.DailyResolution;
 using Slums.Core.Tests.Investments;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.State;
 
@@ -15,8 +16,8 @@ internal sealed class DailyResolutionStepTests
     [Test]
     public async Task ApplyBackgroundAndGenderStress_MedicalDropoutWithFragileMother_AddsThreeStress()
     {
-        var session = new GameSession(new GameRandom(20260904));
-        session.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        var session = TestSessions.Create(new GameRandom(20260904));
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
         session.Player.ApplyGender(Gender.Male);
         session.Player.Household.SetMotherHealth(50);
         var stressBefore = session.Player.Stats.Stress;
@@ -29,7 +30,7 @@ internal sealed class DailyResolutionStepTests
     [Test]
     public async Task ApplyBackgroundAndGenderStress_FemaleProtagonist_AddsDailyStress()
     {
-        var session = new GameSession(new GameRandom(20260904));
+        var session = TestSessions.Create(new GameRandom(20260904));
         session.Player.ApplyGender(Gender.Female);
         var stressBefore = session.Player.Stats.Stress;
 
@@ -41,7 +42,7 @@ internal sealed class DailyResolutionStepTests
     [Test]
     public async Task ProcessRent_WithEnoughMoney_PaysRentAndJournalsTheTransaction()
     {
-        var session = new GameSession(new GameRandom(20260904));
+        var session = TestSessions.Create(new GameRandom(20260904));
         var moneyBefore = session.Player.Stats.Money;
 
         DailyEconomyResolution.ProcessRent(session);
@@ -53,7 +54,7 @@ internal sealed class DailyResolutionStepTests
     [Test]
     public async Task ProcessRent_WithoutMoney_AccumulatesRentDebt()
     {
-        var session = new GameSession(new GameRandom(20260904));
+        var session = TestSessions.Create(new GameRandom(20260904));
         session.Player.Stats.SetMoney(0);
 
         DailyEconomyResolution.ProcessRent(session);
@@ -65,7 +66,7 @@ internal sealed class DailyResolutionStepTests
     [Test]
     public async Task ResolveAttendance_OnTheFirstDay_RecordsTheInitialSkip()
     {
-        var session = new GameSession(new GameRandom(20260904));
+        var session = TestSessions.Create(new GameRandom(20260904));
 
         DailyInformationResolution.ResolveAttendance(session);
 
@@ -75,7 +76,7 @@ internal sealed class DailyResolutionStepTests
     [Test]
     public void ResolveWeeklyCycle_ShouldSplitMondayAndWednesdayBlocks()
     {
-        var session = new GameSession(new GameRandom(20260904));
+        var session = TestSessions.Create(new GameRandom(20260904));
         session.Player.Stats.SetMoney(500);
         session.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 30, 1);
         session.MakeInvestment(InvestmentType.FoulCart);

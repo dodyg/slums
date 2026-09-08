@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Application.Narrative;
 using Slums.Core.State;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Narrative;
 
@@ -11,7 +12,7 @@ internal sealed class NarrativeQueueCommandTests
     public void TryDequeueScene_ConsumesQueuedScene()
     {
         var command = new NarrativeQueueCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.QueueNarrativeScene("event_test_scene");
 
         var found = command.TryDequeueScene(session, out var knotName);
@@ -25,7 +26,7 @@ internal sealed class NarrativeQueueCommandTests
     public void TryTakeEndingKnot_ConsumesPendingEnding()
     {
         var command = new NarrativeQueueCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.RestoreRunState(Guid.NewGuid(), daysSurvived: 1, isGameOver: false, gameOverReason: null, endingId: null, pendingEndingKnot: "ending_test");
 
         var found = command.TryTakeEndingKnot(session, out var knotName);
@@ -39,7 +40,7 @@ internal sealed class NarrativeQueueCommandTests
     public void TryDequeueScene_ReturnsFalse_WhenQueueEmpty()
     {
         var command = new NarrativeQueueCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         command.TryDequeueScene(session, out _).Should().BeFalse();
     }

@@ -6,6 +6,7 @@ using Slums.Core.Economy;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Narrative;
 
@@ -14,7 +15,7 @@ internal sealed class ApplyNarrativeOutcomeCommandTests
     [Test]
     public void Execute_ShouldApplyAllEffectsAndRecordSourceMutation()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var initialMoney = session.Player.Stats.Money;
         var initialEnergy = session.Player.Stats.Energy;
 
@@ -58,7 +59,7 @@ internal sealed class ApplyNarrativeOutcomeCommandTests
     [Test]
     public void Execute_ShouldTriggerDestitutionWhenNarrativeKillsPlayerHealth()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetHealth(5);
 
         ApplyNarrativeOutcomeCommand.Execute(
@@ -75,7 +76,7 @@ internal sealed class ApplyNarrativeOutcomeCommandTests
     [Test]
     public void Execute_ShouldTriggerMotherDiedWhenNarrativeReducesMotherHealthToZero()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Household.SetMotherHealth(5);
 
         ApplyNarrativeOutcomeCommand.Execute(
@@ -90,7 +91,7 @@ internal sealed class ApplyNarrativeOutcomeCommandTests
     [Test]
     public void Execute_ShouldApplyRentPaymentAndGraceThroughTypedEffects()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(80);
         session.RestoreRentState(5, 50, true, true);
 
@@ -119,7 +120,7 @@ internal sealed class ApplyNarrativeOutcomeCommandTests
     [Test]
     public void Execute_ShouldApplyOnlyTheTargetedDebtAndCapPaymentAtAvailableMoney()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(25);
         session.PlayerDebts.AddDebt(new PlayerDebt
         {

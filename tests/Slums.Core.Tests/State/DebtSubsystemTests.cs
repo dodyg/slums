@@ -3,6 +3,7 @@ using Slums.Core.Economy;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.State;
 
@@ -10,7 +11,7 @@ internal sealed class DebtSubsystemTests
 {
     private static GameSession CreateSession(int money = 200)
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Stats.SetMoney(money);
         session.NpcEconomies.Initialize();
         return session;
@@ -92,7 +93,7 @@ internal sealed class DebtSubsystemTests
     public async Task TryBorrowFromNpc_RefugeeUsesCommunityMutualAid()
     {
         var session = CreateSession();
-        session.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         session.Relationships.SetNpcRelationship(NpcId.NurseSalma, 15, 0);
         var (success, _, _) = session.TryBorrowFromNpc(NpcId.NurseSalma, 30);
         await Assert.That(success).IsTrue();
@@ -104,7 +105,7 @@ internal sealed class DebtSubsystemTests
     public async Task TryBorrowFromNpc_MedicalDropoutGetsLongerDueDay()
     {
         var session = CreateSession();
-        session.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
         session.Relationships.SetNpcRelationship(NpcId.NurseSalma, 15, 0);
         var (success, _, _) = session.TryBorrowFromNpc(NpcId.NurseSalma, 30);
         await Assert.That(success).IsTrue();
@@ -188,7 +189,7 @@ internal sealed class DebtSubsystemTests
     public async Task TryBorrowFromLoanShark_PrisonerMaxIs200()
     {
         var session = CreateSession();
-        session.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
         var (_, amount, _) = session.TryBorrowFromLoanShark(500);
         await Assert.That(amount).IsEqualTo(200);
     }

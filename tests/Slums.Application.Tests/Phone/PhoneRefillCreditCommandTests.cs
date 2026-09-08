@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Application.Phone;
 using Slums.Core.State;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Phone;
 
@@ -11,7 +12,7 @@ internal sealed class PhoneRefillCreditCommandTests
     public void Execute_RefillsCredit_WhenOutOfCredit()
     {
         var command = new PhoneRefillCreditCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.RestorePhoneState(hasPhone: true, creditRemaining: 0, daysSinceCreditRefill: 7, phoneLost: false, phoneLostDay: null, phoneRecovered: false);
         session.Player.Stats.SetMoney(10);
 
@@ -25,7 +26,7 @@ internal sealed class PhoneRefillCreditCommandTests
     public void Execute_FailsWhenPhoneLost()
     {
         var command = new PhoneRefillCreditCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Phone.LosePhone(1);
         session.Player.Stats.SetMoney(100);
 
@@ -38,7 +39,7 @@ internal sealed class PhoneRefillCreditCommandTests
     public void Execute_FailsWhenNotEnoughMoney()
     {
         var command = new PhoneRefillCreditCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.RestorePhoneState(hasPhone: true, creditRemaining: 0, daysSinceCreditRefill: 7, phoneLost: false, phoneLostDay: null, phoneRecovered: false);
         session.Player.Stats.SetMoney(1);
 

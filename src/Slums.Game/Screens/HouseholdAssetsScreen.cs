@@ -3,6 +3,7 @@ using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Slums.Application.HouseholdAssets;
+using Slums.Core.Robotics;
 using Slums.Core.State;
 using Slums.Game.Rendering;
 using Slums.Core.World;
@@ -55,7 +56,7 @@ internal sealed class HouseholdAssetsScreen : ScreenSurface, IActionKeySuppresso
 
         RenderSelectedDetails();
         Surface.Print(2, Surface.Height - 3, "Arrow keys to select, Enter to act, Escape to cancel", Color.DarkGray);
-        Surface.Print(2, Surface.Height - 2, $"Money: {_gameState.Player.Stats.Money} LE | Pets: {_gameState.Player.HouseholdAssets.Pets.Count} | Plants: {_gameState.Player.HouseholdAssets.Plants.Count} | Robots: {_gameState.Player.Robotics.Robots.Count}/{Slums.Core.Robotics.RobotRegistry.MaxOwnedRobots} | Parts: {_gameState.Player.Robotics.Parts}", Color.Gold);
+        Surface.Print(2, Surface.Height - 2, $"Money: {_gameState.Player.Stats.Money} LE | Pets: {_gameState.Player.HouseholdAssets.Pets.Count} | Plants: {_gameState.Player.HouseholdAssets.Plants.Count} | Robots: {_gameState.Player.Robotics.Robots.Count}/{RoboticsState.MaxOwnedRobots} | Parts: {_gameState.Player.Robotics.Parts}", Color.Gold);
     }
 
     public override bool ProcessKeyboard([NotNull] Keyboard keyboard)

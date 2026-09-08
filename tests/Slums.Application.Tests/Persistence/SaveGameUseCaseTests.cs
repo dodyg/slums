@@ -5,6 +5,7 @@ using NSubstitute;
 using Slums.Application.Persistence;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Persistence;
 
@@ -16,7 +17,7 @@ internal sealed class SaveGameUseCaseTests
         var store = Substitute.For<ISaveGameStore>();
         var logger = NullLogger<SaveGameUseCase>.Instance;
         var useCase = new SaveGameUseCase(store, logger);
-        var gameSession = new GameSession();
+        var gameSession = TestSessions.Create();
         var request = SaveGameRequest.Create(gameSession, "intro_medical");
 
         await useCase.ExecuteAsync(request, "slot1").ConfigureAwait(false);
@@ -42,7 +43,7 @@ internal sealed class SaveGameUseCaseTests
     [Test]
     public void Create_ShouldCaptureCheckpointNameAndNarrativeProgress()
     {
-        var gameSession = new GameSession();
+        var gameSession = TestSessions.Create();
 
         var request = SaveGameRequest.Create(gameSession, "intro_medical");
 

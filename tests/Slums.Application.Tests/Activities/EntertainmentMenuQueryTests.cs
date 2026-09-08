@@ -3,6 +3,7 @@ using Slums.Application.Activities;
 using Slums.Core.Characters;
 using Slums.Core.Entertainment;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Activities;
 
@@ -13,7 +14,7 @@ internal sealed class EntertainmentMenuQueryTests
 
     private static PlayerCharacter MakePlayer(int money = 50, int energy = 50)
     {
-        var player = new PlayerCharacter();
+        var player = new PlayerCharacter(TestContent.Catalog);
         player.Stats.SetMoney(money);
         player.Stats.SetEnergy(energy);
         return player;

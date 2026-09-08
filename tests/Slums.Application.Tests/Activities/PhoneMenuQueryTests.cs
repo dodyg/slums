@@ -6,6 +6,7 @@ using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Activities;
 
@@ -15,7 +16,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldReturnEmpty_WhenNoMessagesOrTips()
     {
         var query = new PhoneMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         var context = PhoneMenuContext.Create(gameState);
 
         var status = query.GetStatus(context);
@@ -28,7 +29,7 @@ internal sealed class PhoneMenuQueryTests
     [Test]
     public void PhoneMenuContext_ExposesCentralizedReplacementCost()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
 
         var context = PhoneMenuContext.Create(gameState);
 
@@ -39,7 +40,7 @@ internal sealed class PhoneMenuQueryTests
     [Test]
     public void PhoneMenuContext_ReflectsLostPhone()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Phone.LosePhone(3);
 
         var context = PhoneMenuContext.Create(gameState);
@@ -51,7 +52,7 @@ internal sealed class PhoneMenuQueryTests
     [Test]
     public void ReplacePhone_ThenFreshContext_ShowsRestoredPhone()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Phone.LosePhone(3);
         gameState.Player.Stats.SetMoney(100);
 
@@ -67,7 +68,7 @@ internal sealed class PhoneMenuQueryTests
     [Test]
     public void RefillCredit_ThenFreshContext_ShowsOperationalPhone()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.RestorePhoneState(hasPhone: true, creditRemaining: 0, daysSinceCreditRefill: 7, phoneLost: false, phoneLostDay: null, phoneRecovered: false);
 
         PhoneMenuContext.Create(gameState).PhoneOperational.Should().BeFalse();
@@ -84,7 +85,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldIncludeUndeliveredTips()
     {
         var query = new PhoneMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.PoliceTip,
@@ -108,7 +109,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldIncludeActiveMessages()
     {
         var query = new PhoneMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.PhoneMessages.AddMessage(new PhoneMessage
         {
             Type = PhoneMessageType.Opportunity,
@@ -130,7 +131,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldSkipRespondedAndIgnoredMessages()
     {
         var query = new PhoneMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.PhoneMessages.AddMessage(new PhoneMessage
         {
             Type = PhoneMessageType.Opportunity,
@@ -158,7 +159,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldMarkEmergencyTips()
     {
         var query = new PhoneMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.CrimeWarning,
@@ -181,7 +182,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldComputeDaysUntilExpiry()
     {
         var query = new PhoneMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.JobLead,
@@ -202,7 +203,7 @@ internal sealed class PhoneMenuQueryTests
     public void GetStatus_ShouldIncludeBothTipsAndMessages()
     {
         var query = new PhoneMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Tips.AddTip(new Tip
         {
             Type = TipType.JobLead,
@@ -232,7 +233,7 @@ internal sealed class PhoneMenuQueryTests
     [Test]
     public void PhoneMenuContext_Create_ShouldCapturePhoneState()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Phone.LosePhone(1);
 
         var context = PhoneMenuContext.Create(gameState);
@@ -244,7 +245,7 @@ internal sealed class PhoneMenuQueryTests
     [Test]
     public void PhoneMenuContext_Create_ShouldCaptureCreditInfo()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
 
         var context = PhoneMenuContext.Create(gameState);
 
@@ -255,7 +256,7 @@ internal sealed class PhoneMenuQueryTests
     [Test]
     public void PhoneMenuContext_Create_ShouldApplyDigitalLiteracyCreditDiscount()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Skills.SetLevel(Slums.Core.Skills.SkillId.CyberHacking, 2);
 
         var context = PhoneMenuContext.Create(gameState);

@@ -1,4 +1,5 @@
 using Slums.Core.Diagnostics;
+using Slums.Core.Expenses;
 using Slums.Core.Calendar;
 using Slums.Core.Clock;
 using Slums.Core.Narrative;
@@ -92,7 +93,7 @@ internal static class ClinicVisitService
         session.ApplySkillGain(SkillId.Medical);
 
         session.RaiseEvent($"You take your mother into {clinicStatus.LocationName}. The visit costs {clinicStatus.VisitCost} LE. Her health improves by {healthChange}.");
-        if (NarrativeSignalRules.HasPendingClinicFirstVisit(session.StoryFlags.ToHashSet()))
+        if (NarrativeSignalRules.HasPendingClinicFirstVisit(session.StoryFlags))
         {
             session.TryQueueNarrativeTrigger(new NarrativeSceneTrigger(NarrativeStoryFlags.MotherClinicFirstVisit, NarrativeKnots.MotherClinicFirstVisit));
         }
@@ -246,19 +247,7 @@ internal static class ClinicVisitService
     {
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(location);
-        var districtCondition = session.GetActiveDistrictConditionDefinition(location.District);
-        var schedule = session.GetCurrentSchedule();
-        var scheduleDiscount = schedule.ClinicDiscount ? schedule.ClinicDiscountAmount : 0;
-        if (scheduleDiscount > 0 && session.Player.BackgroundType == BackgroundType.MedicalSchoolDropout)
-        {
-            scheduleDiscount *= 2;
-        }
-
-        var modifiedCost = session.LocationPricing.GetClinicVisitCost(location, session.Relationships, session.Player.Skills)
-            + (districtCondition?.Effect.ClinicVisitCostModifier ?? 0)
-            - scheduleDiscount
-            - RobotCapabilityRules.GetClinicCostReduction(session.Player.Robotics);
-        return Math.Max(1, modifiedCost);
+        return PriceModifierPipeline.GetClinicVisitCost(session, location);
     }
 
     private static string GetMotherStatusMessage(GameSession session)

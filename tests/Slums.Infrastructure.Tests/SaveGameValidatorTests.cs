@@ -5,6 +5,7 @@ using Slums.Core.Relationships;
 using Slums.Core.Rumors;
 using Slums.Infrastructure.Persistence;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Infrastructure.Tests;
 
@@ -15,7 +16,7 @@ internal sealed class SaveGameValidatorTests
     {
         var snapshot = new GameSessionSnapshot();
 
-        var act = () => SaveGameValidator.Validate(snapshot);
+        var act = () => SaveGameValidator.Validate(snapshot, TestContent.Catalog);
 
         act.Should().Throw<InvalidDataException>()
             .WithMessage("*relationships contain 0 NPC entries*job tracks contain 0 entries*");
@@ -37,7 +38,7 @@ internal sealed class SaveGameValidatorTests
             }
         };
 
-        var act = () => SaveGameValidator.Validate(snapshot);
+        var act = () => SaveGameValidator.Validate(snapshot, TestContent.Catalog);
 
         act.Should().Throw<InvalidDataException>()
             .WithMessage("*relationship trust*job reliability*");
@@ -46,7 +47,7 @@ internal sealed class SaveGameValidatorTests
     [Test]
     public void Restore_RejectsAnIncompleteSnapshotBeforeHydration()
     {
-        var act = () => new GameSessionSnapshot().Restore();
+        var act = () => new GameSessionSnapshot().Restore(TestContent.Catalog);
 
         act.Should().Throw<InvalidDataException>()
             .WithMessage("*relationships contain 0 NPC entries*");
@@ -61,7 +62,7 @@ internal sealed class SaveGameValidatorTests
             RandomState = new GameRandomState(0, 0, 0, 0)
         };
 
-        var act = () => SaveGameValidator.Validate(snapshot);
+        var act = () => SaveGameValidator.Validate(snapshot, TestContent.Catalog);
 
         act.Should().Throw<InvalidDataException>()
             .WithMessage("*weather*random state*");
@@ -93,7 +94,7 @@ internal sealed class SaveGameValidatorTests
             }
         };
 
-        var act = () => SaveGameValidator.Validate(snapshot);
+        var act = () => SaveGameValidator.Validate(snapshot, TestContent.Catalog);
 
         act.Should().Throw<InvalidDataException>()
             .WithMessage("*rumor id*rumor district*rumor NPC*inventory item*");
@@ -101,7 +102,7 @@ internal sealed class SaveGameValidatorTests
 
     private static GameSessionSnapshot CompleteSnapshot()
     {
-        var snapshot = GameSessionSnapshot.Capture(new Slums.Core.State.GameSession());
+        var snapshot = GameSessionSnapshot.Capture(TestSessions.Create());
         return snapshot;
     }
 }

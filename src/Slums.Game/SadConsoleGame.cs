@@ -5,9 +5,9 @@ using Slums.Application.Content;
 using Slums.Application.Diagnostics;
 using Slums.Application.Narrative;
 using Slums.Application.Persistence;
-using Slums.Application.Randomness;
 using Slums.Core.Characters;
 using Slums.Core.Content;
+using Slums.Core.Diagnostics;
 using Slums.Core.Endings;
 using Slums.Core.Events;
 using Slums.Core.Jobs;
@@ -16,6 +16,7 @@ using Slums.Core.World;
 using Slums.Core.Inventory;
 using Slums.Core.Relationships;
 using Slums.Core.World.News;
+using Slums.Game.Content;
 using Slums.Game.Screens;
 using Slums.Infrastructure.Content;
 using Slums.Narrative.Ink;
@@ -31,8 +32,7 @@ internal sealed class SadConsoleGame : IGame
     private readonly LoadGameUseCase _loadGameUseCase;
     private readonly NewGameUseCase _newGameUseCase;
     private readonly IGameContentCatalogProvider _contentCatalogProvider;
-    private readonly IRandomSource _randomSource;
-    private readonly IContentRepository _contentRepository;
+    private readonly IContentBootstrapper _contentBootstrapper;
     private readonly GameMutationLogger _mutationLogger;
     private GameContentCatalog? _contentCatalog;
 
@@ -44,8 +44,7 @@ internal sealed class SadConsoleGame : IGame
         LoadGameUseCase loadGameUseCase,
         NewGameUseCase newGameUseCase,
         IGameContentCatalogProvider contentCatalogProvider,
-        IRandomSource randomSource,
-        IContentRepository contentRepository,
+        IContentBootstrapper contentBootstrapper,
         GameMutationLogger mutationLogger)
     {
         _logger = logger;
@@ -55,8 +54,7 @@ internal sealed class SadConsoleGame : IGame
         _loadGameUseCase = loadGameUseCase;
         _newGameUseCase = newGameUseCase;
         _contentCatalogProvider = contentCatalogProvider;
-        _randomSource = randomSource;
-        _contentRepository = contentRepository;
+        _contentBootstrapper = contentBootstrapper;
         _mutationLogger = mutationLogger;
     }
 
@@ -74,7 +72,6 @@ internal sealed class SadConsoleGame : IGame
             _saveGameUseCase,
             _loadGameUseCase,
             _newGameUseCase,
-            _randomSource,
             _mutationLogger);
 
         Builder gameConfig = new Builder()
@@ -99,60 +96,6 @@ internal sealed class SadConsoleGame : IGame
 
     private void ConfigureContent()
     {
-        var backgrounds = _contentRepository.LoadBackgrounds();
-        var jobs = _contentRepository.LoadJobs();
-        var locations = _contentRepository.LoadLocations();
-        var randomEvents = _contentRepository.LoadRandomEvents();
-        var districtConditions = _contentRepository.LoadDistrictConditions();
-        var pets = _contentRepository.LoadPets();
-        var plants = _contentRepository.LoadPlants();
-        var robots = _contentRepository.LoadRobots();
-        var newsFlashes = _contentRepository.LoadNewsFlashes();
-        var items = _contentRepository.LoadItems();
-        var npcSchedules = _contentRepository.LoadNpcSchedules();
-        _contentCatalog = new GameContentCatalog(
-            backgrounds,
-            locations,
-            jobs,
-            randomEvents,
-            districtConditions,
-            npcSchedules,
-            pets,
-            plants,
-            robots,
-            newsFlashes,
-            items);
-
-        var knotNames = InkStoryCatalog.GetKnotNames();
-        EndingKnotCatalog.ValidateKnownKnots(knotNames);
-
-        ContentCatalogValidator.Validate(
-            backgrounds,
-            locations,
-            jobs,
-            randomEvents,
-            districtConditions,
-            pets,
-            plants,
-            knotNames,
-            robots,
-            newsFlashes,
-            items,
-            npcSchedules);
-
-        _contentCatalogProvider.Publish(_contentCatalog);
-        DistrictConditionRegistry.Configure(districtConditions);
-        PetRegistry.Configure(pets);
-        PlantRegistry.Configure(plants);
-        RobotRegistry.Configure(robots);
-        NewsRegistry.Configure(newsFlashes);
-        ItemRegistry.Configure(items);
-        NpcScheduleRegistry.Configure(npcSchedules);
-        LogContentConfigured(_logger);
+        _contentCatalog = _contentBootstrapper.Bootstrap();
     }
-
-    private static readonly Action<ILogger, Exception?> LogContentConfiguredDelegate =
-        LoggerMessage.Define(LogLevel.Information, new EventId(1, "ContentConfigured"), "Configured content from content/data.");
-
-    private static void LogContentConfigured(ILogger logger) => LogContentConfiguredDelegate(logger, null);
 }

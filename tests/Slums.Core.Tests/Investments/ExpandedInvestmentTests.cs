@@ -6,6 +6,7 @@ using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Investments;
 
@@ -14,23 +15,23 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void Registry_ShouldContainAllNewInvestmentTypes()
     {
-        InvestmentRegistry.GetByType(InvestmentType.TeaCart).Should().NotBeNull();
-        InvestmentRegistry.GetByType(InvestmentType.PhoneChargingStation).Should().NotBeNull();
-        InvestmentRegistry.GetByType(InvestmentType.HerbalRemedyTrade).Should().NotBeNull();
-        InvestmentRegistry.GetByType(InvestmentType.SewingSideBusiness).Should().NotBeNull();
-        InvestmentRegistry.GetByType(InvestmentType.CafeSupplyPartnership).Should().NotBeNull();
+        TestContent.Catalog.GetInvestment(InvestmentType.TeaCart).Should().NotBeNull();
+        TestContent.Catalog.GetInvestment(InvestmentType.PhoneChargingStation).Should().NotBeNull();
+        TestContent.Catalog.GetInvestment(InvestmentType.HerbalRemedyTrade).Should().NotBeNull();
+        TestContent.Catalog.GetInvestment(InvestmentType.SewingSideBusiness).Should().NotBeNull();
+        TestContent.Catalog.GetInvestment(InvestmentType.CafeSupplyPartnership).Should().NotBeNull();
     }
 
     [Test]
     public void Registry_ShouldContainElevenInvestmentTypes()
     {
-        InvestmentRegistry.AllDefinitions.Should().HaveCount(11);
+        TestContent.Catalog.Investments.Should().HaveCount(11);
     }
 
     [Test]
     public void Registry_ShouldKeepEveryMidpointPaybackBetweenFiveAndEightWeeks()
     {
-        foreach (var definition in InvestmentRegistry.AllDefinitions)
+        foreach (var definition in TestContent.Catalog.Investments)
         {
             var expectedIncome = InvestmentResolutionCalculator.GetExpectedWeeklyIncome(definition);
             var midpointPayback = (int)Math.Ceiling((double)definition.Cost / expectedIncome);
@@ -42,7 +43,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void TeaCart_ShouldHaveCorrectDefinition()
     {
-        var def = InvestmentRegistry.GetByType(InvestmentType.TeaCart)!;
+        var def = TestContent.Catalog.GetInvestment(InvestmentType.TeaCart)!;
 
         def.Name.Should().Be("Tea Cart (Shay Cart)");
         def.Cost.Should().Be(100);
@@ -62,7 +63,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void PhoneChargingStation_ShouldHaveCorrectDefinition()
     {
-        var def = InvestmentRegistry.GetByType(InvestmentType.PhoneChargingStation)!;
+        var def = TestContent.Catalog.GetInvestment(InvestmentType.PhoneChargingStation)!;
 
         def.Name.Should().Be("Phone Charging Station");
         def.Cost.Should().Be(160);
@@ -80,7 +81,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void HerbalRemedyTrade_ShouldHaveCorrectDefinition()
     {
-        var def = InvestmentRegistry.GetByType(InvestmentType.HerbalRemedyTrade)!;
+        var def = TestContent.Catalog.GetInvestment(InvestmentType.HerbalRemedyTrade)!;
 
         def.Name.Should().Be("Herbal Remedy Trade");
         def.Cost.Should().Be(180);
@@ -98,7 +99,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void SewingSideBusiness_ShouldHaveCorrectDefinition()
     {
-        var def = InvestmentRegistry.GetByType(InvestmentType.SewingSideBusiness)!;
+        var def = TestContent.Catalog.GetInvestment(InvestmentType.SewingSideBusiness)!;
 
         def.Name.Should().Be("Sewing Side Business");
         def.Cost.Should().Be(220);
@@ -116,7 +117,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void CafeSupplyPartnership_ShouldHaveCorrectDefinition()
     {
-        var def = InvestmentRegistry.GetByType(InvestmentType.CafeSupplyPartnership)!;
+        var def = TestContent.Catalog.GetInvestment(InvestmentType.CafeSupplyPartnership)!;
 
         def.Name.Should().Be("Cafe Supply Partnership");
         def.Cost.Should().Be(250);
@@ -135,11 +136,11 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void TeaCart_ShouldBeEligible_WhenAtHomeWithMonaTrust10AndMoney()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(100);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 10, 1);
 
-        var definition = InvestmentRegistry.GetByType(InvestmentType.TeaCart)!;
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.TeaCart)!;
         var eligibility = gameState.CheckInvestmentEligibility(definition);
 
         eligibility.IsEligible.Should().BeTrue();
@@ -148,11 +149,11 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void TeaCart_ShouldBeBlocked_WhenMonaTrustTooLow()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(100);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 5, 1);
 
-        var definition = InvestmentRegistry.GetByType(InvestmentType.TeaCart)!;
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.TeaCart)!;
         var eligibility = gameState.CheckInvestmentEligibility(definition);
 
         eligibility.IsEligible.Should().BeFalse();
@@ -162,7 +163,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void TeaCart_ShouldBeAvailableAtHome()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
 
         var types = gameState.GetCurrentInvestmentOpportunities().Select(static d => d.Type).ToArray();
 
@@ -172,7 +173,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void PhoneChargingStation_ShouldBeAvailableAtDepot()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Depot);
 
         var types = gameState.GetCurrentInvestmentOpportunities().Select(static d => d.Type).ToArray();
@@ -183,7 +184,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void PhoneChargingStation_ShouldNotBeAvailableAtHome()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
 
         var types = gameState.GetCurrentInvestmentOpportunities().Select(static d => d.Type).ToArray();
 
@@ -193,12 +194,12 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void HerbalRemedyTrade_ShouldRequireMedicalSkill()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(200);
         gameState.World.TravelTo(LocationId.Pharmacy);
         gameState.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 15, 1);
 
-        var definition = InvestmentRegistry.GetByType(InvestmentType.HerbalRemedyTrade)!;
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.HerbalRemedyTrade)!;
 
         var blocked = gameState.CheckInvestmentEligibility(definition);
         blocked.IsEligible.Should().BeFalse();
@@ -213,12 +214,12 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void SewingSideBusiness_ShouldRequirePhysicalSkill()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(250);
         gameState.World.TravelTo(LocationId.Workshop);
         gameState.Relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 20, 1);
 
-        var definition = InvestmentRegistry.GetByType(InvestmentType.SewingSideBusiness)!;
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.SewingSideBusiness)!;
 
         var blocked = gameState.CheckInvestmentEligibility(definition);
         blocked.IsEligible.Should().BeFalse();
@@ -233,7 +234,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void CafeSupplyPartnership_ShouldBeAvailableAtCafe()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Cafe);
 
         var types = gameState.GetCurrentInvestmentOpportunities().Select(static d => d.Type).ToArray();
@@ -244,12 +245,12 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void CafeSupplyPartnership_ShouldRequireNadiaTrust25()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(300);
         gameState.World.TravelTo(LocationId.Cafe);
         gameState.Relationships.SetNpcRelationship(NpcId.CafeOwnerNadia, 20, 1);
 
-        var definition = InvestmentRegistry.GetByType(InvestmentType.CafeSupplyPartnership)!;
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.CafeSupplyPartnership)!;
         var blocked = gameState.CheckInvestmentEligibility(definition);
 
         blocked.IsEligible.Should().BeFalse();
@@ -264,7 +265,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void MakeInvestment_ShouldSucceedForTeaCart()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(100);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 10, 1);
 
@@ -280,7 +281,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void MakeInvestment_ShouldSucceedForPhoneChargingStation()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(200);
         gameState.World.TravelTo(LocationId.Depot);
         gameState.Relationships.SetNpcRelationship(NpcId.DispatcherSafaa, 15, 1);
@@ -296,7 +297,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldPayTeaCartIncome()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(100);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 10, 1);
 
@@ -314,7 +315,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldPayHerbalRemedyIncome()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(200);
         gameState.Player.Skills.SetLevel(SkillId.Medical, 2);
         gameState.World.TravelTo(LocationId.Pharmacy);
@@ -334,7 +335,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldPaySewingSideBusinessIncome()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(250);
         gameState.Player.Skills.SetLevel(SkillId.Physical, 2);
         gameState.World.TravelTo(LocationId.Workshop);
@@ -353,7 +354,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void ResolveWeeklyInvestments_ShouldPayCafeSupplyPartnershipIncome()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(300);
         gameState.World.TravelTo(LocationId.Cafe);
         gameState.Relationships.SetNpcRelationship(NpcId.CafeOwnerNadia, 25, 1);
@@ -371,11 +372,11 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void NewInvestments_ShouldHaveCorrectRiskProfiles()
     {
-        var teaCart = InvestmentRegistry.GetByType(InvestmentType.TeaCart)!.RiskProfile;
-        var phoneCharging = InvestmentRegistry.GetByType(InvestmentType.PhoneChargingStation)!.RiskProfile;
-        var herbal = InvestmentRegistry.GetByType(InvestmentType.HerbalRemedyTrade)!.RiskProfile;
-        var sewing = InvestmentRegistry.GetByType(InvestmentType.SewingSideBusiness)!.RiskProfile;
-        var cafe = InvestmentRegistry.GetByType(InvestmentType.CafeSupplyPartnership)!.RiskProfile;
+        var teaCart = TestContent.Catalog.GetInvestment(InvestmentType.TeaCart)!.RiskProfile;
+        var phoneCharging = TestContent.Catalog.GetInvestment(InvestmentType.PhoneChargingStation)!.RiskProfile;
+        var herbal = TestContent.Catalog.GetInvestment(InvestmentType.HerbalRemedyTrade)!.RiskProfile;
+        var sewing = TestContent.Catalog.GetInvestment(InvestmentType.SewingSideBusiness)!.RiskProfile;
+        var cafe = TestContent.Catalog.GetInvestment(InvestmentType.CafeSupplyPartnership)!.RiskProfile;
 
         teaCart.WeeklyFailureChance.Should().Be(0.01);
         teaCart.ExtortionChance.Should().Be(0.0);
@@ -405,7 +406,7 @@ internal sealed class ExpandedInvestmentTests
     {
         var relationships = new RelationshipState();
         relationships.SetNpcRelationship(NpcId.PharmacistMariam, 15, 1);
-        var definition = InvestmentRegistry.GetByType(InvestmentType.HerbalRemedyTrade)!;
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.HerbalRemedyTrade)!;
 
         var context = new InvestmentEligibilityContext(
             CurrentMoney: 200,
@@ -430,7 +431,7 @@ internal sealed class ExpandedInvestmentTests
     {
         var relationships = new RelationshipState();
         relationships.SetNpcRelationship(NpcId.PharmacistMariam, 15, 1);
-        var definition = InvestmentRegistry.GetByType(InvestmentType.HerbalRemedyTrade)!;
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.HerbalRemedyTrade)!;
 
         var context = new InvestmentEligibilityContext(
             CurrentMoney: 200,
@@ -454,7 +455,7 @@ internal sealed class ExpandedInvestmentTests
     {
         var relationships = new RelationshipState();
         relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 20, 1);
-        var definition = InvestmentRegistry.GetByType(InvestmentType.SewingSideBusiness)!;
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.SewingSideBusiness)!;
 
         var context = new InvestmentEligibilityContext(
             CurrentMoney: 250,
@@ -477,7 +478,7 @@ internal sealed class ExpandedInvestmentTests
     [Test]
     public void InvestmentsAtNewLocations_ShouldNotAppearAtWrongLocations()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
 
         var homeTypes = gameState.GetCurrentInvestmentOpportunities().Select(static d => d.Type).ToHashSet();
         homeTypes.Should().NotContain(InvestmentType.PhoneChargingStation);

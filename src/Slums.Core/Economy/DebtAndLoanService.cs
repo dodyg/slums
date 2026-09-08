@@ -156,9 +156,7 @@ internal static class DebtAndLoanService
     internal static (bool Success, string Message) RefuseNpcLoan(GameSession session, NpcId npc)
     {
         ArgumentNullException.ThrowIfNull(session);
-#pragma warning disable CA5394
         var trustLoss = session.SharedRandom.Next(2, 6);
-#pragma warning restore CA5394
         session.Relationships.ModifyNpcTrust(npc, -trustLoss);
         session.Relationships.RecordRefusal(npc, session.Clock.Day);
         var before = session.CaptureStats();

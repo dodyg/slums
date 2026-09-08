@@ -4,6 +4,7 @@ using Slums.Core.State;
 using Slums.Core.World;
 using Slums.Core.Skills;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Expenses;
 
@@ -12,8 +13,8 @@ internal sealed class FoodShopServiceTests
     [Test]
     public async Task BuyFood_ShouldKeepBackgroundBonusAndMutationCategory()
     {
-        var session = new GameSession();
-        session.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        var session = TestSessions.Create();
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         var stockBefore = session.Player.Household.FoodStockpile;
 
         var result = FoodShopService.BuyFood(session);
@@ -27,7 +28,7 @@ internal sealed class FoodShopServiceTests
     [Test]
     public async Task GetMedicineCost_ShouldUseTheSameLocationPricingServiceAsTheSession()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Pharmacy);
 
         var serviceCost = FoodShopService.GetMedicineCost(session);
@@ -38,7 +39,7 @@ internal sealed class FoodShopServiceTests
     [Test]
     public async Task BuyFood_WithProvisioningTwo_ShouldAddFourUnits()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Skills.SetLevel(SkillId.Provisioning, 2);
         var stockBefore = session.Player.Household.FoodStockpile;
 
@@ -51,7 +52,7 @@ internal sealed class FoodShopServiceTests
     [Test]
     public async Task ProvisioningMealPlan_UsesHerbAtAdvancedLevelAndImprovesMotherCareAtMastery()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Player.Skills.SetLevel(SkillId.Provisioning, 8);
         session.Player.HouseholdAssets.BuyPlant(PlantType.Mint, session.Clock.Day, session.CurrentWeek);
 

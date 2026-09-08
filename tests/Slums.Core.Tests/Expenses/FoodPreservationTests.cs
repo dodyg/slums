@@ -6,6 +6,7 @@ using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Expenses;
 
@@ -70,8 +71,8 @@ internal sealed class FoodPreservationTests
 
     private static GameSession CreateSession(int skill = 6, int food = 3)
     {
-        var session = new GameSession();
-        session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.MedicalSchoolDropout));
+        var session = TestSessions.Create();
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
         session.Player.Skills.SetLevel(SkillId.Provisioning, skill);
         session.Player.Household.SetFoodStockpile(food);
         session.Player.Stats.SetEnergy(100);

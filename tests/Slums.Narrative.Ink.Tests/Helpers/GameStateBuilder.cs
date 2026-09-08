@@ -3,6 +3,7 @@ using Slums.Core.Endings;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
+using Slums.TestSupport;
 
 #pragma warning disable CA1001 // Type owns disposable field but transfers GameSession ownership via Build()
 
@@ -10,15 +11,15 @@ namespace Slums.Narrative.Ink.Tests.Helpers;
 
 internal sealed class GameStateBuilder
 {
-    private readonly GameSession _session = new();
+    private readonly GameSession _session = TestSessions.Create();
 
     public GameStateBuilder WithBackground(BackgroundType backgroundType)
     {
         var background = backgroundType switch
         {
-            BackgroundType.MedicalSchoolDropout => BackgroundRegistry.MedicalSchoolDropout,
-            BackgroundType.ReleasedPoliticalPrisoner => BackgroundRegistry.ReleasedPoliticalPrisoner,
-            BackgroundType.SudaneseRefugee => BackgroundRegistry.SudaneseRefugee,
+            BackgroundType.MedicalSchoolDropout => TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout),
+            BackgroundType.ReleasedPoliticalPrisoner => TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner),
+            BackgroundType.SudaneseRefugee => TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee),
             _ => throw new ArgumentOutOfRangeException(nameof(backgroundType))
         };
 

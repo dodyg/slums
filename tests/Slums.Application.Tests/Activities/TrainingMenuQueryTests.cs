@@ -4,6 +4,7 @@ using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.Training;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Activities;
 
@@ -12,7 +13,7 @@ internal sealed class TrainingMenuQueryTests
     [Test]
     public void GetStatuses_ShouldReturnAllAvailableActivities()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         var context = TrainingMenuContext.Create(state);
         var query = new TrainingMenuQuery();
 
@@ -24,7 +25,7 @@ internal sealed class TrainingMenuQueryTests
     [Test]
     public void GetStatuses_ShouldShowActivityUnavailable_WhenWrongTime()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(1, 10, 0);
         var context = TrainingMenuContext.Create(state);
         var query = new TrainingMenuQuery();
@@ -41,7 +42,7 @@ internal sealed class TrainingMenuQueryTests
     [Test]
     public void GetStatuses_ShouldShowActivityAvailable_WhenEveningAndEnoughResources()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 19, 0);
         var context = TrainingMenuContext.Create(state);
@@ -58,7 +59,7 @@ internal sealed class TrainingMenuQueryTests
     [Test]
     public void GetStatuses_ShouldShowActivityUnavailable_WhenEnergyTooLow()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(5);
         state.Clock.SetTime(1, 19, 0);
         var context = TrainingMenuContext.Create(state);
@@ -76,7 +77,7 @@ internal sealed class TrainingMenuQueryTests
     [Test]
     public void GetStatuses_ShouldShowUnavailabilityReason_WhenWrongTime()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 10, 0);
         var context = TrainingMenuContext.Create(state);
@@ -93,7 +94,7 @@ internal sealed class TrainingMenuQueryTests
     [Test]
     public void GetStatuses_ShouldReflectTrainedTodayState()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetEnergy(100);
         state.Clock.SetTime(1, 18, 0);
 

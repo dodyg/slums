@@ -9,6 +9,7 @@ using Slums.Core.State;
 using Slums.Core.Weather;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Activities;
 
@@ -18,7 +19,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExposeBlockedContactRouteReason()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Market);
 
         var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
@@ -36,7 +37,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldMarkDokkiDropAvailable_WhenReliableWorkUnlockApplies()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Square);
         gameState.JobProgress.RestoreTrack(JobType.CallCenterWork, reliability: 60, shiftsCompleted: 3, lockoutUntilDay: 0);
 
@@ -52,9 +53,9 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldMarkNetworkErrandAvailable_WhenExPrisonerUnlockApplies()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Market);
-        gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+        gameState.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
         gameState.Relationships.SetFactionStanding(FactionId.ExPrisonerNetwork, 10);
 
         var statuses = query.GetStatuses(CrimeMenuContext.Create(gameState));
@@ -68,7 +69,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldMarkDepotFareSkimAvailable_WhenReliableDepotWorkUnlockApplies()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Depot);
         gameState.JobProgress.RestoreTrack(JobType.MicrobusDispatch, reliability: 60, shiftsCompleted: 3, lockoutUntilDay: 0);
 
@@ -83,7 +84,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldMarkShubraBundleLiftAvailable_WhenReliableLaundryWorkUnlockApplies()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Laundry);
         gameState.JobProgress.RestoreTrack(JobType.LaundryPressing, reliability: 60, shiftsCompleted: 3, lockoutUntilDay: 0);
 
@@ -98,10 +99,10 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExposeEffectiveCrimeModifiers()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Square);
         gameState.SetPolicePressure(70);
-        gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+        gameState.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
         gameState.Player.Skills.SetLevel(SkillId.StreetSmarts, 3);
         gameState.RestoreWorkState(totalHonestWorkEarnings: 0, honestShiftsCompleted: 0, lastHonestWorkDay: 0, lastPublicFacingWorkDay: gameState.Clock.Day);
 
@@ -121,7 +122,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExposeNarrativeSignals_ForHomeSuspicionAndMonaWarning()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Square);
         gameState.SetCrimeCounters(120, 1);
         gameState.Player.Household.SetMotherHealth(50);
@@ -140,7 +141,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExposeDistrictCrimePressure()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Square);
         gameState.World.SetActiveDistrictConditions(
         [
@@ -158,7 +159,7 @@ internal sealed class CrimeMenuStatusQueryTests
     public void GetStatuses_ShouldExplainWeatherWideCrimeClosure()
     {
         var query = new CrimeMenuStatusQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Market);
         gameState.RestoreWeather(WeatherType.Khamsin);
 

@@ -5,6 +5,7 @@ using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Activities;
 
@@ -14,7 +15,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldExposeHomeActionSet()
     {
         var query = new GameActionMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
 
@@ -36,8 +37,8 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldExposeEmergencySupport_ForSelectedBackgroundsDuringFirstWeek()
     {
         var query = new GameActionMenuQuery();
-        var gameState = new GameSession();
-        gameState.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        var gameState = TestSessions.Create();
+        gameState.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
 
@@ -48,7 +49,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldExposeLocationSpecificActions_AwayFromHome()
     {
         var query = new GameActionMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Depot);
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
@@ -66,7 +67,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldExposeHouseholdAction_AtFishMarket()
     {
         var query = new GameActionMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.FishMarket);
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
@@ -79,7 +80,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldExposePlantPurchaseAction_AtPlantShop()
     {
         var query = new GameActionMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.PlantShop);
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
@@ -92,7 +93,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldShowTrainAction_WhenTrainingAvailable()
     {
         var query = new GameActionMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
 
@@ -103,7 +104,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldPreviewFoodPreservation_WhenProvisioningIsHighEnoughAtHome()
     {
         var query = new GameActionMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Skills.SetLevel(SkillId.Provisioning, SkillThresholds.HighLevel);
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));
@@ -117,7 +118,7 @@ internal sealed class GameActionMenuQueryTests
     public void GetActions_ShouldUsePetsAndPlantsLabel_AtHomeWhenManagementIsAvailable()
     {
         var query = new GameActionMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.HouseholdAssets.BuyPlant(PlantType.Basil, 1, 1);
 
         var actions = query.GetActions(GameActionMenuContext.Create(gameState));

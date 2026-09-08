@@ -11,7 +11,7 @@ public sealed class AcquireItemCommand
         ArgumentException.ThrowIfNullOrWhiteSpace(itemId);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
 
-        var definition = ItemRegistry.GetById(itemId);
+        var definition = gameSession.ContentCatalog.GetItem(itemId);
         if (definition is null)
         {
             return (false, "That item is not part of the current catalog.");

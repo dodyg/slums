@@ -9,12 +9,13 @@ public sealed class JobService
 {
     private readonly IReadOnlyList<JobShift> _jobs;
 
-    public JobService(IEnumerable<JobShift>? jobs = null)
+    public JobService(IEnumerable<JobShift> jobs)
     {
-        _jobs = (jobs ?? JobRegistry.AllJobs).Where(static job => job is not null).ToArray();
+        ArgumentNullException.ThrowIfNull(jobs);
+        _jobs = jobs.Where(static job => job is not null).ToArray();
     }
 
-#pragma warning disable CA1822
+#pragma warning disable CA1822 // Service pattern: resolves against job definitions without touching instance state directly.
     public JobPreview PreviewJob(JobType jobType, PlayerCharacter player, RelationshipState relationshipState, JobProgressState jobProgressState)
 #pragma warning restore CA1822
     {
@@ -90,7 +91,7 @@ public sealed class JobService
             reliabilityGain);
     }
 
-#pragma warning disable CA1822 // Methods don't access instance data but this is a service pattern
+#pragma warning disable CA1822 // Service pattern: resolves against job definitions without touching instance state directly.
     public bool CanPerformJob(JobShift job, PlayerCharacter player, Location location, RelationshipState relationshipState, JobProgressState jobProgressState, int currentDay, out string reason)
 #pragma warning restore CA1822
     {
@@ -131,7 +132,7 @@ public sealed class JobService
         return true;
     }
 
-#pragma warning disable CA1822
+#pragma warning disable CA1822 // Service pattern: resolves against job definitions without touching instance state directly.
     public IEnumerable<JobShift> GetAvailableJobs(Location location, PlayerCharacter player, RelationshipState relationshipState, JobProgressState jobProgressState)
 #pragma warning restore CA1822
     {
@@ -152,9 +153,7 @@ public sealed class JobService
 
     private static JobResult PerformMistakeShift(JobShift job, PlayerCharacter player, JobProgressState jobProgressState, int currentDay, Random? random, int payModifier)
     {
-#pragma warning disable CA5394 // Random is sufficient for gameplay mechanics
         var reducedPay = Math.Max(0, (job.BasePay / 2) + (random?.Next(0, Math.Max(2, job.PayVariance)) ?? 0) + payModifier);
-#pragma warning restore CA5394
         var stressCost = job.StressCost + GetMistakeStressPenalty(job.Type);
         var lockoutDays = GetLockoutDays(job.Type);
         var lockoutUntilDay = lockoutDays > 0 ? currentDay + lockoutDays : 0;

@@ -61,8 +61,8 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     internal CrimeService CrimeService => _crimeService;
     internal GameCrimeState CrimeState => _crimeState;
 
-    public GameSession(Random? sharedRandom = null, GameContentCatalog? contentCatalog = null)
-        : this(sharedRandom, initializeWorldState: true, contentCatalog ?? GameContentCatalog.FromConfiguredRegistries())
+    public GameSession(Random? sharedRandom, GameContentCatalog contentCatalog)
+        : this(sharedRandom, initializeWorldState: true, contentCatalog ?? throw new ArgumentNullException(nameof(contentCatalog)))
     {
     }
 
@@ -90,9 +90,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         _rentState = new RentState();
         _contentCatalog = contentCatalog;
         _useDynamicDistrictConditions = sharedRandom is not null;
-#pragma warning disable CA5394 // Gameplay randomness does not require cryptographic strength
-        _sharedRandom = sharedRandom ?? new GameRandom((ulong)Random.Shared.NextInt64());
-#pragma warning restore CA5394
+        _sharedRandom = sharedRandom ?? GameRandom.FromEntropy();
         _locationPricingService = new LocationPricingService();
         _pendingNarrativeScenes = _narrativeState.PendingNarrativeScenes;
         _storyFlags = _narrativeState.StoryFlags;
@@ -115,10 +113,11 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     }
 
     /// <summary>Creates a session shell for persistence restoration without rolling world state.</summary>
-    public static GameSession CreateForRestore(Random sharedRandom, GameContentCatalog? contentCatalog = null)
+    public static GameSession CreateForRestore(Random sharedRandom, GameContentCatalog contentCatalog)
     {
         ArgumentNullException.ThrowIfNull(sharedRandom);
-        return new GameSession(sharedRandom, initializeWorldState: false, contentCatalog ?? GameContentCatalog.FromConfiguredRegistries());
+        ArgumentNullException.ThrowIfNull(contentCatalog);
+        return new GameSession(sharedRandom, initializeWorldState: false, contentCatalog);
     }
 
     /// <summary>Gets the immutable content catalog used by this session.</summary>
@@ -165,7 +164,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
     public int CrimeRouteLockedUntilDay => _crimeState.CrimeRouteLockedUntilDay;
     public int LastHonestWorkDay { get => _workState.LastHonestWorkDay; private set => _workState.LastHonestWorkDay = value; }
     public int LastPublicFacingWorkDay { get => _workState.LastPublicFacingWorkDay; private set => _workState.LastPublicFacingWorkDay = value; }
-    public IReadOnlyCollection<string> StoryFlags => _storyFlags;
+    public IReadOnlySet<string> StoryFlags => _storyFlags;
     public IReadOnlyDictionary<string, int> RandomEventHistory => _randomEventHistory;
     public bool HasCrimeCommittedToday => CrimeCommittedToday;
     public bool HasClaimedEmergencySupport => _runState.EmergencySupportClaimed;
@@ -495,9 +494,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => ClinicVisitService.GetCurrentLocationClinicStatus(this);
 #pragma warning restore CA1024
 
-#pragma warning disable CA1822
     public IReadOnlyList<Location> GetClinicLocations()
-#pragma warning restore CA1822
         => ClinicVisitService.GetClinicLocations(this);
 
     public ClinicTravelOption GetClinicTravelOption(LocationId clinicLocationId)
@@ -540,34 +537,34 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => HouseholdAssetsService.CanUse(this);
 
     public bool AdoptStreetCat()
-        => HouseholdAssetsService.AdoptStreetCat(this);
+        => PetAssetsService.AdoptStreetCat(this);
 
     public bool BuyFishTank()
-        => HouseholdAssetsService.BuyFishTank(this);
+        => PetAssetsService.BuyFishTank(this);
 
     public bool BuyPlant(PlantType plantType)
-        => HouseholdAssetsService.BuyPlant(this, plantType);
+        => PlantAssetsService.BuyPlant(this, plantType);
 
     public bool BuyRobot(RobotType robotType)
-        => HouseholdAssetsService.BuyRobot(this, robotType);
+        => RoboticsAssetsService.BuyRobot(this, robotType);
 
     public bool BuyRobotParts(int quantity = 1)
-        => HouseholdAssetsService.BuyRobotParts(this, quantity);
+        => RoboticsAssetsService.BuyRobotParts(this, quantity);
 
     public bool RepairRobot(Guid robotId)
-        => HouseholdAssetsService.RepairRobot(this, robotId);
+        => RoboticsAssetsService.RepairRobot(this, robotId);
 
     public bool PayPetCare()
-        => HouseholdAssetsService.PayPetCare(this);
+        => PetAssetsService.PayPetCare(this);
 
     public bool PayPlantCare()
-        => HouseholdAssetsService.PayPlantCare(this);
+        => PlantAssetsService.PayPlantCare(this);
 
     public bool UpgradePlant(Guid plantId, PlantUpgradeType upgradeType)
-        => HouseholdAssetsService.UpgradePlant(this, plantId, upgradeType);
+        => PlantAssetsService.UpgradePlant(this, plantId, upgradeType);
 
     public bool UpgradeFishTank(FishTankUpgradeType upgradeType)
-        => HouseholdAssetsService.UpgradeFishTank(this, upgradeType);
+        => PetAssetsService.UpgradeFishTank(this, upgradeType);
 
     public IReadOnlyList<NpcId> GetReachableNpcs()
     {
@@ -649,10 +646,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
             return;
         }
 
-        for (var i = 0; i < -delta; i++)
-        {
-            Player.Household.ConsumeFood();
-        }
+        Player.Household.ConsumeFood(-delta);
     }
 
     public void ModifyNpcTrust(NpcId npcId, int delta)
@@ -911,7 +905,7 @@ public sealed partial class GameSession : INarrativeOutcomeTarget
         => HouseholdAssetsService.ResolveWeekly(this);
 
     internal void TryRollStreetCatEncounter(Random random)
-        => HouseholdAssetsService.TryRollStreetCatEncounter(this, random);
+        => PetAssetsService.TryRollStreetCatEncounter(this, random);
 
     internal void ResolveWeeklyEconomy(Random random)
         => WeeklyEconomyResolution.Resolve(this, random);

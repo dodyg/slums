@@ -6,35 +6,25 @@ using Slums.Core.Jobs;
 public sealed class WorldState
 {
     private readonly List<ActiveDistrictCondition> _activeDistrictConditions = [];
-    private static IReadOnlyList<Location>? _configuredLocations;
     private readonly IReadOnlyList<Location> _locations;
 
-    public WorldState(IEnumerable<Location>? locations = null)
+    public WorldState(IEnumerable<Location> locations)
     {
-        _locations = locations is null
-            ? GetConfiguredLocations()
-            : Array.AsReadOnly(locations.Where(static location => location is not null).ToArray());
+        ArgumentNullException.ThrowIfNull(locations);
+
+        var locationList = locations.Where(static location => location is not null).ToArray();
+        if (locationList.Length == 0)
+        {
+            throw new ArgumentException("At least one location must be provided.", nameof(locations));
+        }
+
+        _locations = Array.AsReadOnly(locationList);
     }
 
     public DistrictId CurrentDistrict { get; private set; } = DistrictId.Imbaba;
     public LocationId CurrentLocationId { get; private set; } = LocationId.Home;
     public IReadOnlyList<ActiveDistrictCondition> ActiveDistrictConditions => _activeDistrictConditions;
     public IReadOnlyList<Location> Locations => _locations;
-
-    public static IReadOnlyList<Location> AllLocations => GetConfiguredLocations();
-
-    public static void ConfigureLocations(IEnumerable<Location> locations)
-    {
-        ArgumentNullException.ThrowIfNull(locations);
-
-        var configuredLocations = locations.Where(static location => location is not null).ToArray();
-        if (configuredLocations.Length == 0)
-        {
-            throw new InvalidOperationException("At least one location must be configured.");
-        }
-
-        _configuredLocations = configuredLocations;
-    }
 
     public Location? GetLocationById(LocationId locationId)
     {
@@ -83,11 +73,5 @@ public sealed class WorldState
 
         _activeDistrictConditions.Clear();
         _activeDistrictConditions.AddRange(configuredConditions);
-    }
-
-    private static IReadOnlyList<Location> GetConfiguredLocations()
-    {
-        return _configuredLocations
-            ?? throw new InvalidOperationException("Location content is not configured. Configure GameContentCatalog before querying locations.");
     }
 }

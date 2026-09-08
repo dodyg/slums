@@ -5,6 +5,7 @@ using Slums.Core.Narrative;
 using Slums.Core.State;
 using Slums.Core.State.DailyResolution;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Community;
 
@@ -13,7 +14,7 @@ internal sealed class CommunityEventServiceTests
     [Test]
     public void GetAvailable_ShouldFilterInvitationOnlyEvents()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         CommunityEventService.GetAvailable(session)
             .Should().NotContain(static definition => definition.Id == CommunityEventId.RooftopTeaCircle);
@@ -27,8 +28,8 @@ internal sealed class CommunityEventServiceTests
     [Test]
     public void RequestEmergencySupport_ShouldClaimOnlyOnce()
     {
-        var session = new GameSession();
-        session.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        var session = TestSessions.Create();
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
 
         CommunityEventService.RequestEmergencySupport(session).Should().BeTrue();
         CommunityEventService.RequestEmergencySupport(session).Should().BeFalse();
@@ -38,7 +39,7 @@ internal sealed class CommunityEventServiceTests
     [Test]
     public void Mulid_ShouldOnlyBeAvailableOnItsAnchorDays()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(22, 8, 0);
 
         CommunityEventService.GetAvailable(session).Should().NotContain(static item => item.Id == CommunityEventId.MulidFestival);
@@ -53,7 +54,7 @@ internal sealed class CommunityEventServiceTests
     [Test]
     public void MulidAttendance_ShouldRecordHolidayWitnessFlag()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(23, 8, 0);
         session.Player.Stats.SetMoney(100);
 
@@ -65,7 +66,7 @@ internal sealed class CommunityEventServiceTests
     [Test]
     public void HolidayEffect_ShouldRecordWitnessFlag()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(99, 8, 0);
 
         DailyStatResolution.ApplyDecayAndRecovery(session, 15);

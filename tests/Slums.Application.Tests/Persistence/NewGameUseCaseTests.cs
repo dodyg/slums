@@ -4,6 +4,7 @@ using Slums.Application.Persistence;
 using Slums.Application.Randomness;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Persistence;
 
@@ -15,7 +16,7 @@ internal sealed class NewGameUseCaseTests
         var sharedRandom = new Random(2060);
         var randomSource = Substitute.For<IRandomSource>();
         randomSource.SharedRandom.Returns(sharedRandom);
-        var useCase = new NewGameUseCase(randomSource);
+        var useCase = new NewGameUseCase(randomSource, contentCatalogProvider: TestContent.CreateProvider());
 
         var session = useCase.Execute();
 

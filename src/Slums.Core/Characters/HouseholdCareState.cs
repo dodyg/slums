@@ -136,6 +136,12 @@ public sealed class HouseholdCareState
         }
     }
 
+    public void ConsumeFood(int units)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(units);
+        StaplesUnits = Math.Max(0, StaplesUnits - units);
+    }
+
     public bool GiveMedicine()
     {
         if (MedicineStock <= 0)

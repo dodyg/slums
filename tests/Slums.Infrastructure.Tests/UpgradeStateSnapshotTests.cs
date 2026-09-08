@@ -4,6 +4,7 @@ using Slums.Core.Narrative;
 using Slums.Core.State;
 using Slums.Infrastructure.Persistence;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Infrastructure.Tests;
 
@@ -12,8 +13,8 @@ internal sealed class UpgradeStateSnapshotTests
     [Test]
     public async Task Snapshot_ShouldPreserveTechnologyArcsAndPendingEnding()
     {
-        var original = new GameSession();
-        original.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.MedicalSchoolDropout));
+        var original = TestSessions.Create();
+        original.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
         original.Technology.RecordHandsetUse(4);
         original.Technology.RecordMicrogridRepair(7, 3);
         original.Technology.RecordBiometricAppeal();
@@ -26,7 +27,7 @@ internal sealed class UpgradeStateSnapshotTests
         original.SetPolicePressure(10);
         original.TryChooseEnding(EndingId.StabilityHonestWork);
 
-        var restored = GameSessionSnapshot.Capture(original).Restore();
+        var restored = GameSessionSnapshot.Capture(original).Restore(TestContent.Catalog);
 
         await Assert.That(restored.Technology.HandsetDataExposure).IsEqualTo(4);
         await Assert.That(restored.Technology.MicrogridRepairDebt).IsEqualTo(7);

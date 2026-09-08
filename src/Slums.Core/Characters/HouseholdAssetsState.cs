@@ -12,11 +12,13 @@ public sealed class HouseholdAssetsState
     private readonly IReadOnlyList<PlantDefinition> _plantDefinitions;
 
     public HouseholdAssetsState(
-        IEnumerable<PetDefinition>? petDefinitions = null,
-        IEnumerable<PlantDefinition>? plantDefinitions = null)
+        IEnumerable<PetDefinition> petDefinitions,
+        IEnumerable<PlantDefinition> plantDefinitions)
     {
-        _petDefinitions = (petDefinitions ?? PetRegistry.AllDefinitions).Where(static definition => definition is not null).ToArray();
-        _plantDefinitions = (plantDefinitions ?? PlantRegistry.AllDefinitions).Where(static definition => definition is not null).ToArray();
+        ArgumentNullException.ThrowIfNull(petDefinitions);
+        ArgumentNullException.ThrowIfNull(plantDefinitions);
+        _petDefinitions = petDefinitions.Where(static definition => definition is not null).ToArray();
+        _plantDefinitions = plantDefinitions.Where(static definition => definition is not null).ToArray();
     }
 
     public IReadOnlyList<OwnedPet> Pets => _pets;

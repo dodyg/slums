@@ -110,7 +110,7 @@ internal static class DailyWorldResolution
 
     internal static void RollDailyEvents(GameSession session, Random random)
     {
-        foreach (var randomEvent in session.RandomEventService.RollDailyEvents(session, random))
+        foreach (var randomEvent in RandomEventService.RollDailyEvents(session, random))
         {
             session.ApplyRandomEvent(randomEvent);
         }

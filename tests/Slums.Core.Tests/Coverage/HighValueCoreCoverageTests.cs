@@ -13,6 +13,7 @@ using Slums.Core.Weather;
 using Slums.Core.World;
 using Slums.Core.World.News;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Coverage;
 
@@ -22,7 +23,7 @@ internal sealed class HighValueCoreCoverageTests
     [Test]
     public void SkillService_ShouldAdvanceSkillLevel()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         SkillService.ApplySkillGain(SkillId.Medical, session, out var newLevel).Should().BeTrue();
 
@@ -33,7 +34,7 @@ internal sealed class HighValueCoreCoverageTests
     [Test]
     public void DebtService_ShouldRejectAnUnaffordableRepayment()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.NeighborMona, 20, 0);
         DebtService.BorrowFromNpc(
             NpcId.NeighborMona, 30, session.Clock.Day, session.Player, session.Relationships,
@@ -51,7 +52,6 @@ internal sealed class HighValueCoreCoverageTests
     [Test]
     public void NewsImpactCalculator_ShouldSumOnlyMatchingActiveEffects()
     {
-        using var registryScope = new TestSupport.GlobalRegistryScope();
         var definition = new NewsFlashDefinition
         {
             Id = "coverage_news",
@@ -62,12 +62,11 @@ internal sealed class HighValueCoreCoverageTests
                 new NewsEffectDefinition { Type = NewsEffectType.FoodPriceModifier, Amount = 7, District = DistrictId.Dokki }
             ]
         };
-        NewsRegistry.Configure([definition]);
         var state = new NewsState();
         state.Activate(definition, 1);
 
-        NewsImpactCalculator.GetFoodPriceModifier(state, DistrictId.Imbaba).Should().Be(4);
-        NewsImpactCalculator.GetFoodPriceModifier(state, DistrictId.Dokki).Should().Be(7);
+        NewsImpactCalculator.GetFoodPriceModifier(state, DistrictId.Imbaba, [definition]).Should().Be(4);
+        NewsImpactCalculator.GetFoodPriceModifier(state, DistrictId.Dokki, [definition]).Should().Be(7);
     }
 
     [Test]
@@ -99,9 +98,9 @@ internal sealed class HighValueCoreCoverageTests
     [Test]
     public void RobotRegistry_ShouldExposeConfiguredRepairDefinitions()
     {
-        RobotRegistry.AllDefinitions.Should().NotBeEmpty();
-        RobotRegistry.AllDefinitions.Should().OnlyContain(robot => robot.PurchaseCost > robot.RepairCost && robot.RepairCondition > 0 && robot.RepairCondition <= 100);
-        RobotRegistry.GetByType(RobotType.RepairDrone).Name.Should().Be("Repair Drone");
+        TestContent.Catalog.Robots.Should().NotBeEmpty();
+        TestContent.Catalog.Robots.Should().OnlyContain(robot => robot.PurchaseCost > robot.RepairCost && robot.RepairCondition > 0 && robot.RepairCondition <= 100);
+        TestContent.Catalog.GetRobot(RobotType.RepairDrone).Name.Should().Be("Repair Drone");
     }
 
     [Test]

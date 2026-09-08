@@ -293,7 +293,7 @@ internal static class WorkSessionService
 
     private static void ApplyWorkCrimeSpillover(GameSession session, JobShift job, JobResult result)
     {
-        var publicWorkHeat = WorkNarrativePlanner.GetPublicWorkHeatPlan(session.Clock.Day, session.LastCrimeDay, session.PolicePressure, session.StoryFlags.ToHashSet(), job);
+        var publicWorkHeat = WorkNarrativePlanner.GetPublicWorkHeatPlan(session.Clock.Day, session.LastCrimeDay, session.PolicePressure, session.StoryFlags, job);
         if (publicWorkHeat is not null)
         {
             session.Player.Stats.ModifyStress(publicWorkHeat.StressDelta);
@@ -311,7 +311,7 @@ internal static class WorkSessionService
 
     private static void ApplyBackgroundWorkFlavor(GameSession session, JobShift job, JobResult result)
     {
-        session.TryQueueNarrativeTrigger(WorkNarrativePlanner.GetMedicalClinicTrigger(session.Player, job, result, session.StoryFlags.ToHashSet()));
+        session.TryQueueNarrativeTrigger(WorkNarrativePlanner.GetMedicalClinicTrigger(session.Player, job, result, session.StoryFlags));
         if (WorkNarrativePlanner.ShouldGrantSalmaMedicineHelp(session.Player, job, result, session.Relationships))
         {
             session.Relationships.RecordFavor(NpcId.NurseSalma, session.Clock.Day, hasUnpaidDebt: true);

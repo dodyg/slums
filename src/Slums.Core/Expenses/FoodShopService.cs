@@ -19,56 +19,19 @@ internal static class FoodShopService
     internal static int GetFoodCost(GameSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
-        var districtCondition = session.GetActiveDistrictConditionDefinition(session.World.CurrentDistrict);
-        var schedule = session.GetCurrentSchedule();
-        var seasonModifiers = SeasonModifiersRegistry.GetModifiers(session.GetCurrentSeason());
-        var baseModifier = (districtCondition?.Effect.FoodCostModifier ?? 0) + schedule.FoodCostModifier + seasonModifiers.FoodCostModifier + session.CurrentWeather.FoodCostModifier;
-        if (session.Player.BackgroundType == BackgroundType.SudaneseRefugee && schedule.FoodCostModifier < 0)
-        {
-            baseModifier -= 1;
-        }
-
-        baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(session.Territory, session.World.CurrentDistrict);
-        baseModifier += MealService.GetUmmKarimFoodDiscount(session);
-        var foodPriceShock = NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict, session.ContentCatalog.NewsFlashes);
-        baseModifier += foodPriceShock;
-        baseModifier -= InvestmentPurchaseService.GetFoodCostDiscount(session, session.World.CurrentDistrict);
-
-        var modifiedCost = session.LocationPricing.GetFoodCost(session.World.CurrentDistrict)
-            + baseModifier
-            - ProvisioningCalculator.GetFoodPriceReduction(session.Player.Skills.GetLevel(SkillId.Provisioning), foodPriceShock);
-        return Math.Max(1, modifiedCost);
+        return PriceModifierPipeline.GetFoodCost(session);
     }
 
     internal static int GetStreetFoodCost(GameSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
-        var districtCondition = session.GetActiveDistrictConditionDefinition(session.World.CurrentDistrict);
-        var schedule = session.GetCurrentSchedule();
-        var seasonModifiers = SeasonModifiersRegistry.GetModifiers(session.GetCurrentSeason());
-        var baseModifier = (districtCondition?.Effect.StreetFoodCostModifier ?? 0) + schedule.FoodCostModifier + seasonModifiers.FoodCostModifier + session.CurrentWeather.FoodCostModifier;
-        if (session.Player.BackgroundType == BackgroundType.SudaneseRefugee && schedule.FoodCostModifier < 0)
-        {
-            baseModifier -= 1;
-        }
-
-        baseModifier += TerritoryDynamicsCalculator.GetFoodPriceModifier(session.Territory, session.World.CurrentDistrict);
-        baseModifier += MealService.GetUmmKarimFoodDiscount(session);
-        baseModifier += NewsImpactCalculator.GetFoodPriceModifier(session.News, session.World.CurrentDistrict, session.ContentCatalog.NewsFlashes);
-
-        var modifiedCost = session.LocationPricing.GetStreetFoodCost(session.World.CurrentDistrict) + baseModifier;
-        return Math.Max(1, modifiedCost);
+        return PriceModifierPipeline.GetStreetFoodCost(session);
     }
 
     internal static int GetMedicineCost(GameSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
-        var districtCondition = session.GetActiveDistrictConditionDefinition(session.World.CurrentDistrict);
-        var modifiedCost = session.LocationPricing.GetMedicineCost(session.World.CurrentDistrict, session.World.CurrentLocationId, session.Relationships, session.Player.Skills)
-            + (districtCondition?.Effect.MedicineCostModifier ?? 0)
-            + InfrastructureImpactCalculator.GetMedicinePriceModifier(session.Infrastructure, session.World.CurrentDistrict);
-        modifiedCost -= InvestmentPurchaseService.GetMedicineCostDiscount(session);
-        return Math.Max(1, modifiedCost);
+        return PriceModifierPipeline.GetMedicineCost(session);
     }
 
     internal static bool BuyFood(GameSession session)

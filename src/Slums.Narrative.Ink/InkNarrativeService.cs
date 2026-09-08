@@ -3,6 +3,8 @@ using Ink.Runtime;
 using Microsoft.Extensions.Logging;
 using Slums.Application.Narrative;
 
+using Slums.Core.Diagnostics;
+
 namespace Slums.Narrative.Ink;
 
 public sealed class InkNarrativeService : INarrativeService
@@ -124,13 +126,13 @@ public sealed class InkNarrativeService : INarrativeService
     }
 
     private static readonly Action<ILogger, string, Exception?> LogSceneStartedDelegate =
-        LoggerMessage.Define<string>(LogLevel.Information, new EventId(1, "SceneStarted"), "Started Ink scene: {KnotName}");
+        LoggerMessage.Define<string>(LogLevel.Information, new EventId(LogEvents.SceneStarted, "SceneStarted"), "Started Ink scene: {KnotName}");
 
     private static readonly Action<ILogger, Exception?> LogSceneEndedDelegate =
-        LoggerMessage.Define(LogLevel.Debug, new EventId(3, "SceneEnded"), "Ended Ink scene");
+        LoggerMessage.Define(LogLevel.Debug, new EventId(LogEvents.SceneCompleted, "SceneEnded"), "Ended Ink scene");
 
     private static readonly Action<ILogger, Exception?> LogStoryEndedDelegate =
-        LoggerMessage.Define(LogLevel.Debug, new EventId(4, "StoryEnded"), "Story reached natural end");
+        LoggerMessage.Define(LogLevel.Debug, new EventId(LogEvents.StoryEnded, "StoryEnded"), "Story reached natural end");
 
     private static void LogSceneStarted(ILogger logger, string knotName) =>
         LogSceneStartedDelegate(logger, knotName, null);

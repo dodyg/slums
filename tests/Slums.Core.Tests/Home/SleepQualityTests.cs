@@ -2,6 +2,7 @@ using Slums.Core.Characters;
 using Slums.Core.Home;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Home;
 
@@ -9,7 +10,7 @@ internal sealed class SleepQualityTests
 {
     private static GameSession CreateSessionWithEaten()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Nutrition.Eat(MealQuality.Basic);
         return state;
     }
@@ -71,7 +72,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task DidNotEatToday_ShouldReduceBy5()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         var recovery = SleepQualityCalculator.CalculateRecovery(
             state.Player.Stats, state.Player.Nutrition, state.Player.Household,
             state.UnpaidRentDays, state.HomeUpgrades);
@@ -171,7 +172,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task MinimumRecovery_ShouldBe10()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetStress(90);
         state.Player.Nutrition.SetDaysUndereating(3);
         state.Player.Household.SetMotherHealth(20);
@@ -194,7 +195,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task OvernightRecovery_MinimumShouldBe5()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetStress(90);
         state.Player.Nutrition.SetDaysUndereating(3);
         state.Player.Household.SetMotherHealth(20);
@@ -235,7 +236,7 @@ internal sealed class SleepQualityTests
     [Test]
     public async Task BuildRecoveryBreakdown_ShouldUseTheSameStackedModifiersAsRecovery()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Player.Stats.SetStress(85);
         state.Player.Nutrition.SetDaysUndereating(3);
         state.Player.Household.SetMotherHealth(20);

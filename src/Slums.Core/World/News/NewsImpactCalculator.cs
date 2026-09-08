@@ -4,19 +4,19 @@ namespace Slums.Core.World.News;
 
 public static class NewsImpactCalculator
 {
-    public static int GetFoodPriceModifier(NewsState state, DistrictId district, IReadOnlyList<NewsFlashDefinition>? definitions = null)
+    public static int GetFoodPriceModifier(NewsState state, DistrictId district, IReadOnlyList<NewsFlashDefinition> definitions)
     {
         ArgumentNullException.ThrowIfNull(state);
         return GetEffectTotal(state, NewsEffectType.FoodPriceModifier, district, definitions);
     }
 
-    public static int GetTravelCostModifier(NewsState state, DistrictId district, IReadOnlyList<NewsFlashDefinition>? definitions = null)
+    public static int GetTravelCostModifier(NewsState state, DistrictId district, IReadOnlyList<NewsFlashDefinition> definitions)
     {
         ArgumentNullException.ThrowIfNull(state);
         return GetEffectTotal(state, NewsEffectType.TravelCostModifier, district, definitions);
     }
 
-    public static int GetJobPayModifier(NewsState state, JobType jobType, IReadOnlyList<NewsFlashDefinition>? definitions = null)
+    public static int GetJobPayModifier(NewsState state, JobType jobType, IReadOnlyList<NewsFlashDefinition> definitions)
     {
         ArgumentNullException.ThrowIfNull(state);
         return GetActiveDefinitions(state, definitions)
@@ -25,13 +25,13 @@ public static class NewsImpactCalculator
             .Sum(static effect => effect.Amount);
     }
 
-    public static int GetPolicePressureModifier(NewsState state, DistrictId district, IReadOnlyList<NewsFlashDefinition>? definitions = null)
+    public static int GetPolicePressureModifier(NewsState state, DistrictId district, IReadOnlyList<NewsFlashDefinition> definitions)
     {
         ArgumentNullException.ThrowIfNull(state);
         return GetEffectTotal(state, NewsEffectType.PolicePressureModifier, district, definitions);
     }
 
-    public static int GetNpcHardshipModifier(NewsState state, IReadOnlyList<NewsFlashDefinition>? definitions = null)
+    public static int GetNpcHardshipModifier(NewsState state, IReadOnlyList<NewsFlashDefinition> definitions)
     {
         ArgumentNullException.ThrowIfNull(state);
         return GetActiveDefinitions(state, definitions)
@@ -46,7 +46,7 @@ public static class NewsImpactCalculator
         return state.ActiveFlashes.Select(static flash => flash.DefinitionId).ToHashSet(StringComparer.Ordinal);
     }
 
-    private static int GetEffectTotal(NewsState state, NewsEffectType type, DistrictId district, IReadOnlyList<NewsFlashDefinition>? definitions)
+    private static int GetEffectTotal(NewsState state, NewsEffectType type, DistrictId district, IReadOnlyList<NewsFlashDefinition> definitions)
     {
         return GetActiveDefinitions(state, definitions)
             .Where(definition => definition.AffectedDistricts.Count == 0 || definition.AffectedDistricts.Contains(district))
@@ -55,10 +55,10 @@ public static class NewsImpactCalculator
             .Sum(static effect => effect.Amount);
     }
 
-    private static IEnumerable<NewsFlashDefinition> GetActiveDefinitions(NewsState state, IReadOnlyList<NewsFlashDefinition>? definitions)
+    private static IEnumerable<NewsFlashDefinition> GetActiveDefinitions(NewsState state, IReadOnlyList<NewsFlashDefinition> definitions)
     {
         return state.ActiveFlashes
-            .Select(flash => (definitions ?? NewsRegistry.All).FirstOrDefault(definition => definition.Id == flash.DefinitionId))
+            .Select(flash => definitions.FirstOrDefault(definition => definition.Id == flash.DefinitionId))
             .OfType<NewsFlashDefinition>();
     }
 }

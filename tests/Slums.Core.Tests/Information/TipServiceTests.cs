@@ -3,6 +3,7 @@ using Slums.Core.Information;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Information;
 
@@ -11,7 +12,7 @@ internal sealed class TipServiceTests
     [Test]
     public void Acknowledge_ShouldUseTheTipServiceAndRecordMutation()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var tip = new Tip
         {
             Id = "service-tip",
@@ -33,7 +34,7 @@ internal sealed class TipServiceTests
     [Test]
     public void Restore_ShouldHydrateTheExistingTipState()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var tips = session.Tips;
 
         TipService.Restore(

@@ -13,7 +13,6 @@ internal sealed class WorldEnrichmentApplicationTests
     [Test]
     public async Task NewsMenuQuery_ShouldShowVisibleCostsAndUnavailableRequirements()
     {
-        using var registryScope = new GlobalRegistryScope();
         var definition = new NewsFlashDefinition
         {
             Id = "application_news",
@@ -31,9 +30,9 @@ internal sealed class WorldEnrichmentApplicationTests
                 RequiredItemQuantity = 1
             }]
         };
-        NewsRegistry.Configure([definition]);
-        ItemRegistry.Configure([new ItemDefinition { Id = "work_papers", Name = "Work papers", Description = "papers", MaximumQuantity = 1 }]);
-        var gameSession = new Slums.Core.State.GameSession();
+        var gameSession = TestSessions.Create(contentCatalog: TestContent.CatalogWith(
+            newsFlashes: [definition],
+            items: [new ItemDefinition { Id = "work_papers", Name = "Work papers", Description = "papers", MaximumQuantity = 1 }]));
         gameSession.News.Activate(definition, gameSession.Clock.Day);
 
         var status = new NewsMenuQuery().GetStatus(NewsMenuContext.Create(gameSession), gameSession.Inventory.Quantities, gameSession.Player.Stats.Money);
@@ -46,7 +45,6 @@ internal sealed class WorldEnrichmentApplicationTests
     [Test]
     public async Task NewsResponseCommand_ShouldConsumeItemAndMarkResponseUsed()
     {
-        using var registryScope = new GlobalRegistryScope();
         var definition = new NewsFlashDefinition
         {
             Id = "response_news",
@@ -64,8 +62,7 @@ internal sealed class WorldEnrichmentApplicationTests
                 OutcomeMessage = "Shared locally."
             }]
         };
-        NewsRegistry.Configure([definition]);
-        var gameSession = new Slums.Core.State.GameSession();
+        var gameSession = TestSessions.Create(contentCatalog: TestContent.CatalogWith(newsFlashes: [definition]));
         gameSession.News.Activate(definition, gameSession.Clock.Day);
         gameSession.Inventory.Add("work_papers", 1, 1);
 
@@ -80,9 +77,8 @@ internal sealed class WorldEnrichmentApplicationTests
     [Test]
     public async Task InventoryMenuQuery_ShouldDescribeKnownItems()
     {
-        using var registryScope = new GlobalRegistryScope();
-        ItemRegistry.Configure([new ItemDefinition { Id = "repair_component", Name = "Repair component", Description = "A connector", MaximumQuantity = 2 }]);
-        var gameSession = new Slums.Core.State.GameSession();
+        var gameSession = TestSessions.Create(contentCatalog: TestContent.CatalogWith(
+            items: [new ItemDefinition { Id = "repair_component", Name = "Repair component", Description = "A connector", MaximumQuantity = 2 }]));
         gameSession.Inventory.Add("repair_component", 1, 2);
 
         var entries = new InventoryMenuQuery().GetEntries(InventoryMenuContext.Create(gameSession));

@@ -47,7 +47,7 @@ public sealed record CrimeMenuContext(
             gameSession.TotalCrimeEarnings,
             gameSession.CrimesCommitted,
             options,
-            gameSession.StoryFlags.ToHashSet(StringComparer.Ordinal));
+            gameSession.StoryFlags);
     }
 
     public bool HasStoryFlag(string flag)

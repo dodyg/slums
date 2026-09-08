@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Slums.Core.Characters;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Characters;
 
@@ -9,7 +10,7 @@ internal sealed class PlayerCharacterTests
     [Test]
     public async Task Constructor_ShouldInitializeWithDefaultValues()
     {
-        var player = new PlayerCharacter();
+        var player = new PlayerCharacter(TestContent.Catalog);
 
         await Assert.That(player.Name).IsEqualTo("Amira");
         await Assert.That(player.Age).IsEqualTo(24);
@@ -23,7 +24,7 @@ internal sealed class PlayerCharacterTests
     [Test]
     public async Task ApplyBackground_ShouldSetBackgroundProperties()
     {
-        var player = new PlayerCharacter();
+        var player = new PlayerCharacter(TestContent.Catalog);
         var background = new Background
         {
             Type = BackgroundType.ReleasedPoliticalPrisoner,
@@ -48,7 +49,7 @@ internal sealed class PlayerCharacterTests
     [Test]
     public async Task ApplyBackground_ShouldSetPlayerStats()
     {
-        var player = new PlayerCharacter();
+        var player = new PlayerCharacter(TestContent.Catalog);
         var background = new Background
         {
             Type = BackgroundType.SudaneseRefugee,
@@ -71,7 +72,7 @@ internal sealed class PlayerCharacterTests
     [Test]
     public async Task ApplyBackground_ShouldSetHouseholdState()
     {
-        var player = new PlayerCharacter();
+        var player = new PlayerCharacter(TestContent.Catalog);
         var background = new Background
         {
             Type = BackgroundType.MedicalSchoolDropout,
@@ -88,7 +89,7 @@ internal sealed class PlayerCharacterTests
     [Test]
     public async Task ApplyBackground_ShouldThrow_WhenBackgroundIsNull()
     {
-        var player = new PlayerCharacter();
+        var player = new PlayerCharacter(TestContent.Catalog);
 
         var act = () => player.ApplyBackground(null!);
 
@@ -98,7 +99,7 @@ internal sealed class PlayerCharacterTests
     [Test]
     public async Task ApplyGender_ShouldChangeNameThroughTheIdentityCommand()
     {
-        var player = new PlayerCharacter();
+        var player = new PlayerCharacter(TestContent.Catalog);
 
         player.ApplyGender(Gender.Male);
 
@@ -108,7 +109,7 @@ internal sealed class PlayerCharacterTests
     [Test]
     public async Task ApplyGender_Male_ShouldSetNameToKarim()
     {
-        var player = new PlayerCharacter();
+        var player = new PlayerCharacter(TestContent.Catalog);
         player.ApplyGender(Gender.Male);
 
         await Assert.That(player.Gender).IsEqualTo(Gender.Male);
@@ -118,7 +119,7 @@ internal sealed class PlayerCharacterTests
     [Test]
     public async Task ApplyGender_Female_ShouldSetNameToAmira()
     {
-        var player = new PlayerCharacter();
+        var player = new PlayerCharacter(TestContent.Catalog);
         player.ApplyGender(Gender.Female);
 
         await Assert.That(player.Gender).IsEqualTo(Gender.Female);
@@ -128,7 +129,7 @@ internal sealed class PlayerCharacterTests
     [Test]
     public async Task Gender_DefaultIsFemale()
     {
-        var player = new PlayerCharacter();
+        var player = new PlayerCharacter(TestContent.Catalog);
 
         await Assert.That(player.Gender).IsEqualTo(Gender.Female);
     }
@@ -161,7 +162,7 @@ internal sealed class BackgroundRegistryTests
     [Test]
     public async Task AllBackgrounds_ShouldContainAllThreeBackgrounds()
     {
-        var all = BackgroundRegistry.AllBackgrounds;
+        var all = TestContent.Catalog.Backgrounds;
 
         all.Should().HaveCount(3);
         all.Select(b => b.Type).Should().Contain(
@@ -171,7 +172,7 @@ internal sealed class BackgroundRegistryTests
     [Test]
     public async Task MedicalSchoolDropout_ShouldHaveCorrectValues()
     {
-        var bg = BackgroundRegistry.MedicalSchoolDropout;
+        var bg = TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout);
 
         await Assert.That(bg.Type).IsEqualTo(BackgroundType.MedicalSchoolDropout);
         await Assert.That(bg.Name).Contains("Medical");
@@ -182,7 +183,7 @@ internal sealed class BackgroundRegistryTests
     [Test]
     public async Task ReleasedPoliticalPrisoner_ShouldHaveCorrectValues()
     {
-        var bg = BackgroundRegistry.ReleasedPoliticalPrisoner;
+        var bg = TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner);
 
         await Assert.That(bg.Type).IsEqualTo(BackgroundType.ReleasedPoliticalPrisoner);
         await Assert.That(bg.Name).Contains("Prisoner");
@@ -192,7 +193,7 @@ internal sealed class BackgroundRegistryTests
     [Test]
     public async Task SudaneseRefugee_ShouldHaveCorrectValues()
     {
-        var bg = BackgroundRegistry.SudaneseRefugee;
+        var bg = TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee);
 
         await Assert.That(bg.Type).IsEqualTo(BackgroundType.SudaneseRefugee);
         await Assert.That(bg.Name).Contains("Refugee");
@@ -202,11 +203,11 @@ internal sealed class BackgroundRegistryTests
     [Test]
     public async Task GetByType_ShouldReturnCorrectBackground()
     {
-        await Assert.That(BackgroundRegistry.GetByType(BackgroundType.MedicalSchoolDropout))
-            .IsEqualTo(BackgroundRegistry.MedicalSchoolDropout);
-        await Assert.That(BackgroundRegistry.GetByType(BackgroundType.ReleasedPoliticalPrisoner))
-            .IsEqualTo(BackgroundRegistry.ReleasedPoliticalPrisoner);
-        await Assert.That(BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee))
-            .IsEqualTo(BackgroundRegistry.SudaneseRefugee);
+        await Assert.That(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout))
+            .IsEqualTo(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
+        await Assert.That(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner))
+            .IsEqualTo(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
+        await Assert.That(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee))
+            .IsEqualTo(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
     }
 }

@@ -4,6 +4,7 @@ using Slums.Core.Narrative;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Narrative;
 
@@ -12,7 +13,7 @@ internal sealed class NarrativeFollowUpPlannerExtendedTests
     [Test]
     public async Task GetEndOfDayTriggers_FiresArrestCloseCall_WhenPressureHigh()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var flags = new HashSet<string>(StringComparer.Ordinal);
 
         var triggers = NarrativeFollowUpPlanner.GetEndOfDayTriggers(
@@ -31,7 +32,7 @@ internal sealed class NarrativeFollowUpPlannerExtendedTests
     [Test]
     public async Task GetEndOfDayTriggers_DoesNotFireArrestCloseCall_WhenPressureLow()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var flags = new HashSet<string>(StringComparer.Ordinal);
 
         var triggers = NarrativeFollowUpPlanner.GetEndOfDayTriggers(
@@ -50,8 +51,8 @@ internal sealed class NarrativeFollowUpPlannerExtendedTests
     [Test]
     public async Task GetEndOfDayTriggers_FiresPrisonerKhalid_WhenPrisonerAndLowTrust()
     {
-        var session = new GameSession();
-        session.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+        var session = TestSessions.Create();
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
         session.Relationships.SetNpcRelationship(NpcId.OfficerKhalid, -5, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -72,8 +73,8 @@ internal sealed class NarrativeFollowUpPlannerExtendedTests
     [Test]
     public async Task GetEndOfDayTriggers_FiresSudaneseMariam_WhenSudaneseAndHighTrust()
     {
-        var session = new GameSession();
-        session.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        var session = TestSessions.Create();
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         session.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 12, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -94,7 +95,7 @@ internal sealed class NarrativeFollowUpPlannerExtendedTests
     [Test]
     public async Task GetEndOfDayTriggers_FiresYoussefEmbedded_WhenCrimesAndTrustHigh()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.RunnerYoussef, 18, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -115,8 +116,8 @@ internal sealed class NarrativeFollowUpPlannerExtendedTests
     [Test]
     public async Task GetEndOfDayTriggers_FiresMultipleTriggers_WhenConditionsMet()
     {
-        var session = new GameSession();
-        session.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+        var session = TestSessions.Create();
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
         session.Relationships.SetNpcRelationship(NpcId.OfficerKhalid, -5, session.Clock.Day);
         session.Relationships.SetNpcRelationship(NpcId.RunnerYoussef, 18, session.Clock.Day);
 
@@ -137,7 +138,7 @@ internal sealed class NarrativeFollowUpPlannerExtendedTests
     [Test]
     public async Task GetWorkFollowUpTriggers_FiresHonestMilestone_When10Shifts()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var flags = new HashSet<string>(StringComparer.Ordinal);
 
         var triggers = NarrativeFollowUpPlanner.GetWorkFollowUpTriggers(
@@ -153,7 +154,7 @@ internal sealed class NarrativeFollowUpPlannerExtendedTests
     [Test]
     public async Task GetWorkFollowUpTriggers_DoesNotFireHonestMilestone_WhenBelow10()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var flags = new HashSet<string>(StringComparer.Ordinal);
 
         var triggers = NarrativeFollowUpPlanner.GetWorkFollowUpTriggers(
@@ -169,7 +170,7 @@ internal sealed class NarrativeFollowUpPlannerExtendedTests
     [Test]
     public async Task GetWorkFollowUpTriggers_FiresEmbarrassmentRecovery_WhenTrustRecovered()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetEmbarrassedState(NpcId.WorkshopBossAbuSamir, true);
         session.Relationships.SetNpcRelationship(NpcId.WorkshopBossAbuSamir, 7, session.Clock.Day);
 
@@ -188,7 +189,7 @@ internal sealed class NarrativeFollowUpPlannerExtendedTests
     [Test]
     public async Task GetWorkFollowUpTriggers_FiresNadiaSuspicion_WhenDoubleLife()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Relationships.SetNpcRelationship(NpcId.CafeOwnerNadia, 12, session.Clock.Day);
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -206,7 +207,7 @@ internal sealed class NarrativeFollowUpPlannerExtendedTests
     [Test]
     public async Task GetCommunityAftermathTrigger_ReturnsTrigger_WhenAttended2()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.EventAttendance.TotalAttended = 2;
 
         var flags = new HashSet<string>(StringComparer.Ordinal);
@@ -219,7 +220,7 @@ internal sealed class NarrativeFollowUpPlannerExtendedTests
     [Test]
     public async Task GetCommunityAftermathTrigger_ReturnsNull_WhenNotAttendedEnough()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.EventAttendance.TotalAttended = 1;
 
         var flags = new HashSet<string>(StringComparer.Ordinal);

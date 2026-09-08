@@ -60,12 +60,10 @@ public static class TipGenerator
                 return;
             }
 
-#pragma warning disable CA5394
             if (random.NextDouble() >= 0.20)
             {
                 return;
             }
-#pragma warning restore CA5394
 
             var highHeat = districtHeat.GetHighHeatDistricts(30);
             if (highHeat.Count == 0)
@@ -73,9 +71,7 @@ public static class TipGenerator
                 return;
             }
 
-#pragma warning disable CA5394
             var district = highHeat[random.Next(highHeat.Count)];
-#pragma warning restore CA5394
             tips.Add(new Tip
             {
                 Type = TipType.PoliceTip,
@@ -88,12 +84,10 @@ public static class TipGenerator
             return;
         }
 
-#pragma warning disable CA5394
         if (random.NextDouble() >= 0.30)
         {
             return;
         }
-#pragma warning restore CA5394
 
         var hotDistricts = districtHeat.GetHighHeatDistricts(30);
         if (hotDistricts.Count == 0)
@@ -101,9 +95,7 @@ public static class TipGenerator
             return;
         }
 
-#pragma warning disable CA5394
         var selectedDistrict = hotDistricts[random.Next(hotDistricts.Count)];
-#pragma warning restore CA5394
         var isEmergency = districtHeat.GetHeat(selectedDistrict) >= PolicePressureThresholds.Hot;
 
         tips.Add(new Tip
@@ -123,12 +115,10 @@ public static class TipGenerator
     private static void TryGenerateJobLeads(
         List<Tip> tips, int currentDay, RelationshipState relationships, Random random)
     {
-#pragma warning disable CA5394
         if (random.NextDouble() >= 0.25)
         {
             return;
         }
-#pragma warning restore CA5394
 
         var eligible = EmployerNpcs
             .Where(npc => relationships.GetNpcRelationship(npc).Trust >= 10)
@@ -139,9 +129,7 @@ public static class TipGenerator
             return;
         }
 
-#pragma warning disable CA5394
         var npc = eligible[random.Next(eligible.Length)];
-#pragma warning restore CA5394
 
         tips.Add(new Tip
         {
@@ -156,12 +144,10 @@ public static class TipGenerator
     private static void TryGenerateMarketIntel(
         List<Tip> tips, int currentDay, RelationshipState relationships, Random random)
     {
-#pragma warning disable CA5394
         if (random.NextDouble() >= 0.15)
         {
             return;
         }
-#pragma warning restore CA5394
 
         var shopkeeper = NpcId.PharmacistMariam;
         var trust = relationships.GetNpcRelationship(shopkeeper).Trust;
@@ -189,12 +175,10 @@ public static class TipGenerator
             return;
         }
 
-#pragma warning disable CA5394
         if (random.NextDouble() >= 0.20)
         {
             return;
         }
-#pragma warning restore CA5394
 
         var eligible = CriminalNpcs
             .Where(npc => relationships.GetNpcRelationship(npc).Trust >= 10)
@@ -205,14 +189,10 @@ public static class TipGenerator
             return;
         }
 
-#pragma warning disable CA5394
         var npc = eligible[random.Next(eligible.Length)];
-#pragma warning restore CA5394
 
         var highHeat = districtHeat.GetHighHeatDistricts(40);
-#pragma warning disable CA5394
         DistrictId? district = highHeat.Count > 0 ? highHeat[random.Next(highHeat.Count)] : null;
-#pragma warning restore CA5394
 
         var content = district.HasValue
             ? $"Surveillance is up in {district}. Rival crews are watching too."
@@ -233,19 +213,15 @@ public static class TipGenerator
         List<Tip> tips, int currentDay, RelationshipState relationships,
         NpcEconomyState npcEconomies, int landlordTrust, Random random)
     {
-#pragma warning disable CA5394
         if (random.NextDouble() >= 0.05)
         {
             return;
         }
-#pragma warning restore CA5394
 
         var struggling = npcEconomies.GetStrugglingNpcs();
         if (struggling.Count > 0)
         {
-#pragma warning disable CA5394
             var npc = struggling[random.Next(struggling.Count)];
-#pragma warning restore CA5394
             tips.Add(new Tip
             {
                 Type = TipType.PersonalWarning,
@@ -274,12 +250,10 @@ public static class TipGenerator
         List<Tip> tips, int currentDay, RelationshipState relationships,
         BackgroundType background, DistrictHeatState districtHeat, Random random)
     {
-#pragma warning disable CA5394
         if (random.NextDouble() >= 0.10)
         {
             return;
         }
-#pragma warning restore CA5394
 
         switch (background)
         {

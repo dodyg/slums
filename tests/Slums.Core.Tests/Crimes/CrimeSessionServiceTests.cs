@@ -3,6 +3,7 @@ using Slums.Core.Crimes;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Crimes;
 
@@ -11,7 +12,7 @@ internal sealed class CrimeSessionServiceTests
     [Test]
     public void GetAvailableCrimes_ShouldUseTheSessionLocation()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Market);
 
         var crimes = CrimeSessionService.GetAvailableCrimes(session);
@@ -22,7 +23,7 @@ internal sealed class CrimeSessionServiceTests
     [Test]
     public void CommitCrime_ShouldRecordTheCrimeMutationThroughTheSession()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Market);
         var attempt = CrimeSessionService.GetAvailableCrimes(session)[0];
 
@@ -35,7 +36,7 @@ internal sealed class CrimeSessionServiceTests
     [Test]
     public void RestoreCrimeState_ShouldHydrateTheSessionCrimeState()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         CrimeSessionService.RestoreCrimeState(session, 30, 120, 2, 5, true);
 

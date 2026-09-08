@@ -127,9 +127,7 @@ public static class TerritoryDynamicsCalculator
             _ => 0
         };
 
-#pragma warning disable CA5394
         return chance > 0 && random.Next(100) < chance;
-#pragma warning restore CA5394
     }
 
     public static FactionId? DetectTerritoryFlip(TerritoryControl before, TerritoryControl after)

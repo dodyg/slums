@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Expenses;
 using Slums.Core.Diagnostics;
 using Slums.Core.Information;
 using Slums.Core.Relationships;
@@ -204,13 +205,9 @@ internal static class TravelService
 
     internal static int GetTravelCost(GameSession session, Location destination)
     {
-        var districtCondition = session.GetActiveDistrictConditionDefinition(destination.District);
-        var modifiedCost = session.LocationPricing.GetTravelCost(destination, session.Relationships)
-            + (districtCondition?.Effect.TravelCostModifier ?? 0)
-            + session.CurrentWeather.TravelCostModifier
-            + InfrastructureImpactCalculator.GetTravelCostModifier(session.Infrastructure, destination.District)
-            + NewsImpactCalculator.GetTravelCostModifier(session.News, destination.District, session.ContentCatalog.NewsFlashes);
-        return Math.Max(1, modifiedCost);
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(destination);
+        return PriceModifierPipeline.GetTravelCost(session, destination);
     }
 
     private static int GetWalkEnergyCost(GameSession session, Location destination)
@@ -227,20 +224,16 @@ internal static class TravelService
 
     internal static int GetTravelEnergyCost(GameSession session, Location destination)
     {
-        var districtCondition = session.GetActiveDistrictConditionDefinition(destination.District);
-        var modifiedCost = session.LocationPricing.GetTravelEnergyCost(destination, session.Relationships)
-            + (districtCondition?.Effect.TravelEnergyModifier ?? 0)
-            - RobotCapabilityRules.GetTransitEnergyReduction(session.Player.Robotics);
-        return Math.Max(1, modifiedCost);
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(destination);
+        return PriceModifierPipeline.GetTravelEnergyCost(session, destination);
     }
 
     internal static int GetTravelTimeMinutes(GameSession session, Location destination)
     {
-        var districtCondition = session.GetActiveDistrictConditionDefinition(destination.District);
-        var modifiedMinutes = destination.TravelTimeMinutes
-            + (districtCondition?.Effect.TravelTimeMinutesModifier ?? 0)
-            + InfrastructureImpactCalculator.GetTravelTimeModifier(session.Infrastructure, destination.District);
-        return Math.Max(1, modifiedMinutes);
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(destination);
+        return PriceModifierPipeline.GetTravelTimeMinutes(session, destination);
     }
 
     internal static void ApplyCargoMuleWear(GameSession session)

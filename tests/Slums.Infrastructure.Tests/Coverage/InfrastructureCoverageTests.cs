@@ -4,6 +4,7 @@ using Slums.Core.Weather;
 using Slums.Infrastructure.Persistence;
 using Slums.Infrastructure.Randomness;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Infrastructure.Tests.Coverage;
 
@@ -23,7 +24,7 @@ internal sealed class InfrastructureCoverageTests
     {
         var problems = new List<string>();
 
-        SaveGameSnapshotValidator.Validate(GameSessionSnapshot.Capture(new GameSession()), problems);
+        SaveGameSnapshotValidator.Validate(GameSessionSnapshot.Capture(TestSessions.Create()), TestContent.Catalog, problems);
 
         problems.Should().BeEmpty();
     }
@@ -31,13 +32,13 @@ internal sealed class InfrastructureCoverageTests
     [Test]
     public void SnapshotValidator_ShouldReportInvalidPolicePressure()
     {
-        var snapshot = GameSessionSnapshot.Capture(new GameSession()) with
+        var snapshot = GameSessionSnapshot.Capture(TestSessions.Create()) with
         {
             Crime = new GameSessionCrimeSnapshot { PolicePressure = 101 }
         };
         var problems = new List<string>();
 
-        SaveGameSnapshotValidator.Validate(snapshot, problems);
+        SaveGameSnapshotValidator.Validate(snapshot, TestContent.Catalog, problems);
 
         problems.Should().Contain(problem => problem.Contains("police pressure", StringComparison.Ordinal));
     }

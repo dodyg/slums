@@ -5,6 +5,7 @@ using Slums.Core.Relationships;
 using Slums.Core.Skills;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Jobs;
 
@@ -13,9 +14,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldReturnClinicReception_ForClinic()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static location => location.Id == LocationId.Clinic);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static location => location.Id == LocationId.Clinic);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
 
@@ -28,7 +29,7 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldUseAdvertisedContentTypes()
     {
-        var service = new JobService();
+        var service = new JobService(TestContent.Catalog.Jobs);
         var location = new Location
         {
             Id = LocationId.Bakery,
@@ -37,7 +38,7 @@ internal sealed class JobServiceTests
             AvailableJobTypes = [JobType.CallCenterWork]
         };
 
-        var jobs = service.GetAvailableJobs(location, new PlayerCharacter(), new RelationshipState(), new JobProgressState()).ToList();
+        var jobs = service.GetAvailableJobs(location, new PlayerCharacter(TestContent.Catalog), new RelationshipState(), new JobProgressState()).ToList();
 
         jobs.Should().ContainSingle().Which.Type.Should().Be(JobType.CallCenterWork);
     }
@@ -45,9 +46,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldReturnWorkshopShift_ForWorkshop()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static location => location.Id == LocationId.Workshop);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static location => location.Id == LocationId.Workshop);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
 
@@ -60,9 +61,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldReturnPharmacyShift_ForPharmacy()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static location => location.Id == LocationId.Pharmacy);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static location => location.Id == LocationId.Pharmacy);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
 
@@ -75,13 +76,13 @@ internal sealed class JobServiceTests
     [Test]
     public void CanPerformJob_ShouldRejectCafeService_OutsideCafe()
     {
-        var service = new JobService();
-        var player = new PlayerCharacter();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Market);
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var player = new PlayerCharacter(TestContent.Catalog);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Market);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
 
-        var canPerform = service.CanPerformJob(JobRegistry.CafeService, player, location, relationships, progress, currentDay: 1, out var reason);
+        var canPerform = service.CanPerformJob(TestContent.Catalog.GetJob(JobType.CafeService), player, location, relationships, progress, currentDay: 1, out var reason);
 
         canPerform.Should().BeFalse();
         reason.Should().Contain("not available");
@@ -90,9 +91,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldUpgradeClinicTrack_WhenSalmaTrustIsHigh()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Clinic);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Clinic);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         relationships.SetNpcRelationship(NpcId.NurseSalma, 12, 1);
@@ -101,15 +102,15 @@ internal sealed class JobServiceTests
 
         jobs.Should().ContainSingle();
         jobs[0].Name.Should().Be("Clinic Intake Desk");
-        jobs[0].BasePay.Should().BeGreaterThan(JobRegistry.ClinicReception.BasePay);
+        jobs[0].BasePay.Should().BeGreaterThan(TestContent.Catalog.GetJob(JobType.ClinicReception).BasePay);
     }
 
     [Test]
     public void GetAvailableJobs_ShouldUpgradeWorkshopTrack_WhenReliabilityIsHigh()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Workshop);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Workshop);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         progress.RestoreTrack(JobType.WorkshopSewing, reliability: 65, shiftsCompleted: 3, lockoutUntilDay: 0);
@@ -123,9 +124,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldUpgradeCallCenterTrack_WhenReliabilityAndPersuasionAreHigh()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.CallCenter);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.CallCenter);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         progress.RestoreTrack(JobType.CallCenterWork, reliability: 72, shiftsCompleted: 4, lockoutUntilDay: 0);
@@ -140,9 +141,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldOfferDigitalDispatchVariant_WhenDigitalLiteracyIsAdvanced()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.CallCenter);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.CallCenter);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         player.Skills.SetLevel(SkillId.CyberHacking, 4);
@@ -156,9 +157,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldUpgradePharmacyTrack_WhenMedicalSkillIsHigh()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Pharmacy);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Pharmacy);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         player.Skills.SetLevel(SkillId.Medical, 2);
@@ -172,14 +173,14 @@ internal sealed class JobServiceTests
     [Test]
     public void CanPerformJob_ShouldRejectLockedOutTrack()
     {
-        var service = new JobService();
-        var player = new PlayerCharacter();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.CallCenter);
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var player = new PlayerCharacter(TestContent.Catalog);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.CallCenter);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         progress.RestoreTrack(JobType.CallCenterWork, reliability: 45, shiftsCompleted: 2, lockoutUntilDay: 3);
 
-        var canPerform = service.CanPerformJob(JobRegistry.CallCenterWork, player, location, relationships, progress, currentDay: 2, out var reason);
+        var canPerform = service.CanPerformJob(TestContent.Catalog.GetJob(JobType.CallCenterWork), player, location, relationships, progress, currentDay: 2, out var reason);
 
         canPerform.Should().BeFalse();
         reason.Should().Contain("shut out");
@@ -188,14 +189,14 @@ internal sealed class JobServiceTests
     [Test]
     public void PerformJob_ShouldApplyMistakePenalty_AndLockout_WhenCallCenterStressIsTooHigh()
     {
-        var service = new JobService();
-        var player = new PlayerCharacter();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.CallCenter);
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var player = new PlayerCharacter(TestContent.Catalog);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.CallCenter);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         player.Stats.SetStress(65);
 
-        var result = service.PerformJob(JobRegistry.CallCenterWork, player, location, relationships, progress, currentDay: 1);
+        var result = service.PerformJob(TestContent.Catalog.GetJob(JobType.CallCenterWork), player, location, relationships, progress, currentDay: 1);
 
         result.Success.Should().BeTrue();
         result.MistakeMade.Should().BeTrue();
@@ -207,14 +208,14 @@ internal sealed class JobServiceTests
     [Test]
     public void PerformJob_ShouldAvoidMistakePenalty_WhenCallCenterStressStaysBelowThreshold()
     {
-        var service = new JobService();
-        var player = new PlayerCharacter();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.CallCenter);
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var player = new PlayerCharacter(TestContent.Catalog);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.CallCenter);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         player.Stats.SetStress(59);
 
-        var result = service.PerformJob(JobRegistry.CallCenterWork, player, location, relationships, progress, currentDay: 1, new Random(7));
+        var result = service.PerformJob(TestContent.Catalog.GetJob(JobType.CallCenterWork), player, location, relationships, progress, currentDay: 1, new Random(7));
 
         result.MistakeMade.Should().BeFalse();
         progress.GetTrack(JobType.CallCenterWork).LockoutUntilDay.Should().Be(0);
@@ -224,15 +225,15 @@ internal sealed class JobServiceTests
     [Test]
     public void PerformJob_ShouldUseComposureToKeepAStressfulCallCenterShiftBelowMistakeThreshold()
     {
-        var service = new JobService();
-        var player = new PlayerCharacter();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.CallCenter);
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var player = new PlayerCharacter(TestContent.Catalog);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.CallCenter);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         player.Skills.SetLevel(SkillId.Composure, 2);
         player.Stats.SetStress(64);
 
-        var result = service.PerformJob(JobRegistry.CallCenterWork, player, location, relationships, progress, currentDay: 1, new Random(7));
+        var result = service.PerformJob(TestContent.Catalog.GetJob(JobType.CallCenterWork), player, location, relationships, progress, currentDay: 1, new Random(7));
 
         result.MistakeMade.Should().BeFalse();
     }
@@ -240,8 +241,8 @@ internal sealed class JobServiceTests
     [Test]
     public void PreviewJob_ShouldExplainComposurePressureMitigation()
     {
-        var service = new JobService();
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         player.Skills.SetLevel(SkillId.Composure, 2);
@@ -254,27 +255,27 @@ internal sealed class JobServiceTests
     [Test]
     public void PerformJob_ShouldPreserveEnergyOnPressureMistake_WhenComposureIsMastered()
     {
-        var service = new JobService();
-        var player = new PlayerCharacter();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.CallCenter);
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var player = new PlayerCharacter(TestContent.Catalog);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.CallCenter);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         player.Skills.SetLevel(SkillId.Composure, 8);
         player.Stats.SetStress(65);
         var startingEnergy = player.Stats.Energy;
 
-        var result = service.PerformJob(JobRegistry.CallCenterWork, player, location, relationships, progress, currentDay: 1, new Random(7));
+        var result = service.PerformJob(TestContent.Catalog.GetJob(JobType.CallCenterWork), player, location, relationships, progress, currentDay: 1, new Random(7));
 
         result.MistakeMade.Should().BeTrue();
-        result.EnergyCost.Should().Be(JobRegistry.CallCenterWork.EnergyCost - 2);
+        result.EnergyCost.Should().Be(TestContent.Catalog.GetJob(JobType.CallCenterWork).EnergyCost - 2);
         player.Stats.Energy.Should().Be(startingEnergy - result.EnergyCost);
     }
 
     [Test]
     public void PreviewJob_ShouldSurfaceBakeryUnlockThresholds()
     {
-        var service = new JobService();
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         progress.RestoreTrack(JobType.BakeryWork, reliability: 55, shiftsCompleted: 2, lockoutUntilDay: 0);
@@ -288,9 +289,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldReturnStreetVending_ForSquare()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Square);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.Square);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
 
@@ -303,9 +304,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldReturnFishSorter_ForFishMarket()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.FishMarket);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.FishMarket);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
 
@@ -318,9 +319,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldReturnTwoJobs_ForMarket()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Market);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.Market);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
 
@@ -333,9 +334,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldUpgradeStreetVending_WhenReliabilityIsHigh()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Square);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.Square);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         progress.RestoreTrack(JobType.StreetVending, reliability: 58, shiftsCompleted: 3, lockoutUntilDay: 0);
@@ -349,9 +350,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldUpgradeFishSorter_WhenPhysicalIsHigh()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.FishMarket);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.FishMarket);
+        var player = new PlayerCharacter(TestContent.Catalog);
         player.Skills.SetLevel(SkillId.Physical, 2);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
@@ -365,9 +366,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldUpgradeMarketPorter_WhenReliabilityIsHigh()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Market);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.Market);
+        var player = new PlayerCharacter(TestContent.Catalog);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
         progress.RestoreTrack(JobType.MarketPorter, reliability: 65, shiftsCompleted: 3, lockoutUntilDay: 0);
@@ -381,13 +382,13 @@ internal sealed class JobServiceTests
     [Test]
     public void CanPerformJob_ShouldRejectStreetVending_OutsideSquare()
     {
-        var service = new JobService();
-        var player = new PlayerCharacter();
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Bakery);
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var player = new PlayerCharacter(TestContent.Catalog);
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.Bakery);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
 
-        var canPerform = service.CanPerformJob(JobRegistry.StreetVending, player, location, relationships, progress, currentDay: 1, out var reason);
+        var canPerform = service.CanPerformJob(TestContent.Catalog.GetJob(JobType.StreetVending), player, location, relationships, progress, currentDay: 1, out var reason);
 
         canPerform.Should().BeFalse();
         reason.Should().Contain("not available");
@@ -396,9 +397,9 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldExposeRoboticsScavengingAtWorkshop()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Workshop);
-        var jobs = service.GetAvailableJobs(location, new PlayerCharacter(), new RelationshipState(), new JobProgressState()).ToList();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Workshop);
+        var jobs = service.GetAvailableJobs(location, new PlayerCharacter(TestContent.Catalog), new RelationshipState(), new JobProgressState()).ToList();
 
         jobs.Should().ContainSingle(static job => job.Type == JobType.RoboticsScavenging);
         jobs.Single(static job => job.Type == JobType.RoboticsScavenging).Name.Should().Be("Robotics Scavenging Shift");
@@ -408,31 +409,31 @@ internal sealed class JobServiceTests
     [Test]
     public void GetAvailableJobs_ShouldUpgradeRoboticsScavenging_WhenRobotRepairIsHigh()
     {
-        var service = new JobService();
-        var location = WorldState.AllLocations.First(static current => current.Id == LocationId.Workshop);
-        var player = new PlayerCharacter();
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var location = TestContent.Catalog.Locations.First(static current => current.Id == LocationId.Workshop);
+        var player = new PlayerCharacter(TestContent.Catalog);
         player.Skills.SetLevel(SkillId.RobotRepair, 2);
 
         var jobs = service.GetAvailableJobs(location, player, new RelationshipState(), new JobProgressState()).ToList();
 
         var teardown = jobs.Single(static job => job.Type == JobType.RoboticsScavenging);
         teardown.Name.Should().Be("Drone Teardown Line");
-        teardown.BasePay.Should().Be(JobRegistry.RoboticsScavenging.BasePay + 8);
+        teardown.BasePay.Should().Be(TestContent.Catalog.GetJob(JobType.RoboticsScavenging).BasePay + 8);
     }
 
     [Test]
     public void PerformJob_ShouldApplySudanesePenalty_ForStreetVending()
     {
-        var service = new JobService();
-        var player = new PlayerCharacter();
-        player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
-        var location = WorldState.AllLocations.First(static l => l.Id == LocationId.Square);
+        var service = new JobService(TestContent.Catalog.Jobs);
+        var player = new PlayerCharacter(TestContent.Catalog);
+        player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
+        var location = TestContent.Catalog.Locations.First(static l => l.Id == LocationId.Square);
         var relationships = new RelationshipState();
         var progress = new JobProgressState();
 
-        var result = service.PerformJob(JobRegistry.StreetVending, player, location, relationships, progress, currentDay: 1, new Random(5));
+        var result = service.PerformJob(TestContent.Catalog.GetJob(JobType.StreetVending), player, location, relationships, progress, currentDay: 1, new Random(5));
 
         result.Success.Should().BeTrue();
-        result.MoneyEarned.Should().BeLessThan(JobRegistry.StreetVending.BasePay);
+        result.MoneyEarned.Should().BeLessThan(TestContent.Catalog.GetJob(JobType.StreetVending).BasePay);
     }
 }

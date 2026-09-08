@@ -3,6 +3,7 @@ using Slums.Core.Diagnostics;
 using Slums.Core.Endings;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Endings;
 
@@ -23,7 +24,7 @@ internal sealed class EndingCommitmentServiceTests
     [Test]
     public void CheckGameOverConditions_ShouldCommitAutomaticFailureEndings()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.SetPolicePressure(100);
 
         EndingCommitmentService.CheckGameOverConditions(session);
@@ -36,7 +37,7 @@ internal sealed class EndingCommitmentServiceTests
     [Test]
     public void TriggerDestitution_ShouldSetEndingKnotAndRecordMutation()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         EndingCommitmentService.TriggerDestitution(session);
 
@@ -48,7 +49,7 @@ internal sealed class EndingCommitmentServiceTests
 
     private static GameSession CreateStableSession()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.SetDaysSurvived(30);
         session.Clock.SetTime(30, 8, 0);
         session.RestoreWorkState(180, 6, 30, 30);

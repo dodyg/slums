@@ -7,6 +7,7 @@ using Slums.Application.Narrative;
 using Slums.Application.Persistence;
 using Slums.Application.Randomness;
 using Slums.Game;
+using Slums.Game.Content;
 using Slums.Infrastructure.Content;
 using Slums.Infrastructure.Persistence;
 using Slums.Infrastructure.Randomness;
@@ -22,6 +23,7 @@ using IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<LoadGameUseCase>();
         services.AddSingleton<IRandomSource, SeededRandomSource>();
         services.AddSingleton<IGameContentCatalogProvider, GameContentCatalogProvider>();
+        services.AddSingleton<IContentBootstrapper, ContentBootstrapper>();
         services.AddSingleton<NewGameUseCase>();
         services.AddSingleton<GameMutationLogger>();
         services.AddSingleton<IGame>(serviceProvider => new SadConsoleGame(
@@ -32,8 +34,7 @@ using IHost host = Host.CreateDefaultBuilder(args)
             serviceProvider.GetRequiredService<LoadGameUseCase>(),
             serviceProvider.GetRequiredService<NewGameUseCase>(),
             serviceProvider.GetRequiredService<IGameContentCatalogProvider>(),
-            serviceProvider.GetRequiredService<IRandomSource>(),
-            serviceProvider.GetRequiredService<IContentRepository>(),
+            serviceProvider.GetRequiredService<IContentBootstrapper>(),
             serviceProvider.GetRequiredService<GameMutationLogger>()));
     })
     .Build();

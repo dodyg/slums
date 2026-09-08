@@ -15,7 +15,7 @@ public sealed record FishTankUpgradeMenuContext(
 
         var fishTank = gameSession.Player.HouseholdAssets.GetFishTank()
             ?? throw new InvalidOperationException("No fish tank owned.");
-        var definition = PetRegistry.GetByType(PetType.Fish);
+        var definition = gameSession.ContentCatalog.GetPet(PetType.Fish);
         return new FishTankUpgradeMenuContext(fishTank, definition, gameSession.CurrentWeek, gameSession.Player.Stats.Money);
     }
 }

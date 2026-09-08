@@ -5,6 +5,7 @@ using Slums.Core.Relationships;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Activities;
 
@@ -14,7 +15,7 @@ internal sealed class TalkNpcStatusQueryTests
     public void GetStatuses_ShouldExposeReachableNpcMemoryFlags()
     {
         var query = new TalkNpcStatusQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Home);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 16, 3);
         gameState.Relationships.SetNpcRelationshipMemory(
@@ -40,7 +41,7 @@ internal sealed class TalkNpcStatusQueryTests
     public void GetStatuses_ShouldExposeFactionAndHeatSummaries()
     {
         var query = new TalkNpcStatusQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Square);
         gameState.SetPolicePressure(75);
         gameState.Relationships.SetFactionStanding(FactionId.DokkiThugs, 18);
@@ -59,9 +60,9 @@ internal sealed class TalkNpcStatusQueryTests
     public void GetStatuses_ShouldExposeDoubleLifeSuspicion()
     {
         var query = new TalkNpcStatusQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Clinic);
-        gameState.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+        gameState.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
         gameState.SetCrimeCounters(totalCrimeEarnings: 90, crimesCommitted: 2, lastCrimeDay: 1);
         gameState.RestoreWorkState(totalHonestWorkEarnings: 120, honestShiftsCompleted: 3, lastHonestWorkDay: 2, lastPublicFacingWorkDay: 2);
 
@@ -77,7 +78,7 @@ internal sealed class TalkNpcStatusQueryTests
     {
         var query = new TalkNpcStatusQuery();
 
-        var homeState = new GameSession();
+        var homeState = TestSessions.Create();
         homeState.World.TravelTo(LocationId.Home);
         homeState.Player.Stats.ModifyMoney(-85);
         var homeStatuses = query.GetStatuses(TalkNpcContext.Create(homeState));
@@ -85,7 +86,7 @@ internal sealed class TalkNpcStatusQueryTests
         homeStatuses.Single(static npc => npc.NpcId == NpcId.LandlordHajjMahmoud).Summary.Should().Contain("visibly short");
         homeStatuses.Single(static npc => npc.NpcId == NpcId.NeighborMona).Summary.Should().Contain("week tightening");
 
-        var clinicState = new GameSession();
+        var clinicState = TestSessions.Create();
         clinicState.World.TravelTo(LocationId.Clinic);
         clinicState.Player.Household.SetMotherHealth(30);
         var clinicStatuses = query.GetStatuses(TalkNpcContext.Create(clinicState));
@@ -98,7 +99,7 @@ internal sealed class TalkNpcStatusQueryTests
     {
         var query = new TalkNpcStatusQuery();
 
-        var clinicState = new GameSession();
+        var clinicState = TestSessions.Create();
         clinicState.World.TravelTo(LocationId.Clinic);
         clinicState.Relationships.SetNpcRelationship(NpcId.NurseSalma, 18, 1);
         clinicState.Relationships.SetNpcRelationshipMemory(
@@ -110,7 +111,7 @@ internal sealed class TalkNpcStatusQueryTests
             wasHelped: false,
             recentContactCount: 2);
 
-        var homeState = new GameSession();
+        var homeState = TestSessions.Create();
         homeState.World.TravelTo(LocationId.Home);
         homeState.SetPolicePressure(75);
         homeState.SetCrimeCounters(120, 2);

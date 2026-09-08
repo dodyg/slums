@@ -6,6 +6,7 @@ using Slums.Core.State;
 using Slums.Core.World;
 using Slums.Infrastructure.Persistence;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Infrastructure.Tests;
 
@@ -14,7 +15,7 @@ internal sealed class TipSnapshotTests
     [Test]
     public async Task TipSnapshot_Capture_CapturesTips()
     {
-        var session = new GameSession(new Random(1));
+        var session = TestSessions.Create(new Random(1));
         session.Tips.AddTip(new Tip
         {
             Type = TipType.PoliceTip,
@@ -37,7 +38,7 @@ internal sealed class TipSnapshotTests
     [Test]
     public async Task TipSnapshot_Restore_RestoresTips()
     {
-        var session = new GameSession(new Random(1));
+        var session = TestSessions.Create(new Random(1));
         session.Tips.AddTip(new Tip
         {
             Type = TipType.PoliceTip,
@@ -50,7 +51,7 @@ internal sealed class TipSnapshotTests
 
         var snapshot = GameSessionTipSnapshot.Capture(session);
 
-        var restored = new GameSession(new Random(2));
+        var restored = TestSessions.Create(new Random(2));
         snapshot.Restore(restored);
 
         await Assert.That(restored.Tips.AllTips).Count().IsEqualTo(1);
@@ -61,8 +62,8 @@ internal sealed class TipSnapshotTests
     [Test]
     public async Task TipSnapshot_Roundtrip_PreservesState()
     {
-        var session = new GameSession(new Random(1));
-        session.Player.ApplyBackground(BackgroundRegistry.GetByType(BackgroundType.MedicalSchoolDropout));
+        var session = TestSessions.Create(new Random(1));
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
         session.Tips.AddTip(new Tip
         {
             Type = TipType.JobLead,
@@ -85,7 +86,7 @@ internal sealed class TipSnapshotTests
 
         var snapshot = GameSessionTipSnapshot.Capture(session);
 
-        var restored = new GameSession(new Random(2));
+        var restored = TestSessions.Create(new Random(2));
         snapshot.Restore(restored);
 
         await Assert.That(restored.Tips.AllTips).Count().IsEqualTo(2);
@@ -96,12 +97,12 @@ internal sealed class TipSnapshotTests
     [Test]
     public async Task TipSnapshot_Empty_CapturesAndRestoresCleanly()
     {
-        var session = new GameSession(new Random(1));
+        var session = TestSessions.Create(new Random(1));
         var snapshot = GameSessionTipSnapshot.Capture(session);
 
         await Assert.That(snapshot.Tips).Count().IsEqualTo(0);
 
-        var restored = new GameSession(new Random(2));
+        var restored = TestSessions.Create(new Random(2));
         snapshot.Restore(restored);
         await Assert.That(restored.Tips.AllTips).Count().IsEqualTo(0);
     }

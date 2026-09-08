@@ -27,7 +27,7 @@ public sealed class NewsMenuQuery
                 }
                 if (response.RequiredItemId is not null)
                 {
-                    var itemName = ItemRegistry.GetById(response.RequiredItemId)?.Name ?? response.RequiredItemId;
+                    var itemName = context.Catalog.GetItem(response.RequiredItemId)?.Name ?? response.RequiredItemId;
                     requirements.Add($"{response.RequiredItemQuantity} {itemName}");
                 }
 

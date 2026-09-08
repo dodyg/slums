@@ -107,12 +107,10 @@ internal static class CommunityEventService
 
         if (definition.HasPickpocketRisk)
         {
-#pragma warning disable CA5394
             var roll = random.Next(100);
             if (roll < 10)
             {
                 var stolen = random.Next(5, 16);
-#pragma warning restore CA5394
                 session.Player.Stats.ModifyMoney(-stolen);
                 session.RaiseEvent($"A pickpocket slips away with {stolen} LE from your pocket!");
             }
@@ -187,9 +185,7 @@ internal static class CommunityEventService
     {
         var communityNpcs = new[] { NpcId.LandlordHajjMahmoud, NpcId.FixerUmmKarim, NpcId.NeighborMona, NpcId.NurseSalma, NpcId.CafeOwnerNadia };
         var count = Math.Min(definition.TrustGainCount, communityNpcs.Length);
-#pragma warning disable CA5394
         var selected = communityNpcs.OrderBy(_ => random.Next()).Take(count).ToArray();
-#pragma warning restore CA5394
         var totalTrust = 0;
         foreach (var npcId in selected)
         {

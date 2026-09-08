@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Slums.Core.Robotics;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Robotics;
 
@@ -9,7 +10,7 @@ internal sealed class RoboticsStateTests
     [Test]
     public void PurchaseRobot_ShouldCreateOperationalOwnedMachine()
     {
-        var state = new RoboticsState();
+        var state = new RoboticsState(TestContent.Catalog.Robots);
 
         state.PurchaseRobot(RobotType.SalvageCrawler, 3).Should().BeTrue();
 
@@ -21,7 +22,7 @@ internal sealed class RoboticsStateTests
     [Test]
     public void RepairRobot_ShouldConsumePartAndRestoreCondition()
     {
-        var state = new RoboticsState();
+        var state = new RoboticsState(TestContent.Catalog.Robots);
         state.PurchaseRobot(RobotType.RepairDrone, 1);
         var robot = state.Robots[0];
         robot.Damage(70);
@@ -36,7 +37,7 @@ internal sealed class RoboticsStateTests
     [Test]
     public void PurchaseRobot_ShouldRejectDuplicateModel()
     {
-        var state = new RoboticsState();
+        var state = new RoboticsState(TestContent.Catalog.Robots);
 
         state.PurchaseRobot(RobotType.CargoMule, 1).Should().BeTrue();
         state.PurchaseRobot(RobotType.CargoMule, 2).Should().BeFalse();
@@ -45,7 +46,7 @@ internal sealed class RoboticsStateTests
     [Test]
     public void CapabilityRules_ShouldGrantOnlyOperationalRobotBenefits()
     {
-        var state = new RoboticsState();
+        var state = new RoboticsState(TestContent.Catalog.Robots);
         state.PurchaseRobot(RobotType.CargoMule, 1);
         state.PurchaseRobot(RobotType.RepairDrone, 1);
         state.PurchaseRobot(RobotType.SalvageCrawler, 1);

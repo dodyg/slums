@@ -1,4 +1,5 @@
 using Slums.Core.Characters;
+using Slums.Core.Content;
 using Slums.Core.Home;
 using Slums.Core.Investments;
 using Slums.Core.Jobs;
@@ -131,19 +132,20 @@ public sealed record GameSessionSnapshot
         return new GameRandom(0x534C554D535F4C47UL);
     }
 
-    public GameSession Restore()
+    public GameSession Restore(GameContentCatalog contentCatalog)
     {
-        SaveGameValidator.Validate(this);
+        ArgumentNullException.ThrowIfNull(contentCatalog);
+        SaveGameValidator.Validate(this, contentCatalog);
 
         var restoredRandom = RandomState is not null
             ? new GameRandom(RandomState)
             : CreateFallbackRandom();
 
-        var gameSession = GameSession.CreateForRestore(restoredRandom);
+        var gameSession = GameSession.CreateForRestore(restoredRandom, contentCatalog);
 
         return gameSession.RestoreFromSnapshot(_ =>
         {
-            RestoreIdentityAndWorld(gameSession);
+            RestoreIdentityAndWorld(gameSession, contentCatalog);
             RestoreRunProgress(gameSession);
             RestoreHouseholdAndActivities(gameSession);
             RestoreWorldSystems(gameSession);
@@ -151,9 +153,9 @@ public sealed record GameSessionSnapshot
         });
     }
 
-    private void RestoreIdentityAndWorld(GameSession gameSession)
+    private void RestoreIdentityAndWorld(GameSession gameSession, GameContentCatalog contentCatalog)
     {
-        gameSession.Player.ApplyBackground(BackgroundRegistry.GetByType(Player.BackgroundType));
+        gameSession.Player.ApplyBackground(contentCatalog.GetBackground(Player.BackgroundType));
         gameSession.Player.ApplyGender(Player.Gender);
         gameSession.Player.Stats.SetMoney(Player.Money);
         gameSession.Player.Nutrition.SetSatiety(Player.Satiety);

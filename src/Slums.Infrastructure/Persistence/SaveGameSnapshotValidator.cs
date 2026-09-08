@@ -1,5 +1,6 @@
 using Slums.Core.Characters;
 using Slums.Core.Community;
+using Slums.Core.Content;
 using Slums.Core.Economy;
 using Slums.Core.Endings;
 using Slums.Core.Expenses;
@@ -26,7 +27,7 @@ internal static class SaveGameSnapshotValidator
 {
     private const int MaxCollectionEntries = 10_000;
 
-    public static void Validate(GameSessionSnapshot snapshot, List<string> problems)
+    public static void Validate(GameSessionSnapshot snapshot, GameContentCatalog contentCatalog, List<string> problems)
     {
         if (snapshot.Clock is null || snapshot.Player is null || snapshot.World is null ||
             snapshot.Relationships is null || snapshot.JobProgress is null || snapshot.Crime is null ||
@@ -70,7 +71,7 @@ internal static class SaveGameSnapshotValidator
         ValidatePlayer(snapshot.Player, problems);
         ValidateRelationshipSections(snapshot.Relationships, problems);
         ValidateJobSections(snapshot.JobProgress, problems);
-        ValidateWorld(snapshot.World, snapshot.Clock.Day, problems);
+        ValidateWorld(snapshot.World, snapshot.Clock.Day, contentCatalog, problems);
         ValidatePercentage(snapshot.Crime.PolicePressure, "police pressure", problems);
         ValidateEnumName<WeatherType>(snapshot.CurrentWeather, "weather", problems);
         ValidateRun(snapshot.Run, snapshot.Clock.Day, problems);
@@ -88,9 +89,9 @@ internal static class SaveGameSnapshotValidator
         ValidatePhone(snapshot.Phone, snapshot.Clock.Day, problems);
         ValidateTips(snapshot.Tips, snapshot.Clock.Day, problems);
         ValidateRumors(snapshot.Rumors, snapshot.Clock.Day, problems);
-        ValidateNews(snapshot.News, snapshot.Clock.Day, problems);
+        ValidateNews(snapshot.News, snapshot.Clock.Day, contentCatalog, problems);
         ValidateInfrastructure(snapshot.Infrastructure, snapshot.Clock.Day, problems);
-        ValidateInventory(snapshot.Inventory, problems);
+        ValidateInventory(snapshot.Inventory, contentCatalog, problems);
         ValidateTechnology(snapshot.Technology, snapshot.Clock.Day, problems);
         ValidateCharacterArcs(snapshot.CharacterArcs, problems);
         ValidateJournal(snapshot.Journal, snapshot.Clock.Day, problems);
@@ -230,7 +231,7 @@ internal static class SaveGameSnapshotValidator
         }
     }
 
-    private static void ValidateWorld(GameSessionWorldSnapshot world, int currentDay, List<string> problems)
+    private static void ValidateWorld(GameSessionWorldSnapshot world, int currentDay, GameContentCatalog contentCatalog, List<string> problems)
     {
         if (string.IsNullOrWhiteSpace(world.CurrentLocationId) ||
             !LocationId.All.Any(location => location.Value == world.CurrentLocationId))
@@ -265,7 +266,7 @@ internal static class SaveGameSnapshotValidator
             {
                 problems.Add("active district condition has an empty condition id");
             }
-            else if (DistrictConditionRegistry.GetById(condition.ConditionId) is null)
+            else if (contentCatalog.GetDistrictConditionById(condition.ConditionId) is null)
             {
                 problems.Add($"active district condition '{condition.ConditionId}' is not declared");
             }
@@ -698,7 +699,7 @@ internal static class SaveGameSnapshotValidator
         }
     }
 
-    private static void ValidateNews(GameSessionNewsSnapshot news, int currentDay, List<string> problems)
+    private static void ValidateNews(GameSessionNewsSnapshot news, int currentDay, GameContentCatalog contentCatalog, List<string> problems)
     {
         AddNonNegative(news.LastGeneratedDay, "last news generation day", problems);
         if (!HasReasonableCount(news.ActiveFlashes, "active news", problems) || !HasReasonableCount(news.SeenDefinitionIds, "seen news", problems))
@@ -713,7 +714,7 @@ internal static class SaveGameSnapshotValidator
                 problems.Add($"active news '{flash?.DefinitionId}' is empty or duplicated");
                 continue;
             }
-            if (NewsRegistry.GetById(flash.DefinitionId) is null)
+            if (contentCatalog.GetNewsFlashById(flash.DefinitionId) is null)
             {
                 problems.Add($"active news '{flash.DefinitionId}' is not declared");
             }
@@ -727,7 +728,7 @@ internal static class SaveGameSnapshotValidator
         ValidateStringList(news.SeenDefinitionIds, "seen news", problems, requireNonEmpty: true);
         foreach (var id in news.SeenDefinitionIds)
         {
-            if (NewsRegistry.GetById(id) is null)
+            if (contentCatalog.GetNewsFlashById(id) is null)
             {
                 problems.Add($"seen news '{id}' is not declared");
             }
@@ -766,17 +767,17 @@ internal static class SaveGameSnapshotValidator
         }
     }
 
-    private static void ValidateInventory(GameSessionInventorySnapshot inventory, List<string> problems)
+    private static void ValidateInventory(GameSessionInventorySnapshot inventory, GameContentCatalog contentCatalog, List<string> problems)
     {
         ValidateDictionary(inventory.Quantities, "inventory", problems);
         foreach (var pair in inventory.Quantities)
         {
-            if (string.IsNullOrWhiteSpace(pair.Key) || ItemRegistry.GetById(pair.Key) is null)
+            if (string.IsNullOrWhiteSpace(pair.Key) || contentCatalog.GetItem(pair.Key) is null)
             {
                 problems.Add($"inventory item '{pair.Key}' is not declared");
                 continue;
             }
-            if (pair.Value <= 0 || pair.Value > ItemRegistry.GetById(pair.Key)!.MaximumQuantity)
+            if (pair.Value <= 0 || pair.Value > contentCatalog.GetItem(pair.Key)!.MaximumQuantity)
             {
                 problems.Add($"inventory item '{pair.Key}' has quantity {pair.Value} outside its configured limit");
             }

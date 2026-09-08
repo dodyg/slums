@@ -27,10 +27,10 @@ public static class ContentCatalogValidator
         IReadOnlyList<PetDefinition> pets,
         IReadOnlyList<PlantDefinition> plants,
         IReadOnlySet<string> knownInkKnots,
-        IReadOnlyList<RobotDefinition>? robots = null,
-        IReadOnlyList<NewsFlashDefinition>? newsFlashes = null,
-        IReadOnlyList<ItemDefinition>? items = null,
-        IReadOnlyList<NpcScheduleDefinition>? npcSchedules = null)
+        IReadOnlyList<RobotDefinition> robots,
+        IReadOnlyList<NewsFlashDefinition> newsFlashes,
+        IReadOnlyList<ItemDefinition> items,
+        IReadOnlyList<NpcScheduleDefinition> npcSchedules)
     {
         ArgumentNullException.ThrowIfNull(backgrounds);
         ArgumentNullException.ThrowIfNull(locations);
@@ -40,6 +40,10 @@ public static class ContentCatalogValidator
         ArgumentNullException.ThrowIfNull(pets);
         ArgumentNullException.ThrowIfNull(plants);
         ArgumentNullException.ThrowIfNull(knownInkKnots);
+        ArgumentNullException.ThrowIfNull(robots);
+        ArgumentNullException.ThrowIfNull(newsFlashes);
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(npcSchedules);
 
         var problems = new List<string>();
 
@@ -50,22 +54,10 @@ public static class ContentCatalogValidator
         ValidateDistrictConditions(districtConditions, randomEvents, problems);
         ValidatePets(pets, locations, problems);
         ValidatePlants(plants, locations, problems);
-        if (robots is not null)
-        {
-            ValidateRobots(robots, locations, problems);
-        }
-        if (newsFlashes is not null)
-        {
-            ValidateNews(newsFlashes, locations, items ?? [], knownInkKnots, problems);
-        }
-        if (items is not null)
-        {
-            ValidateItems(items, problems);
-        }
-        if (npcSchedules is not null)
-        {
-            ValidateNpcSchedules(npcSchedules, locations, problems);
-        }
+        ValidateRobots(robots, locations, problems);
+        ValidateNews(newsFlashes, locations, items, knownInkKnots, problems);
+        ValidateItems(items, problems);
+        ValidateNpcSchedules(npcSchedules, locations, problems);
 
         if (problems.Count > 0)
         {
@@ -365,6 +357,16 @@ public static class ContentCatalogValidator
                 problems.Add($"district_conditions: '{condition.Id}' has no title.");
             }
 
+            if (string.IsNullOrWhiteSpace(condition.BulletinText))
+            {
+                problems.Add($"district_conditions: '{condition.Id}' has no bulletin text.");
+            }
+
+            if (string.IsNullOrWhiteSpace(condition.GameplaySummary))
+            {
+                problems.Add($"district_conditions: '{condition.Id}' has no gameplay summary.");
+            }
+
             if (condition.Weight <= 0)
             {
                 problems.Add($"district_conditions: '{condition.Id}' has non-positive weight ({condition.Weight}).");
@@ -385,8 +387,29 @@ public static class ContentCatalogValidator
                 problems.Add($"district_conditions: '{condition.Id}' has min police pressure {minPressure} above max {maxPressure}.");
             }
 
-            ValidateRandomEventReferences(condition, condition.Effect.BoostedRandomEventIds, "boosted", configuredEventIds, problems);
-            ValidateRandomEventReferences(condition, condition.Effect.SuppressedRandomEventIds, "suppressed", configuredEventIds, problems);
+            if (condition.Effect is null)
+            {
+                problems.Add($"district_conditions: '{condition.Id}' must provide an effect.");
+                continue;
+            }
+
+            if (condition.Effect.BoostedRandomEventIds is null)
+            {
+                problems.Add($"district_conditions: '{condition.Id}' must provide a boosted random event id list.");
+            }
+            else
+            {
+                ValidateRandomEventReferences(condition, condition.Effect.BoostedRandomEventIds, "boosted", configuredEventIds, problems);
+            }
+
+            if (condition.Effect.SuppressedRandomEventIds is null)
+            {
+                problems.Add($"district_conditions: '{condition.Id}' must provide a suppressed random event id list.");
+            }
+            else
+            {
+                ValidateRandomEventReferences(condition, condition.Effect.SuppressedRandomEventIds, "suppressed", configuredEventIds, problems);
+            }
         }
     }
 

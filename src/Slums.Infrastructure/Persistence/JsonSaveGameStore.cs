@@ -1,6 +1,9 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Slums.Application.Content;
 using Slums.Application.Persistence;
+using Slums.Core.Diagnostics;
+using Slums.Core.Content;
 
 namespace Slums.Infrastructure.Persistence;
 
@@ -20,12 +23,21 @@ public sealed class JsonSaveGameStore : ISaveGameStore
     private const int StreamBufferSize = 4096;
     private readonly ILogger<JsonSaveGameStore> _logger;
     private readonly string _saveDirectory;
+    private readonly IGameContentCatalogProvider? _contentCatalogProvider;
 
-    public JsonSaveGameStore(ILogger<JsonSaveGameStore> logger, string? saveDirectory = null)
+    public JsonSaveGameStore(ILogger<JsonSaveGameStore> logger, string? saveDirectory = null, IGameContentCatalogProvider? contentCatalogProvider = null)
     {
         ArgumentNullException.ThrowIfNull(logger);
         _logger = logger;
         _saveDirectory = saveDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Slums", "saves");
+        _contentCatalogProvider = contentCatalogProvider;
+    }
+
+    /// <summary>Gets the catalog published during content bootstrap, failing fast when bootstrap has not run.</summary>
+    private GameContentCatalog RequireContentCatalog()
+    {
+        return _contentCatalogProvider?.Current
+            ?? throw new InvalidOperationException("Content catalog has not been published; content bootstrap must complete before save data can be validated.");
     }
 
     public async Task SaveAsync(SaveGameRequest request, string slot, CancellationToken cancellationToken = default)
@@ -53,7 +65,7 @@ public sealed class JsonSaveGameStore : ISaveGameStore
         }
 
         var snapshot = GameSessionSnapshot.Capture(request.GameSession);
-        SaveGameValidator.Validate(snapshot);
+        SaveGameValidator.Validate(snapshot, request.GameSession.ContentCatalog);
 
         var document = new GameSessionSaveDocument(
             CurrentSaveVersion,
@@ -107,12 +119,17 @@ public sealed class JsonSaveGameStore : ISaveGameStore
 
         try
         {
-            SaveGameValidator.Validate(document.SessionSnapshot);
+            SaveGameValidator.Validate(document.SessionSnapshot, RequireContentCatalog());
         }
         catch (InvalidDataException exception)
         {
             LogInvalidSaveData(_logger, path, exception);
             return LoadGameResult.Corrupt(exception.Message);
+        }
+
+        if (document.SessionSnapshot.RandomState is null)
+        {
+            LogLegacyRandomFallback(_logger, slot);
         }
 
         try
@@ -125,7 +142,7 @@ public sealed class JsonSaveGameStore : ISaveGameStore
                 document.CreatedUtc,
                 document.LastPlayedUtc,
                 document.NarrativeProgress.LastKnot,
-                document.SessionSnapshot.Restore);
+                () => document.SessionSnapshot.Restore(RequireContentCatalog()));
 #pragma warning restore CA2000
             return LoadGameResult.Loaded(loadedSession);
         }
@@ -279,25 +296,31 @@ public sealed class JsonSaveGameStore : ISaveGameStore
     }
 
     private static readonly Action<ILogger, string, int, int, Exception?> LogVersionMismatchDelegate =
-        LoggerMessage.Define<string, int, int>(LogLevel.Warning, new EventId(1, "SaveVersionMismatch"), "Rejecting save slot {Slot} due to version mismatch. Found {FoundVersion}, expected {ExpectedVersion}.");
+        LoggerMessage.Define<string, int, int>(LogLevel.Warning, new EventId(LogEvents.SaveVersionMismatch, "SaveVersionMismatch"), "Rejecting save slot {Slot} due to version mismatch. Found {FoundVersion}, expected {ExpectedVersion}.");
+
+    private static readonly Action<ILogger, string, Exception?> LogLegacyRandomFallbackDelegate =
+        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(LogEvents.LegacyRandomFallback, "LegacyRandomFallback"), "Save slot {Slot} was written before RNG persistence and cannot reproduce its original random sequence; continuing on a stable fallback seed.");
 
     private static readonly Action<ILogger, string, Exception?> LogSaveReadJsonFailureDelegate =
-        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(2, "SaveReadJsonFailure"), "Failed to parse save file {Path}.");
+        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(LogEvents.SaveReadJsonFailure, "SaveReadJsonFailure"), "Failed to parse save file {Path}.");
 
     private static readonly Action<ILogger, string, Exception?> LogSaveReadIoFailureDelegate =
-        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(3, "SaveReadIoFailure"), "Failed to read save file {Path}.");
+        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(LogEvents.SaveReadIoFailure, "SaveReadIoFailure"), "Failed to read save file {Path}.");
 
     private static readonly Action<ILogger, string, Exception?> LogInvalidSaveDataDelegate =
-        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(5, "InvalidSaveData"), "Rejecting save file {Path} because it failed validation.");
+        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(LogEvents.SaveInvalidData, "SaveInvalidData"), "Rejecting save file {Path} because it failed validation.");
 
     private static readonly Action<ILogger, string, Exception?> LogInvalidSaveRestoreDelegate =
-        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(6, "InvalidSaveRestore"), "Rejecting save file {Path} because restoration failed.");
+        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(LogEvents.SaveRestoreFailed, "InvalidSaveRestore"), "Rejecting save file {Path} because restoration failed.");
 
     private static readonly Action<ILogger, string, Exception?> LogSaveCompletedDelegate =
-        LoggerMessage.Define<string>(LogLevel.Debug, new EventId(4, "SaveCompleted"), "Save completed for slot {Slot}.");
+        LoggerMessage.Define<string>(LogLevel.Information, new EventId(LogEvents.SaveCompleted, "SaveCompleted"), "Save completed for slot {Slot}.");
 
     private static void LogVersionMismatch(ILogger logger, string slot, int foundVersion, int expectedVersion) =>
         LogVersionMismatchDelegate(logger, slot, foundVersion, expectedVersion, null);
+
+    private static void LogLegacyRandomFallback(ILogger logger, string slot) =>
+        LogLegacyRandomFallbackDelegate(logger, slot, null);
 
     private static void LogSaveReadJsonFailure(ILogger logger, string path, Exception exception) =>
         LogSaveReadJsonFailureDelegate(logger, path, exception);

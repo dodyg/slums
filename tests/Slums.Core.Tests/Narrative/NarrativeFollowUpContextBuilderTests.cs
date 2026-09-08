@@ -12,6 +12,7 @@ using Slums.Core.Territory;
 using Slums.Core.Weather;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Narrative;
 
@@ -20,9 +21,9 @@ internal sealed class NarrativeFollowUpContextBuilderTests
     [Test]
     public void BuildReachabilityContext_MapsSessionSignals()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(151, 8, 0);
-        session.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         session.RestoreWeather(WeatherType.Heatwave);
         session.HomeUpgrades.Purchase(HomeUpgrade.Curtain);
         session.Player.Household.SetMotherHealth(42);
@@ -44,9 +45,9 @@ internal sealed class NarrativeFollowUpContextBuilderTests
     [Test]
     public void BuildCommunityDebtContext_MapsRelationshipsAndDebtSignals()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(12, 8, 0);
-        session.Player.ApplyBackground(BackgroundRegistry.ReleasedPoliticalPrisoner);
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.ReleasedPoliticalPrisoner));
         session.EventAttendance.TotalAttended = 4;
         session.EventAttendance.ConsecutiveSkips = 2;
         session.EventAttendance.HasTeaCircleInvitation = true;

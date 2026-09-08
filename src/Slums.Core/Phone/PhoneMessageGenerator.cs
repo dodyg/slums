@@ -35,12 +35,10 @@ public static class PhoneMessageGenerator
     private static void TryGenerateCriminalOpportunity(
         List<PhoneMessage> messages, int currentDay, RelationshipState relationships, Random random)
     {
-#pragma warning disable CA5394
         if (random.NextDouble() >= 0.20)
         {
             return;
         }
-#pragma warning restore CA5394
 
         var eligible = CriminalNpcs
             .Where(npc => relationships.GetNpcRelationship(npc).Trust >= 10)
@@ -51,9 +49,7 @@ public static class PhoneMessageGenerator
             return;
         }
 
-#pragma warning disable CA5394
         var sender = eligible[random.Next(eligible.Length)];
-#pragma warning restore CA5394
 
         messages.Add(new PhoneMessage
         {
@@ -125,12 +121,10 @@ public static class PhoneMessageGenerator
             return;
         }
 
-#pragma warning disable CA5394
         if (random.NextDouble() >= 0.30)
         {
             return;
         }
-#pragma warning restore CA5394
 
         var sender = NpcId.NeighborMona;
         var trust = relationships.GetNpcRelationship(sender).Trust;
@@ -156,12 +150,10 @@ public static class PhoneMessageGenerator
     private static void TryGenerateNetworkRequests(
         List<PhoneMessage> messages, int currentDay, RelationshipState relationships, Random random)
     {
-#pragma warning disable CA5394
         if (random.NextDouble() >= 0.10)
         {
             return;
         }
-#pragma warning restore CA5394
 
         foreach (var faction in Enum.GetValues<FactionId>())
         {
@@ -205,12 +197,10 @@ public static class PhoneMessageGenerator
         List<PhoneMessage> messages, int currentDay, RelationshipState relationships,
         BackgroundType background, Random random)
     {
-#pragma warning disable CA5394
         if (random.NextDouble() >= 0.15)
         {
             return;
         }
-#pragma warning restore CA5394
 
         switch (background)
         {

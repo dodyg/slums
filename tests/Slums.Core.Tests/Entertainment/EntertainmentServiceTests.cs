@@ -2,6 +2,7 @@ using Slums.Core.Entertainment;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Entertainment;
 
@@ -10,7 +11,7 @@ internal sealed class EntertainmentServiceTests
     [Test]
     public async Task GetAvailableActivities_ShouldResolveFromTheSessionLocation()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Cafe);
 
         var activities = EntertainmentService.GetAvailableActivities(session);
@@ -22,7 +23,7 @@ internal sealed class EntertainmentServiceTests
     [Test]
     public async Task Perform_ShouldPreserveEntertainmentMutationAndStateChanges()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.Cafe);
         var activity = EntertainmentRegistry.AllActivities.Single(static candidate => candidate.Type == EntertainmentActivityType.Coffee);
         session.Player.Stats.SetStress(50);

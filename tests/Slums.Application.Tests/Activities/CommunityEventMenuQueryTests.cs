@@ -3,6 +3,7 @@ using Slums.Application.Activities;
 using Slums.Core.Community;
 using Slums.Core.State;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Activities;
 
@@ -11,7 +12,7 @@ internal sealed class CommunityEventMenuQueryTests
     [Test]
     public void GetStatuses_ShouldIncludeCurrentMinuteWhenCheckingRemainingTime()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(day: 7, hour: 20, minute: 30);
         var query = new CommunityEventMenuQuery();
 
@@ -26,7 +27,7 @@ internal sealed class CommunityEventMenuQueryTests
     [Test]
     public void GetStatuses_ShouldExplainSeasonalAnchorWhenMulidIsUnavailable()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(25, 8, 0);
 
         var status = new CommunityEventMenuQuery()

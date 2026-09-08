@@ -6,6 +6,7 @@ using Slums.Core.Skills;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Investments;
 
@@ -15,7 +16,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldExposeBlockingReasons_ForCurrentLocationOpportunity()
     {
         var query = new InvestmentMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
 
         var statuses = query.GetStatuses(InvestmentMenuContext.Create(gameState));
 
@@ -33,7 +34,7 @@ internal sealed class InvestmentMenuQueryTests
     public void Execute_ShouldPurchaseInvestment_WhenEligible()
     {
         var command = new MakeInvestmentCommand();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(200);
         gameState.Relationships.SetNpcRelationship(NpcId.LandlordHajjMahmoud, 30, 1);
 
@@ -49,7 +50,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldExposeOwnedStateSummary_WhenInvestmentAlreadyActive()
     {
         var query = new InvestmentMenuQuery();
-        var definition = InvestmentRegistry.GetByType(InvestmentType.FoulCart)!;
+        var definition = TestContent.Catalog.GetInvestment(InvestmentType.FoulCart)!;
         var activeInvestment = Investment.Restore(new InvestmentSnapshot(InvestmentType.FoulCart, 150, 8, 12, 2, true), definition.RiskProfile);
         var context = new InvestmentMenuContext(
             [definition],
@@ -75,7 +76,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldExposeTeaCartAtHome()
     {
         var query = new InvestmentMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
 
         var statuses = query.GetStatuses(InvestmentMenuContext.Create(gameState));
 
@@ -93,7 +94,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldExposePhoneChargingAtDepot()
     {
         var query = new InvestmentMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Depot);
 
         var statuses = query.GetStatuses(InvestmentMenuContext.Create(gameState));
@@ -106,7 +107,7 @@ internal sealed class InvestmentMenuQueryTests
     [Test]
     public void GetStatuses_ShouldUseTheResolutionCalculatorForIncomeAndPayback()
     {
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         var statuses = new InvestmentMenuQuery().GetStatuses(InvestmentMenuContext.Create(gameState));
 
         statuses.Should().NotBeEmpty();
@@ -125,7 +126,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldExposeHerbalRemedyAtPharmacy_WithSkillRequirement()
     {
         var query = new InvestmentMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Pharmacy);
 
         var statuses = query.GetStatuses(InvestmentMenuContext.Create(gameState));
@@ -140,7 +141,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldExposeSewingSideBusinessAtWorkshop_WithSkillRequirement()
     {
         var query = new InvestmentMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.World.TravelTo(LocationId.Workshop);
 
         var statuses = query.GetStatuses(InvestmentMenuContext.Create(gameState));
@@ -155,7 +156,7 @@ internal sealed class InvestmentMenuQueryTests
     public void Execute_ShouldPurchaseTeaCart_WhenEligible()
     {
         var command = new MakeInvestmentCommand();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(100);
         gameState.Relationships.SetNpcRelationship(NpcId.NeighborMona, 10, 1);
 
@@ -172,7 +173,7 @@ internal sealed class InvestmentMenuQueryTests
     public void Execute_ShouldPurchaseCafeSupplyPartnership_WhenEligible()
     {
         var command = new MakeInvestmentCommand();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(300);
         gameState.World.TravelTo(LocationId.Cafe);
         gameState.Relationships.SetNpcRelationship(NpcId.CafeOwnerNadia, 25, 1);
@@ -188,7 +189,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldBlockHerbalRemedy_WhenMedicalSkillTooLow()
     {
         var query = new InvestmentMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(200);
         gameState.World.TravelTo(LocationId.Pharmacy);
         gameState.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 15, 1);
@@ -204,7 +205,7 @@ internal sealed class InvestmentMenuQueryTests
     public void GetStatuses_ShouldAllowHerbalRemedy_WhenMedicalSkillMet()
     {
         var query = new InvestmentMenuQuery();
-        var gameState = new GameSession();
+        var gameState = TestSessions.Create();
         gameState.Player.Stats.SetMoney(200);
         gameState.World.TravelTo(LocationId.Pharmacy);
         gameState.Relationships.SetNpcRelationship(NpcId.PharmacistMariam, 15, 1);

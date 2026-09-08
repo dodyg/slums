@@ -7,6 +7,7 @@ using Slums.Core.Randomness;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Content;
 
@@ -38,8 +39,8 @@ internal sealed class GameContentCatalogTests
     [Test]
     public void GameSession_ShouldExposeNoScheduleAvailability_WhenCatalogHasNoSchedules()
     {
-        var catalog = new GameContentCatalog([], [], [], [], [], []);
-        var session = new GameSession(new GameRandom(1), catalog);
+        var catalog = CatalogWithJobs([], []);
+        var session = TestSessions.Create(new GameRandom(1), catalog);
 
         session.HasConfiguredNpcSchedules.Should().BeFalse();
         session.GetNpcAvailability().Should().BeEmpty();
@@ -48,14 +49,19 @@ internal sealed class GameContentCatalogTests
     [Test]
     public void GameSessions_ShouldKeepJobDefinitionsFromTheirOwnCatalog()
     {
-        var first = new GameSession(
-            new GameRandom(1),
-            new GameContentCatalog([], [], [new JobShift { Type = JobType.BakeryWork, Name = "First bakery", BasePay = 1, EnergyCost = 1, StressCost = 1, DurationMinutes = 1 }], [], [], []));
-        var second = new GameSession(
-            new GameRandom(2),
-            new GameContentCatalog([], [], [new JobShift { Type = JobType.BakeryWork, Name = "Second bakery", BasePay = 1, EnergyCost = 1, StressCost = 1, DurationMinutes = 1 }], [], [], []));
+        var firstJobs = new[] { new JobShift { Type = JobType.BakeryWork, Name = "First bakery", BasePay = 1, EnergyCost = 1, StressCost = 1, DurationMinutes = 1 } };
+        var secondJobs = new[] { new JobShift { Type = JobType.BakeryWork, Name = "Second bakery", BasePay = 1, EnergyCost = 1, StressCost = 1, DurationMinutes = 1 } };
+        var first = TestSessions.Create(new GameRandom(1), CatalogWithJobs(firstJobs, []));
+        var second = TestSessions.Create(new GameRandom(2), CatalogWithJobs(secondJobs, []));
 
         first.Jobs.PreviewJob(JobType.BakeryWork, first.Player, first.Relationships, first.JobProgress).Job.Name.Should().Be("First bakery");
         second.Jobs.PreviewJob(JobType.BakeryWork, second.Player, second.Relationships, second.JobProgress).Job.Name.Should().Be("Second bakery");
+    }
+
+    /// <summary>Builds a minimal but structurally valid catalog with one location so a session can be created.</summary>
+    private static GameContentCatalog CatalogWithJobs(IReadOnlyList<JobShift> jobs, IReadOnlyList<NpcScheduleDefinition> schedules)
+    {
+        var location = new Location { Id = LocationId.Home, Name = "Home", District = DistrictId.Imbaba, TravelTimeMinutes = 10 };
+        return new GameContentCatalog([], [location], jobs, [], [], schedules);
     }
 }

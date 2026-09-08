@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.World;
 
@@ -9,7 +10,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task Constructor_ShouldInitializeAtHomeInImbaba()
     {
-        var world = new WorldState();
+        var world = new WorldState(TestContent.Catalog.Locations);
 
         await Assert.That(world.CurrentLocationId).IsEqualTo(LocationId.Home);
         await Assert.That(world.CurrentDistrict).IsEqualTo(DistrictId.Imbaba);
@@ -18,7 +19,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task GetCurrentLocation_ShouldReturnHomeInitially()
     {
-        var world = new WorldState();
+        var world = new WorldState(TestContent.Catalog.Locations);
 
         var location = world.GetCurrentLocation();
 
@@ -30,7 +31,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task TravelTo_ShouldChangeCurrentLocation()
     {
-        var world = new WorldState();
+        var world = new WorldState(TestContent.Catalog.Locations);
 
         world.TravelTo(LocationId.Market);
 
@@ -41,7 +42,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task TravelTo_ShouldChangeDistrict_WhenTravelingToDifferentDistrict()
     {
-        var world = new WorldState();
+        var world = new WorldState(TestContent.Catalog.Locations);
 
         world.TravelTo(LocationId.CallCenter);
 
@@ -52,7 +53,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task TravelTo_ShouldNotChangeLocation_WhenLocationNotFound()
     {
-        var world = new WorldState();
+        var world = new WorldState(TestContent.Catalog.Locations);
 
         world.TravelTo(new LocationId("nonexistent"));
 
@@ -62,7 +63,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task AllLocations_ShouldContainAllDefinedLocations()
     {
-        var locations = WorldState.AllLocations;
+        var locations = TestContent.Catalog.Locations;
 
         locations.Should().HaveCount(13);
         locations.Select(l => l.Id).Should().Contain(
@@ -72,7 +73,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task GetLocationsInCurrentDistrict_ShouldReturnLocationsInSameDistrict()
     {
-        var world = new WorldState();
+        var world = new WorldState(TestContent.Catalog.Locations);
 
         var locations = world.GetLocationsInCurrentDistrict();
 
@@ -83,7 +84,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task GetLocationsInCurrentDistrict_ShouldReturnDokkiLocations_WhenInDokki()
     {
-        var world = new WorldState();
+        var world = new WorldState(TestContent.Catalog.Locations);
         world.TravelTo(LocationId.CallCenter);
 
         var locations = world.GetLocationsInCurrentDistrict();
@@ -95,7 +96,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task GetTravelableLocations_ShouldExcludeCurrentLocation()
     {
-        var world = new WorldState();
+        var world = new WorldState(TestContent.Catalog.Locations);
 
         var locations = world.GetTravelableLocations();
 
@@ -106,7 +107,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task HomeLocation_ShouldHaveNoJobsOrCrime()
     {
-        var home = WorldState.AllLocations.First(l => l.Id == LocationId.Home);
+        var home = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Home);
 
         await Assert.That(home.HasJobOpportunities).IsFalse();
         await Assert.That(home.HasCrimeOpportunities).IsFalse();
@@ -116,7 +117,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task MarketLocation_ShouldHaveJobsAndCrime()
     {
-        var market = WorldState.AllLocations.First(l => l.Id == LocationId.Market);
+        var market = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Market);
 
         await Assert.That(market.HasJobOpportunities).IsTrue();
         await Assert.That(market.HasCrimeOpportunities).IsTrue();
@@ -125,7 +126,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task BakeryLocation_ShouldHaveJobsButNoCrime()
     {
-        var bakery = WorldState.AllLocations.First(l => l.Id == LocationId.Bakery);
+        var bakery = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Bakery);
 
         await Assert.That(bakery.HasJobOpportunities).IsTrue();
         await Assert.That(bakery.HasCrimeOpportunities).IsFalse();
@@ -134,7 +135,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task CallCenterLocation_ShouldHaveJobsButNoCrime()
     {
-        var callCenter = WorldState.AllLocations.First(l => l.Id == LocationId.CallCenter);
+        var callCenter = TestContent.Catalog.Locations.First(l => l.Id == LocationId.CallCenter);
 
         await Assert.That(callCenter.HasJobOpportunities).IsTrue();
         await Assert.That(callCenter.HasCrimeOpportunities).IsFalse();
@@ -143,7 +144,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task SquareLocation_ShouldHaveCrimeAndJobs()
     {
-        var square = WorldState.AllLocations.First(l => l.Id == LocationId.Square);
+        var square = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Square);
 
         await Assert.That(square.HasJobOpportunities).IsTrue();
         await Assert.That(square.HasCrimeOpportunities).IsTrue();
@@ -152,7 +153,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task ClinicLocation_ShouldSupportWorkInArdAlLiwa()
     {
-        var clinic = WorldState.AllLocations.First(l => l.Id == LocationId.Clinic);
+        var clinic = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Clinic);
 
         await Assert.That(clinic.HasJobOpportunities).IsTrue();
         await Assert.That(clinic.HasCrimeOpportunities).IsFalse();
@@ -164,7 +165,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task WorkshopLocation_ShouldSupportWorkInArdAlLiwa()
     {
-        var workshop = WorldState.AllLocations.First(l => l.Id == LocationId.Workshop);
+        var workshop = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Workshop);
 
         await Assert.That(workshop.HasJobOpportunities).IsTrue();
         await Assert.That(workshop.HasCrimeOpportunities).IsTrue();
@@ -174,7 +175,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task CafeLocation_ShouldSupportWorkInDokki()
     {
-        var cafe = WorldState.AllLocations.First(l => l.Id == LocationId.Cafe);
+        var cafe = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Cafe);
 
         await Assert.That(cafe.HasJobOpportunities).IsTrue();
         await Assert.That(cafe.HasCrimeOpportunities).IsFalse();
@@ -184,8 +185,8 @@ internal sealed class WorldStateTests
     [Test]
     public async Task PharmacyAndDepot_ShouldSupportWorkInBulaqAlDakrour()
     {
-        var pharmacy = WorldState.AllLocations.First(l => l.Id == LocationId.Pharmacy);
-        var depot = WorldState.AllLocations.First(l => l.Id == LocationId.Depot);
+        var pharmacy = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Pharmacy);
+        var depot = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Depot);
 
         await Assert.That(pharmacy.HasJobOpportunities).IsTrue();
         await Assert.That(pharmacy.HasClinicServices).IsTrue();
@@ -199,7 +200,7 @@ internal sealed class WorldStateTests
     [Test]
     public async Task Laundry_ShouldSupportWorkInShubra()
     {
-        var laundry = WorldState.AllLocations.First(l => l.Id == LocationId.Laundry);
+        var laundry = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Laundry);
 
         await Assert.That(laundry.HasJobOpportunities).IsTrue();
         await Assert.That(laundry.HasCrimeOpportunities).IsTrue();

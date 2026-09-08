@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Slums.Application.Narrative;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Narrative.Ink.Tests;
 
@@ -20,7 +21,7 @@ internal sealed class InkStoryLoaderTests
 
             var service = new InkNarrativeService(NullLogger<InkNarrativeService>.Instance);
 
-            service.StartScene("intro_medical", NarrativeSceneState.Create(new Slums.Core.State.GameSession()));
+            service.StartScene("intro_medical", NarrativeSceneState.Create(TestSessions.Create()));
 
             service.CurrentText.Should().Contain("Cairo, 2060.");
         }

@@ -6,6 +6,7 @@ using Slums.Core.State;
 using Slums.Core.Territory;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Territory;
 
@@ -14,7 +15,7 @@ internal sealed class TerritoryIntegrationTests
     [Test]
     public async Task GameSession_Territory_IsInitializedOnConstruction()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
 
         await Assert.That(session.Territory.IsInitialized).IsTrue();
     }
@@ -22,7 +23,7 @@ internal sealed class TerritoryIntegrationTests
     [Test]
     public async Task GameSession_Territory_HasAllDistricts()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
 
         foreach (DistrictId district in Enum.GetValues<DistrictId>())
         {
@@ -34,7 +35,7 @@ internal sealed class TerritoryIntegrationTests
     [Test]
     public async Task GameSession_EndDay_AppliesTerritoryDecay()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.Territory.ModifyTension(DistrictId.Imbaba, 30);
 
         var before = session.Territory.GetControl(DistrictId.Imbaba).Tension;
@@ -47,7 +48,7 @@ internal sealed class TerritoryIntegrationTests
     [Test]
     public async Task GameSession_EndDay_DangerousTension_AddsHeat()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.Territory.ModifyTension(DistrictId.Imbaba, 60);
 
         var before = session.DistrictHeat.GetHeat(DistrictId.Imbaba);
@@ -60,10 +61,10 @@ internal sealed class TerritoryIntegrationTests
     [Test]
     public async Task GameSession_GetFoodCost_IncludesTerritoryModifier_WhenHighTension()
     {
-        var normal = new GameSession(new Random(42));
+        var normal = TestSessions.Create(new Random(42));
         normal.World.TravelTo(LocationId.Home);
 
-        var highTension = new GameSession(new Random(42));
+        var highTension = TestSessions.Create(new Random(42));
         highTension.World.TravelTo(LocationId.Home);
         highTension.Territory.ModifyTension(highTension.World.CurrentDistrict, 40);
 
@@ -76,10 +77,10 @@ internal sealed class TerritoryIntegrationTests
     [Test]
     public async Task GameSession_GetStreetFoodCost_IncludesTerritoryModifier_WhenHighTension()
     {
-        var normal = new GameSession(new Random(42));
+        var normal = TestSessions.Create(new Random(42));
         normal.World.TravelTo(LocationId.Home);
 
-        var highTension = new GameSession(new Random(42));
+        var highTension = TestSessions.Create(new Random(42));
         highTension.World.TravelTo(LocationId.Home);
         highTension.Territory.ModifyTension(highTension.World.CurrentDistrict, 40);
 
@@ -92,7 +93,7 @@ internal sealed class TerritoryIntegrationTests
     [Test]
     public async Task GameSession_GetAvailableCrimes_ReturnsEmpty_WhenDangerousTension()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.World.TravelTo(LocationId.Market);
         session.Player.Stats.SetMoney(100);
         session.Territory.ModifyTension(DistrictId.Imbaba, 60);
@@ -105,7 +106,7 @@ internal sealed class TerritoryIntegrationTests
     [Test]
     public async Task GameSession_GetAvailableCrimes_DoesNotRaiseEvent_WhenDangerousTension()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.World.TravelTo(LocationId.Market);
         session.Territory.ModifyTension(DistrictId.Imbaba, 60);
         var eventsRaised = 0;
@@ -120,7 +121,7 @@ internal sealed class TerritoryIntegrationTests
     [Test]
     public async Task GameSession_CommitCrime_RejectsDirectAttempt_WhenDangerousTension()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.World.TravelTo(LocationId.Market);
         session.Territory.ModifyTension(DistrictId.Imbaba, 60);
         var moneyBefore = session.Player.Stats.Money;
@@ -140,7 +141,7 @@ internal sealed class TerritoryIntegrationTests
     [Test]
     public async Task GameSession_CommitCrime_IncreasesTension()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.World.TravelTo(LocationId.Market);
         session.Player.Stats.SetMoney(100);
 
@@ -160,7 +161,7 @@ internal sealed class TerritoryIntegrationTests
     [Test]
     public async Task GameSession_WorkJob_ReducesTerritoryTension()
     {
-        var session = new GameSession(new Random(42));
+        var session = TestSessions.Create(new Random(42));
         session.World.TravelTo(LocationId.Market);
         session.Player.Stats.SetMoney(100);
         session.Territory.ModifyTension(DistrictId.Imbaba, 20);

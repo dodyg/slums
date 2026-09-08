@@ -4,6 +4,7 @@ using Slums.Core.Information;
 using Slums.Core.Phone;
 using Slums.Core.State;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Phone;
 
@@ -13,7 +14,7 @@ internal sealed class PhoneIgnoreCommandTests
     public void Execute_IgnoresTip()
     {
         var command = new PhoneIgnoreCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var tip = new Tip
         {
             Type = TipType.CrimeWarning,
@@ -33,7 +34,7 @@ internal sealed class PhoneIgnoreCommandTests
     public void Execute_IgnoresMessage()
     {
         var command = new PhoneIgnoreCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
         var message = new PhoneMessage
         {
             Type = PhoneMessageType.Warning,
@@ -54,7 +55,7 @@ internal sealed class PhoneIgnoreCommandTests
     public void Execute_ReturnsFailure_ForUnknownEntry()
     {
         var command = new PhoneIgnoreCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         var (success, message, _) = command.Execute(session, "missing-id", isTip: false);
 

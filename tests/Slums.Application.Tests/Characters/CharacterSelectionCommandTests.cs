@@ -4,6 +4,7 @@ using Slums.Core.Characters;
 using Slums.Core.Relationships;
 using Slums.Core.State;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Application.Tests.Characters;
 
@@ -13,7 +14,7 @@ internal sealed class CharacterSelectionCommandTests
     public void SelectGender_AppliesGenderAndRelationshipModifiers()
     {
         var command = new SelectGenderCommand();
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
         command.Execute(session, Gender.Female);
 
@@ -27,8 +28,8 @@ internal sealed class CharacterSelectionCommandTests
     public void SelectBackground_AppliesStartingConditions()
     {
         var command = new SelectBackgroundCommand();
-        var session = new GameSession();
-        var background = BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee);
+        var session = TestSessions.Create();
+        var background = TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee);
 
         command.Execute(session, background);
 
@@ -41,7 +42,7 @@ internal sealed class CharacterSelectionCommandTests
     public void SelectBackground_Throws_WhenSessionIsNull()
     {
         var command = new SelectBackgroundCommand();
-        var background = BackgroundRegistry.GetByType(BackgroundType.SudaneseRefugee);
+        var background = TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee);
 
         var act = () => command.Execute(null!, background);
 

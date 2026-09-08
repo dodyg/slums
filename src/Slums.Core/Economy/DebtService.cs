@@ -185,9 +185,7 @@ public sealed class DebtService
             ? ReleasedPrisonerLoanSharkCap
             : LoanSharkCap;
         var actualAmount = Math.Clamp(amount, LoanSharkMinimum, maxAmount);
-#pragma warning disable CA5394
         var interestBps = random.Next(2000, 3000);
-#pragma warning restore CA5394
 
         player.Stats.ModifyMoney(actualAmount);
         districtHeat.AddHeat(currentDistrict, LoanSharkHeat);

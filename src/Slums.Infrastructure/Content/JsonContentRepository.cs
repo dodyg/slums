@@ -11,6 +11,7 @@ using Slums.Core.Inventory;
 using Slums.Core.Relationships;
 using Slums.Core.World.News;
 using Slums.Core.Heat;
+using Slums.Core.Diagnostics;
 
 namespace Slums.Infrastructure.Content;
 
@@ -171,28 +172,23 @@ public sealed class JsonContentRepository : IContentRepository
             "at_depot" => static state => state.World.CurrentLocationId == LocationId.Depot,
             "at_laundry" => static state => state.World.CurrentLocationId == LocationId.Laundry,
             "in_dokki" => static state => state.World.CurrentDistrict == DistrictId.Dokki,
-            "in_ard_al_liwa" => static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa,
-            "in_bulaq_al_dakrour" => static state => state.World.CurrentDistrict == DistrictId.BulaqAlDakrour,
-            "in_shubra" => static state => state.World.CurrentDistrict == DistrictId.Shubra,
-            "in_downtown_cairo" => static state => state.World.CurrentDistrict == DistrictId.DowntownCairo,
             "dokki_checkpoint_seen" => static state => state.GetEventCount("DokkiCheckpointSweep") > 0,
             "imbaba_stressed" => static state => state.World.CurrentDistrict == DistrictId.Imbaba && state.Player.Stats.Stress >= 35,
             "ard_al_liwa_low_money" => static state => state.World.CurrentDistrict == DistrictId.ArdAlLiwa && state.Player.Stats.Money < 120,
             "shubra_low_money" => static state => state.World.CurrentDistrict == DistrictId.Shubra && state.Player.Stats.Money < 120,
             "home_low_money" => static state => state.World.CurrentLocationId == LocationId.Home && state.Player.Stats.Money < 60,
-            "sudanese_refugee_home" => static state => state.Player.BackgroundType == BackgroundType.SudaneseRefugee && state.World.CurrentDistrict == DistrictId.Imbaba,
             _ => throw new ContentLoadException($"Unknown random event condition id '{conditionId}'.")
         };
     }
 
     private static readonly Action<ILogger, string, Exception?> LogMissingContentFileDelegate =
-        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(1, "MissingContentFile"), "Content file not found: {Path}");
+        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(LogEvents.ContentMissingContentFile, "MissingContentFile"), "Content file not found: {Path}");
 
     private static readonly Action<ILogger, string, Exception?> LogInvalidContentJsonDelegate =
-        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(2, "InvalidContentJson"), "Invalid JSON in content file {Path}");
+        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(LogEvents.ContentInvalidContentJson, "InvalidContentJson"), "Invalid JSON in content file {Path}");
 
     private static readonly Action<ILogger, string, Exception?> LogContentReadFailureDelegate =
-        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(3, "ContentReadFailure"), "Failed to read content file {Path}");
+        LoggerMessage.Define<string>(LogLevel.Warning, new EventId(LogEvents.ContentContentReadFailure, "ContentReadFailure"), "Failed to read content file {Path}");
 
     private static void LogMissingContentFile(ILogger logger, string path) => LogMissingContentFileDelegate(logger, path, null);
 

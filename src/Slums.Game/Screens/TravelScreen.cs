@@ -159,15 +159,14 @@ internal sealed class TravelScreen : ScreenSurface
         if (cellPosition.Y == detailStartY + 2)
         {
             const int detailStartX = 2;
-            const string transportLabel = "[Transport]:";
-            if (cellPosition.X >= detailStartX && cellPosition.X < detailStartX + transportLabel.Length)
+            var (_, walkStart, walkEnd) = TravelScreenLayout.GetTransportDetail(_gameState, _locations[_selectedIndex].Id, detailStartX);
+            if (cellPosition.X >= detailStartX && cellPosition.X < detailStartX + TravelScreenLayout.TransportLabel.Length)
             {
                 TravelToSelected();
                 return true;
             }
 
-            var walkPrefix = $"[Transport]: {_gameState.GetTravelCost(_locations[_selectedIndex].Id)} LE / {_gameState.GetTravelTimeMinutes(_locations[_selectedIndex].Id)} min | ";
-            if (cellPosition.X >= detailStartX + walkPrefix.Length && cellPosition.X < detailStartX + walkPrefix.Length + "[Walk]".Length)
+            if (cellPosition.X >= walkStart && cellPosition.X < walkEnd)
             {
                 WalkToSelected();
                 return true;
@@ -217,9 +216,7 @@ internal sealed class TravelScreen : ScreenSurface
         }
 
         var selectedLocation = _locations[_selectedIndex];
-        var travelCost = _gameState.GetTravelCost(selectedLocation.Id);
         var travelMinutes = _gameState.GetTravelTimeMinutes(selectedLocation.Id);
-        var walkMinutes = _gameState.GetWalkTimeMinutes(selectedLocation.Id);
         var travelSummary = _gameState.GetTravelConditionSummary(selectedLocation.Id) ?? selectedLocation.Description;
 
         Surface.Print(2, detailStartY, $"Selected: {selectedLocation.Name}", Color.White);
@@ -242,7 +239,8 @@ internal sealed class TravelScreen : ScreenSurface
             Surface.Print(2, detailStartY + 1, UiText.TrimToFit(travelSummary, Surface.Width - 4), Color.DarkGray);
         }
 
-        Surface.Print(2, detailStartY + 2, $"[Transport]: {travelCost} LE / {travelMinutes} min | [Walk]: {walkMinutes} min (free)", Color.Yellow);
+        var transportDetail = TravelScreenLayout.GetTransportDetail(_gameState, selectedLocation.Id, 2);
+        Surface.Print(2, detailStartY + 2, transportDetail.Line, Color.Yellow);
 
         var currentMinutes = _gameState.Clock.Hour * 60 + _gameState.Clock.Minute;
         var arrivalHour = (currentMinutes + travelMinutes) / 60;
@@ -252,6 +250,7 @@ internal sealed class TravelScreen : ScreenSurface
             Surface.Print(2, detailStartY + 3, $"Arrive by {arrivalHour:D2}:{arrivalMinute:D2} via transport", Color.Gray);
         }
 
+        var walkMinutes = _gameState.GetWalkTimeMinutes(selectedLocation.Id);
         var walkArrivalHour = (currentMinutes + walkMinutes) / 60;
         var walkArrivalMinute = (currentMinutes + walkMinutes) % 60;
         if (walkArrivalHour < 24)

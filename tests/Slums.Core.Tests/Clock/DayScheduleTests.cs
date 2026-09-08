@@ -4,6 +4,7 @@ using Slums.Core.Jobs;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Clock;
 
@@ -30,7 +31,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Friday_ShouldBlockBakeryCallCenterAndCafe()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(7, 8, 0);
 
         var schedule = state.GetCurrentSchedule();
@@ -42,7 +43,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Friday_BlockedJobsShouldNotAppearInAvailableJobs()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(7, 8, 0);
         state.World.TravelTo(LocationId.Bakery);
         var jobs = state.GetAvailableJobs();
@@ -52,7 +53,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task NonFriday_BakeryShouldBeAvailable()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(2, 8, 0);
         state.World.TravelTo(LocationId.Bakery);
         var jobs = state.GetAvailableJobs();
@@ -62,7 +63,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Saturday_ShouldReduceFoodCostBy2()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.FoodCostModifier).IsEqualTo(-2);
         await Assert.That(state.GetFoodCost()).IsEqualTo(13);
@@ -71,7 +72,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Sunday_ShouldHaveNoFoodCostModifier()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(2, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.FoodCostModifier).IsEqualTo(0);
@@ -80,7 +81,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Monday_ClinicCostShouldBeLowerThanSunday()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.World.TravelTo(LocationId.Clinic);
 
         state.Clock.SetTime(2, 8, 0);
@@ -98,8 +99,8 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Monday_ClinicDiscountShouldBeDoubledForMedicalDropout()
     {
-        var state = new GameSession();
-        state.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        var state = TestSessions.Create();
+        state.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
         state.World.TravelTo(LocationId.Clinic);
 
         state.Clock.SetTime(2, 8, 0);
@@ -113,7 +114,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task NonMonday_ShouldNotApplyClinicDiscount()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(2, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.ClinicDiscount).IsFalse();
@@ -122,7 +123,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Friday_ShouldReduceCrimeDetection()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(7, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.CrimeDetectionModifier).IsEqualTo(-10);
@@ -131,7 +132,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Friday_PrayerGatheringShouldBeAvailable()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(7, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.PrayerGatheringAvailable).IsTrue();
@@ -140,7 +141,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task NonFriday_PrayerGatheringShouldNotBeAvailable()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(2, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.PrayerGatheringAvailable).IsFalse();
@@ -149,7 +150,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Wednesday_ShouldHaveInvestmentRevenueModifier()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(5, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.InvestmentRevenueModifier).IsEqualTo(1);
@@ -158,16 +159,16 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task SudaneseRefugee_ShouldGetExtraFoodDiscountOnSaturday()
     {
-        var state = new GameSession();
-        state.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        var state = TestSessions.Create();
+        state.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         await Assert.That(state.GetFoodCost()).IsEqualTo(12);
     }
 
     [Test]
     public async Task NonSaturday_SudaneseRefugeeShouldGetNoExtraFoodDiscount()
     {
-        var state = new GameSession();
-        state.Player.ApplyBackground(BackgroundRegistry.SudaneseRefugee);
+        var state = TestSessions.Create();
+        state.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.SudaneseRefugee));
         state.Clock.SetTime(2, 8, 0);
         await Assert.That(state.GetFoodCost()).IsEqualTo(15);
     }
@@ -175,7 +176,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Saturday_StreetFoodCostShouldAlsoBeReduced()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.World.TravelTo(LocationId.CallCenter);
         await Assert.That(state.GetStreetFoodCost()).IsEqualTo(8);
     }
@@ -183,7 +184,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Friday_ShouldMarketsClosed()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(7, 8, 0);
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.MarketsClosed).IsTrue();
@@ -217,7 +218,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task GetCurrentSchedule_ShouldReturnScheduleForCurrentDay()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         var schedule = state.GetCurrentSchedule();
         await Assert.That(schedule.Day).IsEqualTo(GameDayOfWeek.Saturday);
         await Assert.That(schedule.DayName).IsEqualTo("Saturday");
@@ -226,11 +227,11 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task ClinicOpenCheck_ShouldUseSystemDayOfWeek()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(3, 8, 0);
         state.World.TravelTo(LocationId.Clinic);
         var clinicStatus = state.GetCurrentLocationClinicStatus();
-        var location = WorldState.AllLocations.First(l => l.Id == LocationId.Clinic);
+        var location = TestContent.Catalog.Locations.First(l => l.Id == LocationId.Clinic);
         var isOpen = location.ClinicOpenDays.Contains(System.DayOfWeek.Monday);
         await Assert.That(clinicStatus.IsOpenToday).IsEqualTo(isOpen);
     }
@@ -238,7 +239,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Saturday_LaundryPressingShouldHaveExtraPay()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         var schedule = DayScheduleRegistry.GetModifiers(GameDayOfWeek.Saturday);
         await Assert.That(schedule.JobPayOverrides.ContainsKey(nameof(JobType.LaundryPressing))).IsTrue();
         await Assert.That(schedule.JobPayOverrides[nameof(JobType.LaundryPressing)]).IsEqualTo(2);
@@ -247,7 +248,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task Saturday_LaundryPressingJobPreviewShouldShowHigherPay()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.World.TravelTo(LocationId.Laundry);
         var preview = state.PreviewJob(JobType.LaundryPressing);
         await Assert.That(preview.ActiveModifiers.Any(m => m.Contains("Saturday", StringComparison.Ordinal) && m.Contains("LaundryPressing", StringComparison.Ordinal))).IsTrue();
@@ -256,7 +257,7 @@ internal sealed class DayScheduleTests
     [Test]
     public async Task NonSaturday_LaundryPressingShouldHaveNormalPay()
     {
-        var state = new GameSession();
+        var state = TestSessions.Create();
         state.Clock.SetTime(2, 8, 0);
         state.World.TravelTo(LocationId.Laundry);
         var preview = state.PreviewJob(JobType.LaundryPressing);

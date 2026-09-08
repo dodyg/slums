@@ -1,3 +1,6 @@
+using Slums.Core.State;
+using Slums.Core.World;
+
 namespace Slums.Game.Screens;
 
 internal static class TravelScreenLayout
@@ -5,6 +8,20 @@ internal static class TravelScreenLayout
     internal const int DestinationStartX = 4;
     internal const int DestinationStartY = 6;
     internal const int ScrollBarXOffset = 1;
+    internal const string TransportLabel = "[Transport]:";
+    internal const string WalkLabel = "[Walk]:";
+
+    /// <summary>
+    /// Builds the transport detail line and the character-column range of its [Walk] segment so
+    /// rendering and mouse hit-testing share a single source of truth.
+    /// </summary>
+    internal static (string Line, int WalkStart, int WalkEnd) GetTransportDetail(GameSession gameState, LocationId locationId, int detailStartX)
+    {
+        var transportSegment = $"{TransportLabel} {gameState.GetTravelCost(locationId)} LE / {gameState.GetTravelTimeMinutes(locationId)} min | ";
+        var walkSegment = $"{WalkLabel} {gameState.GetWalkTimeMinutes(locationId)} min (free)";
+        var walkStart = detailStartX + transportSegment.Length;
+        return (transportSegment + walkSegment, walkStart, walkStart + WalkLabel.Length);
+    }
 
     internal static int GetDetailStartY(int screenHeight)
     {

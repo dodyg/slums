@@ -16,6 +16,7 @@ using Slums.Core.State;
 using Slums.Core.Training;
 using Slums.Core.World;
 using TUnit;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.State;
 
@@ -266,13 +267,16 @@ internal sealed class GameSessionSafetyNetTests
         var digest = BuildDigest(session);
         Console.WriteLine($"GameSession golden digest: {digest}");
 
-        await Assert.That(digest).IsEqualTo("B72B037F72C5ECB9F20C58006FA3EA7343E14783D5D1047AF51376135560EB12");
+        // Digest updated after the static-registry migration: the scripted run now executes
+        // against the authoritative JSON content catalog (which also gained the per-district
+        // steady-day baseline conditions) instead of the divergent code-side registry defaults.
+        await Assert.That(digest).IsEqualTo("0C520FDC60CD771D91657FD36B5514205A8CB6D3334DD3C752E83E369B07FF09");
     }
 
     private static GameSession CreateSafetyNetSession()
     {
-        var session = new GameSession(new GameRandom(0x2060CA1UL));
-        session.Player.ApplyBackground(BackgroundRegistry.MedicalSchoolDropout);
+        var session = TestSessions.Create(new GameRandom(0x2060CA1UL));
+        session.Player.ApplyBackground(TestContent.Catalog.GetBackground(BackgroundType.MedicalSchoolDropout));
         session.Player.Stats.SetMoney(10_000);
         session.Player.Stats.SetHealth(100);
         session.Player.Stats.SetEnergy(100);

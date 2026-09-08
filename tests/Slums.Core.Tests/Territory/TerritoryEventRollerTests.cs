@@ -2,6 +2,7 @@ using FluentAssertions;
 using Slums.Core.State;
 using Slums.Core.Territory;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Territory;
 
@@ -10,7 +11,7 @@ internal sealed class TerritoryEventRollerTests
     [Test]
     public void Roll_ShouldApplyConflictConsequencesThroughTheSession()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Territory.ModifyTension(session.World.CurrentDistrict, 80);
         var initialHealth = session.Player.Stats.Health;
 

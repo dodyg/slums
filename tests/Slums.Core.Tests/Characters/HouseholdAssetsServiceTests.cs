@@ -4,6 +4,7 @@ using Slums.Core.Robotics;
 using Slums.Core.State;
 using Slums.Core.World;
 using TUnit.Core;
+using Slums.TestSupport;
 
 namespace Slums.Core.Tests.Characters;
 
@@ -12,12 +13,12 @@ internal sealed class HouseholdAssetsServiceTests
     [Test]
     public void BuyPlant_ShouldApplyPurchaseThroughTheSessionBoundary()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.World.TravelTo(LocationId.PlantShop);
         var moneyBefore = session.Player.Stats.Money;
-        var definition = PlantRegistry.GetByType(PlantType.Basil);
+        var definition = TestContent.Catalog.GetPlant(PlantType.Basil);
 
-        HouseholdAssetsService.BuyPlant(session, PlantType.Basil).Should().BeTrue();
+        PlantAssetsService.BuyPlant(session, PlantType.Basil).Should().BeTrue();
 
         session.Player.HouseholdAssets.Plants.Should().ContainSingle();
         session.Player.Stats.Money.Should().Be(moneyBefore - definition.OneTimeCost);
@@ -27,9 +28,9 @@ internal sealed class HouseholdAssetsServiceTests
     [Test]
     public void BuyRobot_ShouldRejectPurchaseOutsideTheWorkshop()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
 
-        HouseholdAssetsService.BuyRobot(session, RobotType.RepairDrone).Should().BeFalse();
+        RoboticsAssetsService.BuyRobot(session, RobotType.RepairDrone).Should().BeFalse();
 
         session.Mutations[^1].Category.Should().Be("GuardRejected");
         session.EventJournal.Entries[^1].Message.Should().Be("Abu Samir only sells machines from the workshop bench.");
@@ -38,7 +39,7 @@ internal sealed class HouseholdAssetsServiceTests
     [Test]
     public void ResolveWeekly_ShouldApplyNeglectPenaltyToTheExistingSessionState()
     {
-        var session = new GameSession();
+        var session = TestSessions.Create();
         session.Clock.SetTime(8, 12, 0);
         var assets = session.Player.HouseholdAssets;
         var stressBefore = session.Player.Stats.Stress;
