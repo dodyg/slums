@@ -419,13 +419,11 @@ Skills also gain passively from work (~70% of progression) and crime activities.
 
 ## Random Events
 
-30 events in `RandomEventRegistry` (code-defined; JSON data contains a matching subset), filtered by:
+20 events authored in `content/data/random_events.json`, loaded into the immutable `GameContentCatalog` at bootstrap, filtered by:
 - MinDay: event cannot fire before day N
-- Condition(GameSession): custom eligibility check
-- District/location restrictions
-- Event history gating (prevents immediate repetition)
+- `ConditionId`: a named eligibility predicate (current district/location, stat thresholds, or prior event history) registered by the infrastructure content loader; unknown ids fail content loading
 
-Each event has weight, stat effects, optional Ink knot for narrative scene.
+Up to two events can fire per day, each weighted roll firing with 55% probability; district conditions boost or suppress individual event weights. Each event carries stat effects and an optional Ink knot for its narrative scene.
 
 ## Clinic Travel System
 
@@ -506,12 +504,21 @@ Per REQS.md:
 | File | Purpose |
 |---|---|
 | `backgrounds.json` | 3 background definitions with starting stats |
-| `district_conditions.json` | Per-district condition effects |
+| `district_conditions.json` | 20 rolling per-district condition definitions |
+| `digital_services.json` | Digital Literacy service actions (e.g., biometric appeal) |
+| `investments.json` | 11 small-business investment definitions |
+| `items.json` | 8 inventory item definitions |
 | `jobs.json` | 13 job shift definitions |
 | `locations.json` | 13 location definitions with facilities |
-| `plants.json` | 15 plant types |
+| `news_flashes.json` | 10 reactive city news definitions |
+| `npc_schedules.json` | 13 NPC availability schedule windows |
 | `pets.json` | Cat and fish definitions |
-| `random_events.json` | 30 random event definitions |
+| `plants.json` | 15 plant types |
+| `random_events.json` | 20 random event definitions |
+| `robots.json` | 3 second-hand workshop robot models with purchase/repair values |
+| `technical_repairs.json` | 4 Technical Repair bench actions |
+
+Authored design notes (not loaded by code): `setting_bible.md` (Cairo 2060 continuity), `central_character_arc_bible.md` (five-arc design constraints), `crisis_design_sheet.md` (rooftop cooperative crisis), and `technology_obligations.md` (capability and obligation ledger values).
 
 ## Key Files to Read
 
